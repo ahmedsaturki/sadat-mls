@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@sadat-mls-supabase-url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@sadat-mls-supabase-anon-key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@sadat-mls-service-role-key",
+    "NEXT_PUBLIC_SITE_URL": "https://sadat-mls.vercel.app",
+    "NEXT_PUBLIC_APP_URL": "https://sadat-mls.vercel.app"
+  }
+}
