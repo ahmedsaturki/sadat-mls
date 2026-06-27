@@ -1,8 +1,11 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "framework": "nextjs",
-  "installCommand": "npm install",
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
   "env": {
     "NEXT_PUBLIC_SUPABASE_URL": "@sadat-mls-supabase-url",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@sadat-mls-supabase-anon-key",
