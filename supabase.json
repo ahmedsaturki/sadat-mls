@@ -1,0 +1,13 @@
+{
+  "cli": {
+    "version": "1.0.0"
+  },
+  "db": {
+    "dbHost": "db.gastnicaxbqppmmjgryp.supabase.co",
+    "dbName": "postgres",
+    "dbPort": 5432
+  },
+  "project": {
+    "ref": "gastnicaxbqppmmjgryp"
+  }
+}

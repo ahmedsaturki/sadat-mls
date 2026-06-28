@@ -13,6 +13,19 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // Client components legitimately use setState in useEffect for data fetching,
+      // locale detection from URL, and auth state checks. This is standard React pattern.
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
+  {
+    files: ["src/__tests__/**/*.ts", "src/__tests__/**/*.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

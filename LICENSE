@@ -1,0 +1,25 @@
+# LICENSE
+
+## Sadat MLS Cloud - Proprietary Software
+
+Copyright (c) 2025 Sadat MLS Cloud. All rights reserved.
+
+This project is proprietary software. You may not:
+- Use, copy, modify, or distribute this software without prior written permission
+- Reverse engineer or attempt to derive source code
+- Deploy this software to production without explicit authorization
+
+For licensing inquiries, please contact: info@sadatmls.com
+
+---
+
+## Open Source Components
+
+This project uses the following open source libraries under their respective licenses:
+- Next.js - MIT License
+- React - MIT License
+- Supabase - Apache 2.0 License
+- Tailwind CSS - MIT License
+- TypeScript - Apache 2.0 License
+
+For details, see individual package licenses in `node_modules/`.

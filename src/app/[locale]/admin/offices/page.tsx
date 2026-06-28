@@ -1,0 +1,444 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Building2, Plus, Trash2, Eye, EyeOff, Building } from "lucide-react";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Modal from "@/components/ui/Modal";
+import Badge from "@/components/ui/Badge";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
+import PageHeader from "@/components/ui/PageHeader";
+import PaginatedTable from "@/components/ui/PaginatedTable";
+import { SkeletonTable } from "@/components/ui/Skeleton";
+import { getMessages } from "@/i18n/getMessages";
+import { useToast } from "@/components/ui/Toast";
+import { usePageLocale } from "@/hooks/usePageLocale";
+import { officeSchema } from "@/lib/validation";
+import { ROLES } from "@/lib/utils/constants";
+import { logger } from "@/lib/logger";
+import { useAuthUser } from "@/hooks/useAuthUser";
+import { getCsrfHeaders } from "@/lib/security/csrf-client";
+
+interface Office {
+  id: string;
+  name: string;
+  slug: string;
+  email: string;
+  phone: string;
+  is_active: boolean;
+  created_at: string;
+  usersCount?: number;
+  propertiesCount?: number;
+}
+
+export default function OfficesPage({
+  params,
+}: {
+  params: { locale: string };
+}) {
+const locale = usePageLocale(params);
+   const router = useRouter();
+   const { user: authUser, profile, supabase } = useAuthUser();
+   const [offices, setOffices] = useState<Office[]>([]);
+   const [showModal, setShowModal] = useState(false);
+   const [showDeleteModal, setShowDeleteModal] = useState(false);
+   const [deleteId, setDeleteId] = useState<string | null>(null);
+   const [loading, setLoading] = useState(true);
+   const [saving, setSaving] = useState(false);
+   const [errors, setErrors] = useState<Record<string, string>>({});
+   const [formData, setFormData] = useState({
+     name: "",
+     email: "",
+     phone: "",
+     address: "",
+     adminName: "",
+     adminEmail: "",
+     adminPassword: "",
+   });
+   const { showToast } = useToast();
+   const dict = getMessages(locale);
+
+// Auth guard - protect admin route (runs after hooks, safe for redirects)
+    useEffect(() => {
+      if (!authUser) {
+        router.push(`/${locale}/login`);
+        return;
+      }
+      if (profile?.role !== ROLES.SUPER_ADMIN) {
+        router.push(`/${locale}/dashboard`);
+        return;
+      }
+    }, [authUser, profile, locale, router]);
+
+    const loadOffices = useCallback(async () => {
+     try {
+       const { data, error } = await supabase
+         .from("offices")
+         .select("*")
+         .order("created_at", { ascending: false });
+
+       if (error) {
+         showToast(error.message, "error");
+         setLoading(false);
+         return;
+       }
+
+       // Fetch all counts in parallel (2 queries total, not 2N)
+       const officeIds = (data || []).map((o: Office) => o.id);
+       const [usersCountsRes, propsCountsRes] = await Promise.all([
+         supabase.from("users").select("office_id").in("office_id", officeIds),
+         supabase.from("properties").select("office_id").in("office_id", officeIds),
+       ]);
+
+       // Aggregate counts in JavaScript
+       const usersCounts: Record<string, number> = {};
+       const propsCounts: Record<string, number> = {};
+
+       (usersCountsRes.data || []).forEach((row: { office_id: string }) => {
+         usersCounts[row.office_id] = (usersCounts[row.office_id] || 0) + 1;
+       });
+
+       (propsCountsRes.data || []).forEach((row: { office_id: string }) => {
+         propsCounts[row.office_id] = (propsCounts[row.office_id] || 0) + 1;
+       });
+
+       const officesWithCounts = (data || []).map((office: Office) => ({
+         ...office,
+         usersCount: usersCounts[office.id] || 0,
+         propertiesCount: propsCounts[office.id] || 0,
+       }));
+
+       setOffices(officesWithCounts);
+     } catch (err) {
+       logger.error("Failed to fetch offices", { error: err instanceof Error ? err.message : String(err) });
+       showToast(dict.common.unexpectedError, "error");
+     } finally {
+       setLoading(false);
+     }
+   }, [supabase, showToast, dict.common.unexpectedError]);
+
+   useEffect(() => {
+     loadOffices();
+   }, [loadOffices]);
+
+   // Don't render content if not authorized
+   if (!authUser || profile?.role !== ROLES.SUPER_ADMIN) {
+     return null;
+   }
+
+   if (authUser && profile?.role === ROLES.SUPER_ADMIN && loading) {
+     return (
+       <DashboardLayout locale={locale} dict={dict} role={ROLES.SUPER_ADMIN}>
+         <div className="flex items-center justify-center py-20">
+           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+         </div>
+       </DashboardLayout>
+     );
+   }
+
+  const handleCreateOffice = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const result = officeSchema.safeParse({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+    });
+
+    const newErrors: Record<string, string> = {};
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        newErrors[issue.path.join(".")] = issue.message;
+      });
+    }
+
+    if (!formData.adminName) newErrors.adminName = dict.admin.adminNameRequired;
+    if (!formData.adminEmail) newErrors.adminEmail = dict.admin.adminEmailRequired;
+    if (!formData.adminPassword || formData.adminPassword.length < 8) {
+      newErrors.adminPassword = dict.admin.adminPasswordMin;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setSaving(true);
+
+    try {
+      const { data: office, error: officeError } = await supabase
+        .from("offices")
+        .insert({
+          name: formData.name,
+          slug: formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+        })
+        .select()
+        .single();
+
+      if (officeError) {
+        showToast(officeError.message, "error");
+        setSaving(false);
+        return;
+      }
+
+      const res = await fetch("/api/agents", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getCsrfHeaders(),
+        },
+        body: JSON.stringify({
+          email: formData.adminEmail,
+          password: formData.adminPassword,
+          full_name: formData.adminName,
+          office_id: office.id,
+          role: ROLES.OFFICE_ADMIN,
+        }),
+      });
+
+      if (!res.ok) {
+        const result = await res.json();
+        showToast(result.error || dict.common.unexpectedError, "error");
+      } else {
+        showToast(dict.admin.officeCreated + " ✓", "success");
+      }
+
+      setShowModal(false);
+      setFormData({ name: "", email: "", phone: "", address: "", adminName: "", adminEmail: "", adminPassword: "" });
+      loadOffices();
+    } catch (err) {
+      logger.error("Failed to create office", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteOffice = async () => {
+    if (!deleteId) return;
+    setSaving(true);
+
+    try {
+      const { error } = await supabase.from("offices").delete().eq("id", deleteId);
+      if (!error) {
+        showToast(dict.common.delete + " ✓", "success");
+        loadOffices();
+      } else {
+        showToast(error.message, "error");
+      }
+    } catch (err) {
+      logger.error("Failed to delete office", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setSaving(false);
+      setShowDeleteModal(false);
+      setDeleteId(null);
+    }
+  };
+
+  const toggleOfficeStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      await supabase.from("offices").update({ is_active: !currentStatus }).eq("id", id);
+      loadOffices();
+    } catch (err) {
+      logger.error("Failed to update office status", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    }
+  };
+
+  return (
+    <DashboardLayout locale={locale} dict={dict} role={ROLES.SUPER_ADMIN}>
+      <ErrorBoundary>
+        <div className="space-y-6">
+          <PageHeader
+            title={dict.nav.offices}
+            action={
+              <Button onClick={() => setShowModal(true)}>
+                <Plus className="w-4 h-4 ml-2" />
+                {dict.admin.addOffice}
+              </Button>
+            }
+          />
+
+          <Card padding="none">
+            {loading ? (
+              <SkeletonTable rows={5} />
+            ) : (
+              <>
+                <PaginatedTable
+                  data={offices}
+                  searchKey="name"
+                  searchPlaceholder={dict.admin.searchOffices || "Search offices..."}
+                  emptyMessage={dict.common.noData}
+                  emptyIcon={<Building className="w-12 h-12 text-blue-300" />}
+                  emptyHint={dict.admin.noOfficesHint}
+                  columns={[
+                    {
+                      key: "name",
+                      header: dict.admin.columnOffice,
+                      render: (office) => (
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{office.name}</p>
+                            <p className="text-sm text-gray-500">{office.slug}</p>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "email",
+                      header: dict.admin.columnContact,
+                      render: (office) => (
+                        <>
+                          <p className="text-sm text-gray-900">{office.email}</p>
+                          <p className="text-sm text-gray-500">{office.phone}</p>
+                        </>
+                      ),
+                    },
+                    {
+                      key: "usersCount",
+                      header: dict.admin.columnUsers,
+                      className: "text-center",
+                      render: (office) => (
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                          {office.usersCount}
+                        </span>
+                      ),
+                    },
+                    {
+                      key: "propertiesCount",
+                      header: dict.admin.columnProperties,
+                      className: "text-center",
+                      render: (office) => (
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                          {office.propertiesCount}
+                        </span>
+                      ),
+                    },
+                    {
+                      key: "is_active",
+                      header: dict.admin.columnStatus,
+                      render: (office) => (
+                        <Badge variant={office.is_active ? "success" : "danger"}>
+                          {office.is_active ? dict.common.active : dict.common.inactive}
+                        </Badge>
+                      ),
+                    },
+                    {
+                      key: "created_at",
+                      header: dict.admin.columnDate,
+                      render: (office) => (
+                        <span className="text-sm text-gray-500">
+                          {new Date(office.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
+                        </span>
+                      ),
+                    },
+                    {
+                      key: "actions",
+                      header: dict.admin.columnActions,
+                      render: (office) => (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => toggleOfficeStatus(office.id, office.is_active)}
+                            className="p-2 rounded-lg hover:bg-gray-100"
+                            title={office.is_active ? dict.admin.deactivate : dict.admin.activate}
+                            aria-label={office.is_active ? dict.admin.deactivate : dict.admin.activate}
+                          >
+                            {office.is_active ? (
+                              <EyeOff className="w-4 h-4 text-gray-500" />
+                            ) : (
+                              <Eye className="w-4 h-4 text-green-500" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => confirmDelete(office.id)}
+                            className="p-2 rounded-lg hover:bg-red-50"
+                            title={dict.admin.deleteOffice}
+                            aria-label={dict.admin.deleteOffice}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
+                        </div>
+                      ),
+                    },
+                  ]}
+                />
+              </>
+            )}
+          </Card>
+
+          {/* Create Office Modal */}
+          <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={dict.admin.addOffice} size="lg">
+            <form onSubmit={handleCreateOffice} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Input label={dict.admin.officeName} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                </div>
+                <div>
+                  <Input label={dict.common.email} type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                </div>
+                <div>
+                  <Input label={dict.common.phone} value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                </div>
+                <Input label={dict.common.address} value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+              </div>
+
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <h3 className="font-medium text-gray-900 mb-3">{dict.admin.adminData}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Input label={dict.admin.adminName} value={formData.adminName} onChange={(e) => setFormData({ ...formData, adminName: e.target.value })} />
+                    {errors.adminName && <p className="text-red-500 text-xs mt-1">{errors.adminName}</p>}
+                  </div>
+                  <div>
+                    <Input label={dict.admin.adminEmail} type="email" value={formData.adminEmail} onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })} />
+                    {errors.adminEmail && <p className="text-red-500 text-xs mt-1">{errors.adminEmail}</p>}
+                  </div>
+                  <div>
+                    <Input label={dict.admin.adminPassword} type="password" value={formData.adminPassword} onChange={(e) => setFormData({ ...formData, adminPassword: e.target.value })} />
+                    {errors.adminPassword && <p className="text-red-500 text-xs mt-1">{errors.adminPassword}</p>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end pt-4">
+                <Button type="button" variant="ghost" onClick={() => setShowModal(false)}>{dict.common.cancel}</Button>
+                <Button type="submit" isLoading={saving}>{dict.common.save}</Button>
+              </div>
+            </form>
+          </Modal>
+
+          {/* Delete Confirmation Modal */}
+          <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title={dict.common.confirm} size="sm">
+            <div className="space-y-4">
+              <p className="text-gray-600">{dict.admin.confirmDeleteOffice}</p>
+              <div className="flex gap-3 justify-end">
+                <Button variant="ghost" onClick={() => setShowDeleteModal(false)}>{dict.common.cancel}</Button>
+                <Button variant="danger" onClick={handleDeleteOffice} isLoading={saving}>{dict.common.delete}</Button>
+              </div>
+            </div>
+          </Modal>
+        </div>
+      </ErrorBoundary>
+    </DashboardLayout>
+  );
+}

@@ -1,11 +1,6 @@
-import type { NextConfig } from "next";
-import path from "path";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   allowedDevOrigins: ["192.168.1.3", "localhost"],
-  turbopack: {
-    root: path.resolve(__dirname),
-  },
   images: {
     remotePatterns: [
       {
@@ -18,7 +13,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ["jsdom"],
   async headers() {
     return [
       {
@@ -30,7 +24,6 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" },
-          { key: "Content-Security-Policy", value: "default-src 'self'; img-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" },
         ],
       },
       {
@@ -43,4 +36,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

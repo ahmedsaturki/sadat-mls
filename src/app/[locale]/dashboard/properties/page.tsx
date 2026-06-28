@@ -1,0 +1,376 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Plus, Edit, Trash2, Home } from "lucide-react";
+import { getMessages } from "@/i18n/getMessages";
+import { useToast } from "@/components/ui/Toast";
+import { usePageLocale } from "@/hooks/usePageLocale";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import PropertyCard from "@/components/properties/PropertyCard";
+import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { ROLES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
+import { useAuthUser } from "@/hooks/useAuthUser";
+
+interface Property {
+  id: string;
+  title: string;
+  price: number;
+  area: number;
+  bedrooms: number;
+  bathrooms: number;
+  status: PropertyStatus;
+  zone_id: string;
+  property_type_id: string;
+  created_at: string;
+  property_types: { name_ar: string } | null;
+  zones: { name_ar: string } | null;
+  primaryImage?: string | null;
+}
+
+const PAGE_SIZE = 9;
+
+export default function PropertiesPage({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  const locale = usePageLocale(params);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [officeName, setOfficeName] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<UserRole>(ROLES.OFFICE_AGENT);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [stats, setStats] = useState({ available: 0, sold: 0, rented: 0 });
+  const router = useRouter();
+  const { showToast } = useToast();
+  const { supabase, user, profile } = useAuthUser();
+
+  const loadProperties = useCallback(async () => {
+    if (!user) {
+      router.push(`/${locale}/login`);
+      return;
+    }
+
+    if (!profile?.office_id) {
+      router.push(`/${locale}/explore`);
+      return;
+    }
+
+    setUserRole((profile.role as UserRole) || ROLES.OFFICE_AGENT);
+
+    // Load stats
+    const [avail, sold, rented] = await Promise.all([
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "available"),
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "sold"),
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "rented"),
+    ]);
+    setStats({ available: avail.count || 0, sold: sold.count || 0, rented: rented.count || 0 });
+
+    let query = supabase
+      .from("properties")
+      .select("*, property_types(name_ar), zones(name_ar)", { count: "exact" })
+      .eq("office_id", profile.office_id)
+      .order("created_at", { ascending: false });
+
+    if (statusFilter !== "all") {
+      query = query.eq("status", statusFilter);
+    }
+
+    const from = (page - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    const { data, count } = await query.range(from, to);
+
+    setTotalCount(count || 0);
+
+    // Fetch primary images
+    const propertyIds = (data || []).map((p: Property) => p.id);
+    const { data: images } = await supabase
+      .from("property_images")
+      .select("property_id, url")
+      .in("property_id", propertyIds)
+      .eq("is_primary", true);
+
+    const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
+    const withImages = (data || []).map((p: Property) => ({
+      ...p,
+      primaryImage: imageMap.get(p.id) || null,
+    }));
+
+    setProperties(withImages);
+
+    const { data: office } = await supabase
+      .from("offices")
+      .select("name")
+      .eq("id", profile.office_id)
+      .single();
+
+    setOfficeName(office?.name || "");
+    setLoading(false);
+  }, [supabase, locale, router, statusFilter, page, user, profile]);
+
+  useEffect(() => {
+    if (locale && user && profile) {
+      loadProperties();
+    }
+  }, [locale, page, statusFilter, loadProperties, user, profile]);
+
+  const dict = getMessages(locale);
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleStatusChange = async (propertyId: string, newStatus: Property["status"]) => {
+    setUpdatingStatus(propertyId);
+    const { error } = await supabase
+      .from("properties")
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq("id", propertyId);
+
+    if (!error) {
+      setProperties((prev) =>
+        prev.map((p: Property) => (p.id === propertyId ? { ...p, status: newStatus } : p))
+      );
+      showToast(dict.common.save + " ✓", "success");
+      loadProperties();
+    } else {
+      showToast(error.message, "error");
+    }
+    setUpdatingStatus(null);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setDeleting(true);
+
+    const { error } = await supabase.from("properties").delete().eq("id", deleteId);
+
+    if (!error) {
+      showToast(dict.common.delete + " ✓", "success");
+      setProperties((prev) => prev.filter((p) => p.id !== deleteId));
+    } else {
+      showToast(error.message, "error");
+    }
+
+    setDeleting(false);
+    setShowDeleteModal(false);
+    setDeleteId(null);
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout locale={locale} dict={dict} role={userRole}>
+        <div className="flex items-center justify-center py-20">
+          <LoadingSpinner />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout locale={locale} dict={dict} role={userRole}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">{dict.office.myProperties}</h1>
+          {userRole === ROLES.OFFICE_ADMIN && (
+            <Link href={`/${locale}/dashboard/properties/new`}>
+              <Button>
+                <Plus className="w-4 h-4 ml-2" />
+                {dict.office.addProperty}
+              </Button>
+            </Link>
+          )}
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: dict.property.status.available, value: stats.available, color: "green" },
+            { label: dict.property.status.sold, value: stats.sold, color: "red" },
+            { label: dict.property.status.rented, value: stats.rented, color: "blue" },
+          ].map((s) => (
+            <div key={s.label} className="bg-white rounded-xl p-4 shadow-sm text-center">
+              <p className={`text-2xl font-bold ${s.color === "green" ? "text-green-600" : s.color === "red" ? "text-red-600" : "text-blue-600"}`}>{s.value}</p>
+              <p className="text-sm text-gray-500">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Status Filter */}
+        <div className="flex gap-2 flex-wrap">
+          {[
+            { key: "all", label: dict.common.all },
+            { key: "available", label: dict.property.status.available },
+            { key: "sold", label: dict.property.status.sold },
+            { key: "rented", label: dict.property.status.rented },
+          ].map((f) => (
+            <button
+              key={f.key}
+              onClick={() => { setStatusFilter(f.key); setPage(1); }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                statusFilter === f.key
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {properties.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {properties.map((property) => (
+              <div key={property.id} className="relative group">
+                <PropertyCard
+                  id={property.id}
+                  title={property.title}
+                  price={property.price}
+                  area={property.area}
+                  bedrooms={property.bedrooms}
+                  bathrooms={property.bathrooms}
+                  zone={property.zones?.name_ar}
+                  imageUrl={property.primaryImage || undefined}
+                  status={property.status}
+                  officeName={officeName}
+                  locale={locale}
+                  type={property.property_types?.name_ar}
+                />
+          {userRole === ROLES.OFFICE_ADMIN && (
+                  <div className="absolute top-2 left-2 flex items-center gap-1">
+                    {/* Status dropdown */}
+<select
+                       value={property.status}
+                       onChange={(e) => handleStatusChange(property.id, e.target.value as Property["status"])}
+                       disabled={updatingStatus === property.id}
+                       onClick={(e) => e.stopPropagation()}
+                       aria-label="Change property status"
+                       className={`text-xs font-medium px-2 py-1 rounded-lg border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer ${
+                         property.status === "available"
+                           ? "bg-green-100 text-green-700"
+                           : property.status === "sold"
+                           ? "bg-red-100 text-red-700"
+                           : property.status === "reserved"
+                           ? "bg-amber-100 text-amber-700"
+                           : "bg-blue-100 text-blue-700"
+                       }`}
+                     >
+                       <option value="available">{dict.property.status.available}</option>
+                       <option value="sold">{dict.property.status.sold}</option>
+                       <option value="rented">{dict.property.status.rented}</option>
+                       <option value="reserved">{dict.property.status.reserved}</option>
+                       <option value="pending_review">{dict.property.status.pending_review}</option>
+                     </select>
+                    {/* Edit/Delete buttons */}
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Link
+                        href={`/${locale}/dashboard/properties/${property.id}/edit`}
+                        className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-gray-50"
+                        aria-label={dict.office.editProperty}
+                      >
+                        <Edit className="w-4 h-4 text-gray-600" />
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteClick(property.id)}
+                        className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-red-50"
+                        aria-label={dict.common.delete}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Home className="w-8 h-8 text-blue-400" />
+            </div>
+            <p className="text-gray-500 mb-2">
+              {dict.office.noPropertiesYet}
+            </p>
+            <p className="text-sm text-gray-400 mb-4">
+              {dict.office.startAdding}
+            </p>
+          {userRole === ROLES.OFFICE_ADMIN && (
+              <Link href={`/${locale}/dashboard/properties/new`} className="mt-4 inline-block">
+                <Button>{dict.office.addProperty}</Button>
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {dict.common.previous}
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p: number) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                aria-label={`Page ${p}`}
+                aria-current={page === p ? "page" : undefined}
+                className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                  page === p
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {dict.common.next}
+            </button>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          title={dict.common.confirm}
+          size="sm"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              {dict.office.confirmDeleteProperty}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button variant="ghost" onClick={() => setShowDeleteModal(false)}>
+                {dict.common.cancel}
+              </Button>
+              <Button variant="danger" onClick={handleDelete} isLoading={deleting}>
+                {dict.common.delete}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      </div>
+    </DashboardLayout>
+  );
+}

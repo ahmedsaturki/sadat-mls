@@ -1,0 +1,13 @@
+# Code Owners
+# https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
+
+* @your-org/developers
+
+# Security policies
+src/lib/security/ @your-org/security-team
+
+# Database migrations
+supabase/migrations/ @your-org/db-admins
+
+# CI/CD workflows  
+.github/workflows/ @your-org/devops-team
