@@ -153,8 +153,7 @@
 ## 9. التوصيات للإنتاج (Production Recommendations)
 
 ### الإصلاحات المكتملة (Completed):
-
-1. **إنشاء `public/og-image.png`** (1200x630) - مطلوب يدوياً
+1. **إنشاء `public/og-image.png`** (1200x630) - ✅ تم التنفيذ وإرفاقه بالـ commit
 2. **إنشاء جدول `property_favorites`** - تم تنفيذه على قاعدة البيانات
 3. **إصلاح contact_requests schema (property_id nullable + UPDATE policy)** - تم تنفيذه
 4. **إضافة `is_active` filters** - تم التنفيذ

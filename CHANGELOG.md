@@ -24,6 +24,9 @@
 - ✅ Health check endpoint `/api/health` 
 - ✅ 30+ routes مُنجزة بنجاح
 - ✅ OG Image generator endpoint
+- ✅ Static OG image `public/og-image.png` (1200×630)
+- ✅ Property favorites feature with RLS
+- ✅ Contact requests general inquiry support (property_id nullable)
 
 ### مرفع من
 - `next`: `^9.3.3` → `^14.2.35`

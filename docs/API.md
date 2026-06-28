@@ -271,3 +271,39 @@ GET /[locale]/dashboard/favorites
 Returns user's favorited properties.
 
 **Note:** The `property_favorites` table must exist in the database for this endpoint to work.
+Run migration `supabase/migrations/007_property_favorites.sql` first.
+
+**Features:**
+- Only active properties can be favorited (enforced by DB trigger)
+- Users can view/add/delete their own favorites only
+- Foreign key cascade on user/property delete
+
+---
+
+## Database Migrations
+
+### Order of Application
+
+| # | Migration | Description |
+|---|-----------|-------------|
+| 1 | `001_initial_schema.sql` | Core tables (offices, users, zones, properties) |
+| 2 | `002_rls_policies.sql` | Row Level Security policies |
+| 3 | `003_office_logos_bucket.sql` | Storage bucket for office logos |
+| 4 | `004_rate_limit_log.sql` | Rate limiting audit table |
+| 5 | `005_performance_indexes.sql` | Database indexes for performance |
+| 6 | `006_contact_request_fix.sql` | Makes `property_id` nullable for general inquiries + UPDATE policy |
+| 7 | `007_property_favorites.sql` | Favorites table with RLS + active property check trigger |
+
+### Migration 006 - Contact Request Fixes
+
+- Makes `property_id` nullable (landing page inquiries without property)
+- Adds `updated_at` column for status changes
+- Creates trigger for auto-updating timestamp
+- Adds `idx_contact_requests_null_property` index for general inquiries
+
+### Migration 007 - Property Favorites
+
+- Creates `property_favorites` table with composite primary key
+- RLS policies: `users_view_own_favorites`, `users_insert_favorites`, `users_delete_own_favorites`
+- Trigger `check_property_active()` prevents favoriting inactive properties
+- Indexes on `user_id` and `property_id`

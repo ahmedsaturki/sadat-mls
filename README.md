@@ -187,8 +187,13 @@ npm start
 3. Add environment variables in Vercel Dashboard
 4. Deploy!
 
-**Current Production URL:** https://sadat-5781ts4my-jmls-projects.vercel.app  
-**Alias:** https://sadat-mls.vercel.app
+**Production URL:** https://sadat-mls.vercel.app
+
+### Static OG Image Fallback
+
+The platform includes both dynamic and static Open Graph image support:
+- **Dynamic:** `/og-image?title=...&description=...&locale=...` (runtime generation)
+- **Static:** `public/og-image.png` (1200×630 fallback for social platforms)
 
 ### Docker
 
