@@ -5,11 +5,5 @@
       "src": "package.json",
       "use": "@vercel/next"
     }
-  ],
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://gastnicaxbqppmmjgryp.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_odl3RsjlDF1c8Mdd8qrXng_QPx7tbau",
-    "NEXT_PUBLIC_SITE_URL": "https://sadat-mls.vercel.app",
-    "NEXT_PUBLIC_APP_URL": "https://sadat-mls.vercel.app"
-  }
+  ]
 }
