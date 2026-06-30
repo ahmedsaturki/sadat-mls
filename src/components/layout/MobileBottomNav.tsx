@@ -43,6 +43,7 @@ export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavP
             <Link
               key={link.href}
               href={link.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors min-w-[60px]",
                 isActive
