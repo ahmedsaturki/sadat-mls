@@ -130,6 +130,7 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
         if (f.hasBalcony) query = query.eq("has_balcony", true);
         if (f.hasParking) query = query.eq("has_parking", true);
         if (f.hasElevator) query = query.eq("has_elevator", true);
+        if (f.search) query = query.ilike("title", `%${f.search}%`);
 
         const from = (page - 1) * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;

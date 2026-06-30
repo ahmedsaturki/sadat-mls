@@ -28,9 +28,6 @@ interface PropertyCardProps {
   type?: string;
   dict?: Messages;
   userId?: string | null;
-  hasBalcony?: boolean;
-  hasParking?: boolean;
-  hasElevator?: boolean;
 }
 
 const PropertyCard = memo(function PropertyCard({

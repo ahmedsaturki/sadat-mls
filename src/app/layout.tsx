@@ -4,6 +4,7 @@ import Script from "next/script";
 import Providers from "@/components/Providers";
 import "./globals.css";
 import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
+import { getMessages } from "@/i18n/getMessages";
 
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
@@ -34,8 +35,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Sadat MLS Cloud",
-  description: "Cloud real estate platform for Sadat City",
+  title: process.env.NEXT_PUBLIC_SITE_NAME || "Sadat MLS Cloud",
+  description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "Cloud real estate platform for Sadat City",
   manifest: "/manifest.json",
 };
 
@@ -44,6 +45,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const dict = getMessages("ar");
   return (
     <html lang="ar" dir="rtl" className={cairo.variable} data-scroll-behavior="smooth">
       <head>
@@ -74,7 +76,7 @@ export default async function RootLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[100] bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg"
         >
-          Skip to content
+          {dict.common.skipToContent}
         </a>
         <Providers>
           <main id="main-content" tabIndex={-1}>
