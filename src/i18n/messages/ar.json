@@ -86,6 +86,7 @@
     "removeFilter": "إزالة {{label}}",
     "propertyInquiry": "استفسار عن عقار",
     "loadingPage": "جاري التحميل...",
+    "oops": "عذراً!",
     "nextPage": "الصفحة التالية",
     "previousPage": "الصفحة السابقة",
     "page": "صفحة {{number}}",
@@ -94,6 +95,7 @@
     "goToImage": "الانتقال إلى الصورة {{number}}",
     "pageNotFound": "الصفحة المطلوبة غير موجودة أو تم نقلها.",
     "backToDashboard": "العودة للوحة التحكم",
+    "hint": "أو تحقق من الرابط والمحاولة مرة أخرى",
     "developerErrorInfo": "معلومات خطأ المطور:"
   },
   "nav": {
@@ -144,23 +146,24 @@
       "commissionDesc": "تعاون بين المكاتب لزيادة المبيعات"
     },
 "contactForm": {
-       "title": "تواصل معنا",
-       "subtitle": "أرسل لنا استفسارك وسنتواصل معك في أقرب وقت",
-       "name": "الاسم الكامل",
-       "email": "البريد الإلكتروني",
-       "phone": "رقم الهاتف",
-       "message": "رسالتك",
-       "send": "إرسال الرسالة",
-       "sending": "جاري الإرسال...",
-       "success": "تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.",
-       "error": "حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.",
-       "namePlaceholder": "أدخل اسمك",
-       "emailPlaceholder": "example@email.com",
-       "phonePlaceholder": "01xxxxxxxxx",
-       "messagePlaceholder": "اكتب رسالتك هنا...",
-       "nameRequired": "الاسم مطلوب",
-       "messageRequired": "الرسالة مطلوبة"
-     }
+        "title": "تواصل معنا",
+        "subtitle": "أرسل لنا استفسارك وسنتواصل معك في أقرب وقت",
+        "name": "الاسم الكامل",
+        "email": "البريد الإلكتروني",
+        "phone": "رقم الهاتف",
+        "message": "رسالتك",
+        "send": "إرسال الرسالة",
+        "sending": "جاري الإرسال...",
+        "success": "تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.",
+        "error": "حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.",
+        "namePlaceholder": "أدخل اسمك",
+        "emailPlaceholder": "example@email.com",
+        "phonePlaceholder": "01xxxxxxxxx",
+        "messagePlaceholder": "اكتب رسالتك هنا...",
+        "nameRequired": "الاسم مطلوب",
+        "messageRequired": "الرسالة مطلوبة",
+        "emailInvalid": "تنسيق البريد الإلكتروني غير صحيح"
+      }
   },
   "auth": {
     "loginTitle": "تسجيل الدخول",

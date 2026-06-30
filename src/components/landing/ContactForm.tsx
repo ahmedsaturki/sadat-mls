@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import { isValidEmail } from "@/lib/security/sanitize";
 import type { Messages } from "@/i18n/getMessages";
 
 interface ContactFormProps {
@@ -74,6 +75,13 @@ export default function ContactForm({ dict }: ContactFormProps) {
     e.preventDefault();
     setContactLoading(true);
     setContactError("");
+
+    const validateEmail = isValidEmail(contactForm.email.trim());
+    if (contactForm.email && !validateEmail) {
+      setContactError(dict.landing.contactForm.emailInvalid || "Invalid email format");
+      setContactLoading(false);
+      return;
+    }
 
     if (!checkRateLimit()) {
       setContactLoading(false);

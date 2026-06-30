@@ -38,6 +38,9 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET requests
   if (request.method !== "GET") return;
 
+  // Skip unsupported schemes (chrome-extension, extension, etc.)
+  if (!url.protocol.startsWith("http")) return;
+
   // Skip API routes, auth, and admin
   if (
     url.pathname.startsWith("/api") ||
@@ -58,10 +61,12 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const responseClone = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
+          if (response && response.status === 200 && url.protocol.startsWith("http")) {
+            const responseClone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
           return response;
         })
         .catch(() => caches.match(request))
@@ -83,13 +88,17 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached;
-        return fetch(request).then((response) => {
-          const responseClone = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          return response;
-        });
+        return fetch(request)
+          .then((response) => {
+            if (response && response.status === 200) {
+              const responseClone = response.clone();
+              caches.open(STATIC_CACHE).then((cache) => {
+                cache.put(request, responseClone);
+              });
+            }
+            return response;
+          })
+          .catch(() => cached);
       })
     );
     return;
@@ -100,7 +109,7 @@ self.addEventListener("fetch", (event) => {
     caches.match(request).then((cached) => {
       const fetchPromise = fetch(request)
         .then((response) => {
-          if (response && response.status === 200) {
+          if (response && response.status === 200 && url.protocol.startsWith("http")) {
             const responseClone = response.clone();
             caches.open(DYNAMIC_CACHE).then((cache) => {
               cache.put(request, responseClone);

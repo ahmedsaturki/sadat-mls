@@ -90,7 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser();
 
         if (authError) {
-          logger.warn("Auth fetch failed", { error: authError.message });
+          if (!authError.message?.includes("session missing")) {
+            logger.warn("Auth fetch failed", { error: authError.message });
+          }
           authCache = createAuthCache();
           setUser(null);
           setProfile(null);

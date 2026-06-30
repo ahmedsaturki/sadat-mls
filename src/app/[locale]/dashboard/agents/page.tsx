@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Users, Plus, Trash2, UserPlus } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { useToast } from "@/components/ui/Toast";
@@ -41,15 +41,17 @@ export default function AgentsPage({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [officeId, setOfficeId] = useState("");
-  const [userRole, setUserRole] = useState<UserRole>(ROLES.OFFICE_AGENT);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const { showToast } = useToast();
   const { supabase, user, profile } = useAuthUser();
+  const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
   const dict = getMessages(locale);
+
+  const mountedRef = useRef(true);
 
   const loadAgents = useCallback(async () => {
     try {
-      if (!user) return;
+      if (!user || !mountedRef.current) return;
 
       if (!profile?.office_id) {
         setLoading(false);
@@ -57,7 +59,6 @@ export default function AgentsPage({
       }
 
       setOfficeId(profile.office_id);
-      setUserRole((profile.role as UserRole) || ROLES.OFFICE_AGENT);
 
       const { data, error: agentsError } = await supabase
         .from("users")
@@ -80,9 +81,11 @@ export default function AgentsPage({
   }, [supabase, showToast, dict.common.unexpectedError, user, profile]);
 
   useEffect(() => {
+    mountedRef.current = true;
     if (user && profile) {
       loadAgents();
     }
+    return () => { mountedRef.current = false; };
   }, [loadAgents, user, profile]);
 
   const handleCreateAgent = async (e: React.FormEvent) => {

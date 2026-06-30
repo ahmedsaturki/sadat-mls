@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Phone, MessageSquare, ExternalLink, Inbox } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
@@ -36,16 +36,18 @@ export default function ContactRequestsPage({
   const locale = usePageLocale(params);
   const [requests, setRequests] = useState<ContactRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<UserRole>(ROLES.OFFICE_AGENT);
   const [filter, setFilter] = useState<string>("all");
   const router = useRouter();
   const { showToast } = useToast();
   const { supabase, user, profile } = useAuthUser();
+  const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
   const dict = getMessages(locale);
+
+  const mountedRef = useRef(true);
 
   const loadRequests = useCallback(async () => {
     try {
-      if (!user) {
+      if (!user || !mountedRef.current) {
         router.push(`/${locale}/login`);
         return;
       }
@@ -54,8 +56,6 @@ export default function ContactRequestsPage({
         router.push(`/${locale}/explore`);
         return;
       }
-
-      setRole((profile.role as UserRole) || ROLES.OFFICE_AGENT);
 
       const { data, error: requestsError } = await supabase
         .from("contact_requests")
@@ -77,9 +77,11 @@ export default function ContactRequestsPage({
   }, [supabase, showToast, locale, router, dict.common.unexpectedError, user, profile]);
 
   useEffect(() => {
+    mountedRef.current = true;
     if (user && profile) {
       loadRequests();
     }
+    return () => { mountedRef.current = false; };
   }, [loadRequests, user, profile]);
 
   const getTypeIcon = (type: string) => {
@@ -112,7 +114,7 @@ export default function ContactRequestsPage({
   };
 
   return (
-    <DashboardLayout locale={locale} dict={dict} role={role}>
+    <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <ErrorBoundary>
         <div className="space-y-6">
           <PageHeader

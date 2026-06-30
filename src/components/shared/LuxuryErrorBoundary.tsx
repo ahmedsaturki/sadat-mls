@@ -3,7 +3,9 @@
 import { motion } from "framer-motion";
 import { AlertTriangle, RefreshCcw } from "lucide-react";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { logger } from "@/lib/logger";
+import { getMessages } from "@/i18n/getMessages";
 
 interface LuxuryErrorBoundaryProps {
   error: Error & { digest?: string };
@@ -16,10 +18,11 @@ interface LuxuryErrorBoundaryProps {
 export function LuxuryErrorBoundary({
   error,
   reset,
-  title = "Oops!",
-  description = "An unexpected error has occurred. Please try again.",
-  retryLabel = "Try again",
 }: LuxuryErrorBoundaryProps) {
+  const pathname = usePathname();
+  const locale = pathname?.startsWith("/en") ? "en" : "ar";
+  const dict = getMessages(locale);
+
   useEffect(() => {
     logger.error("LuxuryErrorBoundary caught error", { error: error.message, digest: error.digest });
   }, [error]);
@@ -41,10 +44,10 @@ export function LuxuryErrorBoundary({
             <AlertTriangle className="w-8 h-8 text-[#C49A2A]" />
           </motion.div>
           <h2 className="text-2xl font-bold text-white mb-2">
-            {title}
+            {dict.common.oops || (locale === "ar" ? "عذراً!" : "Oops!")}
           </h2>
           <p className="text-white/70 mb-6">
-            {description}
+            {dict.common.error || (locale === "ar" ? "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى." : "An unexpected error has occurred. Please try again.")}
           </p>
           
           <button
@@ -52,16 +55,16 @@ export function LuxuryErrorBoundary({
             className="group flex items-center justify-center gap-2 w-full bg-[#C49A2A] text-[#1B2D4F] px-6 py-3 rounded-xl font-semibold hover:bg-[#C49A2A]/90 transition-all duration-300 focus:ring-2 focus:ring-[#C49A2A]/50 focus:outline-none shadow-lg shadow-[#C49A2A]/20 hover:shadow-xl hover:shadow-[#C49A2A]/30"
           >
             <RefreshCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-            {retryLabel}
-          </button>
+{dict.common.retry || (locale === "ar" ? "إعادة المحاولة" : "Try again")}
+           </button>
         </div>
         
-        {process.env.NODE_ENV === "development" && (
-          <div className="p-4 bg-gray-50 border-t border-gray-100 overflow-auto max-h-48 text-xs text-gray-700 font-mono">
-            <p className="font-semibold text-[#1B2D4F] mb-1">Developer Error Info:</p>
-            {error.message}
-          </div>
-        )}
+{process.env.NODE_ENV === "development" && (
+           <div className="p-4 bg-gray-50 border-t border-gray-100 overflow-auto max-h-48 text-xs text-gray-700 font-mono">
+             <p className="font-semibold text-[#1B2D4F] mb-1">{dict.common.developerErrorInfo}:</p>
+             {error.message}
+           </div>
+         )}
       </motion.div>
     </div>
   );

@@ -86,6 +86,7 @@
     "removeFilter": "Remove {{label}}",
     "propertyInquiry": "Property Inquiry",
     "loadingPage": "Loading...",
+    "oops": "Oops!",
     "nextPage": "Next page",
     "previousPage": "Previous page",
     "page": "Page {{number}}",
@@ -94,6 +95,7 @@
     "goToImage": "Go to image {{number}}",
     "pageNotFound": "The requested page was not found or has been moved.",
     "backToDashboard": "Back to dashboard",
+    "hint": "Or check the URL and try again",
     "developerErrorInfo": "Developer Error Info:"
   },
   "nav": {
@@ -144,23 +146,24 @@
       "commissionDesc": "Collaborate between offices to increase sales"
     },
 "contactForm": {
-       "title": "Contact Us",
-       "subtitle": "Send us your inquiry and we'll get back to you shortly",
-       "name": "Full Name",
-       "email": "Email",
-       "phone": "Phone Number",
-       "message": "Your Message",
-       "send": "Send Message",
-       "sending": "Sending...",
-       "success": "Your message has been sent successfully! We'll contact you soon.",
-       "error": "An error occurred. Please try again.",
-       "namePlaceholder": "Enter your name",
-       "emailPlaceholder": "example@email.com",
-       "phonePlaceholder": "01xxxxxxxxx",
-       "messagePlaceholder": "Write your message here...",
-       "nameRequired": "Name is required",
-       "messageRequired": "Message is required"
-     }
+        "title": "Contact Us",
+        "subtitle": "Send us your inquiry and we'll get back to you shortly",
+        "name": "Full Name",
+        "email": "Email",
+        "phone": "Phone Number",
+        "message": "Your Message",
+        "send": "Send Message",
+        "sending": "Sending...",
+        "success": "Your message has been sent successfully! We'll contact you soon.",
+        "error": "An error occurred. Please try again.",
+        "namePlaceholder": "Enter your name",
+        "emailPlaceholder": "example@email.com",
+        "phonePlaceholder": "01xxxxxxxxx",
+        "messagePlaceholder": "Write your message here...",
+        "nameRequired": "Name is required",
+        "messageRequired": "Message is required",
+        "emailInvalid": "Invalid email format"
+      }
   },
   "auth": {
     "loginTitle": "Sign In",

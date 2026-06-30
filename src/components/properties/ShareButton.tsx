@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useState, useEffect, useRef } from "react";
 import { Share2, Link as LinkIcon, MessageCircle, Check } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import { logger } from "@/lib/logger";
@@ -15,6 +15,13 @@ interface ShareButtonProps {
 const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const explore = dict?.explore as Record<string, string> | undefined;
 
@@ -27,7 +34,8 @@ const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps)
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       logger.error("Failed to copy share URL to clipboard", { error: err instanceof Error ? err.message : String(err) });
       setCopied(false);

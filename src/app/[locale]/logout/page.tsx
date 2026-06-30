@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
@@ -13,6 +13,13 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
   const [status, setStatus] = useState<"confirm" | "loading" | "success" | "error">("confirm");
   const locale = usePageLocale(params);
   const dict = getMessages(locale);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleConfirmLogout = async () => {
     setStatus("loading");
@@ -27,7 +34,7 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
       document.cookie = "csrf_token=; path=/; max-age=0";
       sessionStorage.clear();
       setStatus("success");
-      setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         router.push(`/${locale}`);
         router.refresh();
       }, 800);

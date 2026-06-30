@@ -6,11 +6,12 @@ import { cn } from "@/lib/utils/cn";
 import { useCompare, type PropertyForComparison } from "@/hooks/useCompare";
 import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
+import type { Messages } from "@/i18n/getMessages";
 
 interface CompareButtonProps {
   property: PropertyForComparison;
   locale?: "ar" | "en";
-  dict?: Record<string, unknown>;
+  dict?: Messages;
   className?: string;
   size?: "sm" | "md" | "lg";
 }
@@ -31,26 +32,24 @@ const CompareButton = memo(function CompareButton({
      lg: "w-12 h-12",
    };
 
-   const getLabel = useCallback((key: string, fallback: string): string => {
-     if (!dict) return fallback;
-     const d = dict as Record<string, unknown>;
-     const common = d.common as Record<string, string> | undefined;
-     const explore = d.explore as Record<string, string> | undefined;
-     const t = d[locale as keyof typeof d] as Record<string, string> | undefined;
-     return common?.[key] || explore?.[key] || t?.[key] || fallback;
-   }, [dict, locale]);
+  const getLabel = useCallback((key: string, fallback: string): string => {
+    if (!dict) return fallback;
+    const commonVal = dict.common as Record<string, string> | undefined;
+    const exploreVal = dict.explore as Record<string, string> | undefined;
+    return commonVal?.[key] || exploreVal?.[key] || fallback;
+  }, [dict]);
 
    const handleToggle = useCallback((e: React.MouseEvent) => {
      e.preventDefault();
      e.stopPropagation();
 
-     if (isSelected(property.id)) {
-       removeProperty(property.id);
-       showToast(getLabel("removeFavorite", locale === "ar" ? "تمت الإزالة من المقارنة" : "Removed from comparison"), "success");
-     } else {
-       const added = addProperty(property);
-       if (added) {
-         showToast(getLabel("addFavorite", locale === "ar" ? "تمت الإضافة للمقارنة" : "Added to comparison"), "success");
+if (isSelected(property.id)) {
+        removeProperty(property.id);
+        showToast(getLabel("removeFromComparison", locale === "ar" ? "تمت الإزالة من المقارنة" : "Removed from comparison"), "success");
+      } else {
+        const added = addProperty(property);
+        if (added) {
+          showToast(getLabel("addToComparison", locale === "ar" ? "تمت الإضافة للمقارنة" : "Added to comparison"), "success");
        } else {
           logger.warn("Cannot add more properties to compare", { currentCount: count, max });
           const maxCompareMsg = getLabel("maxCompare", locale === "ar" ? `الحد الأقصى ${max} عقارات` : `Maximum ${max} properties`);

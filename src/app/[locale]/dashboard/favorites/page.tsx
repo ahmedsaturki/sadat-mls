@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Heart } from "lucide-react";
 import PropertyCard from "@/components/properties/PropertyCard";
@@ -12,6 +12,7 @@ import { usePageLocale } from "@/hooks/usePageLocale";
 import type { Database } from "@/lib/supabase/types";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { logger } from "@/lib/logger";
 
 type Property = Database["public"]["Tables"]["properties"]["Row"] & {
   property_types: { name_ar: string } | null;
@@ -28,55 +29,61 @@ function FavoritesContent({
   const locale = usePageLocale(params);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<UserRole>(ROLES.OFFICE_AGENT);
   const dict = getMessages(locale);
   const supabase = createClient();
   const { user, profile } = useAuthUser();
+  const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
 
-  useEffect(() => {
-    if (profile) {
-      setUserRole(profile.role);
-    }
-  }, [profile]);
+  const mountedRef = useRef(true);
 
   const loadFavorites = useCallback(async () => {
-    if (!user) return;
-
-    const { data: favorites } = await supabase
-      .from("property_favorites")
-      .select("property_id")
-      .eq("user_id", user.id);
-
-    if (!favorites || favorites.length === 0) {
+    if (!user || !mountedRef.current) {
       setLoading(false);
       return;
     }
 
-    const propertyIds = favorites.map((f: { property_id: string }) => f.property_id);
-    const { data: props } = await supabase
-      .from("properties")
-      .select("*, property_types(name_ar), zones(name_ar), offices(name)")
-      .in("id", propertyIds);
+    try {
+      const { data: favorites } = await supabase
+        .from("property_favorites")
+        .select("property_id")
+        .eq("user_id", user.id);
 
-    if (props) {
-      const { data: images } = await supabase
-        .from("property_images")
-        .select("property_id, url")
-        .in("property_id", propertyIds)
-        .eq("is_primary", true);
+      if (!favorites || favorites.length === 0) {
+        return;
+      }
 
-      const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
-      setProperties(props.map((p: Property) => ({
-        ...p,
-        primaryImage: imageMap.get(p.id) || null,
-      })));
+      const propertyIds = favorites.map((f: { property_id: string }) => f.property_id);
+
+      const [{ data: props }, { data: images }] = await Promise.all([
+        supabase
+          .from("properties")
+          .select("*, property_types(name_ar), zones(name_ar), offices(name)")
+          .in("id", propertyIds),
+        supabase
+          .from("property_images")
+          .select("property_id, url")
+          .in("property_id", propertyIds)
+          .eq("is_primary", true),
+      ]);
+
+      if (props) {
+        const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
+        setProperties(props.map((p: Property) => ({
+          ...p,
+          primaryImage: imageMap.get(p.id) || null,
+        })));
+      }
+    } catch (err) {
+      logger.error("Failed to load favorites", { error: err instanceof Error ? err.message : "Unknown" });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }, [supabase, user]);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadFavorites();
+    return () => { mountedRef.current = false; };
   }, [loadFavorites]);
 
   useEffect(() => {

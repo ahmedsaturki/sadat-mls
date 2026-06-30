@@ -28,7 +28,6 @@ export default function SettingsPage({
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState("");
   const [officeId, setOfficeId] = useState("");
-  const [role, setRole] = useState<UserRole>(ROLES.OFFICE_AGENT);
   const [logoUrls, setLogoUrls] = useState<{ preview?: string }>({});
   const logoInputRef = useRef<HTMLInputElement>(null);
 
@@ -48,15 +47,18 @@ export default function SettingsPage({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const { showToast } = useToast();
   const { supabase, user, profile } = useAuthUser();
+  const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
   const dict = getMessages(locale);
 
   const [isDirty, setIsDirty] = useState(false);
 
   useUnsavedChangesWarning(isDirty && !saving);
 
+  const mountedRef = useRef(true);
+
   const loadProfile = useCallback(async () => {
     try {
-      if (!user) {
+      if (!user || !mountedRef.current) {
         setLoading(false);
         return;
       }
@@ -69,7 +71,6 @@ export default function SettingsPage({
           email: profile.email || "",
           phone: profile.phone || "",
         });
-        setRole(profile.role);
 
         if (profile.office_id) {
           setOfficeId(profile.office_id);
@@ -103,13 +104,20 @@ export default function SettingsPage({
   }, [supabase, showToast, dict.common.unexpectedError, user, profile]);
 
   useEffect(() => {
+    mountedRef.current = true;
     if (user && profile) {
       loadProfile();
     }
+    return () => { mountedRef.current = false; };
+  }, [loadProfile, user, profile]);
+
+  useEffect(() => {
     return () => {
-      if (logoUrls.preview) URL.revokeObjectURL(logoUrls.preview);
+      if (logoUrls.preview && logoUrls.preview.startsWith("blob:")) {
+        URL.revokeObjectURL(logoUrls.preview);
+      }
     };
-  }, [loadProfile, logoUrls.preview, user, profile]);
+  }, [logoUrls.preview]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,7 +167,6 @@ export default function SettingsPage({
           logoUrl = urlData.publicUrl;
         } else {
           showToast(dict.office.logoError, "error");
-          setSaving(false);
           return;
         }
       }
@@ -210,7 +217,7 @@ export default function SettingsPage({
   }, [logoUrls.preview, showToast, dict]);
 
   return (
-    <DashboardLayout locale={locale} dict={dict} role={role}>
+    <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <ErrorBoundary>
         <div className="max-w-3xl mx-auto space-y-6">
           <PageHeader title={dict.common.settings} />
@@ -253,7 +260,7 @@ export default function SettingsPage({
               </Card>
 
               {/* Office Settings (only for office_admin) */}
-              {(role === ROLES.OFFICE_ADMIN || role === ROLES.SUPER_ADMIN) && officeId && (
+              {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.SUPER_ADMIN) && officeId && (
                 <Card>
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">

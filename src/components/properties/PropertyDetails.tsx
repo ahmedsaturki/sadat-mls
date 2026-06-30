@@ -43,33 +43,53 @@ export default function PropertyDetails({
         )}
       </div>
 
-      <Input
-        label={dict.property.area}
-        type="number"
-        value={formData.area}
-        onChange={(e) => onChange("area", e.target.value)}
-      />
+      <div>
+        <Input
+          label={dict.property.area}
+          type="number"
+          value={formData.area}
+          onChange={(e) => onChange("area", e.target.value)}
+        />
+        {errors.area && (
+          <p className="text-red-500 text-xs mt-1">{errors.area}</p>
+        )}
+      </div>
 
-      <Input
-        label={dict.property.bedrooms}
-        type="number"
-        value={formData.bedrooms}
-        onChange={(e) => onChange("bedrooms", e.target.value)}
-      />
+      <div>
+        <Input
+          label={dict.property.bedrooms}
+          type="number"
+          value={formData.bedrooms}
+          onChange={(e) => onChange("bedrooms", e.target.value)}
+        />
+        {errors.bedrooms && (
+          <p className="text-red-500 text-xs mt-1">{errors.bedrooms}</p>
+        )}
+      </div>
 
-      <Input
-        label={dict.property.bathrooms}
-        type="number"
-        value={formData.bathrooms}
-        onChange={(e) => onChange("bathrooms", e.target.value)}
-      />
+      <div>
+        <Input
+          label={dict.property.bathrooms}
+          type="number"
+          value={formData.bathrooms}
+          onChange={(e) => onChange("bathrooms", e.target.value)}
+        />
+        {errors.bathrooms && (
+          <p className="text-red-500 text-xs mt-1">{errors.bathrooms}</p>
+        )}
+      </div>
 
-      <Input
-        label={dict.property.floors}
-        type="number"
-        value={formData.floors}
-        onChange={(e) => onChange("floors", e.target.value)}
-      />
+      <div>
+        <Input
+          label={dict.property.floors}
+          type="number"
+          value={formData.floors}
+          onChange={(e) => onChange("floors", e.target.value)}
+        />
+        {errors.floors && (
+          <p className="text-red-500 text-xs mt-1">{errors.floors}</p>
+        )}
+      </div>
 
       <Select
         label={dict.property.statusLabel}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense, lazy } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense, lazy } from "react";
 import { useSearchParams } from "next/navigation";
 import { SlidersHorizontal, X, Home, ArrowUpDown } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
@@ -28,6 +28,8 @@ type Property = Database["public"]["Tables"]["properties"]["Row"] & {
 };
 
 const PAGE_SIZE = 12;
+
+let cachedActiveOfficeIds: Set<string> | null = null;
 
 type SupabaseQueryParams = {
   data: Property[];
@@ -60,7 +62,10 @@ function ExploreContent({
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
   const hasMore = page < totalPages;
 
+  const mountedRef = useRef(true);
+
   const loadZonesAndTypes = useCallback(async () => {
+    if (!mountedRef.current) return;
     const supabase = createClient();
     try {
       const [{ data: zonesData }, { data: typesData }] = await Promise.all([
@@ -75,6 +80,7 @@ function ExploreContent({
   }, [locale]);
 
   const loadProperties = useCallback(async (currentFilters?: FilterState, append = false) => {
+    if (!mountedRef.current) return;
     if (append) setLoadingMore(true);
     else setLoading(true);
     setError(null);
@@ -135,30 +141,37 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
 
       const { data, count } = result;
 
-if (data) {
-        const officesResult = await supabase.from("offices").select("id").eq("is_active", true);
-        const officesData = officesResult.data as { id: string }[] | null;
-        const activeOfficeIds = new Set(officesData?.map((o) => o.id) || []);
+      if (data) {
+        const propertyIds = data.map((p: Property) => p.id);
 
-         let filtered = data.filter((p: Property) => p.office_id && activeOfficeIds.has(p.office_id));
+        const getActiveOfficeIds = async (): Promise<Set<string>> => {
+          if (cachedActiveOfficeIds) return cachedActiveOfficeIds;
+          const { data: officesData } = await supabase.from("offices").select("id").eq("is_active", true);
+          cachedActiveOfficeIds = new Set((officesData as { id: string }[] | null)?.map((o) => o.id) || []);
+          return cachedActiveOfficeIds;
+        };
 
-         if (f.search) {
-           const search = f.search.toLowerCase();
-           filtered = filtered.filter((p: Property) =>
-             p.title.toLowerCase().includes(search) ||
-             p.description?.toLowerCase().includes(search)
-           );
-         }
+        const [activeOfficeIds, imagesResult] = await Promise.all([
+          getActiveOfficeIds(),
+          supabase.from("property_images").select("property_id, url").in("property_id", propertyIds).eq("is_primary", true),
+        ]);
 
-         const propertyIds = filtered.map((p: Property) => p.id);
-         const imagesResult = await supabase.from("property_images").select("property_id, url").in("property_id", propertyIds).eq("is_primary", true);
+        let filtered = data.filter((p: Property) => p.office_id && activeOfficeIds.has(p.office_id));
 
-         const imageMap = new Map((imagesResult.data as { property_id: string; url: string }[] | null)?.map((img) => [img.property_id, img.url]) || []);
-         const withImages = filtered.map((p: Property) => ({
-           ...p,
-            status: p.status as PropertyStatus,
-           primaryImage: imageMap.get(p.id) || null,
-         }));
+        if (f.search) {
+          const search = f.search.toLowerCase();
+          filtered = filtered.filter((p: Property) =>
+            p.title.toLowerCase().includes(search) ||
+            p.description?.toLowerCase().includes(search)
+          );
+        }
+
+        const imageMap = new Map((imagesResult.data as { property_id: string; url: string }[] | null)?.map((img) => [img.property_id, img.url]) || []);
+        const withImages = filtered.map((p: Property) => ({
+          ...p,
+          status: p.status as PropertyStatus,
+          primaryImage: imageMap.get(p.id) || null,
+        }));
 
         if (append) {
           setProperties(prev => [...prev, ...withImages]);
@@ -177,12 +190,16 @@ if (data) {
   }, [filters, sortBy, page, dict.common.unexpectedError]);
 
   useEffect(() => {
+    mountedRef.current = true;
     if (locale) loadProperties();
+    return () => { mountedRef.current = false; };
   }, [page, sortBy, locale, loadProperties]);
 
   // Initialize on mount
   useEffect(() => {
+    mountedRef.current = true;
     loadZonesAndTypes();
+    return () => { mountedRef.current = false; };
   }, [loadZonesAndTypes]);
 
   const loadMore = useCallback(() => {
@@ -195,23 +212,21 @@ if (data) {
     onLoadMore: loadMore,
   });
 
-  const handleSearch = (newFilters: FilterState) => {
+  const handleSearch = useCallback((newFilters: FilterState) => {
     setFilters(newFilters);
     setPage(1);
-    loadProperties(newFilters);
     setShowFilters(false);
-  };
+  }, []);
 
-  const handleSortChange = (newSort: typeof sortBy) => {
+  const handleSortChange = useCallback((newSort: typeof sortBy) => {
     setSortBy(newSort);
     setPage(1);
-  };
+  }, []);
 
-const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters(EMPTY_FILTERS);
     setPage(1);
-    loadProperties(EMPTY_FILTERS);
-  };
+  }, []);
 
   const hasActiveFilters = filters.zoneId || filters.typeId || filters.minPrice || filters.maxPrice ||
     filters.minArea || filters.maxArea || filters.bedrooms || filters.bathrooms ||

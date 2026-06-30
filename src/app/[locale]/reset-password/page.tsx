@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Building2, ArrowRight, KeyRound, CheckCircle, XCircle } from "lucide-react";
@@ -26,6 +26,13 @@ export default function ResetPasswordPage({
   const searchParams = useSearchParams();
 
   const dict = getMessages(locale);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleReset = useCallback(
     async (e: React.FormEvent) => {
@@ -56,7 +63,7 @@ export default function ResetPasswordPage({
       setSuccess(true);
       setLoading(false);
 
-      setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         router.push(`/${locale}/login`);
       }, 3000);
     },

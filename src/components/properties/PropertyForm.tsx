@@ -13,7 +13,7 @@ import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { ArrowRight, User, Keyboard } from "lucide-react";
 import { propertySchema, ownerSchema } from "@/lib/validation";
-import { ROLES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
+import { ROLES, PROPERTY_STATUSES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
 import PropertyBasicInfo from "./PropertyBasicInfo";
 import PropertyDetails from "./PropertyDetails";
 import PropertyFeatures from "./PropertyFeatures";
@@ -341,6 +341,13 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     }
 
     setLoading(true);
+
+    // Defensive: ensure status is a valid DB value before hitting the constraint
+    if (!PROPERTY_STATUSES.includes(formData.status as PropertyStatus)) {
+      showToast(dict.common.error || "Invalid property status", "error");
+      setLoading(false);
+      return;
+    }
 
     const propertyData = {
       office_id: officeId,

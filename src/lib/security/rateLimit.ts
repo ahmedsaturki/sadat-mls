@@ -103,8 +103,8 @@ function isValidIp(value: string): boolean {
   const ipv6Mapped = /^::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
   if (ipv6Mapped.test(value)) return true;
 
-  // Loopback, unspecified, etc.
-  const ipv6Special = /^(::1|::$|[0:]+)$/;
+  // Loopback, unspecified, etc. — only match actual IPv6 special addresses
+  const ipv6Special = /^(::1|::)$/;
   if (ipv6Special.test(value)) return true;
 
   return false;
@@ -235,6 +235,15 @@ async function checkRateLimitDb(
   }
 
   const ip = extractIpCached(key);
+
+  // When IP is unknown (server-side, cron, ISR) we cannot write to the
+  // inet column — fall back to memory-only rate limiting to avoid
+  // "invalid input syntax for type inet" PostgreSQL errors.
+  if (ip === "unknown") {
+    const result = checkRateLimitMemory(key, config, true);
+    return { ...result, headers: buildRateLimitHeaders(result, config) };
+  }
+
   const windowStart = new Date(Date.now() - config.windowMs).toISOString();
 
   try {

@@ -13,6 +13,7 @@ import Modal from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { ROLES } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { logger } from "@/lib/logger";
 
 interface ContactRequest {
   id: string;
@@ -59,14 +60,24 @@ export default function AdminContactRequestsPage({
 
   // Call hooks before any conditional returns (React Rules of Hooks)
   const loadRequests = useCallback(async () => {
-    const { data } = await supabase
-      .from("contact_requests")
-      .select("*, properties(title), offices(name)")
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("contact_requests")
+        .select("*, properties(title), offices(name)")
+        .order("created_at", { ascending: false });
 
-    setRequests(data || []);
-    setLoading(false);
-  }, [supabase]);
+      if (error) {
+        showToast(error.message, "error");
+      } else {
+        setRequests(data || []);
+      }
+    } catch (err) {
+      logger.error("Failed to fetch contact requests", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase, showToast, dict.common.unexpectedError]);
 
   useEffect(() => {
     loadRequests();

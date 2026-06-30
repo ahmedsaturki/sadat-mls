@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { Bookmark, Trash2 } from "lucide-react";
 import Link from "next/link";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -18,16 +18,10 @@ function SavedSearchesContent({
   params: { locale: string };
 }) {
   const locale = usePageLocale(params);
-  const [userRole, setUserRole] = useState<UserRole>(ROLES.OFFICE_AGENT);
   const dict = getMessages(locale);
   const { savedSearches, removeSavedSearch, count, clearAll } = useSavedSearches();
   const { profile } = useAuthUser();
-
-  useEffect(() => {
-    if (profile) {
-      setUserRole(profile.role);
-    }
-  }, [profile]);
+  const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
 
   const formatDate = useCallback((dateStr: string) => {
     return new Date(dateStr).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {

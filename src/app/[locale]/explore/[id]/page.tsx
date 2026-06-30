@@ -67,45 +67,50 @@ export default function PropertyDetailPage() {
   const triggerRef = useRef<HTMLDivElement>(null);
 
   const loadProperty = useCallback(async () => {
-    const supabase = createClient();
+    try {
+      const supabase = createClient();
+      const [propertyResult, imagesResult] = await Promise.all([
+        supabase
+          .from("properties")
+          .select("*, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name, phone, email)")
+          .eq("id", id)
+          .maybeSingle(),
+        supabase
+          .from("property_images")
+          .select("*")
+          .eq("property_id", id)
+          .order("sort_order"),
+      ]);
 
-    const { data } = await supabase
-      .from("properties")
-      .select("*, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name, phone, email)")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (data) {
-      setProperty(data);
-
-      const { data: imgData } = await supabase
-        .from("property_images")
-        .select("*")
-        .eq("property_id", id)
-        .order("sort_order");
-
-      if (imgData) setImages(imgData);
+      if (propertyResult.data) setProperty(propertyResult.data);
+      if (imagesResult.data) setImages(imagesResult.data);
+    } catch (err) {
+      logger.error("Failed to load property", { error: err instanceof Error ? err.message : String(err), id });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }, [id]);
 
   useEffect(() => {
     loadProperty();
   }, [id, loadProperty]);
 
-  const handleContact = (type: "whatsapp" | "phone" | "email") => {
-    void type;
+  const handleContact = () => {
     setShowContactModal(true);
   };
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({
-        title: property?.title,
-        text: `${property?.title} - ${formatPrice(property?.price || 0)}`,
-        url: window.location.href,
-      });
+      try {
+        await navigator.share({
+          title: property?.title,
+          text: `${property?.title} - ${formatPrice(property?.price || 0)}`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        logger.warn("Share failed", { error: err instanceof Error ? err.message : String(err) });
+      }
     } else {
       try {
         await navigator.clipboard.writeText(window.location.href);
@@ -132,8 +137,8 @@ export default function PropertyDetailPage() {
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setShowLightbox(false);
-      if (e.key === "ArrowRight") navigateImage("prev");
-      if (e.key === "ArrowLeft") navigateImage("next");
+      if (e.key === "ArrowRight") navigateImage("next");
+      if (e.key === "ArrowLeft") navigateImage("prev");
     };
 
     document.addEventListener("keydown", handleKey);
@@ -467,7 +472,7 @@ export default function PropertyDetailPage() {
               <div className="flex gap-2 mb-4">
                 <Button
                   className="flex-1"
-                  onClick={() => handleContact("whatsapp")}
+                  onClick={handleContact}
                 >
                   <MessageCircle className="w-4 h-4 ml-2" />
                   {dict.property.whatsapp}
@@ -475,7 +480,7 @@ export default function PropertyDetailPage() {
                 <Button
                   className="flex-1"
                   variant="outline"
-                  onClick={() => handleContact("phone")}
+                  onClick={handleContact}
                 >
                   <Phone className="w-4 h-4 ml-2" />
                   {dict.property.call}

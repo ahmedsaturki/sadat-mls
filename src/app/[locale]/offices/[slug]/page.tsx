@@ -11,6 +11,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import { Building2, Home, MapPin, Phone, Mail } from "lucide-react";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { logger } from "@/lib/logger";
 
 interface Office {
   id: string;
@@ -51,46 +52,50 @@ function PublicOfficePage({
   const supabase = createClient();
 
   const loadOffice = useCallback(async (slug: string) => {
-    const { data: officeData } = await supabase
-      .from("offices")
-      .select("*")
-      .eq("slug", slug)
-      .eq("is_active", true)
-      .maybeSingle();
+    try {
+      const { data: officeData } = await supabase
+        .from("offices")
+        .select("*")
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
 
-    if (!officeData) {
-      setNotFound(true);
+      if (!officeData) {
+        setNotFound(true);
+        return;
+      }
+
+      setOffice(officeData);
+
+      const { data: propsData } = await supabase
+        .from("properties")
+        .select("*, property_types(name_ar, name_en), zones(name_ar, name_en)")
+        .eq("office_id", officeData.id)
+        .eq("status", "available")
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      const propertyIds = (propsData || []).map((p: OfficeProperty) => p.id);
+      const { data: images } = propertyIds.length > 0
+        ? await supabase
+            .from("property_images")
+            .select("property_id, url")
+            .in("property_id", propertyIds)
+            .eq("is_primary", true)
+        : { data: null };
+
+      const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
+      const withImages = (propsData || []).map((p: OfficeProperty) => ({
+        ...p,
+        primaryImage: imageMap.get(p.id) || null,
+      }));
+
+      setProperties(withImages);
+    } catch (err) {
+      logger.error("Failed to load office", { error: err instanceof Error ? err.message : String(err) });
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setOffice(officeData);
-
-    // Load properties
-    const { data: propsData } = await supabase
-      .from("properties")
-      .select("*, property_types(name_ar, name_en), zones(name_ar, name_en)")
-      .eq("office_id", officeData.id)
-      .eq("status", "available")
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    // Fetch primary images
-    const propertyIds = (propsData || []).map((p: OfficeProperty) => p.id);
-    const { data: images } = await supabase
-      .from("property_images")
-      .select("property_id, url")
-      .in("property_id", propertyIds)
-      .eq("is_primary", true);
-
-    const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
-    const withImages = (propsData || []).map((p: OfficeProperty) => ({
-      ...p,
-      primaryImage: imageMap.get(p.id) || null,
-    }));
-
-    setProperties(withImages);
-    setLoading(false);
   }, [supabase]);
 
   useEffect(() => {

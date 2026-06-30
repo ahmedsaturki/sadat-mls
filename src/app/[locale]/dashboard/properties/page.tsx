@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, Edit, Trash2, Home } from "lucide-react";
@@ -12,8 +12,9 @@ import PropertyCard from "@/components/properties/PropertyCard";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { ROLES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
+import { ROLES, PROPERTY_STATUSES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { logger } from "@/lib/logger";
 
 interface Property {
   id: string;
@@ -42,7 +43,6 @@ export default function PropertiesPage({
   const [properties, setProperties] = useState<Property[]>([]);
   const [officeName, setOfficeName] = useState("");
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<UserRole>(ROLES.OFFICE_AGENT);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -54,9 +54,22 @@ export default function PropertiesPage({
   const router = useRouter();
   const { showToast } = useToast();
   const { supabase, user, profile } = useAuthUser();
+  const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
+
+  const mountedRef = useRef(true);
+
+  const loadStats = useCallback(async () => {
+    if (!profile?.office_id || !supabase || !mountedRef.current) return;
+    const [avail, sold, rented] = await Promise.all([
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "available"),
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "sold"),
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "rented"),
+    ]);
+    setStats({ available: avail.count || 0, sold: sold.count || 0, rented: rented.count || 0 });
+  }, [supabase, profile]);
 
   const loadProperties = useCallback(async () => {
-    if (!user) {
+    if (!user || !mountedRef.current) {
       router.push(`/${locale}/login`);
       return;
     }
@@ -66,63 +79,56 @@ export default function PropertiesPage({
       return;
     }
 
-    setUserRole((profile.role as UserRole) || ROLES.OFFICE_AGENT);
+    try {
+      let query = supabase
+        .from("properties")
+        .select("*, property_types(name_ar), zones(name_ar)", { count: "exact" })
+        .eq("office_id", profile.office_id)
+        .order("created_at", { ascending: false });
 
-    // Load stats
-    const [avail, sold, rented] = await Promise.all([
-      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "available"),
-      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "sold"),
-      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "rented"),
-    ]);
-    setStats({ available: avail.count || 0, sold: sold.count || 0, rented: rented.count || 0 });
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
 
-    let query = supabase
-      .from("properties")
-      .select("*, property_types(name_ar), zones(name_ar)", { count: "exact" })
-      .eq("office_id", profile.office_id)
-      .order("created_at", { ascending: false });
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
 
-    if (statusFilter !== "all") {
-      query = query.eq("status", statusFilter);
+      const [propertiesResult, officeResult] = await Promise.all([
+        query.range(from, to),
+        supabase.from("offices").select("name").eq("id", profile.office_id).maybeSingle(),
+      ]);
+
+      const { data, count } = propertiesResult;
+      setTotalCount(count || 0);
+
+      const propertyIds = (data || []).map((p: Property) => p.id);
+      const { data: images } = propertyIds.length > 0
+        ? await supabase.from("property_images").select("property_id, url").in("property_id", propertyIds).eq("is_primary", true)
+        : { data: null };
+
+      const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
+      const withImages = (data || []).map((p: Property) => ({
+        ...p,
+        primaryImage: imageMap.get(p.id) || null,
+      }));
+
+      setProperties(withImages);
+      setOfficeName(officeResult.data?.name || "");
+    } catch (err) {
+      logger.error("Failed to load properties", { error: err instanceof Error ? err.message : "Unknown" });
+    } finally {
+      setLoading(false);
     }
-
-    const from = (page - 1) * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-    const { data, count } = await query.range(from, to);
-
-    setTotalCount(count || 0);
-
-    // Fetch primary images
-    const propertyIds = (data || []).map((p: Property) => p.id);
-    const { data: images } = await supabase
-      .from("property_images")
-      .select("property_id, url")
-      .in("property_id", propertyIds)
-      .eq("is_primary", true);
-
-    const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
-    const withImages = (data || []).map((p: Property) => ({
-      ...p,
-      primaryImage: imageMap.get(p.id) || null,
-    }));
-
-    setProperties(withImages);
-
-    const { data: office } = await supabase
-      .from("offices")
-      .select("name")
-      .eq("id", profile.office_id)
-      .maybeSingle();
-
-    setOfficeName(office?.name || "");
-    setLoading(false);
   }, [supabase, locale, router, statusFilter, page, user, profile]);
 
   useEffect(() => {
+    mountedRef.current = true;
     if (locale && user && profile) {
+      loadStats();
       loadProperties();
     }
-  }, [locale, page, statusFilter, loadProperties, user, profile]);
+    return () => { mountedRef.current = false; };
+  }, [locale, page, statusFilter, loadStats, loadProperties, user, profile]);
 
   const dict = getMessages(locale);
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
@@ -133,6 +139,10 @@ export default function PropertiesPage({
   };
 
   const handleStatusChange = async (propertyId: string, newStatus: Property["status"]) => {
+    if (!PROPERTY_STATUSES.includes(newStatus as PropertyStatus)) {
+      showToast(dict.common.error || "Invalid status", "error");
+      return;
+    }
     setUpdatingStatus(propertyId);
     const { error } = await supabase
       .from("properties")
@@ -144,7 +154,7 @@ export default function PropertiesPage({
         prev.map((p: Property) => (p.id === propertyId ? { ...p, status: newStatus } : p))
       );
       showToast(dict.common.save + " ✓", "success");
-      loadProperties();
+      loadStats();
     } else {
       showToast(error.message, "error");
     }

@@ -30,10 +30,6 @@ interface PropertyRecord {
   office_id?: string;
 }
 
-interface PropertyDisplay extends PropertyRecord {
-  status: PropertyStatus;
-}
-
 interface ContactRecord {
   id: string;
   visitor_name: string | null;
@@ -47,7 +43,7 @@ export default async function OfficeDashboard({
 }: {
   params: { locale: string };
 }) {
-  const resolvedParams = await Promise.resolve(params);
+  const resolvedParams = params;
   const locale = resolvedParams?.locale || "ar";
 
   if (!isValidLocale(locale)) {
@@ -98,7 +94,7 @@ export default async function OfficeDashboard({
       .limit(6),
     supabase
       .from("offices")
-      .select("*")
+      .select("name")
       .eq("id", profile.office_id)
       .maybeSingle(),
     supabase
@@ -133,7 +129,7 @@ export default async function OfficeDashboard({
     : { data: null };
 
 const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.property_id, img.url]) || []);
-    const propertiesWithImages: PropertyDisplay[] = (recentProperties || []).map((p: PropertyRecord) => ({
+    const propertiesWithImages: PropertyRecord[] = (recentProperties || []).map((p: PropertyRecord) => ({
       ...p,
       status: p.status as PropertyStatus,
       primaryImage: imageMap.get(p.id) || null,
@@ -299,7 +295,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
           </div>
 {propertiesWithImages && propertiesWithImages.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-{propertiesWithImages.map((property: PropertyDisplay) => (
+{propertiesWithImages.map((property: PropertyRecord) => (
                   <PropertyCard
                     key={property.id}
                     id={property.id}

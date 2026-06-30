@@ -11,6 +11,7 @@ import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import { Building2, User, Home } from "lucide-react";
 import { ROLES } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { logger } from "@/lib/logger";
 
 interface AgentProfile {
   id: string;
@@ -50,46 +51,50 @@ function PublicAgentPage({
   const supabase = createClient();
 
   const loadAgent = useCallback(async (agentId: string) => {
-    const { data: agentData } = await supabase
-      .from("users")
-      .select("*, offices(name, slug)")
-      .eq("id", agentId)
-      .eq("role", ROLES.OFFICE_AGENT)
-      .maybeSingle();
+    try {
+      const { data: agentData } = await supabase
+        .from("users")
+        .select("*, offices(name, slug)")
+        .eq("id", agentId)
+        .eq("role", ROLES.OFFICE_AGENT)
+        .maybeSingle();
 
-    if (!agentData) {
-      setNotFound(true);
+      if (!agentData) {
+        setNotFound(true);
+        return;
+      }
+
+      setAgent(agentData);
+
+      const { data: propsData } = await supabase
+        .from("properties")
+        .select("*, property_types(name_ar, name_en), zones(name_ar, name_en)")
+        .eq("created_by", agentId)
+        .eq("status", "available")
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      const propertyIds = (propsData || []).map((p: AgentProperty) => p.id);
+      const { data: images } = propertyIds.length > 0
+        ? await supabase
+            .from("property_images")
+            .select("property_id, url")
+            .in("property_id", propertyIds)
+            .eq("is_primary", true)
+        : { data: null };
+
+      const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
+      const withImages = (propsData || []).map((p: AgentProperty) => ({
+        ...p,
+        primaryImage: imageMap.get(p.id) || null,
+      }));
+
+      setProperties(withImages);
+    } catch (err) {
+      logger.error("Failed to load agent", { error: err instanceof Error ? err.message : String(err) });
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setAgent(agentData);
-
-    // Load agent's properties
-    const { data: propsData } = await supabase
-      .from("properties")
-      .select("*, property_types(name_ar, name_en), zones(name_ar, name_en)")
-      .eq("created_by", agentId)
-      .eq("status", "available")
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    // Fetch primary images
-    const propertyIds = (propsData || []).map((p: AgentProperty) => p.id);
-    const { data: images } = await supabase
-      .from("property_images")
-      .select("property_id, url")
-      .in("property_id", propertyIds)
-      .eq("is_primary", true);
-
-    const imageMap = new Map(images?.map((img: { property_id: string; url: string }) => [img.property_id, img.url]) || []);
-    const withImages = (propsData || []).map((p: AgentProperty) => ({
-      ...p,
-      primaryImage: imageMap.get(p.id) || null,
-    }));
-
-    setProperties(withImages);
-    setLoading(false);
   }, [supabase]);
 
   useEffect(() => {

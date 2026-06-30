@@ -61,9 +61,8 @@ describe("FavoritesPage", () => {
     expect(screen.getByText("المفضلة")).toBeInTheDocument();
   });
 
-  it("displays loading skeletons initially", () => {
+  it("displays empty state when no user is logged in", () => {
     render(<FavoritesPageWrapper params={{ locale: "ar" }} />);
-    const skeletons = screen.getAllByText("Loading skeleton");
-    expect(skeletons.length).toBeGreaterThan(0);
+    expect(screen.getByText("لا توجد عقارات مفضلة")).toBeInTheDocument();
   });
 });
