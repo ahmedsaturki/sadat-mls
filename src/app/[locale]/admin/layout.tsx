@@ -29,10 +29,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children, params }: { children: React.ReactNode; params: { locale: string } }) {
+  const resolvedParams = params;
+  const locale = resolvedParams?.locale || "ar";
+  const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
+  const dict = getMessages(validLocale);
+
   return (
     <AuthGuard requiredRole={ROLES.SUPER_ADMIN}>
-      <ErrorBoundaryWrapper fallbackTitle="Admin Error" fallbackMessage="An error occurred in the admin panel.">
+      <ErrorBoundaryWrapper fallbackTitle={dict.admin.errorTitle || "Admin Error"} fallbackMessage={dict.admin.errorMessage || "An error occurred in the admin panel."}>
         {children}
       </ErrorBoundaryWrapper>
     </AuthGuard>

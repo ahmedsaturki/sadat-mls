@@ -52,7 +52,6 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   );
   response.headers.set("X-DNS-Prefetch-Control", "on");
   response.headers.set("X-Permitted-Cross-Domain-Policies", "none");
-  response.headers.set("X-Nonce", nonce);
   response.headers.set(
     "Content-Security-Policy",
     [
@@ -60,7 +59,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
       `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
       `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https:\\",
+      "img-src 'self' data: blob: https:",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com",
       "frame-src 'none'",
       "frame-ancestors 'none'",

@@ -15,8 +15,8 @@ mockGte.mockResolvedValue({ count: 0, error: null });
 mockInsert.mockResolvedValue({ error: null });
 mockFrom.mockReturnValue(chain);
 
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(() => Promise.resolve({ from: mockFrom })),
+vi.mock("@/lib/supabase/service-role", () => ({
+  createServiceRoleClient: vi.fn(() => ({ from: mockFrom })),
 }));
 
 vi.mock("@/lib/logger", () => ({
@@ -63,10 +63,51 @@ describe("rateLimit", () => {
   });
 
   it("falls back to memory when DB fails", async () => {
-    const { createClient } = await import("@/lib/supabase/server");
-    vi.mocked(createClient).mockRejectedValueOnce(new Error("DB connection failed"));
+    const { createServiceRoleClient } = await import("@/lib/supabase/service-role");
+    vi.mocked(createServiceRoleClient).mockImplementationOnce(() => {
+      throw new Error("DB connection failed");
+    });
 
     const result = await checkRateLimit("fallback-ip", "api");
     expect(result.allowed).toBe(true);
+  });
+
+  describe("IP validation in rate limit keys", () => {
+    it("treats bare numbers like '1' as invalid IP → uses 'unknown'", async () => {
+      const result = await checkRateLimit("auth:1", "auth");
+      expect(result.allowed).toBe(true);
+      // Verify the DB was queried (the mock was hit)
+      expect(mockFrom).toHaveBeenCalledWith("rate_limit_log");
+    });
+
+    it("treats '0' as invalid IP → uses 'unknown'", async () => {
+      const result = await checkRateLimit("api:0", "api");
+      expect(result.allowed).toBe(true);
+      expect(mockFrom).toHaveBeenCalledWith("rate_limit_log");
+    });
+
+    it("accepts valid IPv4 addresses", async () => {
+      const result = await checkRateLimit("api:192.168.1.1", "api");
+      expect(result.allowed).toBe(true);
+      expect(mockFrom).toHaveBeenCalledWith("rate_limit_log");
+    });
+
+    it("accepts valid IPv6 addresses", async () => {
+      const result = await checkRateLimit("api:2001:db8::1", "api");
+      expect(result.allowed).toBe(true);
+      expect(mockFrom).toHaveBeenCalledWith("rate_limit_log");
+    });
+
+    it("accepts loopback IPv6 ::1", async () => {
+      const result = await checkRateLimit("api:::1", "api");
+      expect(result.allowed).toBe(true);
+      expect(mockFrom).toHaveBeenCalledWith("rate_limit_log");
+    });
+
+    it("treats 'unknown' IP as invalid → stays 'unknown'", async () => {
+      const result = await checkRateLimit("api:unknown", "api");
+      expect(result.allowed).toBe(true);
+      expect(mockFrom).toHaveBeenCalledWith("rate_limit_log");
+    });
   });
 });

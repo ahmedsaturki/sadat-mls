@@ -2,10 +2,11 @@
 
 import Button from "@/components/ui/Button";
 import type { Messages } from "@/i18n/getMessages";
+import type { Locale } from "@/i18n/config";
 
 interface PropertyOwnerInfoProps {
   dict: Messages;
-  locale: string;
+  locale: Locale;
   owners: {
     owner_name: string;
     owner_phone: string;

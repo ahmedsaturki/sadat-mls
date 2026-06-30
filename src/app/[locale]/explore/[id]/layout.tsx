@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     metadataBase: new URL(baseUrl),
     title: property.title,
-    description: property.description || dict.landing?.heroDescription || "منصة إدارة العقارات السحابية لمدينة السادات",
+    description: property.description || dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
     alternates: {
       canonical: `${baseUrl}/${validLocale}/explore/${id}`,
       languages: {
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: validLocale === "ar" ? "ar_EG" : "en_US",
       siteName: "Sadat MLS Cloud",
       title: property.title,
-      description: property.description || dict.landing?.heroDescription || "منصة إدارة العقارات السحابية لمدينة السادات",
+      description: property.description || dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
       url: `${baseUrl}/${validLocale}/explore/${id}`,
       images: imageUrl ? [
         {
@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: property.title,
-      description: property.description || dict.landing?.heroDescription || "منصة إدارة العقارات السحابية لمدينة السادات",
+      description: property.description || dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
       images: imageUrl ? [imageUrl] : [],
     },
   };

@@ -4,18 +4,15 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 /**
  * Tracks form dirty state and warns before navigating away with unsaved changes.
+ * Uses browser's native beforeunload dialog (no i18n needed — browser handles locale).
  * @param isDirty - Whether the form has unsaved changes
- * @param message - Warning message (shown in browser dialog)
+ * @param message - Optional custom warning message (browser may ignore custom messages)
  */
 export function useUnsavedChangesWarning(isDirty: boolean, message?: string) {
-  const defaultMsg = typeof window !== "undefined"
-    ? (window.navigator.language.startsWith("ar") ? "لديك تغييرات غير محفوظة. هل أنت متأكد من المغادرة؟" : "You have unsaved changes. Are you sure you want to leave?")
-    : "You have unsaved changes.";
-
   useEffect(() => {
     if (!isDirty) return;
 
-    const warningMessage = message || defaultMsg;
+    const warningMessage = message || "You have unsaved changes. Are you sure you want to leave?";
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -25,7 +22,7 @@ export function useUnsavedChangesWarning(isDirty: boolean, message?: string) {
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isDirty, message, defaultMsg]);
+  }, [isDirty, message]);
 }
 
 /**

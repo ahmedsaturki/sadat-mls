@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { logger } from "@/lib/logger";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -10,14 +10,14 @@ const MAX_MAP_SIZE = 10_000;
 const CLEANUP_INTERVAL_MS = 60 * 1000;
 
 /* -------------------------------------------------------------------------- */
-/*  Supabase Client Connection Pooling                                        */
+/*  Supabase Client Connection Pooling (Service Role for RLS bypass)          */
 /* -------------------------------------------------------------------------- */
 
-let supabaseClient: Awaited<ReturnType<typeof createClient>> | null = null;
+let supabaseClient: ReturnType<typeof createServiceRoleClient> | null = null;
 
-async function getSupabaseClient(): Promise<Awaited<ReturnType<typeof createClient>>> {
+function getSupabaseClient(): ReturnType<typeof createServiceRoleClient> {
   if (!supabaseClient) {
-    supabaseClient = await createClient();
+    supabaseClient = createServiceRoleClient();
   }
   return supabaseClient;
 }
@@ -79,17 +79,52 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 /* -------------------------------------------------------------------------- */
 
 /**
+ * Validate whether a string is a plausible IPv4 or IPv6 address.
+ * Rejects bare numbers like "1", "0", "unknown", empty strings, etc.
+ * Used to sanitize IPs before PostgreSQL `inet` column insertion.
+ */
+function isValidIp(value: string): boolean {
+  if (!value || value === "unknown") return false;
+
+  // IPv4: four dot-separated decimal groups (0-255)
+  const ipv4 = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+  if (ipv4.test(value)) {
+    return value.split(".").every((octet) => {
+      const n = Number(octet);
+      return n >= 0 && n <= 255;
+    });
+  }
+
+  // IPv6: at least one colon, hex groups (simplified but covers real-world cases)
+  const ipv6 = /^([0-9a-fA-F]{0,4}:){2,}[0-9a-fA-F]{0,4}$/;
+  if (ipv6.test(value)) return true;
+
+  // IPv6 mapped/compatible forms (e.g. ::ffff:192.168.1.1)
+  const ipv6Mapped = /^::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+  if (ipv6Mapped.test(value)) return true;
+
+  // Loopback, unspecified, etc.
+  const ipv6Special = /^(::1|::$|[0:]+)$/;
+  if (ipv6Special.test(value)) return true;
+
+  return false;
+}
+
+/**
  * Extract the IP address from a rate-limit key.
  *
  * Keys follow the format `"prefix:ip"` where `ip` may itself contain colons
  * (IPv6).  We therefore split on the *last* colon and return everything after
  * it.  If no colon is found the whole key is returned as-is (fallback).
+ *
+ * Returns "unknown" if the extracted value is not a valid IP address.
  */
 function extractIp(key: string): string {
   const lastColon = key.lastIndexOf(":");
-  if (lastColon === -1) return key;
+  if (lastColon === -1) return isValidIp(key) ? key : "unknown";
   const ip = key.slice(lastColon + 1);
-  return ip || "unknown";
+  if (!ip) return "unknown";
+  return isValidIp(ip) ? ip : "unknown";
 }
 
 /**
@@ -203,7 +238,7 @@ async function checkRateLimitDb(
   const windowStart = new Date(Date.now() - config.windowMs).toISOString();
 
   try {
-    const supabase = await getSupabaseClient();
+    const supabase = getSupabaseClient();
 
     const { count, error: countError } = await supabase
       .from("rate_limit_log")

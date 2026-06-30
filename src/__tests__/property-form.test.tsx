@@ -109,7 +109,7 @@ describe("PropertyFeatures", () => {
 describe("PropertyOwnerInfo", () => {
   const defaultProps = {
     dict: mockDict,
-    locale: "en",
+    locale: "en" as const,
     owners: [
       { owner_name: "", owner_phone: "", owner_email: "", notes: "" },
     ],

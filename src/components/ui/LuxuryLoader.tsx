@@ -5,9 +5,10 @@ import { Sparkles } from "lucide-react";
 
 interface LuxuryLoaderProps {
   fullScreen?: boolean;
+  text?: string;
 }
 
-export function LuxuryLoader({ fullScreen = false }: LuxuryLoaderProps) {
+export function LuxuryLoader({ fullScreen = false, text = "Loading..." }: LuxuryLoaderProps) {
   return (
     <div className={`flex flex-col items-center justify-center w-full p-8 ${fullScreen ? "min-h-screen bg-gray-50" : "min-h-[400px]"}`}>
       <motion.div
@@ -43,7 +44,7 @@ export function LuxuryLoader({ fullScreen = false }: LuxuryLoaderProps) {
             className="h-full w-1/2 bg-[#C49A2A] rounded-full"
           />
         </motion.div>
-        <p className="text-sm font-medium text-gray-500 tracking-widest uppercase mt-2">Loading...</p>
+        <p className="text-sm font-medium text-gray-500 tracking-widest uppercase mt-2">{text}</p>
       </div>
     </div>
   );

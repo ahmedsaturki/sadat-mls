@@ -22,6 +22,9 @@ interface PaginatedTableProps<T> {
   emptyHint?: string;
   resultsLabel?: string;
   dir?: "rtl" | "ltr";
+  nextPageLabel?: string;
+  previousPageLabel?: string;
+  pageLabel?: string;
 }
 
 export default function PaginatedTable<T extends { id?: string | number }>({
@@ -35,6 +38,9 @@ export default function PaginatedTable<T extends { id?: string | number }>({
   emptyHint,
   resultsLabel = "results",
   dir = "rtl",
+  nextPageLabel = "Next",
+  previousPageLabel = "Previous",
+  pageLabel = "Page",
 }: PaginatedTableProps<T>) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -117,7 +123,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
               className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label={dir === "rtl" ? "Next" : "Previous"}
+              aria-label={dir === "rtl" ? nextPageLabel : previousPageLabel}
             >
               {dir === "rtl" ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
@@ -136,7 +142,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
                 <button
                   key={pageNum}
                   onClick={() => setPage(pageNum)}
-                  aria-label={`Page ${pageNum}`}
+                  aria-label={`${pageLabel} ${pageNum}`}
                   aria-current={page === pageNum ? "page" : undefined}
                   className={`w-8 h-8 rounded-lg text-sm font-medium ${
                     page === pageNum
@@ -152,7 +158,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label={dir === "rtl" ? "Previous" : "Next"}
+              aria-label={dir === "rtl" ? previousPageLabel : nextPageLabel}
             >
               {dir === "rtl" ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>

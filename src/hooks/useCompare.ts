@@ -19,9 +19,13 @@ export type PropertyForComparison = {
 
 const MAX_COMPARE = 4;
 
+interface CompareState {
+  ids: string[];
+  props: PropertyForComparison[];
+}
+
 export function useCompare() {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [properties, setProperties] = useState<PropertyForComparison[]>([]);
+  const [state, setState] = useState<CompareState>({ ids: [], props: [] });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -29,8 +33,7 @@ export function useCompare() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setSelectedIds(parsed.ids || []);
-        setProperties(parsed.props || []);
+        setState({ ids: parsed.ids || [], props: parsed.props || [] });
       } catch {
         // Ignore parse errors
       }
@@ -45,53 +48,45 @@ export function useCompare() {
 
   const addProperty = useCallback((property: PropertyForComparison): boolean => {
     let added = false;
-    setSelectedIds(prev => {
-      if (prev.length >= MAX_COMPARE || prev.includes(property.id)) {
-        added = false;
+    setState(prev => {
+      if (prev.ids.length >= MAX_COMPARE || prev.ids.includes(property.id)) {
         return prev;
       }
-      const newIds = [...prev, property.id];
-      setProperties(prevProps => {
-        const newProps = [...prevProps, property];
-        saveToStorage(newIds, newProps);
-        return newProps;
-      });
+      const newIds = [...prev.ids, property.id];
+      const newProps = [...prev.props, property];
+      saveToStorage(newIds, newProps);
       added = true;
-      return newIds;
+      return { ids: newIds, props: newProps };
     });
     return added;
   }, [saveToStorage]);
 
   const removeProperty = useCallback((id: string) => {
-    setSelectedIds(prev => {
-      const newIds = prev.filter(pid => pid !== id);
-      setProperties(prevProps => {
-        const newProps = prevProps.filter(p => p.id !== id);
-        saveToStorage(newIds, newProps);
-        return newProps;
-      });
-      return newIds;
+    setState(prev => {
+      const newIds = prev.ids.filter(pid => pid !== id);
+      const newProps = prev.props.filter(p => p.id !== id);
+      saveToStorage(newIds, newProps);
+      return { ids: newIds, props: newProps };
     });
   }, [saveToStorage]);
 
   const clearAll = useCallback(() => {
-    setSelectedIds([]);
-    setProperties([]);
+    setState({ ids: [], props: [] });
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("compare_properties");
     }
   }, []);
 
-  const isSelected = useCallback((id: string) => selectedIds.includes(id), [selectedIds]);
+  const isSelected = useCallback((id: string) => state.ids.includes(id), [state.ids]);
 
   return {
-    selectedIds,
-    properties,
+    selectedIds: state.ids,
+    properties: state.props,
     addProperty,
     removeProperty,
     clearAll,
     isSelected,
-    count: selectedIds.length,
+    count: state.ids.length,
     max: MAX_COMPARE,
   };
 }

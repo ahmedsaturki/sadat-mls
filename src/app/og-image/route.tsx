@@ -6,7 +6,7 @@ export const runtime = "edge";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const title = searchParams.get("title") || "Sadat MLS Cloud";
-  const description = searchParams.get("description") || "منصة إدارة العقارات السحابية لمدينة السادات";
+  const description = searchParams.get("description") || "Cloud real estate platform for Sadat City";
   const locale = searchParams.get("locale") || "ar";
   const isRTL = locale === "ar";
 

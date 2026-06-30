@@ -73,12 +73,10 @@
     "goBack": "Go back",
     "searchPlaceholder": "Search...",
     "maxCompare": "Maximum {{max}} properties",
-    "search": "Search",
     "navigationMenu": "Navigation menu",
     "mobileNavigation": "Mobile navigation",
     "mainNavigation": "Main navigation",
     "sidebarNavigation": "Sidebar navigation",
-    "retry": "Retry",
     "breadcrumb": "Breadcrumb",
     "previousImage": "Previous image",
     "nextImage": "Next image",
@@ -87,7 +85,16 @@
     "changePropertyStatus": "Change property status",
     "removeFilter": "Remove {{label}}",
     "propertyInquiry": "Property Inquiry",
-    "loadingPage": "جاري التحميل..."
+    "loadingPage": "Loading...",
+    "nextPage": "Next page",
+    "previousPage": "Previous page",
+    "page": "Page {{number}}",
+    "skipToContent": "Skip to content",
+    "officeLogo": "Office logo",
+    "goToImage": "Go to image {{number}}",
+    "pageNotFound": "The requested page was not found or has been moved.",
+    "backToDashboard": "Back to dashboard",
+    "developerErrorInfo": "Developer Error Info:"
   },
   "nav": {
     "explore": "Explore Properties",
@@ -192,15 +199,16 @@
     "invalidResetLink": "Invalid or expired reset link",
     "redirecting": "Redirecting...",
     "emailNotVerified": "Please verify your email before signing in",
-    "resendVerification": "Resend verification email",
     "logoutConfirmTitle": "Sign Out?",
     "logoutConfirmDesc": "Are you sure you want to sign out?",
     "logoutButton": "Sign Out",
     "logoutSuccess": "Signed out successfully",
     "logoutError": "Error signing out",
-"loggingOut": "Signing out...",
-     "redirecting": "Redirecting to home...",
-     "backToHome": "Go to home"
+    "loggingOut": "Signing out...",
+    "redirectingToHome": "Redirecting to home...",
+    "goHome": "Go to home",
+    "dashboardError": "Dashboard Error",
+    "dashboardErrorMessage": "An error occurred in the dashboard."
   },
   "admin": {
     "dashboard": "Super Admin Dashboard",
@@ -269,7 +277,10 @@
     "notFound": "Office Not Found",
     "notFoundDesc": "This office was not found",
     "officeProperties": "Office Properties",
-    "noOfficeProperties": "No properties available currently"
+    "noOfficeProperties": "No properties available currently",
+    "errorTitle": "Admin Error",
+    "errorMessage": "An error occurred in the admin panel.",
+    "backToAdmin": "Back to admin"
   },
   "office": {
     "dashboard": "Office Dashboard",

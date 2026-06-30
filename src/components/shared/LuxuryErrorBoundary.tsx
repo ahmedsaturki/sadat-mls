@@ -8,9 +8,18 @@ import { logger } from "@/lib/logger";
 interface LuxuryErrorBoundaryProps {
   error: Error & { digest?: string };
   reset: () => void;
+  title?: string;
+  description?: string;
+  retryLabel?: string;
 }
 
-export function LuxuryErrorBoundary({ error, reset }: LuxuryErrorBoundaryProps) {
+export function LuxuryErrorBoundary({
+  error,
+  reset,
+  title = "Oops!",
+  description = "An unexpected error has occurred. Please try again.",
+  retryLabel = "Try again",
+}: LuxuryErrorBoundaryProps) {
   useEffect(() => {
     logger.error("LuxuryErrorBoundary caught error", { error: error.message, digest: error.digest });
   }, [error]);
@@ -32,10 +41,10 @@ export function LuxuryErrorBoundary({ error, reset }: LuxuryErrorBoundaryProps) 
             <AlertTriangle className="w-8 h-8 text-[#C49A2A]" />
           </motion.div>
           <h2 className="text-2xl font-bold text-white mb-2">
-            Oops!
+            {title}
           </h2>
           <p className="text-white/70 mb-6">
-            An unexpected error has occurred. Please try again.
+            {description}
           </p>
           
           <button
@@ -43,7 +52,7 @@ export function LuxuryErrorBoundary({ error, reset }: LuxuryErrorBoundaryProps) 
             className="group flex items-center justify-center gap-2 w-full bg-[#C49A2A] text-[#1B2D4F] px-6 py-3 rounded-xl font-semibold hover:bg-[#C49A2A]/90 transition-all duration-300 focus:ring-2 focus:ring-[#C49A2A]/50 focus:outline-none shadow-lg shadow-[#C49A2A]/20 hover:shadow-xl hover:shadow-[#C49A2A]/30"
           >
             <RefreshCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-            Try again
+            {retryLabel}
           </button>
         </div>
         

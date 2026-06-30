@@ -34,8 +34,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Sadat MLS Cloud - منصة العقارات السحابية",
-  description: "منصة إدارة العقارات السحابية لمدينة السادات",
+  title: "Sadat MLS Cloud",
+  description: "Cloud real estate platform for Sadat City",
   manifest: "/manifest.json",
 };
 
@@ -74,7 +74,7 @@ export default async function RootLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[100] bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg"
         >
-          تخطي إلى المحتوى الرئيسي
+          Skip to content
         </a>
         <Providers>
           <main id="main-content" tabIndex={-1}>

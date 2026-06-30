@@ -73,12 +73,10 @@
     "goBack": "رجوع",
     "searchPlaceholder": "بحث...",
     "maxCompare": "الحد الأقصى {{max}} عقارات",
-    "search": "بحث",
     "navigationMenu": "قائمة التنقل",
     "mobileNavigation": "تنقل الجوال",
     "mainNavigation": "التنقل الرئيسي",
     "sidebarNavigation": "التنقل الجانبي",
-    "retry": "إعادة المحاولة",
     "breadcrumb": "مسار التنقل",
     "previousImage": "الصورة السابقة",
     "nextImage": "الصورة التالية",
@@ -87,7 +85,16 @@
     "changePropertyStatus": "تغيير حالة العقار",
     "removeFilter": "إزالة {{label}}",
     "propertyInquiry": "استفسار عن عقار",
-    "loadingPage": "جاري التحميل..."
+    "loadingPage": "جاري التحميل...",
+    "nextPage": "الصفحة التالية",
+    "previousPage": "الصفحة السابقة",
+    "page": "صفحة {{number}}",
+    "skipToContent": "تخطي إلى المحتوى",
+    "officeLogo": "شعار المكتب",
+    "goToImage": "الانتقال إلى الصورة {{number}}",
+    "pageNotFound": "الصفحة المطلوبة غير موجودة أو تم نقلها.",
+    "backToDashboard": "العودة للوحة التحكم",
+    "developerErrorInfo": "معلومات خطأ المطور:"
   },
   "nav": {
     "explore": "استكشاف العقارات",
@@ -192,15 +199,16 @@
     "invalidResetLink": "رابط إعادة التعيين غير صالح أو منتهي الصلاحية",
     "redirecting": "جاري التحويل...",
     "emailNotVerified": "يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول",
-    "resendVerification": "إعادة إرسال رابط التحقق",
     "logoutConfirmTitle": "تسجيل الخروج؟",
     "logoutConfirmDesc": "هل أنت متأكد من تسجيل الخروج؟",
     "logoutButton": "تسجيل الخروج",
     "logoutSuccess": "تم تسجيل الخروج بنجاح",
     "logoutError": "خطأ في تسجيل الخروج",
-"loggingOut": "جاري تسجيل الخروج...",
-     "redirecting": "جاري التحويل للرئيسية...",
-     "backToHome": "الذهاب للرئيسية"
+    "loggingOut": "جاري تسجيل الخروج...",
+    "redirectingToHome": "جاري التحويل للرئيسية...",
+    "goHome": "الذهاب للرئيسية",
+    "dashboardError": "خطأ في لوحة التحكم",
+    "dashboardErrorMessage": "حدث خطأ في لوحة التحكم."
   },
   "admin": {
     "dashboard": "لوحة تحكم المسؤول العام",
@@ -269,7 +277,10 @@
     "notFound": "المكتب غير موجود",
     "notFoundDesc": "لم يتم العثور على هذا المكتب",
     "officeProperties": "عقارات المكتب",
-    "noOfficeProperties": "لا توجد عقارات متاحة حالياً"
+    "noOfficeProperties": "لا توجد عقارات متاحة حالياً",
+    "errorTitle": "خطأ في لوحة التحكم",
+    "errorMessage": "حدث خطأ في لوحة تحكم المسؤول العام.",
+    "backToAdmin": "العودة للوحة التحكم"
   },
   "office": {
     "dashboard": "لوحة تحكم المكتب",

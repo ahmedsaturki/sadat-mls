@@ -45,7 +45,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
   } else if (userRole === ROLES.OFFICE_ADMIN) {
     navLinks.push({ href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard, prefetch: false });
     navLinks.push({ href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail, prefetch: false });
-    navLinks.push({ href: `/${locale}/dashboard/favorites`, label: dict.common.favorites || "المفضلة", icon: Heart, prefetch: false });
+    navLinks.push({ href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart, prefetch: false });
     navLinks.push({ href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings, prefetch: false });
   }
 

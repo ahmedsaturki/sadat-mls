@@ -86,9 +86,9 @@ const FavoriteButton = memo(function FavoriteButton({
 
         if (!error) {
           setIsFavorited(false);
-          showToast((dict && dict.common && dict.common.removeFavorite) || "Removed from favorites", "success");
+          showToast(dict?.common?.removeFavorite || "Removed from favorites", "success");
         } else {
-          showToast((dict && dict.common && dict.common.error) || "Failed to remove favorite", "error");
+          showToast(dict?.common?.error || "Failed to remove favorite", "error");
           logger.error("Failed to remove favorite", { error });
         }
       } else {
@@ -98,15 +98,15 @@ const FavoriteButton = memo(function FavoriteButton({
 
         if (!error) {
           setIsFavorited(true);
-          showToast((dict && dict.common && dict.common.addFavorite) || "Added to favorites", "success");
+          showToast(dict?.common?.addFavorite || "Added to favorites", "success");
         } else {
-          showToast((dict && dict.common && dict.common.error) || "Failed to add favorite", "error");
+          showToast(dict?.common?.error || "Failed to add favorite", "error");
           logger.error("Failed to add favorite", { error });
         }
       }
     } catch (err) {
       logger.error("Failed to toggle favorite", { error: err instanceof Error ? err.message : String(err) });
-      showToast((dict && dict.common && dict.common.error) || "An error occurred", "error");
+      showToast(dict?.common?.error || "An error occurred", "error");
     } finally {
       setLoading(false);
     }
@@ -126,7 +126,7 @@ const FavoriteButton = memo(function FavoriteButton({
         loading && "opacity-50 cursor-not-allowed",
         className
       )}
-      aria-label={isFavorited ? ((dict && dict.common && dict.common.removeFavorite) || "Remove from favorites") : ((dict && dict.common && dict.common.addFavorite) || "Add to favorites")}
+      aria-label={isFavorited ? (dict?.common?.removeFavorite || "Remove from favorites") : (dict?.common?.addFavorite || "Add to favorites")}
       aria-pressed={isFavorited}
     >
       <Heart

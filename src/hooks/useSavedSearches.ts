@@ -40,24 +40,30 @@ export function useSavedSearches() {
       filters,
       createdAt: new Date().toISOString(),
     };
-    const updated = [...savedSearches, newSearch];
-    setSavedSearches(updated);
-    saveToStorage(updated);
-  }, [savedSearches, saveToStorage]);
+    setSavedSearches(prev => {
+      const updated = [...prev, newSearch];
+      saveToStorage(updated);
+      return updated;
+    });
+  }, [saveToStorage]);
 
   const removeSavedSearch = useCallback((id: string) => {
-    const updated = savedSearches.filter(s => s.id !== id);
-    setSavedSearches(updated);
-    saveToStorage(updated);
-  }, [savedSearches, saveToStorage]);
+    setSavedSearches(prev => {
+      const updated = prev.filter(s => s.id !== id);
+      saveToStorage(updated);
+      return updated;
+    });
+  }, [saveToStorage]);
 
   const updateLastNotified = useCallback((id: string) => {
-    const updated = savedSearches.map(s =>
-      s.id === id ? { ...s, lastNotified: new Date().toISOString() } : s
-    );
-    setSavedSearches(updated);
-    saveToStorage(updated);
-  }, [savedSearches, saveToStorage]);
+    setSavedSearches(prev => {
+      const updated = prev.map(s =>
+        s.id === id ? { ...s, lastNotified: new Date().toISOString() } : s
+      );
+      saveToStorage(updated);
+      return updated;
+    });
+  }, [saveToStorage]);
 
   const clearAll = useCallback(() => {
     setSavedSearches([]);

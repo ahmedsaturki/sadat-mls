@@ -28,9 +28,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { email } = await request.json();
-  
-  if (!email || !email.includes("@")) {
+  let body: { email?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const { email } = body;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || typeof email !== "string" || !emailRegex.test(email.trim())) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
