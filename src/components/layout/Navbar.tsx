@@ -97,6 +97,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               <Link
                 href={`/${locale}/logout`}
                 className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                aria-label={dict.common.logout}
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">{dict.common.logout}</span>

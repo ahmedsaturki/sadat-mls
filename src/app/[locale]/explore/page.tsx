@@ -198,9 +198,7 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
 
   // Initialize on mount
   useEffect(() => {
-    mountedRef.current = true;
     loadZonesAndTypes();
-    return () => { mountedRef.current = false; };
   }, [loadZonesAndTypes]);
 
   const loadMore = useCallback(() => {

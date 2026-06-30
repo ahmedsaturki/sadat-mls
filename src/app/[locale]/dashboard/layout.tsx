@@ -29,9 +29,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const dict = getMessages("ar");
+
   return (
     <AuthGuard>
-      <ErrorBoundaryWrapper fallbackTitle="Dashboard Error" fallbackMessage="An error occurred in the dashboard.">
+      <ErrorBoundaryWrapper
+        fallbackTitle={dict.auth.dashboardError}
+        fallbackMessage={dict.auth.dashboardErrorMessage}
+      >
         {children}
       </ErrorBoundaryWrapper>
     </AuthGuard>

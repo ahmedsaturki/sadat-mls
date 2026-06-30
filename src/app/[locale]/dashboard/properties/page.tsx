@@ -165,18 +165,22 @@ export default function PropertiesPage({
     if (!deleteId) return;
     setDeleting(true);
 
-    const { error } = await supabase.from("properties").delete().eq("id", deleteId);
+    try {
+      const { error } = await supabase.from("properties").delete().eq("id", deleteId);
 
-    if (!error) {
-      showToast(dict.common.delete + " ✓", "success");
-      setProperties((prev) => prev.filter((p) => p.id !== deleteId));
-    } else {
-      showToast(error.message, "error");
+      if (!error) {
+        showToast(dict.common.delete + " ✓", "success");
+        setProperties((prev) => prev.filter((p) => p.id !== deleteId));
+      } else {
+        showToast(error.message, "error");
+      }
+    } catch {
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
+      setDeleteId(null);
     }
-
-    setDeleting(false);
-    setShowDeleteModal(false);
-    setDeleteId(null);
   };
 
   if (loading) {

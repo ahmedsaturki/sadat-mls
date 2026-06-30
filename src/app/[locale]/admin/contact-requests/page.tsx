@@ -92,20 +92,24 @@ export default function AdminContactRequestsPage({
     if (!deleteId) return;
     setDeleting(true);
 
-    const { error } = await supabase
-      .from("contact_requests")
-      .delete()
-      .eq("id", deleteId);
+    try {
+      const { error } = await supabase
+        .from("contact_requests")
+        .delete()
+        .eq("id", deleteId);
 
-    if (error) {
+      if (error) {
+        showToast(dict.common.unexpectedError, "error");
+      } else {
+        setRequests((prev) => prev.filter((r) => r.id !== deleteId));
+        showToast(dict.common.delete + " ✓", "success");
+      }
+    } catch {
       showToast(dict.common.unexpectedError, "error");
-    } else {
-      setRequests((prev) => prev.filter((r) => r.id !== deleteId));
-      showToast(dict.common.delete + " ✓", "success");
+    } finally {
+      setDeleteId(null);
+      setDeleting(false);
     }
-
-    setDeleteId(null);
-    setDeleting(false);
   };
 
   const getTypeIcon = (type: string) => {
@@ -169,11 +173,12 @@ export default function AdminContactRequestsPage({
         </div>
 
         {/* Contact Type Filter */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap" role="group" aria-label={dict.contactRequests.type}>
           {(["all", "whatsapp", "phone", "email"] as const).map((type) => (
             <button
               key={type}
               onClick={() => setFilter(type)}
+              aria-pressed={filter === type}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === type
                   ? "bg-blue-100 text-blue-700"
