@@ -50,6 +50,7 @@ export function useCompare() {
     let added = false;
     setState(prev => {
       if (prev.ids.length >= MAX_COMPARE || prev.ids.includes(property.id)) {
+        added = false;
         return prev;
       }
       const newIds = [...prev.ids, property.id];

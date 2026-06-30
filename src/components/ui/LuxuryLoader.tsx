@@ -8,7 +8,7 @@ interface LuxuryLoaderProps {
   text?: string;
 }
 
-export function LuxuryLoader({ fullScreen = false, text = "Loading..." }: LuxuryLoaderProps) {
+export function LuxuryLoader({ fullScreen = false, text }: LuxuryLoaderProps) {
   return (
     <div className={`flex flex-col items-center justify-center w-full p-8 ${fullScreen ? "min-h-screen bg-gray-50" : "min-h-[400px]"}`}>
       <motion.div

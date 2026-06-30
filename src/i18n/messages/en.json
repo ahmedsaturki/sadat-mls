@@ -530,7 +530,9 @@
     "yourPhone": "Your phone",
     "yourMessage": "Your message...",
     "successMessage": "Request sent successfully!",
-    "propertyInquiry": "Property Inquiry"
+    "propertyInquiry": "Property Inquiry",
+    "nameRequired": "Name is required",
+    "messageRequired": "Message is required"
   },
   "footer": {
     "rights": "All rights reserved",

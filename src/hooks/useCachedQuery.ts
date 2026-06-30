@@ -99,5 +99,13 @@ export function useDebouncedQuery<T>(
     });
   }, [key, queryFn, delay]);
 
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   return { data, loading, refetch: fetchData };
 }

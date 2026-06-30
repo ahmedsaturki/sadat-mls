@@ -194,6 +194,11 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
   }, [supabase, locale, router]);
 
   const loadProperty = useCallback(async () => {
+    if (!propertyId) {
+      router.push(`/${locale}/dashboard/properties`);
+      return;
+    }
+
     const {
       data: { user },
     } = await supabase.auth.getUser();

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
-import { sanitize } from "@/lib/security/sanitize";
 import { logger } from "@/lib/logger";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { agentSchema } from "@/lib/validation";
@@ -86,9 +85,11 @@ export async function POST(request: NextRequest) {
   }
 
   const { full_name, email, password } = result.data;
-  const sanitizedEmail = sanitize(email);
-  const sanitizedName = sanitize(full_name);
-  const phone = result.data.phone ? sanitize(result.data.phone) : "";
+  // Zod schema already validates format — do NOT run HTML-entity sanitizer on
+  // email/name/phone as it corrupts values (e.g. adds "&amp;" into addresses).
+  const sanitizedEmail = email.trim();
+  const sanitizedName = full_name.trim();
+  const phone = result.data.phone ? result.data.phone.trim() : "";
 
   // Role assignment based on caller's role
   // SUPER_ADMIN can specify any role, OFFICE_ADMIN can only create OFFICE_AGENT
@@ -126,7 +127,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (authError) {
-    logger.error("Failed to create user", { error: authError.message, email: sanitizedEmail });
+    logger.error("Failed to create user", { error: authError.message });
     return NextResponse.json({ error: "Failed to create user account" }, { status: 400 });
   }
 
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  logger.info("Agent created successfully", { userId: authData.user?.id, email, createdBy: user.id });
+  logger.info("Agent created successfully", { userId: authData.user?.id, createdBy: user.id });
   return NextResponse.json({ success: true, userId: authData.user?.id });
 }
 
@@ -181,6 +182,10 @@ export async function DELETE(request: NextRequest) {
 
   if (!userId) {
     return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
+  }
+
+  if (userId === user.id) {
+    return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
   }
 
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

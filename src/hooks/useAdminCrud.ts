@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
@@ -57,7 +57,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
   const [nameAr, setNameAr] = useState("");
   const [nameEn, setNameEn] = useState("");
   const { showToast } = useToast();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const loadItems = useCallback(async () => {
     try {

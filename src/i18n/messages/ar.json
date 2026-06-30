@@ -530,7 +530,9 @@
     "yourPhone": "رقم هاتفك",
     "yourMessage": "رسالتك...",
     "successMessage": "تم إرسال الطلب بنجاح!",
-    "propertyInquiry": "استفسار عن عقار"
+    "propertyInquiry": "استفسار عن عقار",
+    "nameRequired": "الاسم مطلوب",
+    "messageRequired": "الرسالة مطلوبة"
   },
   "footer": {
     "rights": "جميع الحقوق محفوظة",

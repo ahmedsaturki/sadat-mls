@@ -95,12 +95,6 @@ export default function ContactModal({
     e.preventDefault();
     if (!propertyId || !officeId) return;
 
-    const { locked } = recordContactAttempt();
-    if (locked) {
-      setError(dict.contact.error || "Too many attempts. Please try again later.");
-      return;
-    }
-
     const trimmedName = formData.visitor_name.trim();
     const trimmedMessage = formData.message.trim();
 
@@ -111,6 +105,12 @@ export default function ContactModal({
 
     if (!trimmedMessage || trimmedMessage.length < 2) {
       setError(dict.contact.messageRequired || "Message is required");
+      return;
+    }
+
+    const { locked } = recordContactAttempt();
+    if (locked) {
+      setError(dict.contact.error || "Too many attempts. Please try again later.");
       return;
     }
 
