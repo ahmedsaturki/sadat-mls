@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { WifiOff, RefreshCw } from "lucide-react";
+import enDict from "@/i18n/messages/en.json";
+import arDict from "@/i18n/messages/ar.json";
 
 const TRANSLATIONS = {
   ar: {
-    title: "أنت غير متصل بالإنترنت",
-    message: "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
-    retry: "إعادة المحاولة",
+    title: arDict.offline.title,
+    message: arDict.offline.description,
+    retry: arDict.offline.tryAgain,
     dir: "rtl" as const,
   },
   en: {
-    title: "You are offline",
-    message: "Please check your internet connection and try again.",
-    retry: "Try Again",
+    title: enDict.offline.title,
+    message: enDict.offline.description,
+    retry: enDict.offline.tryAgain,
     dir: "ltr" as const,
   },
 } as const;

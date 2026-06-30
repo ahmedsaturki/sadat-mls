@@ -3,6 +3,8 @@
 import { Component, type ReactNode } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { logger } from "@/lib/logger";
+import enDict from "@/i18n/messages/en.json";
+import arDict from "@/i18n/messages/ar.json";
 
 interface Props {
   children: ReactNode;
@@ -17,13 +19,11 @@ interface State {
 
 function getBilingualText() {
   if (typeof window === "undefined") {
-    return { title: "An error occurred", message: "An unexpected error occurred. Please try again.", retry: "Try again" };
+    return { title: enDict.errorBoundary.title, message: enDict.errorBoundary.message, retry: enDict.errorBoundary.retry };
   }
   const isAr = window.location.pathname.startsWith("/ar");
-  if (isAr) {
-    return { title: "حدث خطأ", message: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", retry: "حاول مرة أخرى" };
-  }
-  return { title: "An error occurred", message: "An unexpected error occurred. Please try again.", retry: "Try again" };
+  const dict = isAr ? arDict : enDict;
+  return { title: dict.errorBoundary.title, message: dict.errorBoundary.message, retry: dict.errorBoundary.retry };
 }
 
 export default class ErrorBoundary extends Component<Props, State> {

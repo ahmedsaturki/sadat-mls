@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, createContext, useContext, useCallback } from "react";
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import enDict from "@/i18n/messages/en.json";
 
 type ToastType = "success" | "error" | "info" | "warning";
 
@@ -86,7 +87,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <button
                 onClick={() => removeToast(toast.id)}
                 className="shrink-0 p-1 rounded-full hover:bg-black/10"
-                aria-label="Dismiss"
+                aria-label={enDict.common.dismiss}
               >
                 <X className="w-4 h-4" />
               </button>

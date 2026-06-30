@@ -573,5 +573,10 @@
     "title": "You are offline",
     "description": "Please check your internet connection and try again.",
     "tryAgain": "Try Again"
+  },
+  "errorBoundary": {
+    "title": "An error occurred",
+    "message": "An unexpected error occurred. Please try again.",
+    "retry": "Try again"
   }
 }
