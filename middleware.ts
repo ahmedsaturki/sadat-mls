@@ -89,6 +89,16 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(NextResponse.next());
   }
 
+  // 2. Skip RSC prefetch requests – let Next.js handle them natively
+  if (request.nextUrl.searchParams.has("_rsc")) {
+    return NextResponse.next();
+  }
+
+  // 3. Skip Vercel internal paths (e.g., /<hash>/vitals for analytics)
+  if (/^\/[a-f0-9]{16}\/vitals$/.test(pathname)) {
+    return NextResponse.next();
+  }
+
   // 2. Create Supabase client for session validation
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

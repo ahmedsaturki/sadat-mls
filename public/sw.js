@@ -1,5 +1,5 @@
-const STATIC_CACHE = "sadat-static-v2";
-const DYNAMIC_CACHE = "sadat-dynamic-v2";
+const STATIC_CACHE = "sadat-static-v3";
+const DYNAMIC_CACHE = "sadat-dynamic-v3";
 
 const STATIC_ASSETS = [
   "/",
@@ -37,6 +37,9 @@ self.addEventListener("fetch", (event) => {
 
   // Skip non-GET requests
   if (request.method !== "GET") return;
+
+  // Skip RSC prefetch requests (let Next.js handle them natively)
+  if (url.searchParams.has("_rsc")) return;
 
   // Skip unsupported schemes (chrome-extension, extension, etc.)
   if (!url.protocol.startsWith("http")) return;
