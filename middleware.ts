@@ -95,8 +95,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // 3. Skip Vercel internal paths (e.g., /<hash>/vitals for analytics)
+  //    NextResponse.next() would route to the Next.js serverless function which
+  //    doesn't handle this path. Return an empty 200 so the browser doesn't log
+  //    a "Fetch failed loading" error for the analytics POST.
   if (/^\/[a-f0-9]{16}\/vitals$/.test(pathname)) {
-    return NextResponse.next();
+    return new NextResponse(null, { status: 200 });
   }
 
   // 2. Create Supabase client for session validation

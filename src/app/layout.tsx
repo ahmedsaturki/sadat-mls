@@ -56,7 +56,7 @@ export default async function RootLayout({
           id="sw-registration"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
-            __html: `if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})});}`,
+            __html: `if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").then(r=>r.update()).catch(()=>{})});}`,
           }}
         />
         <script
