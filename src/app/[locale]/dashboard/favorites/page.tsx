@@ -79,6 +79,28 @@ function FavoritesContent({
     loadFavorites();
   }, [loadFavorites]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`favorites-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "property_favorites",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => loadFavorites()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, user, loadFavorites]);
+
   return (
     <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <div className="max-w-7xl mx-auto">
@@ -95,25 +117,26 @@ function FavoritesContent({
           </div>
         ) : properties.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {properties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                id={property.id}
-                title={property.title}
-                price={property.price}
-                area={property.area}
-                bedrooms={property.bedrooms}
-                bathrooms={property.bathrooms}
-                zone={property.zones?.name_ar}
-                imageUrl={property.primaryImage || undefined}
-                status={property.status}
-                officeName={property.offices?.name || ""}
-                locale={locale}
-                type={property.property_types?.name_ar}
-                dict={dict}
-              />
-            ))}
-          </div>
+{properties.map((property) => (
+               <PropertyCard
+                 key={property.id}
+                 id={property.id}
+                 title={property.title}
+                 price={property.price}
+                 area={property.area}
+                 bedrooms={property.bedrooms}
+                 bathrooms={property.bathrooms}
+                 zone={property.zones?.name_ar}
+                 imageUrl={property.primaryImage || undefined}
+                 status={property.status}
+                 officeName={property.offices?.name || ""}
+                 locale={locale}
+                 type={property.property_types?.name_ar}
+                 dict={dict}
+                 userId={user?.id || null}
+               />
+             ))}
+           </div>
         ) : (
           <div className="text-center py-16" role="status">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

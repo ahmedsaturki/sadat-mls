@@ -60,7 +60,34 @@
     "info": "Info",
     "notFound": "Page Not Found",
     "notFoundDesc": "The page you are looking for does not exist or has been moved.",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "backToExplore": "Back to Explore",
+    "feature": "Feature",
+    "primaryImage": "Primary image",
+    "setAsPrimary": "Set as primary image",
+    "removeImage": "Remove image",
+    "editAltText": "Edit image description",
+    "addToComparison": "Add to comparison",
+    "removeFromComparison": "Remove from comparison",
+    "dismiss": "Dismiss",
+    "goBack": "Go back",
+    "searchPlaceholder": "Search...",
+    "maxCompare": "Maximum {{max}} properties",
+    "search": "Search",
+    "navigationMenu": "Navigation menu",
+    "mobileNavigation": "Mobile navigation",
+    "mainNavigation": "Main navigation",
+    "sidebarNavigation": "Sidebar navigation",
+    "retry": "Retry",
+    "breadcrumb": "Breadcrumb",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "imageLightbox": "Image lightbox",
+    "closeLightbox": "Close lightbox",
+    "changePropertyStatus": "Change property status",
+    "removeFilter": "Remove {{label}}",
+    "propertyInquiry": "Property Inquiry",
+    "loadingPage": "جاري التحميل..."
   },
   "nav": {
     "explore": "Explore Properties",
@@ -163,7 +190,17 @@
     "resendVerificationSent": "Verification email sent",
     "passwordMinLength": "Password must be at least 8 characters",
     "invalidResetLink": "Invalid or expired reset link",
-    "redirecting": "Redirecting..."
+    "redirecting": "Redirecting...",
+    "emailNotVerified": "Please verify your email before signing in",
+    "resendVerification": "Resend verification email",
+    "logoutConfirmTitle": "Sign Out?",
+    "logoutConfirmDesc": "Are you sure you want to sign out?",
+    "logoutButton": "Sign Out",
+    "logoutSuccess": "Signed out successfully",
+    "logoutError": "Error signing out",
+"loggingOut": "Signing out...",
+     "redirecting": "Redirecting to home...",
+     "backToHome": "Go to home"
   },
   "admin": {
     "dashboard": "Super Admin Dashboard",
@@ -300,8 +337,13 @@
     "propertyNameMin": "Name too short",
     "propertyTitleMin": "This field is required",
     "propertyTitleMax": "Value too large",
-    "ownerPhoneInvalid": "Invalid phone number",
+    "generateDescription": "Generate Description",
+    "generatingDescription": "Generating...",
+    "generateDescriptionHint": "Enter property description or use AI to generate one",
+    "aiGenerated": "AI Generated",
+    "aiFailed": "Failed to generate description",
     "ownerEmailInvalid": "Invalid email address",
+    "ownerPhoneInvalid": "Invalid phone number",
     "notFound": "Office Not Found",
     "ownerUpdateFailed": "Failed to update owner information",
     "ownerCreateFailed": "Failed to add owner information",
@@ -354,6 +396,8 @@
     "bedrooms": "Bedrooms",
     "bathrooms": "Bathrooms",
     "clearFilters": "Clear Filters",
+    "advancedFilters": "Advanced Filters",
+    "openGallery": "Open image gallery",
     "applyFilters": "Apply Filters",
     "tryDifferentSearch": "Try a different search or clear filters",
     "searchPlaceholder": "Search for a property...",
@@ -369,7 +413,9 @@
     "shareProperty": "Share this property with others",
     "copyLink": "Copy link",
     "copied": "Copied!",
-    "shareVia": "Share via WhatsApp"
+    "shareVia": "Share via WhatsApp",
+    "openGallery": "Open image gallery",
+    "searchNamePlaceholder": "Enter search name..."
   },
   "property": {
     "title": "Property Title",
@@ -427,6 +473,7 @@
     "typeLabel": "Type",
     "officeLabel": "Real Estate Office",
     "sqm": "sqm",
+    "priceUnit": "EGP",
     "reserved": "Reserved",
     "pendingReview": "Pending Review",
     "featuresList": {
@@ -468,7 +515,8 @@
     "yourName": "Your name",
     "yourPhone": "Your phone",
     "yourMessage": "Your message...",
-    "successMessage": "Request sent successfully!"
+    "successMessage": "Request sent successfully!",
+    "propertyInquiry": "Property Inquiry"
   },
   "footer": {
     "rights": "All rights reserved",
@@ -484,6 +532,32 @@
   "dashboard": {
     "favorites": "Favorites",
     "noFavorites": "No favorite properties",
-    "removeFromFavorites": "Remove from favorites"
+    "removeFromFavorites": "Remove from favorites",
+    "compare": "Compare Properties",
+    "compareProperties": "Compare Properties",
+    "compareHint": "Select at least 2 properties to compare",
+    "compareSelected": "{{count}} selected for comparison",
+    "viewCompare": "View Comparison",
+    "savedSearches": "Saved Searches",
+    "savedSearchesHint": "Save searches to get notified of new results",
+    "noSavedSearches": "No saved searches",
+    "noSavedSearchesFull": "No saved searches",
+    "saveSearch": "Save Search",
+    "unsaveSearch": "Unsave Search",
+    "searchSaved": "Search saved",
+    "searchUnsaved": "Search unsaved",
+    "notifications": "Notifications",
+    "created": "Created",
+    "lastChecked": "Last checked",
+    "runSearch": "Run Search",
+    "clearAll": "Clear All",
+    "saveSearchHint": "Save searches to get notified of new results",
+    "noPropertiesForCompare": "No properties selected for comparison",
+    "priceUnit": "EGP"
+  },
+  "offline": {
+    "title": "You are offline",
+    "description": "Please check your internet connection and try again.",
+    "tryAgain": "Try Again"
   }
 }

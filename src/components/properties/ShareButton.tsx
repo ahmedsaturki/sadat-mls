@@ -36,7 +36,7 @@ const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps)
 
   const handleWhatsApp = () => {
     const text = encodeURIComponent(`${title}\n${shareUrl}`);
-    window.open(`https://wa.me/?text=${text}`, "_blank");
+    window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
   return (

@@ -19,6 +19,7 @@ import PropertyDetails from "./PropertyDetails";
 import PropertyFeatures from "./PropertyFeatures";
 import PropertyOwnerInfo from "./PropertyOwnerInfo";
 import PropertyImageManager from "./PropertyImageManager";
+import { logger } from "@/lib/logger";
 
 interface PropertyImage {
   id: string;
@@ -98,6 +99,42 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     status: "available",
   });
 
+  const handleGenerateDescription = useCallback(async (): Promise<string | null> => {
+    if (!formData.title) {
+      showToast(dict.office.propertyTitleMin || "Property title is required", "error");
+      return null;
+    }
+
+    try {
+      const response = await fetch("/api/ai/description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formData.title,
+          property_type: formData.property_type_id,
+          zone: formData.zone_id,
+          area: formData.area ? Number(formData.area) : undefined,
+          bedrooms: formData.bedrooms ? Number(formData.bedrooms) : undefined,
+          bathrooms: formData.bathrooms ? Number(formData.bathrooms) : undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        showToast(errorData.error || dict.office.aiFailed || "Failed to generate description", "error");
+        return null;
+      }
+
+      const data = await response.json();
+      showToast(dict.office.aiGenerated || "Description generated successfully", "success");
+      return data.description;
+    } catch (err) {
+      logger.error("AI description generation failed", { error: err instanceof Error ? err.message : "Unknown" });
+      showToast(dict.office.aiFailed || "Failed to generate description", "error");
+      return null;
+    }
+  }, [formData, dict.office, showToast]);
+
   const [ownerData, setOwnerData] = useState({
     owner_name: "",
     owner_phone: "",
@@ -147,7 +184,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
       .from("users")
       .select("office_id, role")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (profile?.office_id) {
       setUserId(user.id);
@@ -169,7 +206,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
       .from("users")
       .select("office_id, role")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (!profile) {
       router.push(`/${locale}/explore`);
@@ -184,7 +221,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
       .from("properties")
       .select("*")
       .eq("id", propertyId)
-      .single();
+      .maybeSingle();
 
     if (!property) {
       router.push(`/${locale}/dashboard/properties`);
@@ -221,7 +258,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
       .from("property_owners")
       .select("*")
       .eq("property_id", propertyId)
-      .single();
+      .maybeSingle();
 
     if (owner) {
       setExistingOwner(owner);
@@ -563,7 +600,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => router.back()} aria-label="Go back" className="p-2 rounded-lg hover:bg-gray-100">
+          <button onClick={() => router.back()} aria-label={dict.common.goBack} className="p-2 rounded-lg hover:bg-gray-100">
             <ArrowRight className="w-5 h-5" />
           </button>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -573,16 +610,17 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
         <form onSubmit={handleSubmit}>
           <Card className="space-y-6">
-            <PropertyBasicInfo
-              locale={locale}
-              dict={dict}
-              formData={formData}
-              zones={zones}
-              types={types}
-              errors={errors}
-              onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
-              titleRef={titleInputRef}
-            />
+<PropertyBasicInfo
+               locale={locale}
+               dict={dict}
+               formData={formData}
+               zones={zones}
+               types={types}
+               errors={errors}
+               onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
+               titleRef={titleInputRef}
+               onGenerateDescription={handleGenerateDescription}
+             />
 
             <div className="border-t border-gray-200 pt-4">
               <PropertyDetails

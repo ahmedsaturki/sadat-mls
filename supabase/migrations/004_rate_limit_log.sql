@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================
 -- RATE LIMIT LOG TABLE
 -- ============================================
-CREATE TABLE rate_limit_log (
+CREATE TABLE IF NOT EXISTS rate_limit_log (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   action TEXT NOT NULL,
   ip_address INET NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE rate_limit_log (
 );
 
 -- Index for efficient rate limit queries
-CREATE INDEX idx_rate_limit_log_action_ip_created
+CREATE INDEX IF NOT EXISTS idx_rate_limit_log_action_ip_created
   ON rate_limit_log (action, ip_address, created_at DESC);
 
 -- RLS for rate limit log

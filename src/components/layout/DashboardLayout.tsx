@@ -18,6 +18,14 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, locale, dict, role }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useCallback((node: HTMLDivElement | null) => {
+    if (node && sidebarOpen) {
+      const focusable = node.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length > 0) focusable[0].focus();
+    }
+  }, [sidebarOpen]);
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
 
@@ -67,12 +75,13 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
 
         {/* Mobile sidebar with slide animation */}
         <div
+          ref={sidebarRef}
           className={`lg:hidden fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-out ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
           role="dialog"
           aria-modal="true"
-          aria-label="Navigation menu"
+          aria-label={dict.common.navigationMenu}
         >
           <div className="h-full bg-white shadow-xl pt-16">
             <Sidebar locale={locale} dict={dict} role={role} onNavigate={closeSidebar} />

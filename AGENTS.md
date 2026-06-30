@@ -11,37 +11,576 @@ Bilingual (Arabic/English) real estate MLS platform for Sadat City, Egypt.
 ## Build & Test
 
 ```bash
-npm run build            # Production build
-npm run test:run         # Unit tests (Vitest)
-npm run lint             # ESLint
-npx tsc --noEmit         # TypeScript check
+# Development
+npm run dev                    # Start dev server (localhost:3000)
+
+# Production build
+npm run build                  # Production build (requires env vars below)
+npm run analyze                # Bundle analysis (ANALYZE=true)
+
+# Testing
+npm run test:run               # Unit tests (Vitest) — 107 tests, 15 files
+npm run test:coverage          # Unit tests with coverage report
+npm run test:e2e               # E2E tests (Playwright) — 21 tests, 8 files
+npm run test:e2e:ui            # E2E tests with Playwright UI
+npm run test:e2e:headed        # E2E tests in headed mode
+
+# Code quality
+npm run lint                   # ESLint (extends next/core-web-vitals + next/typescript)
+npx tsc --noEmit               # TypeScript check (known issue: metadataBase)
+
+# Database (via Supabase CLI)
+npm run db:migrate             # Run: supabase migration up
+npm run db:seed                # Run: supabase db seed
+
+# Docker
+docker build -t sadat-mls-cloud .
+docker run -p 3000:3000 --env-file .env.local sadat-mls-cloud
+
+# Icons
+npm run icons:generate         # Generate PWA icons from public/icons/icon-512.png
 ```
+
+### Required Environment Variables for Build
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | ✅ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only) | ✅ |
+| `NEXT_PUBLIC_SITE_URL` | Site URL for SEO/sitemap | ✅ (build fails without) |
+| `NEXT_PUBLIC_APP_URL` | App URL for metadata | ✅ (build fails without) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN | ❌ |
+| `SENTRY_ORG` | Sentry organization | ❌ |
+| `SENTRY_PROJECT` | Sentry project | ❌ |
+| `SENTRY_AUTH_TOKEN` | Sentry auth token for source maps | ❌ |
+| `NEXT_PUBLIC_VERCEL_ANALYTICS_ID` | Vercel Analytics ID | ❌ |
+
+## CI/CD Pipeline (GitHub Actions)
+**Order:** `lint → typecheck → test → build`
+- **Node:** 22 (not 18+)
+- **Runs on:** push/PR to `main`/`master`
+- **Build env:** Requires 4 Supabase/SITE_URL secrets
 
 ## Code Conventions
 
-- All pages use `"use client"` with dynamic `[locale]` routing
-- i18n via `next-intl` — always use `dict.*` keys, never hardcode text
-- Auth checks in middleware for /admin/* and /dashboard/* routes
-- `AuthGuard` component wraps admin/dashboard layouts
-- `PropertyStatus` type in `constants.ts` — single source of truth
-- sessionStorage stores only userId + timestamp (never role/profile)
-- CSP managed solely by `middleware.ts`
-- Logger wraps console with ISO timestamps (`src/lib/logger.ts`)
-- Tests use Vitest + @testing-library/react
+- All pages use `"use client"` with dynamic `[locale]` routing (`src/app/[locale]/...`)
+- i18n via `next-intl` — **always** use `dict.*` keys, never hardcode text
+- Auth checks in `middleware.ts` for `/admin/*` and `/dashboard/*` routes
+- `AuthGuard` component wraps admin/dashboard layouts (role-based redirects)
+- `PropertyStatus` type in `src/lib/utils/constants.ts` — single source of truth
+- `sessionStorage` stores **only** `userId` + timestamp (never role/profile)
+- CSP managed **solely** by `middleware.ts` (no CSP in `next.config.js`)
+- Logger wraps console with ISO timestamps (`src/lib/logger.ts`) — **never** use `console.error` directly
+- Tests use Vitest + @testing-library/react (setup: `src/__tests__/setup.ts`)
+- E2E tests use Playwright (Chromium, Firefox, Mobile Chrome)
+
+## Project Structure (Key Paths)
+
+```
+sadat-mls-cloud/
+├── src/
+│   ├── app/
+│   │   ├── [locale]/              # i18n routes (ar, en)
+│   │   │   ├── admin/             # Super Admin Dashboard
+│   │   │   ├── dashboard/         # Office Dashboard
+│   │   │   ├── explore/           # Public Property Listings
+│   │   │   ├── login/             # Authentication
+│   │   │   └── ...
+│   │   ├── api/                   # API Routes
+│   │   ├── og-image/              # Dynamic OG Image Generator
+│   │   ├── layout.tsx             # Root Layout
+│   │   ├── page.tsx               # Landing Page
+│   │   ├── sitemap.ts             # Dynamic Sitemap
+│   │   └── robots.ts              # Robots.txt
+│   ├── components/
+│   │   ├── ui/                    # Base UI Components (Button, Input, Modal, etc.)
+│   │   ├── properties/            # Property Components
+│   │   ├── layout/                # Layout Components (Navbar, Footer, AuthGuard)
+│   │   └── landing/               # Landing Page Components
+│   ├── hooks/                     # Custom React Hooks
+│   ├── i18n/                      # Internationalization (ar.json, en.json, request.ts)
+│   ├── lib/
+│   │   ├── supabase/              # Supabase Clients (browser.ts, server.ts, middleware.ts)
+│   │   ├── security/              # Security Utils (csrf.ts, rateLimit.ts, sanitizeHtml.ts, sanitize.ts)
+│   │   ├── queries/               # Database Queries
+│   │   ├── services/              # Business Logic Services
+│   │   └── utils/                 # Helper Functions (cn.ts, logger.ts, constants.ts, validation.ts)
+│   │                                # constants.ts: PROPERTY_STATUSES, OFFICE_FEATURES, SADAT_ZONES, PROPERTY_TYPES
+│   └── __tests__/                 # Unit Tests (15 files, 107 tests)
+├── supabase/
+│   └── migrations/                # 12 migrations (001_initial_schema → 012_fix_duplicate_policies)
+├── e2e/                           # Playwright E2E Tests (8 files, 21 tests)
+├── public/                        # Static Assets, PWA (sw.js, manifest.json, icons/)
+├── .github/workflows/             # CI/CD (ci.yml)
+└── scripts/                       # Utility Scripts (generate-icons.js)
+```
 
 ## Security Rules
 
-- CSRF: double-submit cookie pattern
-- Rate limiting: IP-based with memory + DB fallback
-- HTML sanitization: multi-pass regex sanitizer
-- UPSERT for agent creation (DB trigger coexistence)
-- Auth callback validates origin against allowed hosts
+- **CSRF:** Double-submit cookie pattern (`src/lib/security/csrf.ts`)
+- **Rate Limiting:** IP-based with memory map + DB fallback (`src/lib/security/rateLimit.ts`)
+- **HTML Sanitization:** Multi-pass regex sanitizer (`src/lib/security/sanitizeHtml.ts`) + entity escaping (`sanitize.ts`)
+- **UPSERT** for agent creation (DB trigger coexistence)
+- **Auth callback** validates origin against allowed hosts whitelist
+- **RLS Policies:** All 9 tables have policies (offices, users, zones, property_types, properties, property_owners, property_images, contact_requests, property_favorites)
+- **Input Validation:** Zod schemas in `src/lib/validation.ts` (phone optional in contactSchema)
+- **Migrations:** Idempotent (DROP TRIGGER/IF EXISTS patterns)
+- **Auth Guard:** Component-level with role-based redirects for admin/dashboard
+
+## ESLint Overrides (Documented Exceptions)
+
+```js
+// eslint.config.mjs
+"react-hooks/set-state-in-effect": "off"  // Client components legitimately use setState in useEffect for:
+                                          // - Data fetching
+                                          // - Locale detection from URL
+                                          // - Auth state checks
+                                          // This is standard React pattern for client components
+
+// Test files only:
+"@typescript-eslint/no-explicit-any": "off"
+```
+
+## Known TypeScript Issues
+
+| File | Error | Status | Notes |
+|------|-------|--------|-------|
+| `.next/types/app/[locale]/layout.ts` | `metadataBase` incompatible with index signature | **Known/accepted** | Next.js auto-generated types issue; `metadataBase` removed from static exports but still returned in `generateMetadata()` |
+
+> The `metadataBase` export was removed from `src/app/[locale]/layout.tsx` and `src/app/layout.tsx` — it's already returned inside `generateMetadata()` where Next.js expects it. The auto-generated `.next/types/` file still complains; this is harmless and does not affect build or runtime.
 
 ## Do NOT
 
 - Do not add external dependencies without checking if a local solution exists
-- Do not hardcode Arabic/English text — always use i18n keys
-- Do not store role/profile in sessionStorage
-- Do not add CSP headers in next.config.js (middleware owns CSP)
+- Do not hardcode Arabic/English text — always use i18n keys (`dict.*`)
+- Do not store role/profile in `sessionStorage`
+- Do not add CSP headers in `next.config.js` (middleware owns CSP)
 - Do not use `console.error` directly — use `logger.error`
 - Do not create duplicate matcher patterns in middleware config
+- Do not commit `.env.local` or any secrets
+- Do not bypass RLS policies in queries (use Supabase client with user context)
+
+## Security Audit Status (2026-06-29)
+
+| Area | Status | Implementation |
+|------|--------|----------------|
+| **CSRF** | ✅ | `src/lib/security/csrf.ts` (double-submit cookie) |
+| **Rate Limiting** | ✅ | `src/lib/security/rateLimit.ts` (memory + DB fallback) |
+| **HTML Sanitization** | ✅ | `src/lib/security/sanitizeHtml.ts` (multi-pass regex) + `sanitize.ts` (entity escaping) |
+| **RLS Policies** | ✅ | All 9 tables (35+ policies) |
+| **Input Validation** | ✅ | Zod schemas in `src/lib/validation.ts` |
+| **Migrations** | ✅ | All 12 migrations idempotent (DROP TRIGGER/IF EXISTS) |
+| **Tests** | ✅ | **107 unit tests** (15 files) + **21 E2E tests** (8 files) passing |
+| **CSP** | ✅ | Nonce-based, managed solely by `middleware.ts` |
+| **HSTS** | ✅ | 2-year max-age (63072000s) with preload (middleware) |
+| **Auth Security** | ✅ | Origin validation, sessionStorage minimal, AuthGuard RBAC |
+
+## Database Schema (Supabase/PostgreSQL)
+
+### Tables (9 total, all with RLS)
+
+| Table | Description | RLS |
+|-------|-------------|-----|
+| `offices` | Real estate offices | ✅ |
+| `users` | User profiles (extends auth.users) | ✅ |
+| `zones` | Sadat City districts | ✅ |
+| `property_types` | Property categories | ✅ |
+| `properties` | Property listings | ✅ |
+| `property_owners` | Owner contact data (sensitive) | ✅ |
+| `property_images` | Property photos | ✅ |
+| `contact_requests` | Visitor inquiries | ✅ |
+| `rate_limit_log` | Rate limiting audit log | ❌ (operational) |
+| `property_favorites` | User favorite properties | ✅ |
+
+### Roles
+
+- `super_admin` — Full system access (admin panel, all offices)
+- `office_admin` — Office management + property management + agent management
+- `office_agent` — Property management only
+
+### Key RLS Policies
+
+- Public read for active offices/properties
+- Office-based isolation (each office sees only its data)
+- Super admin override on all data
+- `office_agent`: INSERT + UPDATE on properties
+- `contact_requests`: UPDATE policy for status changes
+- `property_favorites`: User-scoped CRUD
+
+## PWA Configuration
+
+- **Service Worker:** `public/sw.js` (Workbox, offline-first caching)
+- **Manifest:** `public/manifest.json` (name, icons, theme_color, display: standalone)
+- **Icons:** `public/icons/icon-{72,96,128,144,152,192,384,512}.png` (generated via `npm run icons:generate`)
+- **Offline Support:** Cached static assets, fallback for navigation
+
+## Monitoring & Observability
+
+- **Sentry:** `@sentry/nextjs` (client, server, edge configs in `src/sentry.*.config.ts`)
+- **Vercel Analytics:** `@vercel/analytics` (optional)
+- **Vercel Speed Insights:** `@vercel/speed-insights` (optional)
+- **Logger:** `src/lib/logger.ts` (ISO timestamps, structured logging)
+
+## Performance Optimizations
+
+- Dashboard queries combined into parallel `Promise.all` (7 sequential → 1 parallel)
+- Agent API uses UPSERT for DB trigger coexistence
+- Image optimization via Next.js Image + Supabase Storage
+- ISR for public pages (explore, property details)
+- Dynamic OG image generation (`/og-image` route) + static fallback (`public/og-image.png`)
+
+## Accessibility (WCAG 2.1 AA)
+
+- Navbar: Escape key handler, `role="menu"`, `aria-orientation`
+- Badge: `aria-label` prop
+- PropertyCard: `aria-label` with title and status
+- ShareButton/ContactModal/PropertyImageManager: `aria-label` on all buttons
+- Focus management, keyboard navigation, RTL-aware focus styles
+- E2E accessibility tests (`e2e/accessibility.spec.ts`)
+
+## Recent Major Changes (Changelog Highlights)
+
+### Security Fixes
+- Real HTML sanitizer replacing no-op in `sanitizeHtml.ts`
+- Rate limit IP extraction fixed for IPv6 safety
+- CSP header conflict removed from `next.config.js` (middleware sole owner)
+- Auth callback origin validation with allowed hosts whitelist
+- SessionStorage privilege escalation fixed (stores only userId + timestamp)
+- AuthGuard component with role-based redirects for admin/dashboard
+
+### Performance
+- Dashboard queries parallelized (7 sequential → 1 parallel via Promise.all)
+- Agent API uses UPSERT to coexist with DB trigger
+
+### i18n
+- All hardcoded Arabic text replaced with i18n keys
+- Rate limit messages fully internationalized (ar/en)
+- Bilingual error pages for admin and dashboard
+
+### Accessibility
+- Comprehensive ARIA labeling across interactive components
+- Keyboard navigation and focus management
+- Escape key handlers on modals/dropdowns
+
+### RLS
+- `office_agent`: INSERT + UPDATE policies on properties
+- `contact_requests`: UPDATE policy for status changes
+
+## Useful Commands Reference
+
+```bash
+# Full verification pipeline (run before PR)
+npm run lint && npx tsc --noEmit && npm run test:run && npm run build
+
+# Quick typecheck only
+npx tsc --noEmit
+
+# Run specific test file
+npx vitest run src/__tests__/sanitizeHtml.test.ts
+
+# Run E2E with specific browser
+npx playwright test --project=chromium
+
+# Supabase local development
+supabase start
+supabase db reset
+supabase studio
+
+# Generate new migration
+supabase migration new <name>
+
+# Check bundle size
+npm run analyze
+```
+
+## Component Library (src/components/)
+
+### UI Components (src/components/ui/)
+- `Button.tsx` — Primary interactive element
+- `Input.tsx` — Form input with validation states
+- `Modal.tsx` — Dialog with escape key handler, focus trap
+- `Card.tsx`, `LuxuryCard.tsx`, `LuxuryStatCard.tsx` — Content containers
+- `Badge.tsx` — Status indicator with `aria-label` prop
+- `LoadingSpinner.tsx`, `LuxuryLoader.tsx` — Loading states
+- `Skeleton.tsx` — Content placeholder
+- `Select.tsx` — Dropdown selector
+- `PaginatedTable.tsx` — Table with pagination
+- `ErrorBoundary.tsx`, `ErrorBoundaryWrapper.tsx` — Error handling
+- `Toast.tsx` — Notification toast
+- `EmptyState.tsx` — Empty state illustration
+- `PageHeader.tsx` — Page title wrapper
+
+### Property Components (src/components/properties/)
+- `PropertyCard.tsx` — Property listing card (with `aria-label`)
+- `PropertyForm.tsx` — Full property creation/edit form
+- `PropertyDetails.tsx` — Property detail view
+- `PropertyFeatures.tsx` — Feature list display
+- `PropertyBasicInfo.tsx` — Basic property fields
+- `PropertyOwnerInfo.tsx` — Owner contact section
+- `PropertyImageManager.tsx` — Image upload/management (with aria-labels)
+- `FavoriteButton.tsx` — Add/remove favorite toggle
+- `CompareButton.tsx` — Add to comparison
+- `ShareButton.tsx` — Native share / copy link
+
+### Layout Components (src/components/layout/)
+- `Navbar.tsx` — Top nav with locale switch, mobile menu
+- `Sidebar.tsx` — Admin sidebar navigation
+- `MobileBottomNav.tsx` — Mobile bottom navigation
+- `DashboardLayout.tsx` — Protected layout wrapper
+- `AuthGuard.tsx` — Route protection, role redirects
+
+### Landing Components (src/components/landing/)
+- `LandingHero.tsx` — Hero section with search
+- `ContactForm.tsx` — Public contact form
+
+### Shared Components (src/components/shared/)
+- `LuxuryErrorBoundary.tsx` — Premium error UI with framer-motion animations
+
+## Custom Hooks (src/hooks/)
+
+| Hook | Purpose |
+|------|---------|
+| `useAuthUser.tsx` | Auth context + profile caching (5min cache, sessionStorage safe) |
+| `useDebounce.ts` | Debounce values for search/input |
+| `useInfiniteScroll.ts` | Infinite scroll pagination |
+| `useCachedQuery.ts` | Cached data fetching |
+| `useCompare.ts` | Property comparison state |
+| `useSavedSearches.ts` | Saved search management |
+| `useUnsavedChangesWarning.ts` | Navigation warning on unsaved edits |
+| `useTouchTarget.ts` | Mobile touch target sizing (44px min) |
+| `useSwipeGesture.ts` | Mobile swipe gestures |
+| `usePageLocale.ts` | Current locale detection |
+| `useCopyToClipboard.ts` | Clipboard copy utility |
+| `useAdminCrud.ts` | Admin CRUD operations |
+
+## UI/UX Patterns
+
+### Design System
+- **Colors:** Navy (`#1B2D4F`), Gold (`#C49A2A`) — premium Egyptian real estate aesthetic
+- **Font:** Cairo/Tajawal for Arabic, system fonts for English
+- **Glassmorphism:** `.glass-luxury` class with 16px backdrop blur, subtle border
+- **CSS Utilities:** `.shimmer`, `.glow-pulse`, `.gradient-border`, `.text-gradient-gold`, `.safe-area-*` for mobile
+
+### Accessibility (WCAG 2.1 AA)
+- **Keyboard Navigation:** Escape key closes modals/mobile menus; Tab trap in dialogs
+- **Focus Styles:** `focus:ring-2 focus:ring-blue-500 focus:ring-offset-2` with RTL-aware positioning
+- **ARIA Labels:** All interactive elements have `aria-label` or `aria-labelledby`
+- **Roles:** `role="dialog"`, `role="menu"`, `role="menuitem"`, `role="menubar"`, `aria-modal="true"`
+
+### Mobile Experience
+- **Touch Targets:** Minimum 44×44px via `useTouchTarget` hook
+- **Mobile Menu:** Collapsible with smooth height transition
+- **Swipe Gestures:** Horizontal swipe support via `useSwipeGesture`
+
+### Loading States
+- **Skeleton Screens:** Content placeholders for perceived performance
+- **LuxuryLoader:** Premium animated loader for luxury UX
+- **Button Loading:** Spin animation + `aria-busy` state
+
+### RTL (Arabic) Support
+- Default locale is Arabic (`ar`)
+- All layout components support RTL direction
+- Icons and spacing flip automatically
+
+## API Routes (src/app/api/)
+
+| Method | Path | Purpose | Auth |
+|--------|------|---------|------|
+| GET | `/api/health` | Health check | ❌ |
+| POST | `/api/agents` | Create agent (UPSERT) | ✅ Super Admin + Office Admin |
+| DELETE | `/api/agents?id={id}` | Delete agent | ✅ Super Admin + Office Admin |
+| POST | `/api/auth/resend-verification` | Resend email verification | Rate limited |
+| GET | `/api/auth/forgot-rate-limit` | Check rate limit status | ❌ |
+| POST | `/api/auth/rate-limit` | Record rate limit attempt | ❌ |
+| POST | `/api/ai/description` | AI property description (mock) | Rate limited |
+
+### API Implementation Details
+
+**`/api/agents` (POST)**
+- Validates CSRF token via double-submit cookie pattern
+- Rate limits by IP (`agents-post:{ip}`)
+- Uses service role key for admin operations
+- Role assignment: SUPER_ADMIN can create any role, OFFICE_ADMIN creates OFFICE_AGENT
+- Implements office ownership validation for OFFICE_ADMIN
+- UPSERT pattern to coexist with DB triggers
+
+**`/api/agents` (DELETE)**
+- Validates target user belongs to admin's office (for OFFICE_ADMIN)
+- Restricts deletion to OFFICE_AGENT users only (for OFFICE_ADMIN)
+- Logs deletion events with actor information
+
+**`/api/ai/description`**
+- Rate limited by IP (`ai-description:{ip}`)
+- Accepts title, property_type, zone, area, bedrooms, bathrooms
+- Generates template-based property description (mock LLM)
+- No auth required (intended for office_agent use from dashboard)
+
+### Rate Limiting Headers
+All rate-limited endpoints return:
+- `Retry-After` — Seconds until retry allowed
+- `X-RateLimit-Remaining` — Remaining attempts
+- `X-RateLimit-Reset` — Unix timestamp of reset time
+
+## Key Routes (src/app/[locale]/)
+
+### Public
+- `/[locale]` — Landing page
+- `/[locale]/explore` — Property listings (ISR)
+- `/[locale]/explore/[id]` — Property detail
+- `/[locale]/offices/[slug]` — Office profile
+- `/[locale]/login` — Authentication
+- `/[locale]/forgot-password` — Password reset
+- `/[locale]/reset-password` — Set new password
+- `/[locale]/verify-email` — Email verification
+
+### Protected (AuthGuard)
+- `/[locale]/dashboard` — Office dashboard
+- `/[locale]/dashboard/properties` — Property CRUD
+- `/[locale]/dashboard/properties/new` — Create property
+- `/[locale]/dashboard/properties/[id]/edit` — Edit property
+- `/[locale]/dashboard/agents` — Agent management
+- `/[locale]/dashboard/favorites` — Favorite properties
+- `/[locale]/dashboard/saved-searches` — Saved searches
+- `/[locale]/dashboard/compare` — Property comparison
+- `/[locale]/dashboard/contact-requests` — Contact requests
+- `/[locale]/dashboard/settings` — Office settings
+- `/[locale]/admin` — Super admin panel
+- `/[locale]/admin/zones` — Zone management
+- `/[locale]/admin/property-types` — Property types
+- `/[locale]/admin/offices` — Office management
+- `/[locale]/admin/contact-requests` — All contact requests
+- `/[locale]/admin/analytics` — Platform analytics
+
+## References
+
+### Lib Layer (src/lib/)
+
+| Path | Purpose |
+|------|---------|
+| `utils/constants.ts` | ROLES, OFFICE_FEATURES, PROPERTY_STATUSES, SADAT_ZONES, PROPERTY_TYPES enums |
+| `utils/cn.ts` | Tailwind class merger (clsx + twMerge) |
+| `utils/animations.ts` | Animation variants and presets |
+| `validation.ts` | Zod schemas: propertySchema, ownerSchema, officeSchema, agentSchema, contactSchema, loginSchema |
+| `logger.ts` | Logger wrapper with ISO timestamps, structured logging |
+| `security/csrf.ts` | Double-submit cookie pattern, token rotation (4hr), constant-time comparison |
+| `security/csrf-client.ts` | Client-side CSRF utilities |
+| `security/rateLimit.ts` | IP-based rate limiting with memory map + DB fallback |
+| `security/rateLimit-client.ts` | Client-side rate limit check |
+| `security/sanitizeHtml.ts` | Multi-pass regex HTML sanitizer |
+| `security/sanitize.ts` | Entity escaping utilities |
+| `supabase/client.ts` | Browser Supabase client |
+| `supabase/server.ts` | Server Supabase client (RLS-aware) |
+| `supabase/auth-utils.ts` | Auth utility functions |
+| `supabase/server-auth.ts` | Server-side auth helpers |
+| `supabase/auth-server.ts` | Auth server utilities |
+| `supabase/middleware.ts` | Supabase middleware for auth |
+| `supabase/types.ts` | Database types generated from schema |
+| `queries/search.ts` | Search properties with full-text search, Arabic config |
+| `queries/landing.ts` | Landing page queries |
+| `services/zones.ts` | getZones(), getZoneById() |
+| `services/propertyTypes.ts` | getPropertyTypes(), getPropertyTypeById() |
+| `performance/request-batcher.ts` | Request batching for performance |
+
+### References
+
+- `CLAUDE.md` — Additional agent context
+- `README.md` — Full project documentation
+- `SECURITY.md` — Security policy
+- `DEEP_AUDIT_REPORT.md` — Comprehensive security audit
+- `AUDIT_REPORT.md` — Security audit summary
+- `implementation_plan.md` — Feature implementation tracking
+- `PAMPHLET-PERFORMANCE.md` — Performance optimization guide
+- `src/lib/security/` — Security implementations
+- `middleware.ts` — Auth, locale, CSP, security headers
+- `supabase/migrations/` — Database schema evolution
+
+## Database Migrations (supabase/migrations/)
+
+| Migration | Description |
+|-----------|-------------|
+| `001_initial_schema.sql` | Core tables: offices, users, zones, property_types, properties |
+| `002_rls_policies.sql` | Row Level Security policies for all tables |
+| `003_office_logos_bucket.sql` | Supabase Storage bucket for office logos |
+| `004_rate_limit_log.sql` | Rate limiting audit log table |
+| `005_performance_indexes.sql` | Database indexes for query optimization |
+| `006_contact_request_fix.sql` | Contact requests table fixes |
+| `007_property_favorites.sql` | Property favorites table with user-scoped RLS |
+| `008_full_text_search.sql` | Full-text search indexes with Arabic config |
+| `009_security_hardening.sql` | Security hardening (RLS, policies, triggers) |
+| `010_performance_and_rls_fixes.sql` | Performance indexes and RLS policy fixes |
+| `011_rls_final_fix.sql` | Final RLS policy corrections |
+| `012_fix_duplicate_policies.sql` | Remove duplicate RLS policies |
+
+## E2E Tests (e2e/)
+
+| Test File | Focus Area | Tests |
+|-----------|------------|-------|
+| `accessibility.spec.ts` | WCAG 2.1 AA compliance | Keyboard nav, ARIA, focus management |
+| `compare.spec.ts` | Property comparison | Add/remove, side-by-side view |
+| `favorites.spec.ts` | Favorites | Add/remove favorites, persistence |
+| `saved-searches.spec.ts` | Saved searches | Save/load/delete searches |
+| `security.spec.ts` | Security | CSRF, XSS, injection prevention |
+| `navigation.spec.ts` | Navigation | Locale switching, mobile menu |
+| `property-details.spec.ts` | Property details | View, contact, share |
+| `auth.spec.ts` | Authentication | Login, register, password reset |
+
+## Middleware Configuration (middleware.ts)
+
+### Matchers
+```ts
+matcher: ["/((?!api|_next/static|_next/image|favicon.ico|og-image|sw.js|manifest.json|icons/).*)"]
+```
+
+### Security Headers (applied to all routes)
+| Header | Value |
+|--------|-------|
+| `X-Content-Type-Options` | `nosniff` |
+| `X-Frame-Options` | `DENY` |
+| `X-XSS-Protection` | `0` (deprecated, CSP replaces) |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` |
+| `Content-Security-Policy` | Nonce-based, dynamic per request |
+
+### CSP Nonce Generation
+- Cryptographically random 16-byte nonce per request
+- Base64 encoded, attached to `<script>` tags
+- `report-uri` directive for CSP violation reporting
+
+## Deployment (vercel.json)
+
+```json
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install"
+}
+```
+
+## Performance Metrics
+
+| Metric | Target | Implementation |
+|--------|--------|----------------|
+| **LCP** | < 2.5s | ISR, Next.js Image, Supabase Storage |
+| **FID** | < 100ms | Code splitting, lazy loading |
+| **CLS** | < 0.1 | Skeleton screens, aspect-ratio |
+| **TTFB** | < 200ms | Edge functions, caching |
+
+## State Management Patterns
+
+- **URL State**: Search filters, pagination via query params
+- **React State**: Form inputs, modals, local UI state
+- **Context**: Auth (`useAuthUser`), Toast notifications
+- **Server State**: Supabase queries with SWR-like patterns
+- **sessionStorage**: Only `userId` + timestamp (never role/profile)
+
+## Error Handling Strategy
+
+| Layer | Handler | Recovery |
+|-------|---------|----------|
+| **Component** | `ErrorBoundary` | Fallback UI, retry button |
+| **Page** | `error.tsx` | Page-level error boundary |
+| **Global** | `global-error.tsx` | App-wide crash recovery |
+| **API** | Try/catch + `NextResponse` | Structured error responses |
+| **Database** | RLS policies | Graceful 403/404 responses |

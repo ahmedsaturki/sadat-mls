@@ -56,7 +56,7 @@ export async function getUserWithDeduplication(): Promise<{ user: { id: string }
       .from("users")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     const result = { user: { id: user.id }, profile: profile as UserProfile | null };
     cachedUser = result;

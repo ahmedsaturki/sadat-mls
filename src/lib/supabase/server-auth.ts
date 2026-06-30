@@ -50,7 +50,7 @@ export async function getServerAuth(): Promise<AuthUser> {
       .from("users")
       .select("id, email, full_name, role, office_id")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
     
     profile = data;
   }

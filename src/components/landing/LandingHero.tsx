@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Sparkles, Home, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
+import { staggerContainer, fadeUpVariant, scaleUpVariant } from "@/lib/utils/animations";
 
 interface LandingHeroProps {
   locale: Locale;
@@ -22,69 +24,96 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
   };
 
   return (
-    <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white overflow-hidden">
-      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-      <div className="absolute top-20 right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-10 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 relative">
-        <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium mb-6 border border-white/20">
+    <section className="relative bg-[#1B2D4F] text-white overflow-hidden min-h-[90vh] flex items-center">
+      {/* Luxury Gradient Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1B2D4F] via-[#152340] to-[#0D1526]" />
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
+      
+      {/* Golden Accents - responsive sizing to prevent mobile overflow */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+        className="absolute top-0 right-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-[#C49A2A]/10 rounded-full blur-[100px] pointer-events-none" 
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+        className="absolute bottom-0 left-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-blue-400/5 rounded-full blur-[100px] pointer-events-none" 
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 relative z-10 w-full">
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="text-center max-w-4xl mx-auto"
+        >
+          <motion.div variants={fadeUpVariant} className="inline-flex items-center gap-2 bg-[#C49A2A]/10 text-[#C49A2A] px-5 py-2.5 rounded-full text-sm font-semibold mb-8 border border-[#C49A2A]/20 shadow-[0_0_15px_rgba(196,154,42,0.15)]">
             <Sparkles className="w-4 h-4" />
             {dict.landing.heroBadge}
-          </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+          </motion.div>
+          
+          <motion.h1 variants={fadeUpVariant} className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1] tracking-tight text-white drop-shadow-lg">
             {dict.landing.hero}
-          </h1>
-          <p className="text-xl md:text-2xl text-blue-200 mb-6">{dict.landing.heroSubtitle}</p>
-          <p className="text-lg text-blue-100 mb-10">{dict.landing.heroDescription}</p>
+          </motion.h1>
+          
+          <motion.p variants={fadeUpVariant} className="text-xl md:text-2xl text-gray-300 mb-6 font-light">
+            {dict.landing.heroSubtitle}
+          </motion.p>
+          
+          <motion.p variants={fadeUpVariant} className="text-lg text-gray-400 mb-12 max-w-2xl mx-auto">
+            {dict.landing.heroDescription}
+          </motion.p>
 
-          <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-8">
-            <div className="flex gap-2">
+          <motion.form variants={scaleUpVariant} onSubmit={handleSearch} className="max-w-2xl mx-auto mb-12">
+            <div className="flex gap-2 p-2 rounded-2xl glass-luxury">
               <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={dict.landing.searchPlaceholder}
                   aria-label={dict.landing.searchPlaceholder}
-                  className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 text-lg focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
+                  className="w-full pl-14 pr-4 py-4 md:py-5 rounded-xl bg-white/5 text-white text-lg focus:outline-none focus:ring-2 focus:ring-[#C49A2A]/50 transition-all placeholder:text-gray-500"
                 />
               </div>
               <button
                 type="submit"
-                aria-label="Search"
-                className="bg-white text-blue-600 px-6 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-colors shadow-lg"
+                aria-label={dict.common.search}
+                className="bg-[#C49A2A] text-white px-8 py-4 md:py-5 rounded-xl font-semibold hover:bg-[#b08924] transition-all shadow-lg hover:shadow-xl hover:shadow-[#C49A2A]/20 flex items-center justify-center"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-6 h-6" />
               </button>
             </div>
-          </form>
+          </motion.form>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <motion.div variants={fadeUpVariant} className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href={`/${locale}/explore`}
-              className="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20"
+              className="inline-flex items-center justify-center gap-2 glass-luxury text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-colors border border-white/10"
             >
               <Home className="w-5 h-5" />
               {dict.landing.viewAll}
             </Link>
             <Link
               href={`/${locale}/login`}
-              className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-3.5 rounded-xl font-semibold hover:bg-blue-50 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center gap-2 bg-white text-[#1B2D4F] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors shadow-lg"
             >
               {dict.common.login}
               <ArrowLeft className="w-5 h-5" />
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none max-w-full" aria-hidden="true">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto max-w-full text-gray-50">
           <path
             d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
-            fill="white"
+            fill="currentColor"
           />
         </svg>
       </div>

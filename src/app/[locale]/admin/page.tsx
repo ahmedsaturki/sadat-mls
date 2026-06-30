@@ -4,6 +4,7 @@ import { isValidLocale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card, { CardTitle } from "@/components/ui/Card";
+import LuxuryStatCard from "@/components/ui/LuxuryStatCard";
 import { Building2, Users, Home, MessageCircle, MapPin, Plus } from "lucide-react";
 import { ROLES } from "@/lib/utils/constants";
 import { getServerAuth } from "@/lib/supabase/server-auth";
@@ -100,13 +101,6 @@ export default async function AdminDashboard({
     },
   ];
 
-  const colorMap: Record<string, string> = {
-    blue: "bg-blue-100 text-blue-600",
-    green: "bg-green-100 text-green-600",
-    purple: "bg-purple-100 text-purple-600",
-    orange: "bg-orange-100 text-orange-600",
-  };
-
   return (
     <DashboardLayout locale={locale} dict={dict} role={ROLES.SUPER_ADMIN}>
       <div className="space-y-6">
@@ -121,17 +115,12 @@ export default async function AdminDashboard({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, i) => (
             <Link key={i} href={stat.href}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorMap[stat.color]}`}>
-                    <stat.icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-sm text-gray-500">{stat.label}</p>
-                  </div>
-                </div>
-              </Card>
+              <LuxuryStatCard
+                icon={stat.icon}
+                label={stat.label}
+                value={stat.value}
+                color={stat.color as "blue" | "green" | "purple" | "orange"}
+              />
             </Link>
           ))}
         </div>
@@ -187,9 +176,9 @@ export default async function AdminDashboard({
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">{contact.visitor_name}</p>
-                          <p className="text-sm text-gray-500">
-                            {contact.contact_type === "whatsapp" ? "WhatsApp" : contact.contact_type}
-                          </p>
+<p className="text-sm text-gray-500">
+                             {contact.contact_type === "whatsapp" ? dict.contactRequests.whatsapp : contact.contact_type}
+                           </p>
                         </div>
                         <span className="text-xs text-gray-400">
                           {new Date(contact.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}

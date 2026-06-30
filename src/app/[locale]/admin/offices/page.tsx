@@ -21,6 +21,7 @@ import { ROLES } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { getCsrfHeaders } from "@/lib/security/csrf-client";
+import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
 
 interface Office {
   id: string;
@@ -133,7 +134,7 @@ const locale = usePageLocale(params);
      return (
        <DashboardLayout locale={locale} dict={dict} role={ROLES.SUPER_ADMIN}>
          <div className="flex items-center justify-center py-20">
-           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+           <LuxuryLoader />
          </div>
        </DashboardLayout>
      );
@@ -281,7 +282,7 @@ const locale = usePageLocale(params);
                 <PaginatedTable
                   data={offices}
                   searchKey="name"
-                  searchPlaceholder={dict.admin.searchOffices || "Search offices..."}
+                  searchPlaceholder={dict.admin.searchOffices}
                   emptyMessage={dict.common.noData}
                   emptyIcon={<Building className="w-12 h-12 text-blue-300" />}
                   emptyHint={dict.admin.noOfficesHint}

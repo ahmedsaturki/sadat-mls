@@ -82,7 +82,7 @@ export default function PropertyImageManager({
                   type="button"
                   onClick={() => onSetPrimary(img.id)}
                   className={`text-xs px-2 py-1 rounded ${img.is_primary ? "bg-yellow-500 text-white" : "bg-white/80 text-gray-800"}`}
-                  aria-label={img.is_primary ? "Primary image" : "Set as primary image"}
+                  aria-label={img.is_primary ? dict.common.primaryImage : dict.common.setAsPrimary}
                 >
                   ★
                 </button>
@@ -90,7 +90,7 @@ export default function PropertyImageManager({
                   type="button"
                   onClick={() => onRemoveExisting(img.id)}
                   className="text-xs px-2 py-1 rounded bg-red-500 text-white"
-                  aria-label="Remove image"
+                  aria-label={dict.common.removeImage}
                 >
                   ✕
                 </button>
@@ -120,13 +120,14 @@ export default function PropertyImageManager({
                   value={img.alt_text}
                   onChange={(e) => onSetAltText(index, e.target.value)}
                   placeholder={dict.common.edit}
+                  aria-label={dict.common.editAltText || "Edit image description"}
                   className="absolute bottom-2 left-2 right-2 text-xs px-2 py-1 rounded bg-white/90 text-gray-800"
                 />
                 <button
                   type="button"
                   onClick={() => onRemoveNew(index)}
                   className="absolute top-2 right-2 text-xs px-2 py-1 rounded bg-red-500 text-white"
-                  aria-label="Remove image"
+                  aria-label={dict.common.removeImage}
                 >
                   ✕
                 </button>

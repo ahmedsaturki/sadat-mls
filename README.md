@@ -141,29 +141,33 @@ npm run dev
 ### Testing
 
 ```bash
-# Run unit tests (9 files, 70 tests)
+# All unit tests
 npm run test:run
 
-# Run unit tests with coverage
+# Unit tests with coverage
 npm run test:coverage
 
-# Run E2E tests (requires dev server running)
+# E2E tests (Chromium, Firefox, Mobile Chrome)
 npm run test:e2e
 
-# Run E2E tests with UI
+# E2E tests with UI
 npm run test:e2e:ui
 ```
 
 **Test Files:**
 - `sanitizeHtml.test.ts` — 15 tests (HTML sanitizer)
-- `rateLimit.test.ts` — 4 tests (IP-based rate limiting)
 - `sanitize.test.ts` — 16 tests (entity escaping)
+- `rateLimit.test.ts` — 4 tests (IP-based rate limiting)
 - `formatPrice.test.ts` — 6 tests (currency formatting)
 - `i18n.test.ts` — 5 tests (internationalization)
 - `cn.test.ts` — 3 tests (className utility)
 - `auth-utils.test.tsx` — 3 tests (auth utilities)
 - `property-form.test.tsx` — 10 tests (property form)
 - `landing.test.tsx` — 8 tests (landing page)
+- `favorite-button.test.tsx` — 8 tests (favorite button component)
+- `favorites.test.tsx` — 2 tests (favorites page)
+- `og-image.test.ts` — 4 tests (OG image generation)
+- `property-card.test.tsx` — 3 tests (property card component)
 
 ### Build & Analyze
 
@@ -297,7 +301,7 @@ npm run test:e2e
 npm run test:e2e:ui
 ```
 
-**Current Test Status:** 70 tests passing across 9 test files
+**Current Test Status:** 87 unit tests + 21 E2E tests passing
 
 ## 🤝 Contributing
 
@@ -308,7 +312,7 @@ npm run test:e2e:ui
 5. Open a Pull Request
 
 Please ensure:
-- All tests pass (`npm run test:run`) — 70 tests across 9 files
+- All tests pass (`npm run test:run`) — 87 unit tests + 21 E2E tests
 - Linting passes (`npm run lint`)
 - TypeScript compiles (`npx tsc --noEmit`)
 - E2E tests pass (`npm run test:e2e`)

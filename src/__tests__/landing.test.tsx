@@ -19,7 +19,7 @@ import ContactForm from "@/components/landing/ContactForm";
 import LandingHero from "@/components/landing/LandingHero";
 
 const mockDict = {
-  common: { close: "Close", login: "Login" },
+  common: { close: "Close", login: "Login", search: "Search" },
   landing: {
     hero: "Find Your Dream Property",
     heroSubtitle: "Best Properties in Sadat City",

@@ -23,7 +23,7 @@ export async function getZoneById(id: string): Promise<Zone | null> {
     .from("zones")
     .select("id, name_ar, name_en")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (error) return null;
   return data;

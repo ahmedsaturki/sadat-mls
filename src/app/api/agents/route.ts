@@ -37,7 +37,7 @@ async function verifyAdmin(request: NextRequest) {
       .from("users")
       .select("role, office_id")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (profile?.role !== ROLES.SUPER_ADMIN && profile?.role !== ROLES.OFFICE_ADMIN) return null;
     return { ...user, office_id: profile.office_id, role: profile.role };
@@ -53,9 +53,10 @@ export async function POST(request: NextRequest) {
   const rate = await checkApiRateLimit(`agents-post:${ip}`);
   if (!rate.allowed) {
     logger.warn("Rate limit exceeded on agents POST", { ip });
+    const headers = rate.headers || { "Retry-After": String(rate.retryAfter) };
     return NextResponse.json(
       { error: "Too many requests" },
-      { status: 429, headers: { "Retry-After": String(rate.retryAfter) } }
+      { status: 429, headers }
     );
   }
 
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     logger.error("SUPABASE_SERVICE_ROLE_KEY not configured");
     return NextResponse.json(
-      { error: "SUPABASE_SERVICE_ROLE_KEY not configured. Add it to .env.local" },
+      { error: "Server configuration error" },
       { status: 500 }
     );
   }
@@ -126,7 +127,7 @@ export async function POST(request: NextRequest) {
 
   if (authError) {
     logger.error("Failed to create user", { error: authError.message, email: sanitizedEmail });
-    return NextResponse.json({ error: authError.message }, { status: 400 });
+    return NextResponse.json({ error: "Failed to create user account" }, { status: 400 });
   }
 
   if (authData.user) {
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
 
     if (profileError) {
       logger.error("Failed to create user profile", { error: profileError.message, userId: authData.user.id });
-      return NextResponse.json({ error: profileError.message }, { status: 400 });
+      return NextResponse.json({ error: "Failed to create user profile" }, { status: 400 });
     }
   }
 
@@ -155,9 +156,10 @@ export async function DELETE(request: NextRequest) {
   const rate = await checkApiRateLimit(`agents-delete:${ip}`);
   if (!rate.allowed) {
     logger.warn("Rate limit exceeded on agents DELETE", { ip });
+    const headers = rate.headers || { "Retry-After": String(rate.retryAfter) };
     return NextResponse.json(
       { error: "Too many requests" },
-      { status: 429, headers: { "Retry-After": String(rate.retryAfter) } }
+      { status: 429, headers }
     );
   }
 
@@ -195,10 +197,10 @@ export async function DELETE(request: NextRequest) {
         .from("users")
         .select("office_id, role")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
       if (queryError) {
         logger.error("Failed to query target user for deletion", { error: queryError.message, userId });
-        return NextResponse.json({ error: "Failed to verify user" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to verify user" }, { status: 400 });
       }
       targetUser = data;
     } catch {
@@ -226,7 +228,7 @@ export async function DELETE(request: NextRequest) {
   const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
   if (error) {
     logger.error("Failed to delete user", { error: error.message, userId });
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: "Failed to delete user account" }, { status: 500 });
   }
 
   logger.info("Agent deleted successfully", { userId, deletedBy: user.id });

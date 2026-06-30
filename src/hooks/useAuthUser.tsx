@@ -28,13 +28,25 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-let cachedUser: User | null = null;
-let cachedProfile: UserProfile | null = null;
-let cacheTimestamp = 0;
-const CACHE_DURATION = 5 * 60 * 1000;
-let loadingPromise: Promise<User | null> | null = null;
-
 const supabaseClient = createClient();
+const CACHE_DURATION = 5 * 60 * 1000;
+
+interface AuthCache {
+  user: User | null;
+  profile: UserProfile | null;
+  timestamp: number;
+}
+
+function createAuthCache(): AuthCache {
+  return {
+    user: null,
+    profile: null,
+    timestamp: 0,
+  };
+}
+
+let authCache: AuthCache = createAuthCache();
+let loadingPromise: Promise<User | null> | null = null;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -45,10 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadUser = useCallback(async (force = false): Promise<User | null> => {
     const now = Date.now();
 
-    if (!force && cachedUser && now - cacheTimestamp < CACHE_DURATION) {
-      setUser(cachedUser);
-      setProfile(cachedProfile);
-      return cachedUser;
+    if (!force && authCache.user && now - authCache.timestamp < CACHE_DURATION) {
+      setUser(authCache.user);
+      setProfile(authCache.profile);
+      return authCache.user;
     }
 
     if (!force && typeof window !== "undefined") {
@@ -59,10 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (now - data.timestamp < CACHE_DURATION && data.userId) {
             // Only use sessionStorage to know which user was logged in;
             // never trust the cached profile — always fetch from Supabase.
-            // Proceed to the getUser + profile query below.
           }
         }
-      } catch {}
+      } catch {
+        // ignore parse errors
+      }
     }
 
     if (loadingPromise && !force) {
@@ -78,51 +91,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (authError) {
           logger.warn("Auth fetch failed", { error: authError.message });
-          cachedUser = null;
-          cachedProfile = null;
-          cacheTimestamp = 0;
+          authCache = createAuthCache();
           setUser(null);
           setProfile(null);
           return null;
         }
 
         if (!authUser) {
-          cachedUser = null;
-          cachedProfile = null;
-          cacheTimestamp = 0;
+          authCache = createAuthCache();
           setUser(null);
           setProfile(null);
           return null;
         }
 
-        cachedUser = authUser;
-        cacheTimestamp = now;
+        authCache.user = authUser;
+        authCache.timestamp = now;
 
         const { data: profileData } = await supabaseClient
           .from("users")
           .select("*")
           .eq("id", authUser.id)
-          .single();
+          .maybeSingle();
 
-        cachedProfile = profileData as UserProfile;
+        authCache.profile = profileData as UserProfile;
 
         if (typeof window !== "undefined") {
           // Only store userId — never the full profile (XSS privilege escalation risk)
           sessionStorage.setItem("auth-cache", JSON.stringify({
-            userId: cachedUser?.id || null,
-            timestamp: cacheTimestamp,
+            userId: authCache.user?.id || null,
+            timestamp: authCache.timestamp,
           }));
         }
 
-        setUser(cachedUser);
-        setProfile(cachedProfile);
-        return cachedUser;
+        setUser(authCache.user);
+        setProfile(authCache.profile);
+        return authCache.user;
       } catch (err) {
         const message = err instanceof Error ? err.message : "Auth error";
         setError(message);
-        cachedUser = null;
-        cachedProfile = null;
-        cacheTimestamp = 0;
+        authCache = createAuthCache();
         return null;
       } finally {
         setLoading(false);
@@ -140,9 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         loadUser(true);
       } else {
-        cachedUser = null;
-        cachedProfile = null;
-        cacheTimestamp = 0;
+        authCache = createAuthCache();
         setUser(null);
         setProfile(null);
         sessionStorage.removeItem("auth-cache");

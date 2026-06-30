@@ -10,8 +10,23 @@ const MAX_MAP_SIZE = 10_000;
 const CLEANUP_INTERVAL_MS = 60 * 1000;
 
 /* -------------------------------------------------------------------------- */
+/*  Supabase Client Connection Pooling                                        */
+/* -------------------------------------------------------------------------- */
+
+let supabaseClient: Awaited<ReturnType<typeof createClient>> | null = null;
+
+async function getSupabaseClient(): Promise<Awaited<ReturnType<typeof createClient>>> {
+  if (!supabaseClient) {
+    supabaseClient = await createClient();
+  }
+  return supabaseClient;
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Cleanup timer — sweeps expired entries every 60 s                          */
 /* -------------------------------------------------------------------------- */
+
+let cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
 function cleanupExpiredEntries(): void {
   const now = Date.now();
@@ -28,9 +43,14 @@ function cleanupExpiredEntries(): void {
 }
 
 // Run once immediately, then on an interval.
+// Guard against multiple initializations in hot-reload or serverless.
 cleanupExpiredEntries();
-if (typeof setInterval !== "undefined") {
-  setInterval(cleanupExpiredEntries, CLEANUP_INTERVAL_MS);
+if (typeof setInterval !== "undefined" && cleanupTimer === null) {
+  cleanupTimer = setInterval(cleanupExpiredEntries, CLEANUP_INTERVAL_MS);
+  // Prevent the timer from keeping the process alive in serverless
+  if (cleanupTimer && typeof cleanupTimer === "object" && "unref" in cleanupTimer) {
+    cleanupTimer.unref();
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -42,13 +62,20 @@ interface RateLimitConfig {
   maxRequests: number;
 }
 
+interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  retryAfter: number;
+  headers?: Record<string, string>;
+}
+
 const DEFAULT_CONFIG: RateLimitConfig = {
   windowMs: 60 * 1000,
   maxRequests: 30,
 };
 
 /* -------------------------------------------------------------------------- */
-/*  IP extraction                                                             */
+/*  IP extraction and validation                                               */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -65,6 +92,98 @@ function extractIp(key: string): string {
   return ip || "unknown";
 }
 
+/**
+ * Validate and sanitize rate limit configuration.
+ * Prevents edge cases like zero or negative values.
+ */
+function validateConfig(config: RateLimitConfig): RateLimitConfig {
+  return {
+    windowMs: Math.max(1000, config.windowMs), // Minimum 1 second
+    maxRequests: Math.max(1, config.maxRequests), // Minimum 1 request
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  LRU Cache for efficient eviction                                          */
+/* -------------------------------------------------------------------------- */
+
+interface LRUCacheEntry<K, V> {
+  key: K;
+  value: V;
+  timestamp: number;
+}
+
+class LRUCache<K, V> {
+  private capacity: number;
+  private cache: Map<K, LRUCacheEntry<K, V>>;
+
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.cache = new Map();
+  }
+
+  get(key: K): V | undefined {
+    const entry = this.cache.get(key);
+    if (!entry) return undefined;
+
+    entry.timestamp = Date.now();
+    return entry.value;
+  }
+
+  set(key: K, value: V): void {
+    if (this.cache.has(key)) {
+      const entry = this.cache.get(key)!;
+      entry.timestamp = Date.now();
+      entry.value = value;
+      return;
+    }
+
+    if (this.cache.size >= this.capacity) {
+      // Remove oldest entry
+      let oldestKey: K | undefined;
+      let oldestTime = Infinity;
+
+      for (const [k, entry] of this.cache.entries()) {
+        if (entry.timestamp < oldestTime) {
+          oldestTime = entry.timestamp;
+          oldestKey = k;
+        }
+      }
+
+      if (oldestKey) this.cache.delete(oldestKey);
+    }
+
+    this.cache.set(key, { key, value, timestamp: Date.now() });
+  }
+
+  delete(key: K): boolean {
+    return this.cache.delete(key);
+  }
+
+  size(): number {
+    return this.cache.size;
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+}
+
+// Use LRU cache for IP extraction results
+const ipCache = new LRUCache<string, string>(1000);
+
+/**
+ * Extract IP with LRU caching to avoid repeated string parsing
+ */
+function extractIpCached(key: string): string {
+  const cached = ipCache.get(key);
+  if (cached) return cached;
+
+  const ip = extractIp(key);
+  ipCache.set(key, ip);
+  return ip;
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Database-backed rate limiting                                             */
 /* -------------------------------------------------------------------------- */
@@ -73,12 +192,18 @@ async function checkRateLimitDb(
   key: string,
   action: string,
   config: RateLimitConfig,
-): Promise<{ allowed: boolean; remaining: number; retryAfter: number }> {
-  const ip = extractIp(key);
+): Promise<RateLimitResult> {
+  // L1 Cache (Memory) Check FIRST to protect database from DOS
+  const memResult = checkRateLimitMemory(key, config, false); // false = don't increment yet
+  if (!memResult.allowed) {
+    return { ...memResult, headers: buildRateLimitHeaders(memResult, config) };
+  }
+
+  const ip = extractIpCached(key);
   const windowStart = new Date(Date.now() - config.windowMs).toISOString();
 
   try {
-    const supabase = await createClient();
+    const supabase = await getSupabaseClient();
 
     const { count, error: countError } = await supabase
       .from("rate_limit_log")
@@ -89,11 +214,18 @@ async function checkRateLimitDb(
 
     if (countError) {
       logger.warn("Rate limit DB count failed, falling back to memory", { error: countError.message });
-      return checkRateLimitMemory(key, config);
+      const result = checkRateLimitMemory(key, config, true);
+      return { ...result, headers: buildRateLimitHeaders(result, config) };
     }
 
     if ((count || 0) >= config.maxRequests) {
-      return { allowed: false, remaining: 0, retryAfter: Math.ceil(config.windowMs / 1000) };
+      // Sync memory block to avoid hitting DB again
+      const record = rateLimitMap.get(key);
+      if (record) {
+        record.count = config.maxRequests;
+      }
+      const result = { allowed: false, remaining: 0, retryAfter: Math.ceil(config.windowMs / 1000) };
+      return { ...result, headers: buildRateLimitHeaders(result, config) };
     }
 
     const { error: insertError } = await supabase.from("rate_limit_log").insert({
@@ -106,10 +238,13 @@ async function checkRateLimitDb(
       logger.warn("Rate limit DB insert failed", { error: insertError.message });
     }
 
-    return { allowed: true, remaining: config.maxRequests - (count || 0) - 1, retryAfter: 0 };
+    // Increment memory cache for L1
+    const result = checkRateLimitMemory(key, config, true);
+    return { ...result, headers: buildRateLimitHeaders(result, config) };
   } catch (err) {
     logger.warn("Rate limit DB check failed, falling back to memory", { error: String(err) });
-    return checkRateLimitMemory(key, config);
+    const result = checkRateLimitMemory(key, config, true);
+    return { ...result, headers: buildRateLimitHeaders(result, config) };
   }
 }
 
@@ -120,21 +255,22 @@ async function checkRateLimitDb(
 function checkRateLimitMemory(
   key: string,
   config: RateLimitConfig,
-): { allowed: boolean; remaining: number; retryAfter: number } {
+  increment: boolean = true
+): Omit<RateLimitResult, "headers"> {
   const now = Date.now();
-  const record = rateLimitMap.get(key);
+  let record = rateLimitMap.get(key);
 
   if (!record || now > record.resetTime) {
-    // Enforce max-size to prevent memory exhaustion.
+    // Memory guard: if map is full, cleanup first
     if (rateLimitMap.size >= MAX_MAP_SIZE) {
       cleanupExpiredEntries();
-      // If still full after cleanup, evict the oldest 10 % of entries.
+      // If still full after cleanup, evict oldest entries
       if (rateLimitMap.size >= MAX_MAP_SIZE) {
-        evictOldest(Math.ceil(MAX_MAP_SIZE * 0.1));
+        evictOldestLRU(Math.ceil(MAX_MAP_SIZE * 0.1));
       }
     }
-    rateLimitMap.set(key, { count: 1, resetTime: now + config.windowMs });
-    return { allowed: true, remaining: config.maxRequests - 1, retryAfter: 0 };
+    record = { count: 0, resetTime: now + config.windowMs };
+    rateLimitMap.set(key, record);
   }
 
   if (record.count >= config.maxRequests) {
@@ -142,17 +278,35 @@ function checkRateLimitMemory(
     return { allowed: false, remaining: 0, retryAfter };
   }
 
-  record.count++;
+  if (increment) {
+    record.count++;
+  }
   return { allowed: true, remaining: config.maxRequests - record.count, retryAfter: 0 };
 }
 
 /**
- * Evict the oldest `n` entries (by `resetTime`) to free memory when the map
- * has hit its capacity ceiling.
+ * Build standard rate limiting headers
  */
-function evictOldest(n: number): void {
+function buildRateLimitHeaders(
+  result: { allowed: boolean; remaining: number; retryAfter: number },
+  config: RateLimitConfig
+): Record<string, string> {
+  const resetTime = Math.floor(Date.now() / 1000) + Math.ceil(config.windowMs / 1000);
+  return {
+    "Retry-After": String(result.retryAfter || Math.ceil(config.windowMs / 1000)),
+    "X-RateLimit-Remaining": String(result.remaining),
+    "X-RateLimit-Limit": String(config.maxRequests),
+    "X-RateLimit-Reset": String(resetTime),
+  };
+}
+
+/**
+ * Evict the oldest `n` entries using LRU strategy (by timestamp) to free memory
+ * when the map has hit its capacity ceiling.
+ */
+function evictOldestLRU(n: number): void {
   let evicted = 0;
-  // Sort keys by resetTime ascending so the oldest entries come first.
+  // Collect entries and sort by resetTime to find the oldest entries efficiently
   const entries = [...rateLimitMap.entries()].sort(
     ([, a], [, b]) => a.resetTime - b.resetTime,
   );
@@ -171,8 +325,8 @@ export async function checkRateLimit(
   key: string,
   action: string,
   config: Partial<RateLimitConfig> = {},
-): Promise<{ allowed: boolean; remaining: number; retryAfter: number }> {
-  const mergedConfig = { ...DEFAULT_CONFIG, ...config };
+): Promise<RateLimitResult> {
+  const mergedConfig = validateConfig({ ...DEFAULT_CONFIG, ...config });
   return checkRateLimitDb(key, action, mergedConfig);
 }
 
@@ -181,7 +335,7 @@ const apiRateLimitConfig: RateLimitConfig = {
   maxRequests: 20,
 };
 
-export async function checkApiRateLimit(key: string): Promise<{ allowed: boolean; remaining: number; retryAfter: number }> {
+export async function checkApiRateLimit(key: string): Promise<RateLimitResult> {
   return checkRateLimit(`api:${key}`, "api", apiRateLimitConfig);
 }
 
@@ -190,6 +344,6 @@ const authRateLimitConfig: RateLimitConfig = {
   maxRequests: 5,
 };
 
-export async function checkAuthRateLimit(key: string): Promise<{ allowed: boolean; remaining: number; retryAfter: number }> {
+export async function checkAuthRateLimit(key: string): Promise<RateLimitResult> {
   return checkRateLimit(`auth:${key}`, "auth", authRateLimitConfig);
 }

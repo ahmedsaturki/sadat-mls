@@ -62,7 +62,7 @@ export default function Sidebar({ locale, dict, role, onNavigate }: SidebarProps
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
       <div className="flex-1 py-4">
-        <nav className="px-3 space-y-1" role="navigation" aria-label="Sidebar navigation">
+        <nav className="px-3 space-y-1" role="navigation" aria-label={dict.common.sidebarNavigation}>
           {links.map((link) => {
             const isActive = pathname === link.href || (link.href !== `/${locale}/admin` && link.href !== `/${locale}/dashboard` && pathname.startsWith(link.href));
             return (

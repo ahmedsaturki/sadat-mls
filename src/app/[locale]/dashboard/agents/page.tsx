@@ -112,7 +112,7 @@ export default function AgentsPage({
         return;
       }
 
-      showToast(dict.office.agentName + " " + dict.common.add + " ✓", "success");
+      showToast(dict.common.add, "success");
       setShowModal(false);
       setFormData({ name: "", email: "", password: "" });
       loadAgents();
@@ -145,7 +145,7 @@ export default function AgentsPage({
         return;
       }
 
-      showToast(dict.common.delete + " ✓", "success");
+      showToast(dict.common.delete, "success");
       setShowDeleteModal(false);
       setDeleteId(null);
       loadAgents();
@@ -178,7 +178,7 @@ export default function AgentsPage({
               <PaginatedTable
                 data={agents}
                 searchKey="full_name"
-                searchPlaceholder={dict.office.searchAgents || "Search agents..."}
+                searchPlaceholder={dict.office.searchAgents}
                 emptyMessage={dict.common.noData}
                 emptyIcon={<UserPlus className="w-12 h-12 text-purple-300" />}
                 emptyHint={dict.contactRequests.noAgentsHint}

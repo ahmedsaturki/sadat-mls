@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================
 -- 1. OFFICES
 -- ============================================
-CREATE TABLE offices (
+CREATE TABLE IF NOT EXISTS offices (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE offices (
 -- ============================================
 -- 2. USERS (extends Supabase auth.users)
 -- ============================================
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   office_id UUID REFERENCES offices(id) ON DELETE SET NULL,
   email TEXT NOT NULL,
@@ -40,55 +40,57 @@ CREATE TABLE users (
 -- ============================================
 -- 3. ZONES (pre-defined Sadat City areas)
 -- ============================================
-CREATE TABLE zones (
+CREATE TABLE IF NOT EXISTS zones (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name_ar TEXT NOT NULL,
+  name_ar TEXT NOT NULL UNIQUE,
   name_en TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- Seed zones
 INSERT INTO zones (name_ar, name_en) VALUES
-('الحي الأول', 'First District'),
-('الحي الثاني', 'Second District'),
-('الحي الثالث', 'Third District'),
-('الحي الرابع', 'Fourth District'),
-('الحي الخامس', 'Fifth District'),
-('الحي السادس', 'Sixth District'),
-('الحي السابع', 'Seventh District'),
-('الحي الثامن', 'Eighth District'),
-('الحي التاسع', 'Ninth District'),
-('الحي العاشر', 'Tenth District'),
-('مدينة العاشر من رمضان', '10th of Ramadan City'),
-('المنطقة الصناعية', 'Industrial Zone'),
-('المنطقة الحرة', 'Free Zone'),
-('أخرى', 'Other');
+  ('الحي الأول', 'First District'),
+  ('الحي الثاني', 'Second District'),
+  ('الحي الثالث', 'Third District'),
+  ('الحي الرابع', 'Fourth District'),
+  ('الحي الخامس', 'Fifth District'),
+  ('الحي السادس', 'Sixth District'),
+  ('الحي السابع', 'Seventh District'),
+  ('الحي الثامن', 'Eighth District'),
+  ('الحي التاسع', 'Ninth District'),
+  ('الحي العاشر', 'Tenth District'),
+  ('مدينة العاشر من رمضان', '10th of Ramadan City'),
+  ('المنطقة الصناعية', 'Industrial Zone'),
+  ('المنطقة الحرة', 'Free Zone'),
+  ('أخرى', 'Other')
+ON CONFLICT DO NOTHING;
 
 -- ============================================
 -- 4. PROPERTY TYPES
 -- ============================================
-CREATE TABLE property_types (
+CREATE TABLE IF NOT EXISTS property_types (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name_ar TEXT NOT NULL,
+  name_ar TEXT NOT NULL UNIQUE,
   name_en TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- Seed property types
 INSERT INTO property_types (name_ar, name_en) VALUES
-('شقة', 'Apartment'),
-('فيلا', 'Villa'),
-('دوبلكس', 'Duplex'),
-('محل تجاري', 'Commercial Shop'),
-('مكتب', 'Office'),
-('أرض', 'Land'),
-('عمارة', 'Building'),
-('استوديو', 'Studio');
+  ('شقة', 'Apartment'),
+  ('فيلا', 'Villa'),
+  ('دوبلكس', 'Duplex'),
+  ('محل تجاري', 'Commercial Shop'),
+  ('مكتب', 'Office'),
+  ('أرض', 'Land'),
+  ('عمارة', 'Building'),
+  ('استوديو', 'Studio')
+ON CONFLICT DO NOTHING;
 
 -- ============================================
 -- 5. PROPERTIES
 -- ============================================
-CREATE TABLE properties (
+CREATE TABLE IF NOT EXISTS properties (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   office_id UUID NOT NULL REFERENCES offices(id) ON DELETE CASCADE,
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -114,7 +116,7 @@ CREATE TABLE properties (
 -- ============================================
 -- 6. PROPERTY OWNERS (sensitive data)
 -- ============================================
-CREATE TABLE property_owners (
+CREATE TABLE IF NOT EXISTS property_owners (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
   office_id UUID NOT NULL REFERENCES offices(id) ON DELETE CASCADE,
@@ -128,7 +130,7 @@ CREATE TABLE property_owners (
 -- ============================================
 -- 7. PROPERTY IMAGES
 -- ============================================
-CREATE TABLE property_images (
+CREATE TABLE IF NOT EXISTS property_images (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
   url TEXT NOT NULL,
@@ -141,7 +143,7 @@ CREATE TABLE property_images (
 -- ============================================
 -- 8. CONTACT REQUESTS
 -- ============================================
-CREATE TABLE contact_requests (
+CREATE TABLE IF NOT EXISTS contact_requests (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
   office_id UUID NOT NULL REFERENCES offices(id) ON DELETE CASCADE,
@@ -156,18 +158,18 @@ CREATE TABLE contact_requests (
 -- ============================================
 -- INDEXES
 -- ============================================
-CREATE INDEX idx_users_office_id ON users(office_id);
-CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_properties_office_id ON properties(office_id);
-CREATE INDEX idx_properties_status ON properties(status);
-CREATE INDEX idx_properties_zone_id ON properties(zone_id);
-CREATE INDEX idx_properties_type_id ON properties(property_type_id);
-CREATE INDEX idx_properties_price ON properties(price);
-CREATE INDEX idx_property_owners_property_id ON property_owners(property_id);
-CREATE INDEX idx_property_owners_office_id ON property_owners(office_id);
-CREATE INDEX idx_property_images_property_id ON property_images(property_id);
-CREATE INDEX idx_contact_requests_property_id ON contact_requests(property_id);
-CREATE INDEX idx_contact_requests_office_id ON contact_requests(office_id);
+CREATE INDEX IF NOT EXISTS idx_users_office_id ON users(office_id);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_properties_office_id ON properties(office_id);
+CREATE INDEX IF NOT EXISTS idx_properties_status ON properties(status);
+CREATE INDEX IF NOT EXISTS idx_properties_zone_id ON properties(zone_id);
+CREATE INDEX IF NOT EXISTS idx_properties_type_id ON properties(property_type_id);
+CREATE INDEX IF NOT EXISTS idx_properties_price ON properties(price);
+CREATE INDEX IF NOT EXISTS idx_property_owners_property_id ON property_owners(property_id);
+CREATE INDEX IF NOT EXISTS idx_property_owners_office_id ON property_owners(office_id);
+CREATE INDEX IF NOT EXISTS idx_property_images_property_id ON property_images(property_id);
+CREATE INDEX IF NOT EXISTS idx_contact_requests_property_id ON contact_requests(property_id);
+CREATE INDEX IF NOT EXISTS idx_contact_requests_office_id ON contact_requests(office_id);
 
 -- ============================================
 -- UPDATED_AT TRIGGER
@@ -180,14 +182,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_offices_updated_at ON offices;
 CREATE TRIGGER update_offices_updated_at
   BEFORE UPDATE ON offices
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at
   BEFORE UPDATE ON users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_properties_updated_at ON properties;
 CREATE TRIGGER update_properties_updated_at
   BEFORE UPDATE ON properties
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -209,6 +214,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
@@ -217,4 +223,5 @@ CREATE TRIGGER on_auth_user_created
 -- STORAGE BUCKET
 -- ============================================
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('properties', 'properties', true);
+VALUES ('properties', 'properties', true)
+ON CONFLICT (id) DO NOTHING;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import AuthGuard from "@/components/auth/AuthGuard";
+import ErrorBoundaryWrapper from "@/components/ui/ErrorBoundaryWrapper";
 import { ROLES } from "@/lib/utils/constants";
 
 interface PageProps {
@@ -31,7 +32,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard requiredRole={ROLES.SUPER_ADMIN}>
-      {children}
+      <ErrorBoundaryWrapper fallbackTitle="Admin Error" fallbackMessage="An error occurred in the admin panel.">
+        {children}
+      </ErrorBoundaryWrapper>
     </AuthGuard>
   );
 }

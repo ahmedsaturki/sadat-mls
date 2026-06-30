@@ -10,6 +10,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import { Building2, User, Home } from "lucide-react";
 import { ROLES } from "@/lib/utils/constants";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 interface AgentProfile {
   id: string;
@@ -43,6 +44,7 @@ function PublicAgentPage({
   const [properties, setProperties] = useState<AgentProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const { user } = useAuthUser();
 
   const dict = getMessages(locale);
   const supabase = createClient();
@@ -53,7 +55,7 @@ function PublicAgentPage({
       .select("*, offices(name, slug)")
       .eq("id", agentId)
       .eq("role", ROLES.OFFICE_AGENT)
-      .single();
+      .maybeSingle();
 
     if (!agentData) {
       setNotFound(true);
@@ -191,6 +193,8 @@ function PublicAgentPage({
                     ? property.property_types?.name_ar
                     : property.property_types?.name_en
                 }
+                userId={user?.id || null}
+                dict={dict}
               />
             ))}
           </div>

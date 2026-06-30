@@ -12,38 +12,14 @@ import { usePageLocale } from "@/hooks/usePageLocale";
 import { ROLES } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
 
-const LOGIN_RATE_LIMIT_KEY = "sadat_login_attempts";
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
-function getLoginAttempts(): { count: number; firstAttemptAt: number } {
-  if (typeof window === "undefined") return { count: 0, firstAttemptAt: 0 };
-  try {
-    const data = localStorage.getItem(LOGIN_RATE_LIMIT_KEY);
-    if (!data) return { count: 0, firstAttemptAt: 0 };
-    const parsed = JSON.parse(data);
-    // Reset if lockout period has passed
-    if (Date.now() - parsed.firstAttemptAt > LOCKOUT_DURATION_MS) {
-      localStorage.removeItem(LOGIN_RATE_LIMIT_KEY);
-      return { count: 0, firstAttemptAt: 0 };
-    }
-    return parsed;
-  } catch (err) {
-    logger.error("Failed to parse login rate limit data", { error: err instanceof Error ? err.message : String(err) });
-    return { count: 0, firstAttemptAt: 0 };
-  }
-}
-
-function recordLoginAttempt(): { count: number; locked: boolean } {
-  const current = getLoginAttempts();
-  const newCount = current.count + 1;
-  const firstAttemptAt = current.count === 0 ? Date.now() : current.firstAttemptAt;
-  localStorage.setItem(LOGIN_RATE_LIMIT_KEY, JSON.stringify({ count: newCount, firstAttemptAt }));
-  return { count: newCount, locked: newCount >= MAX_LOGIN_ATTEMPTS };
-}
-
-function clearLoginAttempts() {
-  localStorage.removeItem(LOGIN_RATE_LIMIT_KEY);
+interface RateLimitResponse {
+  allowed: boolean;
+  remaining: number;
+  retryAfter: number;
+  locked?: boolean;
+  error?: string;
 }
 
 export default function LoginPage({
@@ -57,21 +33,33 @@ export default function LoginPage({
   const [loading, setLoading] = useState(false);
   const locale = usePageLocale(params);
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
+  const [isRateLimited, setIsRateLimited] = useState(false);
   const router = useRouter();
 
   const dict = getMessages(locale);
 
-  const checkRateLimit = useCallback(() => {
-    const { count } = getLoginAttempts();
-    if (count >= MAX_LOGIN_ATTEMPTS) {
-      const { firstAttemptAt } = getLoginAttempts();
-      const timeLeft = Math.ceil((LOCKOUT_DURATION_MS - (Date.now() - firstAttemptAt)) / 60000);
-      setError(dict.common.rateLimitExceeded.replace("{{minutes}}", String(timeLeft)));
-      setAttemptsRemaining(0);
-      return false;
+  const checkRateLimit = useCallback(async () => {
+    try {
+      const response = await fetch("/api/auth/rate-limit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data: RateLimitResponse = await response.json();
+      
+      if (!data.allowed) {
+        setIsRateLimited(true);
+        setAttemptsRemaining(0);
+        setError(data.error || dict.common.rateLimitExceeded.replace("{{minutes}}", String(Math.ceil(data.retryAfter / 60))));
+        return false;
+      }
+      
+      setIsRateLimited(false);
+      setAttemptsRemaining(data.remaining);
+      return true;
+    } catch (err) {
+      logger.error("Rate limit check failed", { error: err instanceof Error ? err.message : String(err) });
+      return true; // Allow on failure to not block login
     }
-    setAttemptsRemaining(MAX_LOGIN_ATTEMPTS - count);
-    return true;
   }, [dict.common.rateLimitExceeded]);
 
   useEffect(() => {
@@ -83,7 +71,8 @@ export default function LoginPage({
     setLoading(true);
     setError("");
 
-    if (!checkRateLimit()) {
+    const rateOk = await checkRateLimit();
+    if (!rateOk) {
       setLoading(false);
       return;
     }
@@ -96,26 +85,40 @@ export default function LoginPage({
     });
 
     if (authError) {
-      const { count, locked } = recordLoginAttempt();
-      if (locked) {
+      // Check if it's an email not verified email
+      if (authError.message.includes("Email not confirmed") || authError.message.includes("email not verified")) {
+        setError(dict.auth.emailNotVerified || "Please verify your email before logging in. Check your inbox for the verification link.");
+        setLoading(false);
+        return;
+      }
+
+      // Refresh rate limit after failed attempt
+      await checkRateLimit();
+      
+      if (isRateLimited) {
         setError(dict.common.rateLimitLocked);
         setAttemptsRemaining(0);
       } else {
         setError(dict.auth.loginError);
-        setAttemptsRemaining(MAX_LOGIN_ATTEMPTS - count);
+        setAttemptsRemaining(Math.max(0, (attemptsRemaining || MAX_LOGIN_ATTEMPTS) - 1));
       }
       setLoading(false);
       return;
     }
 
-    // Clear attempts on successful login
-    clearLoginAttempts();
+    // Check email verification status
+    if (data.user && !data.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      setError(dict.auth.emailNotVerified || "Please verify your email before logging in. Check your inbox for the verification link.");
+      setLoading(false);
+      return;
+    }
 
     const { data: profile } = await supabase
       .from("users")
       .select("role, office_id")
       .eq("id", data.user.id)
-      .single();
+      .maybeSingle();
 
     if (profile?.role === ROLES.SUPER_ADMIN) {
       router.push(`/${locale}/admin`);

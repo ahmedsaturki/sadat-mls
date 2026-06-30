@@ -23,7 +23,7 @@ export async function getPropertyTypeById(id: string): Promise<PropertyType | nu
     .from("property_types")
     .select("id, name_ar, name_en")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (error) return null;
   return data;

@@ -3,6 +3,13 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('office-logos', 'office-logos', true)
 ON CONFLICT (id) DO NOTHING;
 
+-- Drop existing storage policies (for idempotency)
+DROP POLICY IF EXISTS "Office logos are publicly accessible" ON storage.objects;
+DROP POLICY IF EXISTS "Office admins can upload logos" ON storage.objects;
+DROP POLICY IF EXISTS "Office admins can update logos" ON storage.objects;
+DROP POLICY IF EXISTS "Office admins can delete logos" ON storage.objects;
+DROP POLICY IF EXISTS "Super admins can manage all logos" ON storage.objects;
+
 -- Office logos are publicly accessible
 CREATE POLICY "Office logos are publicly accessible" ON storage.objects
   FOR SELECT USING (bucket_id = 'office-logos');

@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import { getMessages } from "@/i18n/getMessages";
 import { usePageLocale } from "@/hooks/usePageLocale";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { logger } from "@/lib/logger";
 
 export default function VerifyEmailPage({
   params,
@@ -15,8 +16,9 @@ export default function VerifyEmailPage({
 }) {
   const locale = usePageLocale(params);
   const [status, setStatus] = useState<"loading" | "success" | "error" | "pending">("loading");
+  const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
-  const { user, supabase } = useAuthUser();
+  const { user } = useAuthUser();
 
   const dict = getMessages(locale);
 
@@ -34,11 +36,27 @@ export default function VerifyEmailPage({
   }, [user]);
 
   const handleResend = useCallback(async () => {
-    if (user?.email) {
-      await supabase.auth.resend({ type: "signup", email: user.email });
-      setResent(true);
+    if (!user?.email) return;
+    
+    setResending(true);
+    try {
+      const response = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+      });
+      
+      if (response.ok) {
+        setResent(true);
+      } else {
+        logger.warn("Resend verification failed", { status: response.status });
+      }
+    } catch (err) {
+      logger.error("Resend verification error", { error: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setResending(false);
     }
-  }, [supabase, user]);
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
@@ -104,6 +122,7 @@ export default function VerifyEmailPage({
                 <Button
                   variant="outline"
                   onClick={handleResend}
+                  isLoading={resending}
                   className="mt-4"
                 >
                   {dict.auth.resendVerification}

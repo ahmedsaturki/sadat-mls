@@ -100,7 +100,7 @@ export default async function OfficeDashboard({
       .from("offices")
       .select("*")
       .eq("id", profile.office_id)
-      .single(),
+      .maybeSingle(),
     supabase
       .from("users")
       .select("id", { count: "exact", head: true })
@@ -231,7 +231,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
                         <div>
                           <p className="font-medium text-gray-900">{contact.visitor_name}</p>
                           <p className="text-sm text-gray-500">
-                            {contact.contact_type === "whatsapp" ? "WhatsApp" : contact.contact_type}
+                            {contact.contact_type === "whatsapp" ? dict.contactRequests.whatsapp : contact.contact_type === "phone" ? dict.contactRequests.phone : dict.contactRequests.email}
                             {contact.properties?.title ? ` — ${contact.properties.title}` : ""}
                           </p>
                         </div>
@@ -298,25 +298,27 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
             </Link>
           </div>
 {propertiesWithImages && propertiesWithImages.length > 0 ? (
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 {propertiesWithImages.map((property: PropertyDisplay) => (
-                 <PropertyCard
-                   key={property.id}
-                   id={property.id}
-                   title={property.title}
-                   price={property.price}
-                   area={property.area}
-                   bedrooms={property.bedrooms}
-                   bathrooms={property.bathrooms}
-                   zone={property.zones?.name_ar}
-                   imageUrl={property.primaryImage || undefined}
-                   status={property.status}
-                   officeName={office?.name || ""}
-                   locale={locale}
-                   type={property.property_types?.name_ar}
-                 />
-               ))}
-            </div>
+                  <PropertyCard
+                    key={property.id}
+                    id={property.id}
+                    title={property.title}
+                    price={property.price}
+                    area={property.area}
+                    bedrooms={property.bedrooms}
+                    bathrooms={property.bathrooms}
+                    zone={property.zones?.name_ar}
+                    imageUrl={property.primaryImage || undefined}
+                    status={property.status}
+                    officeName={office?.name || ""}
+                    locale={locale}
+                    type={property.property_types?.name_ar}
+                    dict={dict}
+                    userId={user?.id || null}
+                  />
+                ))}
+             </div>
           ) : (
             <Card>
 <div className="text-center py-8">

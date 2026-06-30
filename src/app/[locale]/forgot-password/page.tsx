@@ -6,9 +6,17 @@ import { Building2, ArrowRight, Mail, CheckCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
-import { checkForgotPasswordRateLimit } from "@/lib/security/rateLimit-client";
 import { getMessages } from "@/i18n/getMessages";
 import { usePageLocale } from "@/hooks/usePageLocale";
+import { logger } from "@/lib/logger";
+
+interface RateLimitResponse {
+  allowed: boolean;
+  remaining: number;
+  retryAfter: number;
+  locked?: boolean;
+  error?: string;
+}
 
 export default function ForgotPasswordPage({
   params,
@@ -29,10 +37,21 @@ export default function ForgotPasswordPage({
       setLoading(true);
       setError("");
 
-      // Rate limiting check
-      const rateResult = checkForgotPasswordRateLimit(`forgot:${email}`);
+      // Server-side rate limiting check
+      let rateResult: RateLimitResponse;
+      try {
+        const response = await fetch("/api/auth/forgot-rate-limit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        rateResult = await response.json();
+      } catch (err) {
+        logger.error("Rate limit check failed, allowing request", { error: err instanceof Error ? err.message : String(err) });
+        rateResult = { allowed: true, remaining: 5, retryAfter: 0 };
+      }
+
       if (!rateResult.allowed) {
-        setError(`${dict.auth.rateLimited} ${rateResult.retryAfter}s`);
+        setError(rateResult.error || dict.auth.rateLimited?.replace("{{seconds}}", String(rateResult.retryAfter)) || `Too many requests. Please wait ${rateResult.retryAfter}s.`);
         setLoading(false);
         return;
       }

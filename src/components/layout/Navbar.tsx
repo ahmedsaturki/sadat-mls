@@ -50,11 +50,11 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50" role="navigation" aria-label="Main navigation">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50" role="navigation" aria-label={dict.common.mainNavigation}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href={`/${locale}`} className="flex items-center gap-2" prefetch>
+          <Link href={`/${locale}`} className="flex items-center gap-2" prefetch aria-label={dict.common.home}>
             <Building2 className="w-8 h-8 text-blue-600" />
             <span className="text-xl font-bold text-gray-900">{dict.common.appName}</span>
           </Link>

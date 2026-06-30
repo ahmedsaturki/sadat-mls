@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 const locales = ["ar", "en"];
 const defaultLocale = "ar";
-
-/* -------------------------------------------------------------------------- */
-/*  Route helpers                                                              */
-/* -------------------------------------------------------------------------- */
 
 /** Routes that require authentication. */
 const PROTECTED_PREFIXES = ["/admin", "/dashboard"];
@@ -16,37 +13,12 @@ function needsAuth(pathname: string): boolean {
     (prefix) =>
       pathname === `/${prefix}` ||
       pathname.startsWith(`/${prefix}/`) ||
-      // Match locale-prefixed variants: /ar/admin, /en/dashboard, etc.
       locales.some(
         (locale) =>
           pathname === `/${locale}${prefix}` ||
           pathname.startsWith(`/${locale}${prefix}/`),
       ),
   );
-}
-
-/**
- * Check for a Supabase auth token cookie.  Supabase names these with the
- * pattern `sb-<project-ref>-auth-token`.
- */
-function hasSupabaseAuthToken(request: NextRequest): boolean {
-  const cookies = request.cookies;
-  for (const [, cookie] of cookies) {
-    if (cookie.name.startsWith("sb-") && cookie.name.endsWith("-auth-token")) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Locale helpers                                                             */
-/* -------------------------------------------------------------------------- */
-
-function generateNonce(): string {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return btoa(String.fromCharCode(...array));
 }
 
 function getLocale(request: NextRequest): string {
@@ -60,79 +32,20 @@ function getLocale(request: NextRequest): string {
   return defaultLocale;
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Middleware entry point                                                     */
-/* -------------------------------------------------------------------------- */
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // -----------------------------------------------------------------------
-  // 1. Skip non-page routes – apply only security headers, no auth check.
-  // -----------------------------------------------------------------------
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/icons") ||
-    pathname.includes(".") ||
-    pathname === "/sw.js" ||
-    pathname === "/workbox-*.js" ||
-    pathname === "/sitemap.xml" ||
-    pathname === "/robots.txt" ||
-    pathname === "/manifest.json"
-  ) {
-    const response = NextResponse.next();
-    applySecurityHeaders(response);
-    return response;
-  }
-
-  // -----------------------------------------------------------------------
-  // 2. Auth guard for protected routes.
-  // -----------------------------------------------------------------------
-  if (needsAuth(pathname) && !hasSupabaseAuthToken(request)) {
-    // Determine the locale prefix so the redirect lands on the login page
-    // in the correct language.
-    const locale = getLocale(request);
-    const loginUrl = new URL(`/${locale}/login`, request.url);
-    loginUrl.searchParams.set("next", pathname);
-    const response = NextResponse.redirect(loginUrl);
-    applySecurityHeaders(response);
-    return response;
-  }
-
-  // -----------------------------------------------------------------------
-  // 3. Locale handling.
-  // -----------------------------------------------------------------------
-  const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
-  );
-
-  if (pathnameHasLocale) {
-    const response = NextResponse.next();
-    applySecurityHeaders(response);
-    return response;
-  }
-
-  const locale = getLocale(request);
-  const normalizedPathname = pathname === "/" ? "" : pathname;
-  const newUrl = new URL(`/${locale}${normalizedPathname}`, request.url);
-  const response = NextResponse.redirect(newUrl);
-  applySecurityHeaders(response);
-  return response;
+function generateNonce(): string {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Security headers                                                          */
-/* -------------------------------------------------------------------------- */
-
-function applySecurityHeaders(response: NextResponse) {
+function applySecurityHeaders(response: NextResponse): NextResponse {
   const nonce = generateNonce();
 
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set("X-XSS-Protection", "0");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), ambient-light-sensor=(), autoplay=(), encrypted-media=(), picture-in-picture=(), web-share=()");
   response.headers.set(
     "Strict-Transport-Security",
     "max-age=63072000; includeSubDomains; preload",
@@ -147,8 +60,9 @@ function applySecurityHeaders(response: NextResponse) {
       `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
       `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https:",
+      "img-src 'self' data: blob: https:\\",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com",
+      "frame-src 'none'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -156,6 +70,71 @@ function applySecurityHeaders(response: NextResponse) {
     ].join("; "),
   );
   return response;
+}
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // 1. Skip non-page routes – apply only security headers, no auth check.
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/icons") ||
+    pathname.includes(".") ||
+    pathname === "/sw.js" ||
+    pathname === "/workbox-*.js" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
+    pathname === "/manifest.json"
+  ) {
+    return applySecurityHeaders(NextResponse.next());
+  }
+
+  // 2. Create Supabase client for session validation
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
+        },
+      },
+    }
+  );
+
+  // 3. Check if protected route
+  if (needsAuth(pathname)) {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      // Redirect to login with next parameter and locale
+      const locale = getLocale(request);
+      const loginUrl = new URL(`/${locale}/login`, request.url);
+      loginUrl.searchParams.set("next", pathname);
+      return applySecurityHeaders(NextResponse.redirect(loginUrl));
+    }
+  }
+
+  // 4. Locale handling
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
+  );
+
+  if (!pathnameHasLocale) {
+    const locale = getLocale(request);
+    const normalizedPathname = pathname === "/" ? "" : pathname;
+    const newUrl = new URL(`/${locale}${normalizedPathname}`, request.url);
+    return applySecurityHeaders(NextResponse.redirect(newUrl));
+  }
+
+  // 5. Apply security headers for all other routes
+  return applySecurityHeaders(NextResponse.next());
 }
 
 export const config = {

@@ -31,6 +31,10 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Navbar from "@/components/layout/Navbar";
+import { useAuthUser } from "@/hooks/useAuthUser";
+import FavoriteButton from "@/components/properties/FavoriteButton";
+import CompareButton from "@/components/properties/CompareButton";
+import type { PropertyForComparison } from "@/hooks/useCompare";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
 import { logger } from "@/lib/logger";
@@ -46,10 +50,12 @@ type Property = Database["public"]["Tables"]["properties"]["Row"] & {
 type PropertyImage = Database["public"]["Tables"]["property_images"]["Row"];
 
 export default function PropertyDetailPage() {
-  const params = useParams();
-  const locale = params.locale as Locale;
-  const id = params.id as string;
-  const dict = getMessages(locale);
+   const params = useParams();
+   const locale = params.locale as Locale;
+   const id = params.id as string;
+   const dict = getMessages(locale);
+   const { user } = useAuthUser();
+   const userId = user?.id || null;
 
   const [property, setProperty] = useState<Property | null>(null);
   const [images, setImages] = useState<PropertyImage[]>([]);
@@ -67,7 +73,7 @@ export default function PropertyDetailPage() {
       .from("properties")
       .select("*, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name, phone, email)")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
     if (data) {
       setProperty(data);
@@ -260,7 +266,7 @@ export default function PropertyDetailPage() {
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
-          <nav className="flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-2 text-sm text-gray-500" aria-label={dict.common.breadcrumb}>
 <Link href={`/${locale}`} className="hover:text-gray-900 transition-colors">
                {dict.common.home}
              </Link>
@@ -285,7 +291,16 @@ export default function PropertyDetailPage() {
                   <div
                     className="relative aspect-video cursor-pointer group"
                     onClick={() => setShowLightbox(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setShowLightbox(true);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     ref={triggerRef}
+                    aria-label={dict.explore.openGallery}
                   >
                     <Image
                       src={images[currentImageIndex].url}
@@ -304,14 +319,14 @@ export default function PropertyDetailPage() {
                         <button
                           onClick={(e) => { e.stopPropagation(); navigateImage("prev"); }}
                           className="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70"
-                          aria-label="Previous image"
+                          aria-label={dict.common.previousImage}
                         >
                           <ChevronRight className="w-5 h-5" />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); navigateImage("next"); }}
                           className="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70"
-                          aria-label="Next image"
+                          aria-label={dict.common.nextImage}
                         >
                           <ChevronLeft className="w-5 h-5" />
                         </button>
@@ -466,15 +481,23 @@ export default function PropertyDetailPage() {
                   {dict.property.call}
                 </Button>
               </div>
-              <Button
-                className="w-full"
-                variant="ghost"
-                onClick={handleShare}
-              >
-                <Share2 className="w-4 h-4 ml-2" />
-                {dict.property.share}
-              </Button>
-            </div>
+<Button
+                 className="w-full"
+                 variant="ghost"
+                 onClick={handleShare}
+               >
+                 <Share2 className="w-4 h-4 ml-2" />
+                 {dict.property.share}
+               </Button>
+<div className="mt-2 flex justify-center items-center gap-4">
+                  <CompareButton
+                    property={property as unknown as PropertyForComparison}
+                    locale={locale}
+                    dict={dict}
+                  />
+                  <FavoriteButton propertyId={property.id} userId={userId} locale={locale} dict={dict} />
+                </div>
+             </div>
 
             {/* Office Info */}
             {property.offices && (
@@ -515,13 +538,13 @@ export default function PropertyDetailPage() {
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           role="dialog"
           aria-modal="true"
-          aria-label="Image lightbox"
+          aria-label={dict.common.imageLightbox}
           onClick={() => setShowLightbox(false)}
         >
           <button
             onClick={() => setShowLightbox(false)}
             className="absolute top-6 left-6 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
-            aria-label="Close lightbox"
+            aria-label={dict.common.closeLightbox}
           >
             <X className="w-5 h-5" />
           </button>
@@ -544,14 +567,14 @@ export default function PropertyDetailPage() {
               <button
                 onClick={(e) => { e.stopPropagation(); navigateImage("prev"); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
-                aria-label="Previous image"
+                aria-label={dict.common.previousImage}
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); navigateImage("next"); }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
-                aria-label="Next image"
+                aria-label={dict.common.nextImage}
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>

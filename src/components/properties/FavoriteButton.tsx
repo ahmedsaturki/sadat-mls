@@ -1,9 +1,10 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
+import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
 
 import type { Messages } from "@/i18n/getMessages";
@@ -27,6 +28,29 @@ const FavoriteButton = memo(function FavoriteButton({
 }: FavoriteButtonProps) {
   const [isFavorited, setIsFavorited] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
+
+  const checkFavoriteStatus = useCallback(async () => {
+    if (!userId) return;
+    const supabase = createClient();
+    try {
+      const { data } = await supabase
+        .from("property_favorites")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("property_id", propertyId)
+        .maybeSingle();
+      
+      setIsFavorited(!!data);
+    } catch (err) {
+      logger.warn("Failed to check favorite status", { error: err instanceof Error ? err.message : String(err) });
+    }
+  }, [userId, propertyId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    checkFavoriteStatus();
+  }, [userId, propertyId, checkFavoriteStatus]);
 
   const sizeClasses = {
     sm: "w-8 h-8",
@@ -60,20 +84,34 @@ const FavoriteButton = memo(function FavoriteButton({
           .eq("user_id", userId)
           .eq("property_id", propertyId);
 
-        if (!error) setIsFavorited(false);
+        if (!error) {
+          setIsFavorited(false);
+          showToast((dict && dict.common && dict.common.removeFavorite) || "Removed from favorites", "success");
+        } else {
+          showToast((dict && dict.common && dict.common.error) || "Failed to remove favorite", "error");
+          logger.error("Failed to remove favorite", { error });
+        }
       } else {
         const { error } = await supabase
           .from("property_favorites")
           .insert({ user_id: userId, property_id: propertyId });
 
-        if (!error) setIsFavorited(true);
+        if (!error) {
+          setIsFavorited(true);
+          showToast((dict && dict.common && dict.common.addFavorite) || "Added to favorites", "success");
+        } else {
+          showToast((dict && dict.common && dict.common.error) || "Failed to add favorite", "error");
+          logger.error("Failed to add favorite", { error });
+        }
       }
     } catch (err) {
       logger.error("Failed to toggle favorite", { error: err instanceof Error ? err.message : String(err) });
+      showToast((dict && dict.common && dict.common.error) || "An error occurred", "error");
     } finally {
       setLoading(false);
     }
-  }, [propertyId, userId, isFavorited, locale]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyId, userId, isFavorited, locale, showToast]);
 
   return (
     <button
@@ -88,7 +126,7 @@ const FavoriteButton = memo(function FavoriteButton({
         loading && "opacity-50 cursor-not-allowed",
         className
       )}
-      aria-label={isFavorited ? (dict?.common?.removeFavorite || "Remove from favorites") : (dict?.common?.addFavorite || "Add to favorites")}
+      aria-label={isFavorited ? ((dict && dict.common && dict.common.removeFavorite) || "Remove from favorites") : ((dict && dict.common && dict.common.addFavorite) || "Add to favorites")}
       aria-pressed={isFavorited}
     >
       <Heart

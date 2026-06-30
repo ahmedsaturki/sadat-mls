@@ -7,6 +7,7 @@ import PropertyCard from "@/components/properties/PropertyCard";
 import LandingHero from "@/components/landing/LandingHero";
 import ContactForm from "@/components/landing/ContactForm";
 import { getLandingData } from "@/lib/queries/landing";
+import { getServerAuth } from "@/lib/supabase/server-auth";
 
 export const revalidate = 3600;
 
@@ -19,6 +20,8 @@ export default async function LandingPage({
   const rawLocale = resolvedParams?.locale || "ar";
   const typedLocale = (isValidLocale(rawLocale) ? rawLocale : "ar") as Locale;
   const dict = getMessages(typedLocale);
+  const { user } = await getServerAuth();
+  const userId = user?.id || null;
   const data = await getLandingData();
 
   const features = [
@@ -83,25 +86,27 @@ export default async function LandingPage({
                 {dict.landing.viewAll} →
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.properties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  id={property.id}
-                  title={property.title}
-                  price={property.price}
-                  area={property.area}
-                  bedrooms={property.bedrooms}
-                  bathrooms={property.bathrooms}
-                  zone={typedLocale === "ar" ? property.zones?.name_ar : property.zones?.name_en}
-                  imageUrl={property.primaryImage || undefined}
-                  status={property.status}
-                  officeName={property.offices?.name || ""}
-                  locale={typedLocale}
-                  type={typedLocale === "ar" ? property.property_types?.name_ar : property.property_types?.name_en}
-                />
-              ))}
-            </div>
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+               {data.properties.map((property) => (
+                 <PropertyCard
+                   key={property.id}
+                   id={property.id}
+                   title={property.title}
+                   price={property.price}
+                   area={property.area}
+                   bedrooms={property.bedrooms}
+                   bathrooms={property.bathrooms}
+                   zone={typedLocale === "ar" ? property.zones?.name_ar : property.zones?.name_en}
+                   imageUrl={property.primaryImage || undefined}
+                   status={property.status}
+                   officeName={property.offices?.name || ""}
+                   locale={typedLocale}
+                   type={typedLocale === "ar" ? property.property_types?.name_ar : property.property_types?.name_en}
+                   userId={userId}
+                   dict={dict}
+                 />
+               ))}
+             </div>
           </div>
         </section>
       )}

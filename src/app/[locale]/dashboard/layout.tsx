@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import AuthGuard from "@/components/auth/AuthGuard";
+import ErrorBoundaryWrapper from "@/components/ui/ErrorBoundaryWrapper";
 
 interface PageProps {
   params: { locale: string };
@@ -30,7 +31,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard>
-      {children}
+      <ErrorBoundaryWrapper fallbackTitle="Dashboard Error" fallbackMessage="An error occurred in the dashboard.">
+        {children}
+      </ErrorBoundaryWrapper>
     </AuthGuard>
   );
 }

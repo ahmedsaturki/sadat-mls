@@ -112,7 +112,7 @@ export default function PropertiesPage({
       .from("offices")
       .select("name")
       .eq("id", profile.office_id)
-      .single();
+      .maybeSingle();
 
     setOfficeName(office?.name || "");
     setLoading(false);
@@ -247,6 +247,7 @@ export default function PropertiesPage({
                   officeName={officeName}
                   locale={locale}
                   type={property.property_types?.name_ar}
+                  userId={user?.id || null}
                 />
           {userRole === ROLES.OFFICE_ADMIN && (
                   <div className="absolute top-2 left-2 flex items-center gap-1">
@@ -256,7 +257,7 @@ export default function PropertiesPage({
                        onChange={(e) => handleStatusChange(property.id, e.target.value as Property["status"])}
                        disabled={updatingStatus === property.id}
                        onClick={(e) => e.stopPropagation()}
-                       aria-label="Change property status"
+                        aria-label={dict.common.changePropertyStatus}
                        className={`text-xs font-medium px-2 py-1 rounded-lg border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer ${
                          property.status === "available"
                            ? "bg-green-100 text-green-700"
@@ -328,7 +329,7 @@ export default function PropertiesPage({
               <button
                 key={p}
                 onClick={() => setPage(p)}
-                aria-label={`Page ${p}`}
+                aria-label={`${p}`}
                 aria-current={page === p ? "page" : undefined}
                 className={`px-3 py-2 text-sm font-medium rounded-lg ${
                   page === p

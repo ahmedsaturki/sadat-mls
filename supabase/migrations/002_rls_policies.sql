@@ -14,6 +14,52 @@ ALTER TABLE property_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_requests ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
+-- DROP EXISTING POLICIES (for idempotency)
+-- ============================================
+DROP POLICY IF EXISTS "Public can view active offices" ON offices;
+DROP POLICY IF EXISTS "Super admin can manage offices" ON offices;
+DROP POLICY IF EXISTS "Office admin can view own office" ON offices;
+DROP POLICY IF EXISTS "Office admin can update own office" ON offices;
+
+DROP POLICY IF EXISTS "Super admin can view all users" ON users;
+DROP POLICY IF EXISTS "Super admin can manage all users" ON users;
+DROP POLICY IF EXISTS "Users can view own profile" ON users;
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
+DROP POLICY IF EXISTS "Office admin can view office users" ON users;
+DROP POLICY IF EXISTS "Office admin can manage office users" ON users;
+
+DROP POLICY IF EXISTS "Everyone can view zones" ON zones;
+DROP POLICY IF EXISTS "Super admin can manage zones" ON zones;
+
+DROP POLICY IF EXISTS "Everyone can view property types" ON property_types;
+DROP POLICY IF EXISTS "Super admin can manage property types" ON property_types;
+
+DROP POLICY IF EXISTS "Public can view properties from active offices" ON properties;
+DROP POLICY IF EXISTS "Super admin can manage all properties" ON properties;
+DROP POLICY IF EXISTS "Office admin can manage office properties" ON properties;
+DROP POLICY IF EXISTS "Office agent can view office properties" ON properties;
+DROP POLICY IF EXISTS "Office agent can create office properties" ON properties;
+DROP POLICY IF EXISTS "Office agent can update office properties" ON properties;
+
+DROP POLICY IF EXISTS "Office can view own property owners" ON property_owners;
+DROP POLICY IF EXISTS "Office can manage own property owners" ON property_owners;
+DROP POLICY IF EXISTS "Super admin can manage all property owners" ON property_owners;
+
+DROP POLICY IF EXISTS "Public can view images from active offices" ON property_images;
+DROP POLICY IF EXISTS "Office can manage own property images" ON property_images;
+DROP POLICY IF EXISTS "Super admin can manage all images" ON property_images;
+
+DROP POLICY IF EXISTS "Office can view own contact requests" ON contact_requests;
+DROP POLICY IF EXISTS "Office can update own contact requests" ON contact_requests;
+DROP POLICY IF EXISTS "Anyone can create contact requests" ON contact_requests;
+DROP POLICY IF EXISTS "Super admin can manage all contact requests" ON contact_requests;
+
+DROP POLICY IF EXISTS "Public can view property images" ON storage.objects;
+DROP POLICY IF EXISTS "Office can upload property images" ON storage.objects;
+DROP POLICY IF EXISTS "Office can delete own property images" ON storage.objects;
+DROP POLICY IF EXISTS "Super admin can manage all storage" ON storage.objects;
+
+-- ============================================
 -- HELPER FUNCTION: Get current user's role
 -- ============================================
 CREATE OR REPLACE FUNCTION get_user_role()

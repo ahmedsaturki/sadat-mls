@@ -9,6 +9,7 @@ interface CacheEntry<T> {
 }
 
 const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+const MAX_CACHE_SIZE = 50; // Prevent memory leaks
 
 export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
   const [data, setData] = useState<T | null>(null);
@@ -27,6 +28,14 @@ export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
     setLoading(true);
     try {
       const result = await queryFn();
+      
+      // Enforce cache size limit
+      if (cache.size >= MAX_CACHE_SIZE) {
+        // Remove oldest entry
+        const oldestKey = cache.keys().next().value;
+        if (oldestKey) cache.delete(oldestKey);
+      }
+      
       cache.set(key, { data: result, timestamp: Date.now(), key });
       setData(result);
       return result;
@@ -71,12 +80,19 @@ export function useDebouncedQuery<T>(
         setLoading(true);
         try {
           const result = await queryFn();
+          
+          // Enforce cache size limit
+          if (cache.size >= MAX_CACHE_SIZE) {
+            const oldestKey = cache.keys().next().value;
+            if (oldestKey) cache.delete(oldestKey);
+          }
+          
           cache.set(key, { data: result, timestamp: Date.now(), key });
           setData(result);
           resolve(result);
-} catch {
-           resolve(null as T);
-         } finally {
+        } catch {
+          resolve(undefined as T);
+        } finally {
           setLoading(false);
         }
       }, delay);

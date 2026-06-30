@@ -10,6 +10,7 @@ import PropertyCard from "@/components/properties/PropertyCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import { Building2, Home, MapPin, Phone, Mail } from "lucide-react";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 interface Office {
   id: string;
@@ -45,6 +46,7 @@ function PublicOfficePage({
   const [properties, setProperties] = useState<OfficeProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const { user } = useAuthUser();
   const dict = getMessages(locale);
   const supabase = createClient();
 
@@ -54,7 +56,7 @@ function PublicOfficePage({
       .select("*")
       .eq("slug", slug)
       .eq("is_active", true)
-      .single();
+      .maybeSingle();
 
     if (!officeData) {
       setNotFound(true);
@@ -208,6 +210,8 @@ function PublicOfficePage({
                     ? property.property_types?.name_ar
                     : property.property_types?.name_en
                 }
+                dict={dict}
+                userId={user?.id || null}
               />
             ))}
           </div>

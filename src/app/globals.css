@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @theme inline {
+  --color-brand-navy: #1B2D4F;
+  --color-brand-gold: #C49A2A;
+  --color-brand-white: #FFFFFF;
+  
   --color-blue-500: #3b82f6;
   --color-blue-600: #2563eb;
   --color-blue-700: #1d4ed8;
@@ -112,4 +116,56 @@ body {
   body {
     padding-top: env(safe-area-inset-top);
   }
+}
+.glass-luxury {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Premium gradient border utility */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, #C49A2A, transparent 50%, #1B2D4F);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Premium text gradient */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #C49A2A, #e8c866);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shimmer effect for loading states */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(196,154,42,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Glow pulse for interactive elements */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(196,154,42,0.2); }
+  50% { box-shadow: 0 0 20px rgba(196,154,42,0.4); }
+}
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
 }

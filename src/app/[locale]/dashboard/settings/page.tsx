@@ -28,7 +28,7 @@ export default function SettingsPage({
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState("");
   const [officeId, setOfficeId] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState<UserRole>(ROLES.OFFICE_AGENT);
   const [logoUrls, setLogoUrls] = useState<{ preview?: string }>({});
   const logoInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,7 +78,7 @@ export default function SettingsPage({
             .from("offices")
             .select("id, name, email, phone, address, logo_url")
             .eq("id", profile.office_id)
-            .single();
+            .maybeSingle();
 
           if (officeError) {
             showToast(officeError.message, "error");
@@ -128,7 +128,7 @@ export default function SettingsPage({
         showToast(error.message, "error");
       } else {
         setIsDirty(false);
-        showToast(dict.common.save + " ✓", "success");
+        showToast(dict.common.save, "success");
       }
     } catch (err) {
       logger.error("Failed to save profile", { error: err instanceof Error ? err.message : String(err) });
@@ -180,7 +180,7 @@ export default function SettingsPage({
       } else {
         setIsDirty(false);
         setOfficeData((prev) => ({ ...prev, logo_url: logoUrl }));
-        showToast(dict.office.logoUploaded + " ✓", "success");
+        showToast(dict.office.logoUploaded, "success");
       }
     } catch (err) {
       logger.error("Failed to save office settings", { error: err instanceof Error ? err.message : String(err) });
@@ -210,7 +210,7 @@ export default function SettingsPage({
   }, [logoUrls.preview, showToast, dict]);
 
   return (
-    <DashboardLayout locale={locale} dict={dict} role={role as UserRole}>
+    <DashboardLayout locale={locale} dict={dict} role={role}>
       <ErrorBoundary>
         <div className="max-w-3xl mx-auto space-y-6">
           <PageHeader title={dict.common.settings} />

@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .from("properties")
     .select("title, description, price, status, area, bedrooms, bathrooms, property_type_id, zone_id, office_id, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (!property) {
     return {

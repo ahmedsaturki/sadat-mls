@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { MessageCircle, Phone, Mail } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -19,6 +20,41 @@ interface ContactModalProps {
     contact: Record<string, string>;
     common: Record<string, string>;
   };
+}
+
+const CONTACT_RATE_LIMIT_KEY = "sadat_contact_modal_attempts";
+const MAX_CONTACT_ATTEMPTS = 5;
+const CONTACT_LOCKOUT_MS = 60 * 60 * 1000;
+const MAX_NAME_LENGTH = 100;
+const MAX_PHONE_LENGTH = 50;
+const MAX_MESSAGE_LENGTH = 1000;
+
+function getContactAttempts(): { count: number; firstAttemptAt: number } {
+  if (typeof window === "undefined") return { count: 0, firstAttemptAt: 0 };
+  try {
+    const data = localStorage.getItem(CONTACT_RATE_LIMIT_KEY);
+    if (!data) return { count: 0, firstAttemptAt: 0 };
+    const parsed = JSON.parse(data);
+    if (Date.now() - parsed.firstAttemptAt > CONTACT_LOCKOUT_MS) {
+      localStorage.removeItem(CONTACT_RATE_LIMIT_KEY);
+      return { count: 0, firstAttemptAt: 0 };
+    }
+    return parsed;
+  } catch {
+    return { count: 0, firstAttemptAt: 0 };
+  }
+}
+
+function recordContactAttempt(): { count: number; locked: boolean } {
+  const current = getContactAttempts();
+  const newCount = current.count + 1;
+  const firstAttemptAt = current.count === 0 ? Date.now() : current.firstAttemptAt;
+  localStorage.setItem(CONTACT_RATE_LIMIT_KEY, JSON.stringify({ count: newCount, firstAttemptAt }));
+  return { count: newCount, locked: newCount >= MAX_CONTACT_ATTEMPTS };
+}
+
+function clearContactAttempts() {
+  localStorage.removeItem(CONTACT_RATE_LIMIT_KEY);
 }
 
 export default function ContactModal({
@@ -48,15 +84,35 @@ export default function ContactModal({
     ? `https://wa.me/${officePhone.replace(/[^0-9]/g, "")}`
     : null;
 
-  const handleSelectType = (type: "whatsapp" | "phone" | "email") => {
+  const handleSelectType = useCallback((type: "whatsapp" | "phone" | "email") => {
     setContactType(type);
     setShowForm(true);
     setSuccess(false);
-  };
+    setError(null);
+  }, []);
 
-  const handleSend = async (e: React.FormEvent) => {
+  const handleSend = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!propertyId || !officeId) return;
+
+    const { locked } = recordContactAttempt();
+    if (locked) {
+      setError(dict.contact.error || "Too many attempts. Please try again later.");
+      return;
+    }
+
+    const trimmedName = formData.visitor_name.trim();
+    const trimmedMessage = formData.message.trim();
+
+    if (!trimmedName || trimmedName.length < 2) {
+      setError("Name is required");
+      return;
+    }
+
+    if (!trimmedMessage || trimmedMessage.length < 2) {
+      setError("Message is required");
+      return;
+    }
 
     setSaving(true);
     setError(null);
@@ -66,34 +122,42 @@ export default function ContactModal({
       property_id: propertyId,
       office_id: officeId,
       contact_type: contactType,
-      visitor_name: formData.visitor_name.trim() ? formData.visitor_name.trim() : null,
-      visitor_phone: formData.visitor_phone.trim() ? formData.visitor_phone.trim() : null,
-      visitor_email: formData.visitor_email.trim() ? formData.visitor_email.trim() : null,
-      message: formData.message.trim() ? formData.message.trim() : null,
+      visitor_name: trimmedName,
+      visitor_phone: formData.visitor_phone.trim() || null,
+      visitor_email: formData.visitor_email.trim() || null,
+      message: trimmedMessage,
     };
 
-    const { error: insertError } = await supabase.from("contact_requests").insert(insertData);
+    try {
+      const { error: insertError } = await supabase.from("contact_requests").insert(insertData);
 
-    if (insertError) {
+      if (insertError) {
+        logger.error("Contact form submission failed", { error: insertError.message });
+        setSaving(false);
+        setError(dict.contact.error);
+        return;
+      }
+
+      setSaving(false);
+      setSuccess(true);
+      setFormData({ visitor_name: "", visitor_phone: "", visitor_email: "", message: "" });
+      clearContactAttempts();
+
+      if (contactType === "whatsapp" && whatsappUrl) {
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      } else if (contactType === "phone" && officePhone) {
+        window.open(`tel:${officePhone}`, "_self");
+      } else if (contactType === "email" && officeEmail) {
+        const subject = encodeURIComponent(dict.contact.propertyInquiry);
+        const body = encodeURIComponent(trimmedMessage);
+        window.open(`mailto:${officeEmail}?subject=${subject}&body=${body}`, "_self");
+      }
+    } catch (err) {
+      logger.error("Contact form error", { error: err instanceof Error ? err.message : String(err) });
       setSaving(false);
       setError(dict.contact.error);
-      return;
     }
-
-    setSaving(false);
-    setSuccess(true);
-    setFormData({ visitor_name: "", visitor_phone: "", visitor_email: "", message: "" });
-
-    if (contactType === "whatsapp" && whatsappUrl) {
-      window.open(whatsappUrl, "_blank");
-    } else if (contactType === "phone" && officePhone) {
-      window.open(`tel:${officePhone}`, "_self");
-    } else if (contactType === "email" && officeEmail) {
-      const subject = encodeURIComponent("Property Inquiry");
-      const body = encodeURIComponent(formData.message);
-      window.open(`mailto:${officeEmail}?subject=${subject}&body=${body}`, "_self");
-    }
-  };
+  }, [propertyId, officeId, contactType, formData, whatsappUrl, officePhone, officeEmail, dict]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={dict.contact.title} size="sm">
@@ -193,26 +257,31 @@ export default function ContactModal({
               </button>
             </div>
             {error && (
-              <p className="text-red-600 text-sm bg-red-50 p-2 rounded-lg">{error}</p>
+              <p className="text-red-600 text-sm bg-red-50 p-2 rounded-lg" role="alert">{error}</p>
             )}
             <Input
               label={dict.contact.name}
               value={formData.visitor_name}
-              onChange={(e) => setFormData({ ...formData, visitor_name: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, visitor_name: e.target.value.slice(0, MAX_NAME_LENGTH) })}
               placeholder={dict.contact.yourName}
+              required
+              maxLength={MAX_NAME_LENGTH}
             />
             <Input
               label={dict.contact.phone}
               type="tel"
               value={formData.visitor_phone}
-              onChange={(e) => setFormData({ ...formData, visitor_phone: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, visitor_phone: e.target.value.slice(0, MAX_PHONE_LENGTH) })}
               placeholder={dict.contact.yourPhone}
+              maxLength={MAX_PHONE_LENGTH}
             />
             <Input
               label={dict.contact.message}
               value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value.slice(0, MAX_MESSAGE_LENGTH) })}
               placeholder={dict.contact.yourMessage}
+              required
+              maxLength={MAX_MESSAGE_LENGTH}
             />
             <Button type="submit" className="w-full" isLoading={saving}>
               {dict.contact.send}

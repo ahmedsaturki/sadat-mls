@@ -26,7 +26,7 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
     .from("users")
     .select("id, email, full_name, role, office_id")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   return { user, profile: profile as UserProfile | null };
 }

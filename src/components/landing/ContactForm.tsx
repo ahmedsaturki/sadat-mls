@@ -14,6 +14,12 @@ const CONTACT_RATE_LIMIT_KEY = "sadat_contact_attempts";
 const MAX_CONTACT_ATTEMPTS = 3;
 const CONTACT_LOCKOUT_MS = 60 * 60 * 1000; // 1 hour
 
+// Maxlength constants for security (module-level to avoid re-creation on each render)
+const MAX_NAME_LENGTH = 100;
+const MAX_EMAIL_LENGTH = 255;
+const MAX_PHONE_LENGTH = 50;
+const MAX_MESSAGE_LENGTH = 1000;
+
 function getContactAttempts(): { count: number; firstAttemptAt: number } {
   if (typeof window === "undefined") return { count: 0, firstAttemptAt: 0 };
   try {
@@ -49,11 +55,6 @@ export default function ContactForm({ dict }: ContactFormProps) {
   const [contactError, setContactError] = useState("");
   const [contactForm, setContactForm] = useState({ name: "", email: "", phone: "", message: "" });
 
-  // Maxlength constants for security
-  const MAX_NAME_LENGTH = 100;
-  const MAX_EMAIL_LENGTH = 255;
-  const MAX_PHONE_LENGTH = 50;
-  const MAX_MESSAGE_LENGTH = 1000;
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
 
   const checkRateLimit = (): boolean => {
@@ -84,12 +85,12 @@ export default function ContactForm({ dict }: ContactFormProps) {
       const trimmedName = contactForm.name.trim();
       const trimmedMessage = contactForm.message.trim();
       if (trimmedName.length === 0) {
-        setContactError(dict.landing.contactForm.nameRequired || "Name is required");
+        setContactError(dict.landing.contactForm.nameRequired);
         setContactLoading(false);
         return;
       }
       if (trimmedMessage.length === 0) {
-        setContactError(dict.landing.contactForm.messageRequired || "Message is required");
+        setContactError(dict.landing.contactForm.messageRequired);
         setContactLoading(false);
         return;
       }
@@ -99,17 +100,23 @@ export default function ContactForm({ dict }: ContactFormProps) {
         .select("id")
         .eq("is_active", true)
         .limit(1)
-        .single();
+        .maybeSingle();
 
       const officeId = officeData?.id;
-      if (!officeId) throw new Error("No active office found");
+      if (!officeId) throw new Error("NO_ACTIVE_OFFICE");
+
+      // Determine contact_type based on provided fields
+      let contactType: "email" | "phone" | "whatsapp" = "email";
+      if (contactForm.phone.trim()) {
+        contactType = "phone";
+      }
 
       const { error } = await supabase.from("contact_requests").insert({
         visitor_name: contactForm.name.trim(),
         visitor_email: contactForm.email.trim() ? contactForm.email.trim() : null,
         visitor_phone: contactForm.phone.trim() ? contactForm.phone.trim() : null,
         message: contactForm.message.trim(),
-        contact_type: "email",
+        contact_type: contactType,
         office_id: officeId,
       });
 

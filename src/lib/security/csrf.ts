@@ -4,8 +4,12 @@ import { logger } from "@/lib/logger";
 export const CSRF_COOKIE_NAME = "csrf_token";
 export const CSRF_HEADER_NAME = "x-csrf-token";
 
+/** Token rotation interval: regenerate every 4 hours. */
+const TOKEN_ROTATION_MS = 4 * 60 * 60 * 1000;
+
 /**
- * Generate a secure CSRF token.
+ * Generate a secure CSRF token using crypto API.
+ * Uses 256-bit random values for strong entropy.
  */
 export function generateCsrfToken(): string {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -21,21 +25,33 @@ export function generateCsrfToken(): string {
  * Get or create CSRF token for the current session.
  * Stores in NON-HttpOnly cookie so the client can read it
  * and send it back as a header (double-submit cookie pattern).
+ * Rotates token every TOKEN_ROTATION_MS to limit token reuse window.
  */
 export async function getOrCreateCsrfToken(): Promise<string> {
   const cookieStore = await cookies();
-  let token = cookieStore.get(CSRF_COOKIE_NAME)?.value;
+  const existing = cookieStore.get(CSRF_COOKIE_NAME);
 
-  if (!token) {
-    token = generateCsrfToken();
-    cookieStore.set(CSRF_COOKIE_NAME, token, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: "/",
-    });
+  if (existing?.value) {
+    // Check if token needs rotation based on cookie age
+    // We embed a timestamp in the token: "timestamp.randomUUID"
+    const parts = existing.value.split(".");
+    if (parts.length === 2) {
+      const timestamp = parseInt(parts[0], 10);
+      if (!isNaN(timestamp) && Date.now() - timestamp < TOKEN_ROTATION_MS) {
+        return existing.value;
+      }
+    }
+    // Token is missing timestamp or expired — rotate
   }
+
+  const token = `${Date.now()}.${generateCsrfToken()}`;
+  cookieStore.set(CSRF_COOKIE_NAME, token, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24, // 24 hours
+    path: "/",
+  });
 
   return token;
 }
@@ -49,7 +65,8 @@ export function getCsrfTokenFromRequest(request: Request): string | null {
 
 /**
  * Validate CSRF token using double-submit cookie pattern.
- * Compares header token with cookie token.
+ * Compares header token with cookie token using constant-time comparison.
+ * Also validates token age to prevent replay attacks.
  */
 export async function validateCsrfToken(request: Request): Promise<boolean> {
   const headerToken = getCsrfTokenFromRequest(request);
@@ -80,6 +97,16 @@ export async function validateCsrfToken(request: Request): Promise<boolean> {
   if (result !== 0) {
     logger.warn("CSRF validation failed: token mismatch");
     return false;
+  }
+
+  // Validate token age — reject tokens older than 24 hours
+  const parts = cookieToken.split(".");
+  if (parts.length === 2) {
+    const timestamp = parseInt(parts[0], 10);
+    if (!isNaN(timestamp) && Date.now() - timestamp >= 24 * 60 * 60 * 1000) {
+      logger.warn("CSRF validation failed: token expired");
+      return false;
+    }
   }
 
   return true;

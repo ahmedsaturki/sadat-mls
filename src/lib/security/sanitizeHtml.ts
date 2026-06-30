@@ -108,16 +108,8 @@ const SAFE_TAGS = new Set([
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EVENT_HANDLER_RE = /^on[a-z]/i;
 
-/** URL values that execute JS. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JS_URL_RE = /^\s*javascript\s*:/i;
-
 /** Dangerous style values (CSS expressions). */
 const STYLE_EXPR_RE = /expression\s*\(|url\s*\(\s*["']?\s*javascript\s*:/i;
-
-/** Allowed `href` / `src` schemes. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SAFE_SCHEMES = /^(https?|mailto|tel|data(?!:.*\.(?:exe|bat|cmd|scr))|blob|\/|#)/i;
 
 /**
  * Recursively walk the DOM produced by a temporary wrapper and return only
@@ -135,7 +127,7 @@ export function sanitizeHtml(html: string): string {
   // 2. Remove event-handler attributes.
   result = stripEventHandlers(result);
 
-  // 3. Remove `javascript:` URLs.
+  // 3. Remove `javascript:` and `vbscript:` URLs.
   result = stripJsUrls(result);
 
   // 4. Strip dangerous style attributes.
@@ -143,6 +135,9 @@ export function sanitizeHtml(html: string): string {
 
   // 5. Remove tags that are not in the safe list (but keep their text content).
   result = stripUnsafeTags(result);
+
+  // 6. Validate remaining URLs have safe schemes.
+  result = validateUrlSchemes(result);
 
   return result;
 }
@@ -172,12 +167,19 @@ function stripEventHandlers(html: string): string {
   return html.replace(/\s+on[a-z][a-z0-9_]*\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
 }
 
-/** Remove `href`, `src`, `action`, and `formaction` that use `javascript:`. */
+/** Remove `href`, `src`, `action`, and `formaction` that use `javascript:` or `vbscript:`. */
 function stripJsUrls(html: string): string {
-  return html.replace(
-    /\b(href|src|action|formaction|data|poster|background)\s*=\s*(["'])\s*javascript\s*:[^"'\s>]*\2/gi,
+  // Handle quoted values: href="javascript:..."
+  let result = html.replace(
+    /\b(href|src|action|formaction|data|poster|background)\s*=\s*(["'])\s*(?:java|vb)script\s*:[^"'\s>]*\2/gi,
     "",
   );
+  // Handle unquoted values: href=javascript:... or href= javascript:...
+  result = result.replace(
+    /\b(href|src|action|formaction|data|poster|background)\s*=\s*(?:java|vb)script\s*:[^\s>"']*/gi,
+    "",
+  );
+  return result;
 }
 
 /** Remove `style` attributes that contain CSS expressions or `javascript:` URLs. */
@@ -215,6 +217,27 @@ function stripUnsafeTags(html: string): string {
   );
 }
 
+/**
+ * Validate that remaining href/src URLs use safe schemes.
+ * Removes any attribute with a dangerous scheme like javascript:, vbscript:, or data:.
+ */
+function validateUrlSchemes(html: string): string {
+  return html.replace(
+    /\b(href|src|action|formaction|data|poster|background)\s*=\s*(["'])([^"']*)\2/gi,
+    (full, attr, quote, value) => {
+      const trimmed = value.trim().toLowerCase();
+      // Allow empty values
+      if (!trimmed) return full;
+      // Allow relative URLs, fragments, and safe schemes
+      if (trimmed.startsWith("/") || trimmed.startsWith("#") || trimmed.startsWith("mailto:") || trimmed.startsWith("tel:") || trimmed.startsWith("https:") || trimmed.startsWith("http:") || trimmed.startsWith("blob:")) {
+        return full;
+      }
+      // Remove dangerous schemes
+      return "";
+    },
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  sanitizeJsonLd                                                            */
 /* -------------------------------------------------------------------------- */
@@ -224,21 +247,30 @@ function stripUnsafeTags(html: string): string {
  * safe to embed in a `<script type="application/ld+json">` block.
  */
 export function sanitizeJsonLd(jsonLd: Record<string, unknown>): string {
-  const escaped = deepEscape(jsonLd);
+  const escaped = deepEscape(jsonLd, new WeakSet());
   return JSON.stringify(escaped);
 }
 
-function deepEscape(value: unknown): unknown {
+/**
+ * Deep-escape with cycle detection to prevent infinite recursion.
+ */
+function deepEscape(value: unknown, seen: WeakSet<object>): unknown {
   if (typeof value === "string") {
     return escapeHtmlEntities(value);
   }
   if (Array.isArray(value)) {
-    return value.map(deepEscape);
+    return value.map((v) => deepEscape(v, seen));
   }
   if (value !== null && typeof value === "object") {
+    // Cycle detection - if we've seen this object before, return a placeholder
+    if (seen.has(value as object)) {
+      return "[Circular]";
+    }
+    seen.add(value as object);
+    
     const result: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
-      result[key] = deepEscape(val);
+      result[key] = deepEscape(val, seen);
     }
     return result;
   }

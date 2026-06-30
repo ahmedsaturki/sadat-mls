@@ -106,8 +106,12 @@ export const contactSchema = z.object({
   name: z.string().min(2).max(100),
   phone: z
     .string()
-    .min(10)
-    .refine((val) => /^0[0-9]{9,10}$/.test(val)),
+    .optional()
+    .or(z.literal(""))
+    .refine(
+      (val) => !val || /^0[0-9]{9,10}$/.test(val),
+      { message: "Invalid phone format" }
+    ),
   message: z.string().max(1000).optional().or(z.literal("")),
 });
 

@@ -67,8 +67,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export const metadataBase = new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
-
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,

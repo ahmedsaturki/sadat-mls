@@ -60,7 +60,34 @@
     "info": "معلومات",
     "notFound": "الصفحة غير موجودة",
     "notFoundDesc": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها",
-    "backToHome": "العودة للرئيسية"
+    "backToHome": "العودة للرئيسية",
+    "backToExplore": "العودة للبحث",
+    "feature": "المعيار",
+    "primaryImage": "الصورة الرئيسية",
+    "setAsPrimary": "تعيين كصورة رئيسية",
+    "removeImage": "إزالة الصورة",
+    "editAltText": "تعديل وصف الصورة",
+    "addToComparison": "إضافة للمقارنة",
+    "removeFromComparison": "إزالة من المقارنة",
+    "dismiss": "إغلاق",
+    "goBack": "رجوع",
+    "searchPlaceholder": "بحث...",
+    "maxCompare": "الحد الأقصى {{max}} عقارات",
+    "search": "بحث",
+    "navigationMenu": "قائمة التنقل",
+    "mobileNavigation": "تنقل الجوال",
+    "mainNavigation": "التنقل الرئيسي",
+    "sidebarNavigation": "التنقل الجانبي",
+    "retry": "إعادة المحاولة",
+    "breadcrumb": "مسار التنقل",
+    "previousImage": "الصورة السابقة",
+    "nextImage": "الصورة التالية",
+    "imageLightbox": "عرض الصورة",
+    "closeLightbox": "إغلاق العرض",
+    "changePropertyStatus": "تغيير حالة العقار",
+    "removeFilter": "إزالة {{label}}",
+    "propertyInquiry": "استفسار عن عقار",
+    "loadingPage": "جاري التحميل..."
   },
   "nav": {
     "explore": "استكشاف العقارات",
@@ -163,7 +190,17 @@
     "resendVerificationSent": "تم إرسال رابط التحقق",
     "passwordMinLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
     "invalidResetLink": "رابط إعادة التعيين غير صالح أو منتهي الصلاحية",
-    "redirecting": "جاري التحويل..."
+    "redirecting": "جاري التحويل...",
+    "emailNotVerified": "يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول",
+    "resendVerification": "إعادة إرسال رابط التحقق",
+    "logoutConfirmTitle": "تسجيل الخروج؟",
+    "logoutConfirmDesc": "هل أنت متأكد من تسجيل الخروج؟",
+    "logoutButton": "تسجيل الخروج",
+    "logoutSuccess": "تم تسجيل الخروج بنجاح",
+    "logoutError": "خطأ في تسجيل الخروج",
+"loggingOut": "جاري تسجيل الخروج...",
+     "redirecting": "جاري التحويل للرئيسية...",
+     "backToHome": "الذهاب للرئيسية"
   },
   "admin": {
     "dashboard": "لوحة تحكم المسؤول العام",
@@ -300,8 +337,13 @@
     "propertyNameMin": "الاسم قصير جداً",
     "propertyTitleMin": "هذا الحقل مطلوب",
     "propertyTitleMax": "القيمة كبيرة جداً",
-    "ownerPhoneInvalid": "رقم الهاتف غير صحيح",
+    "generateDescription": "توليد وصف",
+    "generatingDescription": "جاري التوليد...",
+    "generateDescriptionHint": "أدخل وصف العقار أو استخدم الذكاء الاصطناعي لتوليد واحد",
+    "aiGenerated": "مُولد بالذكاء الاصطناعي",
+    "aiFailed": "فشل توليد الوصف",
     "ownerEmailInvalid": "البريد الإلكتروني غير صحيح",
+    "ownerPhoneInvalid": "رقم الهاتف غير صحيح",
     "notFound": "المكتب غير موجود",
     "ownerUpdateFailed": "فشل تحديث بيانات المالك",
     "ownerCreateFailed": "فشل إضافة بيانات المالك",
@@ -354,6 +396,8 @@
     "bedrooms": "غرف النوم",
     "bathrooms": "الحمامات",
     "clearFilters": "مسح الفلاتر",
+    "advancedFilters": "الفلاتر المتقدمة",
+    "openGallery": "فتح معرض الصور",
     "applyFilters": "تطبيق الفلاتر",
     "tryDifferentSearch": "جرب تغيير معايير البحث أو الفلاتر",
     "searchPlaceholder": "ابحث عن عقار...",
@@ -369,7 +413,9 @@
     "shareProperty": "شارك هذا العقار مع الآخرين",
     "copyLink": "نسخ الرابط",
     "copied": "تم النسخ!",
-    "shareVia": "مشاركة عبر واتساب"
+    "shareVia": "مشاركة عبر واتساب",
+    "openGallery": "فتح معرض الصور",
+    "searchNamePlaceholder": "أدخل اسم البحث..."
   },
   "property": {
     "title": "عنوان العقار",
@@ -429,6 +475,7 @@
     "sqm": "م²",
     "reserved": "محجوز",
     "pendingReview": "قيد المراجعة",
+    "priceUnit": "ج.م",
     "featuresList": {
       "elevator": "مصعد",
       "parking": "جراج",
@@ -468,7 +515,8 @@
     "yourName": "اسمك",
     "yourPhone": "رقم هاتفك",
     "yourMessage": "رسالتك...",
-    "successMessage": "تم إرسال الطلب بنجاح!"
+    "successMessage": "تم إرسال الطلب بنجاح!",
+    "propertyInquiry": "استفسار عن عقار"
   },
   "footer": {
     "rights": "جميع الحقوق محفوظة",
@@ -484,6 +532,32 @@
   "dashboard": {
     "favorites": "المفضلة",
     "noFavorites": "لا توجد عقارات في المفضلة",
-    "removeFromFavorites": "إزالة من المفضلة"
+    "removeFromFavorites": "إزالة من المفضلة",
+    "compare": "مقارنة العقارات",
+    "compareProperties": "مقارنة العقارات",
+    "compareHint": "اختر عقارين على الأقل للمقارنة",
+    "compareSelected": "{{count}} محدد للمقارنة",
+    "viewCompare": "عرض المقارنة",
+    "savedSearches": "عمليات البحث المحفوظة",
+    "savedSearchesHint": "احفظ عمليات البحث للإطلاع على نتائج جديدة",
+    "noSavedSearches": "لا توجد عمليات بحث محفوظة",
+    "noSavedSearchesFull": "لا توجد عمليات بحث محفوظة",
+    "saveSearch": "حفظ البحث",
+    "unsaveSearch": "إلغاء حفظ البحث",
+    "searchSaved": "تم حفظ البحث",
+    "searchUnsaved": "تم إلغاء حفظ البحث",
+    "notifications": "الإشعارات",
+    "created": "تم الإنشاء",
+    "lastChecked": "آخر فحص",
+    "runSearch": "تنفيذ البحث",
+    "clearAll": "مسح الكل",
+    "saveSearchHint": "احفظ عمليات البحث للإطلاع على نتائج جديدة",
+    "noPropertiesForCompare": "لا توجد عقارات محددة للمقارنة",
+    "priceUnit": "ج.م"
+  },
+  "offline": {
+    "title": "أنت غير متصل بالإنترنت",
+    "description": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
+    "tryAgain": "إعادة المحاولة"
   }
 }

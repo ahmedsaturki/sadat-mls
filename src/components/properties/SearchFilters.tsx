@@ -88,22 +88,22 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
   }).length;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+    <div className="glass-luxury rounded-2xl p-5 shadow-lg shadow-[#1B2D4F]/5">
       <form onSubmit={handleSubmit}>
         {/* Main Search */}
         <div className="flex gap-3 mb-4">
           <div className="flex-1 relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#C49A2A]" />
             <input
               type="text"
               value={filters.search}
               onChange={(e) => updateFilter("search", e.target.value)}
               placeholder={dict.explore.searchPlaceholder}
               aria-label={dict.explore.searchPlaceholder}
-              className="w-full pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#C49A2A]/50 focus:border-[#C49A2A] transition-all duration-300 placeholder:text-gray-400"
             />
           </div>
-          <Button type="submit">
+          <Button type="submit" className="bg-gradient-to-r from-[#1B2D4F] to-[#1B2D4F]/90 hover:from-[#1B2D4F]/90 hover:to-[#1B2D4F] text-white px-6 rounded-xl shadow-md shadow-[#1B2D4F]/20 hover:shadow-lg hover:shadow-[#1B2D4F]/30 transition-all duration-300">
             {dict.common.search}
           </Button>
           <Button
@@ -111,6 +111,8 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
             variant="ghost"
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="relative"
+            aria-label={dict.explore.advancedFilters || "Toggle advanced filters"}
+            aria-expanded={showAdvanced}
           >
             <SlidersHorizontal className="w-4 h-4" />
             {activeFilterCount > 0 && (
@@ -123,7 +125,7 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
 
         {/* Advanced Filters */}
         {showAdvanced && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/20">
             <Select
               label={dict.explore.zone}
               value={filters.zoneId}
@@ -235,43 +237,49 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
 
         {/* Active Filters */}
         {activeFilterCount > 0 && (
-          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200">
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/20">
             <span className="text-sm text-gray-500">{dict.common.filter}:</span>
             <div className="flex flex-wrap gap-2">
               {filters.search && (
                 <FilterTag
                   label={filters.search}
                   onRemove={() => updateFilter("search", "")}
+                  removeLabel={dict.common.removeFilter}
                 />
               )}
               {filters.zoneId && (
                 <FilterTag
                   label={zones.find((z) => z.id === filters.zoneId)?.name || ""}
                   onRemove={() => updateFilter("zoneId", "")}
+                  removeLabel={dict.common.removeFilter}
                 />
               )}
               {filters.typeId && (
                 <FilterTag
                   label={types.find((t) => t.id === filters.typeId)?.name || ""}
                   onRemove={() => updateFilter("typeId", "")}
+                  removeLabel={dict.common.removeFilter}
                 />
               )}
               {filters.hasBalcony && (
                 <FilterTag
                   label={dict.explore.balcony}
                   onRemove={() => updateFilter("hasBalcony", false)}
+                  removeLabel={dict.common.removeFilter}
                 />
               )}
               {filters.hasParking && (
                 <FilterTag
                   label={dict.explore.parking}
                   onRemove={() => updateFilter("hasParking", false)}
+                  removeLabel={dict.common.removeFilter}
                 />
               )}
               {filters.hasElevator && (
                 <FilterTag
                   label={dict.explore.elevator}
                   onRemove={() => updateFilter("hasElevator", false)}
+                  removeLabel={dict.common.removeFilter}
                 />
               )}
             </div>
@@ -289,11 +297,11 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
   );
 }
 
-function FilterTag({ label, onRemove }: { label: string; onRemove: () => void }) {
+function FilterTag({ label, onRemove, removeLabel }: { label: string; onRemove: () => void; removeLabel: string }) {
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C49A2A]/10 text-[#1B2D4F] text-xs font-medium rounded-full border border-[#C49A2A]/20 backdrop-blur-sm hover:bg-[#C49A2A]/20 transition-colors duration-200">
       {label}
-      <button onClick={onRemove} aria-label={`Remove ${label}`} className="hover:text-blue-900">
+      <button onClick={onRemove} aria-label={`${removeLabel} ${label}`} className="hover:text-[#C49A2A] transition-colors">
         <X className="w-3 h-3" />
       </button>
     </span>

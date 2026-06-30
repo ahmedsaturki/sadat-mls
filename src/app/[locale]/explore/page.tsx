@@ -207,7 +207,7 @@ if (data) {
     setPage(1);
   };
 
-  const clearFilters = () => {
+const clearFilters = () => {
     setFilters(EMPTY_FILTERS);
     setPage(1);
     loadProperties(EMPTY_FILTERS);

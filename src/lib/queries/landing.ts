@@ -15,22 +15,33 @@ interface LandingData {
   zonesCount: number;
 }
 
-export async function getLandingData(): Promise<LandingData> {
+export async function getLandingData(searchQuery?: string): Promise<LandingData> {
   try {
     const supabase = await createClient();
 
-const [officesRes, propertiesRes, zonesRes, featuredRes] = await Promise.all([
-       supabase.from("offices").select("id", { count: "exact", head: true }).eq("is_active", true),
-       supabase.from("properties").select("id", { count: "exact", head: true }).eq("is_active", true),
-       supabase.from("zones").select("id", { count: "exact", head: true }),
-       supabase
-         .from("properties")
-         .select("*, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)")
-         .eq("status", "available")
-         .eq("is_active", true)
-         .order("created_at", { ascending: false })
-         .limit(6),
-     ]);
+    let propertiesQuery = supabase
+      .from("properties")
+      .select("*, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)")
+      .eq("status", "available")
+      .eq("is_active", true);
+
+    if (searchQuery && searchQuery.trim().length > 0) {
+      propertiesQuery = propertiesQuery.textSearch("fts", searchQuery.trim(), {
+        type: "websearch",
+        config: "arabic",
+      });
+    } else {
+      propertiesQuery = propertiesQuery.order("created_at", { ascending: false });
+    }
+
+    propertiesQuery = propertiesQuery.limit(6);
+
+    const [officesRes, propertiesRes, zonesRes, featuredRes] = await Promise.all([
+      supabase.from("offices").select("id", { count: "exact", head: true }).eq("is_active", true),
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("is_active", true),
+      supabase.from("zones").select("id", { count: "exact", head: true }),
+      propertiesQuery,
+    ]);
 
     const propertyIds = (featuredRes.data || []).map((p) => p.id);
     const { data: images } = propertyIds.length > 0

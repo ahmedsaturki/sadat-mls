@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, createContext, useContext, useCallback } from "react";
-import { X, CheckCircle, AlertCircle, Info } from "lucide-react";
+import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
-type ToastType = "success" | "error" | "info";
+type ToastType = "success" | "error" | "info" | "warning";
 
 interface Toast {
   id: string;
@@ -41,12 +41,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     success: CheckCircle,
     error: AlertCircle,
     info: Info,
+    warning: AlertTriangle,
   };
 
   const colors = {
     success: "bg-green-50 border-green-200 text-green-800",
     error: "bg-red-50 border-red-200 text-red-800",
     info: "bg-blue-50 border-blue-200 text-blue-800",
+    warning: "bg-amber-50 border-amber-200 text-amber-800",
   };
 
   return (
