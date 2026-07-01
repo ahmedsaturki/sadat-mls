@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getMessages } from "@/i18n/getMessages";
 import { usePageLocale } from "@/hooks/usePageLocale";
@@ -46,6 +46,7 @@ function PublicAgentPage({
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const { user } = useAuthUser();
+  const mountedRef = useRef(true);
 
   const dict = getMessages(locale);
   const supabase = createClient();
@@ -89,16 +90,19 @@ function PublicAgentPage({
         primaryImage: imageMap.get(p.id) || null,
       }));
 
+      if (!mountedRef.current) return;
       setProperties(withImages);
     } catch (err) {
       logger.error("Failed to load agent", { error: err instanceof Error ? err.message : String(err) });
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [supabase]);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadAgent(params.id);
+    return () => { mountedRef.current = false; };
   }, [params, loadAgent]);
 
   if (loading) {

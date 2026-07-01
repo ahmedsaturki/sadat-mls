@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
@@ -58,6 +58,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
   const [nameEn, setNameEn] = useState("");
   const { showToast } = useToast();
   const supabase = useMemo(() => createClient(), []);
+  const mountedRef = useRef(true);
 
   const loadItems = useCallback(async () => {
     try {
@@ -68,6 +69,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
       if (error) {
         showToast(error.message, "error");
       } else {
+        if (!mountedRef.current) return;
         setItems((data || []) as T[]);
       }
     } catch (err) {
@@ -76,12 +78,14 @@ export function useAdminCrud<T extends AdminCrudItem>({
       });
       showToast(`Unexpected error loading ${tableName}`, "error");
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [supabase, showToast, tableName]);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadItems();
+    return () => { mountedRef.current = false; };
   }, [loadItems]);
 
   const handleSave = async (e: React.FormEvent) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, Plus, Trash2, Eye, EyeOff, Building } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -59,8 +59,9 @@ const locale = usePageLocale(params);
      adminEmail: "",
      adminPassword: "",
    });
-   const { showToast } = useToast();
-   const dict = getMessages(locale);
+    const { showToast } = useToast();
+    const dict = getMessages(locale);
+    const mountedRef = useRef(true);
 
 // Auth guard - protect admin route (runs after hooks, safe for redirects)
     useEffect(() => {
@@ -112,18 +113,20 @@ const locale = usePageLocale(params);
          propertiesCount: propsCounts[office.id] || 0,
        }));
 
-       setOffices(officesWithCounts);
-     } catch (err) {
-       logger.error("Failed to fetch offices", { error: err instanceof Error ? err.message : String(err) });
-       showToast(dict.common.unexpectedError, "error");
-     } finally {
-       setLoading(false);
-     }
-   }, [supabase, showToast, dict.common.unexpectedError]);
+        setOffices(officesWithCounts);
+      } catch (err) {
+        logger.error("Failed to fetch offices", { error: err instanceof Error ? err.message : String(err) });
+        showToast(dict.common.unexpectedError, "error");
+      } finally {
+        if (mountedRef.current) setLoading(false);
+      }
+    }, [supabase, showToast, dict.common.unexpectedError]);
 
-   useEffect(() => {
-     loadOffices();
-   }, [loadOffices]);
+    useEffect(() => {
+      mountedRef.current = true;
+      loadOffices();
+      return () => { mountedRef.current = false; };
+    }, [loadOffices]);
 
    // Don't render content if not authorized
    if (!authUser || profile?.role !== ROLES.SUPER_ADMIN) {

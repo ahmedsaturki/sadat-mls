@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Phone, MessageSquare, ExternalLink, Building2, Trash2, Filter, Inbox } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
@@ -45,6 +45,7 @@ export default function AdminContactRequestsPage({
   const { showToast } = useToast();
   const { supabase, user, profile } = useAuthUser();
   const dict = getMessages(locale);
+  const mountedRef = useRef(true);
 
   // Auth guard - protect admin route (runs after hooks, safe for redirects)
   useEffect(() => {
@@ -69,18 +70,21 @@ export default function AdminContactRequestsPage({
       if (error) {
         showToast(error.message, "error");
       } else {
+        if (!mountedRef.current) return;
         setRequests(data || []);
       }
     } catch (err) {
       logger.error("Failed to fetch contact requests", { error: err instanceof Error ? err.message : String(err) });
       showToast(dict.common.unexpectedError, "error");
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [supabase, showToast, dict.common.unexpectedError]);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadRequests();
+    return () => { mountedRef.current = false; };
   }, [loadRequests]);
 
   // Don't render content if not authorized

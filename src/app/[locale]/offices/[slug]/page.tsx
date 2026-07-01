@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { getMessages } from "@/i18n/getMessages";
@@ -50,6 +50,7 @@ function PublicOfficePage({
   const { user } = useAuthUser();
   const dict = getMessages(locale);
   const supabase = createClient();
+  const mountedRef = useRef(true);
 
   const loadOffice = useCallback(async (slug: string) => {
     try {
@@ -90,16 +91,19 @@ function PublicOfficePage({
         primaryImage: imageMap.get(p.id) || null,
       }));
 
+      if (!mountedRef.current) return;
       setProperties(withImages);
     } catch (err) {
       logger.error("Failed to load office", { error: err instanceof Error ? err.message : String(err) });
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [supabase]);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadOffice(params.slug);
+    return () => { mountedRef.current = false; };
   }, [params, loadOffice]);
 
   if (loading) {

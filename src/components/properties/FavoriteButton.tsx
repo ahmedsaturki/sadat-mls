@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback, useEffect } from "react";
+import { memo, useState, useCallback, useEffect, useRef } from "react";
 import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
@@ -29,6 +29,7 @@ const FavoriteButton = memo(function FavoriteButton({
   const [isFavorited, setIsFavorited] = useState(false);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const mountedRef = useRef(true);
 
   const checkFavoriteStatus = useCallback(async () => {
     if (!userId) return;
@@ -41,6 +42,7 @@ const FavoriteButton = memo(function FavoriteButton({
         .eq("property_id", propertyId)
         .maybeSingle();
       
+      if (!mountedRef.current) return;
       setIsFavorited(!!data);
     } catch (err) {
       logger.warn("Failed to check favorite status", { error: err instanceof Error ? err.message : String(err) });
@@ -49,7 +51,9 @@ const FavoriteButton = memo(function FavoriteButton({
 
   useEffect(() => {
     if (!userId) return;
+    mountedRef.current = true;
     checkFavoriteStatus();
+    return () => { mountedRef.current = false; };
   }, [userId, propertyId, checkFavoriteStatus]);
 
   const sizeClasses = {

@@ -65,6 +65,7 @@ export default function PropertyDetailPage() {
   const [showLightbox, setShowLightbox] = useState(false);
   const lightboxRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
+  const mountedRef = useRef(true);
 
   const loadProperty = useCallback(async () => {
     try {
@@ -82,17 +83,20 @@ export default function PropertyDetailPage() {
           .order("sort_order"),
       ]);
 
+      if (!mountedRef.current) return;
       if (propertyResult.data) setProperty(propertyResult.data);
       if (imagesResult.data) setImages(imagesResult.data);
     } catch (err) {
       logger.error("Failed to load property", { error: err instanceof Error ? err.message : String(err), id });
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [id]);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadProperty();
+    return () => { mountedRef.current = false; };
   }, [id, loadProperty]);
 
   const handleContact = () => {
