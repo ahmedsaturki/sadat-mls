@@ -29,6 +29,8 @@ export default function Modal({ isOpen, onClose, title, children, size = "md", c
   useEffect(() => {
     if (!isOpen) return;
 
+    const previousFocus = document.activeElement as HTMLElement;
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -74,6 +76,10 @@ export default function Modal({ isOpen, onClose, title, children, size = "md", c
       document.removeEventListener("keydown", handleTab);
       document.body.style.overflow = "unset";
       clearTimeout(timer);
+      // Restore focus to the element that was focused before the modal opened
+      if (previousFocus && typeof previousFocus.focus === "function") {
+        previousFocus.focus();
+      }
     };
   }, [isOpen, onClose, getFocusableElements]);
 
@@ -113,7 +119,7 @@ role="dialog"
              <h2 id={headingId} className="text-lg font-semibold text-gray-900">{title}</h2>
             <button
               onClick={onClose}
-              aria-label={dict?.common?.close || "Close"}
+              aria-label={dict?.common?.close ?? ""}
               className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <X className="w-5 h-5 text-gray-500" />
