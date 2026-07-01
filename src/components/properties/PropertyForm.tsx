@@ -712,7 +712,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
           <div className="flex gap-3 justify-end mt-6">
             <span className="flex items-center gap-1 text-xs text-gray-400 mr-auto">
               <Keyboard className="w-3 h-3" />
-              Ctrl+S
+              {dict.common.saveShortcut}
             </span>
             <Button type="button" variant="ghost" onClick={() => router.back()}>
               {dict.common.cancel}

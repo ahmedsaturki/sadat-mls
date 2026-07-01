@@ -361,6 +361,8 @@ export default function PropertyDetailPage() {
                         <button
                           key={img.id}
                           onClick={() => setCurrentImageIndex(i)}
+                          aria-label={`${dict.property.imageAlt} ${i + 1}`}
+                          aria-current={i === currentImageIndex ? "true" : undefined}
                           className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors ${
                             i === currentImageIndex ? "border-blue-500" : "border-transparent"
                           }`}
