@@ -46,7 +46,7 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir={locale === "ar" ? "rtl" : "ltr"}>
-      <div className="text-center max-w-md mx-auto px-4">
+      <div className="text-center max-w-md mx-auto px-4" aria-live="polite">
         {status === "confirm" && (
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">

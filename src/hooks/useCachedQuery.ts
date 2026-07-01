@@ -15,6 +15,11 @@ export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const cacheRef = useRef<Map<string, CacheEntry<T>>>(new Map());
+  const queryFnRef = useRef(queryFn);
+
+  useEffect(() => {
+    queryFnRef.current = queryFn;
+  });
 
   const fetchData = useCallback(async (forceRefresh = false) => {
     const cache = cacheRef.current;
@@ -27,7 +32,7 @@ export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
 
     setLoading(true);
     try {
-      const result = await queryFn();
+      const result = await queryFnRef.current();
       
       // Enforce cache size limit
       if (cache.size >= MAX_CACHE_SIZE) {
@@ -42,7 +47,7 @@ export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
     } finally {
       setLoading(false);
     }
-  }, [key, queryFn]);
+  }, [key]);
 
   useEffect(() => {
     fetchData();
@@ -60,6 +65,11 @@ export function useDebouncedQuery<T>(
   const [loading, setLoading] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cacheRef = useRef<Map<string, CacheEntry<T>>>(new Map());
+  const queryFnRef = useRef(queryFn);
+
+  useEffect(() => {
+    queryFnRef.current = queryFn;
+  });
 
   const fetchData = useCallback((forceRefresh = false) => {
     if (timeoutRef.current) {
@@ -79,7 +89,7 @@ export function useDebouncedQuery<T>(
 
         setLoading(true);
         try {
-          const result = await queryFn();
+          const result = await queryFnRef.current();
           
           // Enforce cache size limit
           if (cache.size >= MAX_CACHE_SIZE) {
@@ -97,7 +107,7 @@ export function useDebouncedQuery<T>(
         }
       }, delay);
     });
-  }, [key, queryFn, delay]);
+  }, [key, delay]);
 
   useEffect(() => {
     return () => {

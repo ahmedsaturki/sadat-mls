@@ -130,7 +130,7 @@ export async function middleware(request: NextRequest) {
 
   // 4. Skip RSC prefetch requests after auth check – let Next.js handle them natively
   if (request.nextUrl.searchParams.has("_rsc")) {
-    return NextResponse.next();
+    return applySecurityHeaders(NextResponse.next());
   }
 
   // 5. Locale handling
