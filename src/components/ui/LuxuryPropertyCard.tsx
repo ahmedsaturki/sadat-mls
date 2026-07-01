@@ -88,7 +88,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
             />
           ) : (
             <div className="flex items-center justify-center h-full bg-gradient-to-br from-[#1B2D4F]/5 to-[#1B2D4F]/10">
-              <Home className="w-12 h-12 text-[#1B2D4F]/20" />
+              <Home className="w-12 h-12 text-[#1B2D4F]/20" aria-hidden="true" />
             </div>
           )}
           

@@ -67,6 +67,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
                 href={link.href}
                 prefetch={link.prefetch}
                 role="menuitem"
+                aria-current={pathname === link.href ? "page" : undefined}
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   pathname === link.href
@@ -143,6 +144,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               prefetch={link.prefetch}
               onClick={closeMenu}
               role="menuitem"
+              aria-current={pathname === link.href ? "page" : undefined}
               tabIndex={mobileMenuOpen ? 0 : -1}
               className={cn(
                 "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",

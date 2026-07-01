@@ -79,7 +79,7 @@ const statusConfig = {
              />
            ) : (
              <div className="flex items-center justify-center h-full bg-gradient-to-br from-blue-50 to-blue-100">
-               <Home className="w-12 h-12 text-blue-300" />
+                <Home className="w-12 h-12 text-blue-300" aria-hidden="true" />
              </div>
            )}
 <div className="absolute top-2 right-2 flex gap-1">

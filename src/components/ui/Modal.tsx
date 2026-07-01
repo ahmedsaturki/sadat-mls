@@ -119,7 +119,7 @@ role="dialog"
              <h2 id={headingId} className="text-lg font-semibold text-gray-900">{title}</h2>
             <button
               onClick={onClose}
-              aria-label={dict?.common?.close ?? ""}
+              aria-label={dict?.common?.close ?? "Close"}
               className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <X className="w-5 h-5 text-gray-500" />

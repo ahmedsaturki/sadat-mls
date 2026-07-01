@@ -130,7 +130,9 @@ const FavoriteButton = memo(function FavoriteButton({
         loading && "opacity-50 cursor-not-allowed",
         className
       )}
-      aria-label={isFavorited ? dict?.common?.removeFavorite : dict?.common?.addFavorite}
+      aria-label={isFavorited
+        ? (dict?.common?.removeFavorite ?? (locale === "ar" ? "إزالة من المفضلة" : "Remove from favorites"))
+        : (dict?.common?.addFavorite ?? (locale === "ar" ? "إضافة للمفضلة" : "Add to favorites"))}
       aria-pressed={isFavorited}
     >
       <Heart
