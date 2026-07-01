@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS property_favorites (
   UNIQUE(user_id, property_id)
 );
 
+-- Ensure NOT NULL constraints on critical columns (fix for commented FKs in original)
+ALTER TABLE property_favorites
+  ALTER COLUMN user_id SET NOT NULL,
+  ALTER COLUMN property_id SET NOT NULL;
+
 -- Enable RLS
 ALTER TABLE property_favorites ENABLE ROW LEVEL SECURITY;
 
