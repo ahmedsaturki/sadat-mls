@@ -62,7 +62,7 @@ export default function ComparePage() {
                     <button
                       onClick={() => removeProperty(p.id)}
                       className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
-                      aria-label={dict.common.delete}
+                      aria-label={`${dict.common.delete} ${p.title}`}
                     >
                       ×
                     </button>

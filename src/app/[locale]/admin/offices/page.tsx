@@ -51,15 +51,16 @@ const locale = usePageLocale(params);
    const [saving, setSaving] = useState(false);
    const [togglingId, setTogglingId] = useState<string | null>(null);
    const [errors, setErrors] = useState<Record<string, string>>({});
-   const [formData, setFormData] = useState({
-     name: "",
-     email: "",
-     phone: "",
-     address: "",
-     adminName: "",
-     adminEmail: "",
-     adminPassword: "",
-   });
+    const [formData, setFormData] = useState({
+      name: "",
+      slug: "",
+      email: "",
+      phone: "",
+      address: "",
+      adminName: "",
+      adminEmail: "",
+      adminPassword: "",
+    });
     const { showToast } = useToast();
     const dict = getMessages(locale);
     const mountedRef = useRef(true);
@@ -180,7 +181,7 @@ const locale = usePageLocale(params);
         .from("offices")
         .insert({
           name: formData.name,
-          slug: formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+          slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "") || `office-${Date.now()}`,
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
@@ -217,7 +218,7 @@ const locale = usePageLocale(params);
       }
 
       setShowModal(false);
-      setFormData({ name: "", email: "", phone: "", address: "", adminName: "", adminEmail: "", adminPassword: "" });
+      setFormData({ name: "", slug: "", email: "", phone: "", address: "", adminName: "", adminEmail: "", adminPassword: "" });
       loadOffices();
     } catch (err) {
       logger.error("Failed to create office", { error: err instanceof Error ? err.message : String(err) });
@@ -399,15 +400,18 @@ const locale = usePageLocale(params);
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Input label={dict.admin.officeName} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  {errors.name && <p role="alert" className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                </div>
+                <div>
+                  <Input label={dict.admin.officeSlug} value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} placeholder={dict.admin.officeSlug} />
                 </div>
                 <div>
                   <Input label={dict.common.email} type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                  {errors.email && <p role="alert" className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
                   <Input label={dict.common.phone} value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                  {errors.phone && <p role="alert" className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
                 <Input label={dict.common.address} value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
               </div>
@@ -417,15 +421,15 @@ const locale = usePageLocale(params);
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Input label={dict.admin.adminName} value={formData.adminName} onChange={(e) => setFormData({ ...formData, adminName: e.target.value })} />
-                    {errors.adminName && <p className="text-red-500 text-xs mt-1">{errors.adminName}</p>}
+                    {errors.adminName && <p role="alert" className="text-red-500 text-xs mt-1">{errors.adminName}</p>}
                   </div>
                   <div>
                     <Input label={dict.admin.adminEmail} type="email" value={formData.adminEmail} onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })} />
-                    {errors.adminEmail && <p className="text-red-500 text-xs mt-1">{errors.adminEmail}</p>}
+                    {errors.adminEmail && <p role="alert" className="text-red-500 text-xs mt-1">{errors.adminEmail}</p>}
                   </div>
                   <div>
                     <Input label={dict.admin.adminPassword} type="password" value={formData.adminPassword} onChange={(e) => setFormData({ ...formData, adminPassword: e.target.value })} />
-                    {errors.adminPassword && <p className="text-red-500 text-xs mt-1">{errors.adminPassword}</p>}
+                    {errors.adminPassword && <p role="alert" className="text-red-500 text-xs mt-1">{errors.adminPassword}</p>}
                   </div>
                 </div>
               </div>

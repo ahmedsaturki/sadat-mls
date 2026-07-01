@@ -112,7 +112,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
             </p>
             {zone && (
               <p className="text-sm text-gray-200 mt-1 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#C49A2A]" /> {zone}
+                <MapPin className="w-3.5 h-3.5 text-[#C49A2A]" aria-hidden="true" /> {zone}
               </p>
             )}
           </div>
@@ -132,18 +132,18 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
           <div className="grid grid-cols-3 gap-2 py-3 border-y border-gray-100 mb-3">
             {bedrooms !== undefined && (
               <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-gray-50/50">
-                <Bed className="w-4 h-4 text-[#C49A2A] mb-1" />
+                <Bed className="w-4 h-4 text-[#C49A2A] mb-1" aria-hidden="true" />
                 <span className="text-sm font-medium text-gray-700">{bedrooms}</span>
               </div>
             )}
             {bathrooms !== undefined && (
               <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-gray-50/50">
-                <Bath className="w-4 h-4 text-[#C49A2A] mb-1" />
+                <Bath className="w-4 h-4 text-[#C49A2A] mb-1" aria-hidden="true" />
                 <span className="text-sm font-medium text-gray-700">{bathrooms}</span>
               </div>
             )}
             <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-gray-50/50">
-              <Maximize className="w-4 h-4 text-[#C49A2A] mb-1" />
+              <Maximize className="w-4 h-4 text-[#C49A2A] mb-1" aria-hidden="true" />
               <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
                 {area} <span className="text-[10px] text-gray-500">{(dict?.property?.areaUnit as string) || (locale === "ar" ? "م²" : "m²")}</span>
               </span>

@@ -102,25 +102,25 @@ const statusConfig = {
           <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
             {bedrooms !== undefined && (
               <span className="flex items-center gap-1">
-                <Bed className="w-4 h-4" />
+                <Bed className="w-4 h-4" aria-hidden="true" />
                 {bedrooms}
               </span>
             )}
             {bathrooms !== undefined && (
               <span className="flex items-center gap-1">
-                <Bath className="w-4 h-4" />
+                <Bath className="w-4 h-4" aria-hidden="true" />
                 {bathrooms}
               </span>
             )}
             <span className="flex items-center gap-1">
-              <Maximize className="w-4 h-4" />
+              <Maximize className="w-4 h-4" aria-hidden="true" />
               {area} {(dict?.property?.areaUnit as string) || (locale === "ar" ? "م²" : "m²")}
             </span>
           </div>
 
           {zone && (
             <div className="flex items-center gap-1 text-xs text-gray-500 mb-3">
-              <MapPin className="w-3 h-3" />
+              <MapPin className="w-3 h-3" aria-hidden="true" />
               {zone}
             </div>
           )}

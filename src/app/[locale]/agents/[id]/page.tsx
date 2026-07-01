@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getMessages } from "@/i18n/getMessages";
 import { usePageLocale } from "@/hooks/usePageLocale";
@@ -49,7 +49,7 @@ function PublicAgentPage({
   const mountedRef = useRef(true);
 
   const dict = getMessages(locale);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const loadAgent = useCallback(async (agentId: string) => {
     try {
