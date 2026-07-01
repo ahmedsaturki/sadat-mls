@@ -153,7 +153,7 @@ export default function PropertiesPage({
       setProperties((prev) =>
         prev.map((p: Property) => (p.id === propertyId ? { ...p, status: newStatus } : p))
       );
-      showToast(dict.common.save + " ✓", "success");
+      showToast(dict.common.save, "success");
       loadStats();
     } else {
       showToast(dict.common.unexpectedError, "error");
@@ -169,7 +169,7 @@ export default function PropertiesPage({
       const { error } = await supabase.from("properties").delete().eq("id", deleteId);
 
       if (!error) {
-        showToast(dict.common.delete + " ✓", "success");
+        showToast(dict.common.delete, "success");
         setProperties((prev) => prev.filter((p) => p.id !== deleteId));
       } else {
         showToast(dict.common.unexpectedError, "error");

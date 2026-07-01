@@ -106,7 +106,7 @@ export default function AdminContactRequestsPage({
         showToast(dict.common.unexpectedError, "error");
       } else {
         setRequests((prev) => prev.filter((r) => r.id !== deleteId));
-        showToast(dict.common.delete + " ✓", "success");
+        showToast(dict.common.delete, "success");
       }
     } catch {
       showToast(dict.common.unexpectedError, "error");

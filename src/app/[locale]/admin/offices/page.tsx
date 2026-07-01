@@ -214,7 +214,7 @@ const locale = usePageLocale(params);
         const result = await res.json();
         showToast(result.error || dict.common.unexpectedError, "error");
       } else {
-        showToast(dict.admin.officeCreated + " ✓", "success");
+        showToast(dict.admin.officeCreated, "success");
       }
 
       setShowModal(false);
@@ -240,7 +240,7 @@ const locale = usePageLocale(params);
     try {
       const { error } = await supabase.from("offices").delete().eq("id", deleteId);
       if (!error) {
-        showToast(dict.common.delete + " ✓", "success");
+        showToast(dict.common.delete, "success");
         loadOffices();
       } else {
         showToast(dict.common.unexpectedError, "error");

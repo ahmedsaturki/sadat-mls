@@ -50,9 +50,9 @@ export default function PropertyTypesPage({
   } = useAdminCrud({
     tableName: "property_types",
     successMessages: {
-      create: dict.admin.addPropertyType + " ✓",
-      update: dict.common.save + " ✓",
-      delete: dict.common.delete + " ✓",
+      create: dict.admin.addPropertyType,
+      update: dict.common.save,
+      delete: dict.common.delete,
     },
     errorMessage: dict.common.unexpectedError,
   });

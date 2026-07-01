@@ -388,7 +388,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         return;
       }
       resultPropertyId = property.id;
-      showToast(dict.office.propertyCreated + " ✓", "success");
+      showToast(dict.office.propertyCreated, "success");
     } else {
       const { error } = await supabase
         .from("properties")
@@ -400,7 +400,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         setLoading(false);
         return;
       }
-      showToast(dict.common.save + " ✓", "success");
+      showToast(dict.common.save, "success");
     }
 
     if (ownerData.owner_name && ownerData.owner_phone) {

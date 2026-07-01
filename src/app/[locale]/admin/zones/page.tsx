@@ -49,11 +49,11 @@ const locale = usePageLocale(params);
      setShowDeleteModal,
    } = useAdminCrud({
      tableName: "zones",
-     successMessages: {
-       create: dict.admin.addZone + " ✓",
-       update: dict.common.save + " ✓",
-       delete: dict.common.delete + " ✓",
-     },
+      successMessages: {
+        create: dict.admin.addZone,
+        update: dict.common.save,
+        delete: dict.common.delete,
+      },
      errorMessage: dict.common.unexpectedError,
    });
 
