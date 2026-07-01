@@ -89,12 +89,7 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(NextResponse.next());
   }
 
-  // 2. Skip RSC prefetch requests – let Next.js handle them natively
-  if (request.nextUrl.searchParams.has("_rsc")) {
-    return NextResponse.next();
-  }
-
-  // 3. Skip Vercel internal paths (e.g., /<hash>/vitals for analytics)
+  // 2. Skip Vercel internal paths (e.g., /<hash>/vitals for analytics)
   //    NextResponse.next() would route to the Next.js serverless function which
   //    doesn't handle this path. Return an empty 200 so the browser doesn't log
   //    a "Fetch failed loading" error for the analytics POST.
@@ -102,7 +97,7 @@ export async function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 200 });
   }
 
-  // 2. Create Supabase client for session validation
+  // 3. Create Supabase client for session validation
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -133,7 +128,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 4. Locale handling
+  // 4. Skip RSC prefetch requests after auth check – let Next.js handle them natively
+  if (request.nextUrl.searchParams.has("_rsc")) {
+    return NextResponse.next();
+  }
+
+  // 5. Locale handling
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );

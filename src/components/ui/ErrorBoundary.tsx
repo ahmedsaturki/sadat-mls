@@ -17,13 +17,19 @@ interface State {
   error: Error | null;
 }
 
+const FALLBACK = { title: "Something went wrong", message: "An unexpected error occurred.", retry: "Try again" };
+
 function getBilingualText() {
   if (typeof window === "undefined") {
-    return { title: enDict.errorBoundary.title, message: enDict.errorBoundary.message, retry: enDict.errorBoundary.retry };
+    return FALLBACK;
   }
-  const isAr = window.location.pathname.startsWith("/ar");
-  const dict = isAr ? arDict : enDict;
-  return { title: dict.errorBoundary.title, message: dict.errorBoundary.message, retry: dict.errorBoundary.retry };
+  try {
+    const isAr = window.location.pathname.startsWith("/ar");
+    const dict = isAr ? arDict : enDict;
+    return { title: dict.errorBoundary.title, message: dict.errorBoundary.message, retry: dict.errorBoundary.retry };
+  } catch {
+    return FALLBACK;
+  }
 }
 
 export default class ErrorBoundary extends Component<Props, State> {

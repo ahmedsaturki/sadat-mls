@@ -47,23 +47,24 @@ export function useCompare() {
   }, []);
 
   const addProperty = useCallback((property: PropertyForComparison): boolean => {
-    let added = false;
+    let result = false;
     setState(prev => {
       if (prev.ids.length >= MAX_COMPARE || prev.ids.includes(property.id)) {
-        added = false;
+        result = false;
         return prev;
       }
       const newIds = [...prev.ids, property.id];
       const newProps = [...prev.props, property];
       saveToStorage(newIds, newProps);
-      added = true;
+      result = true;
       return { ids: newIds, props: newProps };
     });
-    return added;
+    return result;
   }, [saveToStorage]);
 
   const removeProperty = useCallback((id: string) => {
     setState(prev => {
+      if (!prev.ids.includes(id)) return prev;
       const newIds = prev.ids.filter(pid => pid !== id);
       const newProps = prev.props.filter(p => p.id !== id);
       saveToStorage(newIds, newProps);
@@ -72,7 +73,10 @@ export function useCompare() {
   }, [saveToStorage]);
 
   const clearAll = useCallback(() => {
-    setState({ ids: [], props: [] });
+    setState(prev => {
+      if (prev.ids.length === 0) return prev;
+      return { ids: [], props: [] };
+    });
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("compare_properties");
     }
