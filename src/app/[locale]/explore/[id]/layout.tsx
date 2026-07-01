@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!property) {
     return {
-      title: dict.property.notFound || "Property Not Found",
+      title: dict.property.notFound,
     };
   }
 
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     metadataBase: new URL(baseUrl),
     title: property.title,
-    description: property.description || dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
+    description: property.description || (dict.landing?.heroDescription ?? ""),
     alternates: {
       canonical: `${baseUrl}/${validLocale}/explore/${id}`,
       languages: {
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: validLocale === "ar" ? "ar_EG" : "en_US",
       siteName: "Sadat MLS Cloud",
       title: property.title,
-      description: property.description || dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
+      description: property.description || (dict.landing?.heroDescription ?? ""),
       url: `${baseUrl}/${validLocale}/explore/${id}`,
       images: imageUrl ? [
         {
@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: property.title,
-      description: property.description || dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
+      description: property.description || (dict.landing?.heroDescription ?? ""),
       images: imageUrl ? [imageUrl] : [],
     },
   };

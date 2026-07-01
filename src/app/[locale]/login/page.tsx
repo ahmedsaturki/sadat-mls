@@ -87,7 +87,7 @@ export default function LoginPage({
     if (authError) {
       // Check if it's an email not verified email
       if (authError.message.includes("Email not confirmed") || authError.message.includes("email not verified")) {
-        setError(dict.auth.emailNotVerified || "Please verify your email before logging in. Check your inbox for the verification link.");
+        setError(dict.auth.emailNotVerified);
         setLoading(false);
         return;
       }
@@ -109,7 +109,7 @@ export default function LoginPage({
     // Check email verification status
     if (data.user && !data.user.email_confirmed_at) {
       await supabase.auth.signOut();
-      setError(dict.auth.emailNotVerified || "Please verify your email before logging in. Check your inbox for the verification link.");
+      setError(dict.auth.emailNotVerified);
       setLoading(false);
       return;
     }

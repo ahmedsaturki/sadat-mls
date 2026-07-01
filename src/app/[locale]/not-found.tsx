@@ -12,9 +12,9 @@ export default async function LocaleNotFound({
   const rawLocale = resolvedParams?.locale || "ar";
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : "ar";
   const dict = getMessages(locale);
-  const notFoundTitle = dict.common?.notFound || "Page Not Found";
-  const notFoundDesc = dict.common?.notFoundDesc || "The page you are looking for does not exist or has been moved.";
-  const backToHome = dict.common?.backToHome || "Back to Home";
+  const notFoundTitle = dict.common.notFound;
+  const notFoundDesc = dict.common.notFoundDesc;
+  const backToHome = dict.common.backToHome;
 
   const isRtl = locale === "ar";
 

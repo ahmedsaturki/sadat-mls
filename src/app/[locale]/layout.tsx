@@ -16,10 +16,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     metadataBase: new URL(baseUrl),
     title: {
-      default: `Sadat MLS Cloud | ${dict.landing?.hero || "Real Estate Platform"}`,
+      default: `Sadat MLS Cloud | ${dict.landing?.hero ?? ""}`,
       template: "%s | Sadat MLS Cloud",
     },
-    description: dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
+    description: dict.landing?.heroDescription ?? "",
     keywords: validLocale === "ar"
       ? ["عقارات", "مدينة السادات", "بيع", "تأجير", "شقة", "فيلا", "أرض"]
       : ["real estate", "Sadat City", "buy", "rent", "apartment", "villa", "land"],
@@ -36,12 +36,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: validLocale === "ar" ? "ar_EG" : "en_US",
       alternateLocale: validLocale === "ar" ? "en_US" : "ar_EG",
       siteName: "Sadat MLS Cloud",
-      title: `Sadat MLS Cloud | ${dict.landing?.hero || "Real Estate Platform"}`,
-      description: dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
+      title: `Sadat MLS Cloud | ${dict.landing?.hero ?? ""}`,
+      description: dict.landing?.heroDescription ?? "",
       url: `${baseUrl}/${validLocale}`,
       images: [
         {
-          url: `/og-image?title=${encodeURIComponent("Sadat MLS Cloud")}&description=${encodeURIComponent(dict.landing?.heroDescription || "")}&locale=${validLocale}`,
+          url: `/og-image?title=${encodeURIComponent("Sadat MLS Cloud")}&description=${encodeURIComponent(dict.landing?.heroDescription ?? "")}&locale=${validLocale}`,
           width: 1200,
           height: 630,
           alt: "Sadat MLS Cloud",
@@ -51,8 +51,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: "Sadat MLS Cloud",
-      description: dict.landing?.heroDescription || "Cloud real estate platform for Sadat City",
-      images: [`/og-image?title=${encodeURIComponent("Sadat MLS Cloud")}&description=${encodeURIComponent(dict.landing?.heroDescription || "")}&locale=${validLocale}`],
+      description: dict.landing?.heroDescription ?? "",
+      images: [`/og-image?title=${encodeURIComponent("Sadat MLS Cloud")}&description=${encodeURIComponent(dict.landing?.heroDescription ?? "")}&locale=${validLocale}`],
     },
     robots: {
       index: true,
