@@ -78,7 +78,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
 
     const validateEmail = isValidEmail(contactForm.email.trim());
     if (contactForm.email && !validateEmail) {
-      setContactError(dict.landing.contactForm.emailInvalid || "Invalid email format");
+      setContactError(dict.landing.contactForm.emailInvalid);
       setContactLoading(false);
       return;
     }

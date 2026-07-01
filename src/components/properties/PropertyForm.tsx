@@ -101,7 +101,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
   const handleGenerateDescription = useCallback(async (): Promise<string | null> => {
     if (!formData.title) {
-      showToast(dict.office.propertyTitleMin || "Property title is required", "error");
+      showToast(dict.office.propertyTitleMin, "error");
       return null;
     }
 
@@ -121,16 +121,16 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        showToast(errorData.error || dict.office.aiFailed || "Failed to generate description", "error");
+        showToast(errorData.error || dict.office.aiFailed, "error");
         return null;
       }
 
       const data = await response.json();
-      showToast(dict.office.aiGenerated || "Description generated successfully", "success");
+      showToast(dict.office.aiGenerated, "success");
       return data.description;
     } catch (err) {
       logger.error("AI description generation failed", { error: err instanceof Error ? err.message : "Unknown" });
-      showToast(dict.office.aiFailed || "Failed to generate description", "error");
+      showToast(dict.office.aiFailed, "error");
       return null;
     }
   }, [formData, dict.office, showToast]);
@@ -302,14 +302,14 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
           const actual = String(issue.input ?? "").length;
           const min = issue.minimum as number;
           if (min === 2 && actual < 2) {
-            newErrors[key] = dict.office.propertyNameMin || "Name too short";
+            newErrors[key] = dict.office.propertyNameMin;
           } else if (min === 1 && actual < 1) {
-            newErrors[key] = dict.office.propertyTitleMin || "Required field";
+            newErrors[key] = dict.office.propertyTitleMin;
           } else {
             newErrors[key] = issue.message;
           }
         } else if (issue.code === "too_big") {
-          newErrors[key] = dict.office.propertyTitleMax || "Value too large";
+          newErrors[key] = dict.office.propertyTitleMax;
         } else {
           newErrors[key] = issue.message;
         }
@@ -321,9 +321,9 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         const key = `owner_${issue.path.join(".")}`;
         if (issue.code === "custom") {
           if (issue.path.join(".") === "owner_phone") {
-            newErrors[key] = dict.office.ownerPhoneInvalid || "Invalid phone";
+            newErrors[key] = dict.office.ownerPhoneInvalid;
           } else if (issue.path.join(".") === "owner_email") {
-            newErrors[key] = dict.office.ownerEmailInvalid || "Invalid email";
+            newErrors[key] = dict.office.ownerEmailInvalid;
           } else {
             newErrors[key] = issue.message;
           }
@@ -349,7 +349,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
     // Defensive: ensure status is a valid DB value before hitting the constraint
     if (!PROPERTY_STATUSES.includes(formData.status as PropertyStatus)) {
-      showToast(dict.common.error || "Invalid property status", "error");
+      showToast(dict.common.error, "error");
       setLoading(false);
       return;
     }

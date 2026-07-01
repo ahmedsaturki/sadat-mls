@@ -277,7 +277,7 @@ export default function SettingsPage({
                       <div className="flex items-center gap-4">
                         {logoUrls.preview && (
                           <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0">
-                            <Image src={logoUrls.preview} alt={dict.common.officeLogo || "Office logo"} fill className="object-cover" sizes="80px" unoptimized />
+                            <Image src={logoUrls.preview} alt={dict.common.officeLogo} fill className="object-cover" sizes="80px" unoptimized />
                           </div>
                         )}
                         <label className="cursor-pointer">

@@ -42,7 +42,7 @@ function SavedSearchesContent({
     if (filters.hasBalcony) active.push(dict.explore.balcony);
     if (filters.hasParking) active.push(dict.explore.parking);
     if (filters.hasElevator) active.push(dict.explore.elevator);
-    return active.length > 0 ? active.join(", ") : dict.explore.any || "Any";
+    return active.length > 0 ? active.join(", ") : dict.explore.any;
   }, [dict]);
 
   const handleRunSearch = (filters: FilterState) => {
@@ -59,7 +59,7 @@ function SavedSearchesContent({
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Bookmark className="w-6 h-6 text-blue-500" />
-            {dict.dashboard.savedSearches || "Saved Searches"}
+            {dict.dashboard.savedSearches}
           </h1>
           {count > 0 && (
             <button
@@ -78,10 +78,10 @@ function SavedSearchesContent({
               <Bookmark className="w-8 h-8 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {dict.dashboard.noSavedSearchesFull || "No saved searches"}
+              {dict.dashboard.noSavedSearchesFull}
             </h3>
             <p className="text-sm text-gray-500">
-              {dict.dashboard.saveSearchHint || "Save a search from the explore page to get notified about new properties"}
+              {dict.dashboard.saveSearchHint}
             </p>
           </div>
         ) : (

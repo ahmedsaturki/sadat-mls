@@ -99,7 +99,7 @@ export default function PropertyBasicInfo({
           rows={4}
           value={formData.description}
           onChange={(e) => onChange("description", e.target.value)}
-          placeholder={dict.office.generateDescriptionHint || "Enter property description or use AI to generate one"}
+          placeholder={dict.office.generateDescriptionHint}
         />
         {errors.description && (
           <p className="text-red-500 text-xs mt-1">{errors.description}</p>

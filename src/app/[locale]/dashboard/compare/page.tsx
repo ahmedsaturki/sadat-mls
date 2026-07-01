@@ -55,7 +55,7 @@ export default function ComparePage() {
             <thead>
               <tr className="border-b">
                 <th className="p-4 text-left w-40">
-                  {dict.common.feature || "Feature"}
+                  {dict.common.feature}
                 </th>
                 {properties.map((p) => (
                   <th key={p.id} className="p-4 text-center min-w-[200px] relative">
@@ -82,14 +82,14 @@ export default function ComparePage() {
                 <td className="p-4 font-medium">{dict.property.price}</td>
                 {properties.map((p) => (
                   <td key={p.id} className="p-4 text-center font-bold text-blue-600">
-                    {p.price?.toLocaleString()} {dict.property.priceUnit || "EGP"}
+                    {p.price?.toLocaleString()} {dict.property.priceUnit}
                   </td>
                 ))}
               </tr>
               <tr className="border-b">
                 <td className="p-4 font-medium">{dict.property.area}</td>
                 {properties.map((p) => (
-                  <td key={p.id} className="p-4 text-center">{p.area} {dict.property.areaUnit || "m²"}</td>
+                  <td key={p.id} className="p-4 text-center">{p.area} {dict.property.areaUnit}</td>
                 ))}
               </tr>
               <tr className="border-b">
