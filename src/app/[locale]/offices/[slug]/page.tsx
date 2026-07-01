@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { getMessages } from "@/i18n/getMessages";
@@ -49,7 +49,7 @@ function PublicOfficePage({
   const [notFound, setNotFound] = useState(false);
   const { user } = useAuthUser();
   const dict = getMessages(locale);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const mountedRef = useRef(true);
 
   const loadOffice = useCallback(async (slug: string) => {

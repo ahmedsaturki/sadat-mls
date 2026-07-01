@@ -29,7 +29,9 @@ type Property = Database["public"]["Tables"]["properties"]["Row"] & {
 
 const PAGE_SIZE = 12;
 
+const OFFICE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 let cachedActiveOfficeIds: Set<string> | null = null;
+let cachedOfficeIdsExpiry = 0;
 
 type SupabaseQueryParams = {
   data: Property[];
@@ -149,9 +151,10 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
         const propertyIds = data.map((p: Property) => p.id);
 
         const getActiveOfficeIds = async (): Promise<Set<string>> => {
-          if (cachedActiveOfficeIds) return cachedActiveOfficeIds;
+          if (cachedActiveOfficeIds && Date.now() < cachedOfficeIdsExpiry) return cachedActiveOfficeIds;
           const { data: officesData } = await supabase.from("offices").select("id").eq("is_active", true);
           cachedActiveOfficeIds = new Set((officesData as { id: string }[] | null)?.map((o) => o.id) || []);
+          cachedOfficeIdsExpiry = Date.now() + OFFICE_CACHE_TTL_MS;
           return cachedActiveOfficeIds;
         };
 

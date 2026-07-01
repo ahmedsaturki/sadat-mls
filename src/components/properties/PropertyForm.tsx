@@ -222,11 +222,25 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     setOfficeId(profile.office_id || "");
     setUserRole((profile.role as UserRole) || ROLES.OFFICE_AGENT);
 
-    const { data: property } = await supabase
-      .from("properties")
-      .select("*")
-      .eq("id", propertyId)
-      .maybeSingle();
+    const [propertyResult, imagesResult, ownerResult] = await Promise.all([
+      supabase
+        .from("properties")
+        .select("*")
+        .eq("id", propertyId)
+        .maybeSingle(),
+      supabase
+        .from("property_images")
+        .select("*")
+        .eq("property_id", propertyId)
+        .order("sort_order"),
+      supabase
+        .from("property_owners")
+        .select("*")
+        .eq("property_id", propertyId)
+        .maybeSingle(),
+    ]);
+
+    const { data: property } = propertyResult;
 
     if (!property) {
       router.push(`/${locale}/dashboard/properties`);
@@ -250,20 +264,11 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
       status: property.status || "available",
     });
 
-    const { data: images } = await supabase
-      .from("property_images")
-      .select("*")
-      .eq("property_id", propertyId)
-      .order("sort_order");
-
+    const { data: images } = imagesResult;
     setExistingImages(images || []);
     setInitialExistingCount(images?.length ?? 0);
 
-    const { data: owner } = await supabase
-      .from("property_owners")
-      .select("*")
-      .eq("property_id", propertyId)
-      .maybeSingle();
+    const { data: owner } = ownerResult;
 
     if (owner) {
       setExistingOwner(owner);

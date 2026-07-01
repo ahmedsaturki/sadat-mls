@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { checkAuthRateLimit } from "@/lib/security/rateLimit";
+import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
+  const csrfValid = await validateCsrfToken(request);
+  if (!csrfValid) {
+    logger.warn("Resend verification CSRF validation failed");
+    return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
+  }
+
   const rawIp = request.headers.get("x-forwarded-for") || "unknown";
   const ip = rawIp.split(",")[0].trim();
 
