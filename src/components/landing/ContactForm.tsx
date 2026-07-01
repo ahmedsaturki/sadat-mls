@@ -135,13 +135,20 @@ export default function ContactForm({ dict }: ContactFormProps) {
       clearContactAttempts();
     } catch (err) {
       logger.warn("Contact form submission failed", { error: err instanceof Error ? err.message : String(err) });
-      const { count, locked } = recordContactAttempt();
-      if (locked) {
-        setContactError(dict.common.rateLimitLockedHour);
-        setAttemptsRemaining(0);
+      const isServerError = err instanceof Error && (
+        err.message === "NO_ACTIVE_OFFICE" || err.message.includes("500") || err.message.includes("server")
+      );
+      if (!isServerError) {
+        const { count, locked } = recordContactAttempt();
+        if (locked) {
+          setContactError(dict.common.rateLimitLockedHour);
+          setAttemptsRemaining(0);
+        } else {
+          setContactError(dict.landing.contactForm.error);
+          setAttemptsRemaining(MAX_CONTACT_ATTEMPTS - count);
+        }
       } else {
         setContactError(dict.landing.contactForm.error);
-        setAttemptsRemaining(MAX_CONTACT_ATTEMPTS - count);
       }
     } finally {
       setContactLoading(false);

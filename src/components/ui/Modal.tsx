@@ -74,7 +74,7 @@ export default function Modal({ isOpen, onClose, title, children, size = "md", c
     return () => {
       document.removeEventListener("keydown", handleEscape);
       document.removeEventListener("keydown", handleTab);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
       clearTimeout(timer);
       // Restore focus to the element that was focused before the modal opened
       if (previousFocus && typeof previousFocus.focus === "function") {

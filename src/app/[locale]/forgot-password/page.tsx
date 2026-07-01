@@ -95,7 +95,7 @@ export default function ForgotPasswordPage({
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-4">
             <Building2 className="w-8 h-8 text-blue-600" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Sadat MLS Cloud</h1>
+          <h1 className="text-2xl font-bold text-white">{dict.common.appName}</h1>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -137,7 +137,7 @@ export default function ForgotPasswordPage({
                 />
 
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                  <div role="alert" aria-live="assertive" className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
                     {error}
                   </div>
                 )}

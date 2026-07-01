@@ -33,7 +33,6 @@ export default function LoginPage({
   const [loading, setLoading] = useState(false);
   const locale = usePageLocale(params);
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
-  const [isRateLimited, setIsRateLimited] = useState(false);
   const router = useRouter();
 
   const dict = getMessages(locale);
@@ -47,13 +46,11 @@ export default function LoginPage({
       const data: RateLimitResponse = await response.json();
       
       if (!data.allowed) {
-        setIsRateLimited(true);
         setAttemptsRemaining(0);
         setError(data.error || dict.common.rateLimitExceeded.replace("{{minutes}}", String(Math.ceil(data.retryAfter / 60))));
         return false;
       }
       
-      setIsRateLimited(false);
       setAttemptsRemaining(data.remaining);
       return true;
     } catch (err) {
@@ -93,9 +90,9 @@ export default function LoginPage({
       }
 
       // Refresh rate limit after failed attempt
-      await checkRateLimit();
+      const rateOk = await checkRateLimit();
       
-      if (isRateLimited) {
+      if (!rateOk) {
         setError(dict.common.rateLimitLocked);
         setAttemptsRemaining(0);
       } else {
@@ -114,11 +111,18 @@ export default function LoginPage({
       return;
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("users")
       .select("role, office_id")
       .eq("id", data.user.id)
       .maybeSingle();
+
+    if (profileError) {
+      logger.error("Profile fetch failed after login", { error: profileError.message, userId: data.user.id });
+      setError(dict.auth.loginError);
+      setLoading(false);
+      return;
+    }
 
     if (profile?.role === ROLES.SUPER_ADMIN) {
       router.push(`/${locale}/admin`);
