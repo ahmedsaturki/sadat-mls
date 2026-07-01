@@ -64,7 +64,7 @@ export default function ContactRequestsPage({
         .order("created_at", { ascending: false });
 
       if (requestsError) {
-        showToast(requestsError.message, "error");
+        showToast(dict.common.unexpectedError, "error");
       } else {
         setRequests(data || []);
       }

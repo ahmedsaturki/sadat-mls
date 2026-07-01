@@ -156,7 +156,7 @@ export default function PropertiesPage({
       showToast(dict.common.save + " ✓", "success");
       loadStats();
     } else {
-      showToast(error.message, "error");
+      showToast(dict.common.unexpectedError, "error");
     }
     setUpdatingStatus(null);
   };
@@ -172,7 +172,7 @@ export default function PropertiesPage({
         showToast(dict.common.delete + " ✓", "success");
         setProperties((prev) => prev.filter((p) => p.id !== deleteId));
       } else {
-        showToast(error.message, "error");
+        showToast(dict.common.unexpectedError, "error");
       }
     } catch {
       showToast(dict.common.unexpectedError, "error");

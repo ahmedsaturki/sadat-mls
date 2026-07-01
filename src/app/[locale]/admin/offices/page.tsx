@@ -84,11 +84,11 @@ const locale = usePageLocale(params);
          .select("*")
          .order("created_at", { ascending: false });
 
-       if (error) {
-         showToast(error.message, "error");
-         setLoading(false);
-         return;
-       }
+        if (error) {
+          showToast(dict.common.unexpectedError, "error");
+          setLoading(false);
+          return;
+        }
 
        // Fetch all counts in parallel (2 queries total, not 2N)
        const officeIds = (data || []).map((o: Office) => o.id);
@@ -190,7 +190,7 @@ const locale = usePageLocale(params);
         .single();
 
       if (officeError) {
-        showToast(officeError.message, "error");
+        showToast(dict.common.unexpectedError, "error");
         setSaving(false);
         return;
       }
@@ -243,7 +243,7 @@ const locale = usePageLocale(params);
         showToast(dict.common.delete + " ✓", "success");
         loadOffices();
       } else {
-        showToast(error.message, "error");
+        showToast(dict.common.unexpectedError, "error");
       }
     } catch (err) {
       logger.error("Failed to delete office", { error: err instanceof Error ? err.message : String(err) });

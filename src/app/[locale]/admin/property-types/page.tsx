@@ -54,6 +54,7 @@ export default function PropertyTypesPage({
       update: dict.common.save + " ✓",
       delete: dict.common.delete + " ✓",
     },
+    errorMessage: dict.common.unexpectedError,
   });
 
   // Auth guard - protect admin route (runs after hooks, safe for redirects)

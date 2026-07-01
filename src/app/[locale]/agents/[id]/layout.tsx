@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     metadataBase: new URL(baseUrl),
     title: agent.full_name,
-    description: `${agent.full_name} - ${officeName} | Sadat MLS Cloud`,
+    description: `${agent.full_name} - ${officeName} | ${dict.common.appName}`,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/agents/${id}`,
       languages: {
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       type: "profile",
       locale: validLocale === "ar" ? "ar_EG" : "en_US",
-      siteName: "Sadat MLS Cloud",
+      siteName: dict.common.appName,
       title: agent.full_name,
       description: `${agent.full_name} - ${officeName}`,
       url: `${baseUrl}/${validLocale}/agents/${id}`,

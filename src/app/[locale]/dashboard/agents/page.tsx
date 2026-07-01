@@ -68,7 +68,7 @@ export default function AgentsPage({
         .order("created_at", { ascending: false });
 
       if (agentsError) {
-        showToast(agentsError.message, "error");
+        showToast(dict.common.unexpectedError, "error");
       } else {
         setAgents(data || []);
       }

@@ -68,7 +68,7 @@ export default function AdminContactRequestsPage({
         .order("created_at", { ascending: false });
 
       if (error) {
-        showToast(error.message, "error");
+        showToast(dict.common.unexpectedError, "error");
       } else {
         if (!mountedRef.current) return;
         setRequests(data || []);

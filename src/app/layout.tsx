@@ -17,8 +17,8 @@ const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "RealEstateAgent",
-  name: "Sadat MLS Cloud",
-  description: "Cloud real estate platform for Sadat City",
+  name: process.env.NEXT_PUBLIC_SITE_NAME || "Sadat MLS Cloud",
+  description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "Cloud real estate platform for Sadat City",
   url: baseUrl,
   address: {
     "@type": "PostalAddress",

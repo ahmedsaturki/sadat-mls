@@ -19,6 +19,7 @@ interface UseAdminCrudOptions {
     update: string;
     delete: string;
   };
+  errorMessage?: string;
 }
 
 interface UseAdminCrudReturn<T extends AdminCrudItem> {
@@ -46,6 +47,7 @@ interface UseAdminCrudReturn<T extends AdminCrudItem> {
 export function useAdminCrud<T extends AdminCrudItem>({
   tableName,
   successMessages,
+  errorMessage,
 }: UseAdminCrudOptions): UseAdminCrudReturn<T> {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +69,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
         .select("*")
         .order("name_ar");
       if (error) {
-        showToast(error.message, "error");
+        showToast(errorMessage ?? "Error", "error");
       } else {
         if (!mountedRef.current) return;
         setItems((data || []) as T[]);
@@ -76,11 +78,11 @@ export function useAdminCrud<T extends AdminCrudItem>({
       logger.error(`Failed to fetch ${tableName}`, {
         error: err instanceof Error ? err.message : String(err),
       });
-      showToast(`Unexpected error loading ${tableName}`, "error");
+      showToast(errorMessage ?? "Error", "error");
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, [supabase, showToast, tableName]);
+  }, [supabase, showToast, tableName, errorMessage]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -99,7 +101,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
           .update({ name_ar: nameAr, name_en: nameEn || null })
           .eq("id", editId);
         if (error) {
-          showToast(error.message, "error");
+          showToast(errorMessage ?? "Error", "error");
         } else {
           showToast(successMessages.update, "success");
           setShowModal(false);
@@ -113,7 +115,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
           .from(tableName)
           .insert({ name_ar: nameAr, name_en: nameEn || null });
         if (error) {
-          showToast(error.message, "error");
+          showToast(errorMessage ?? "Error", "error");
         } else {
           showToast(successMessages.create, "success");
           setShowModal(false);
@@ -126,7 +128,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
       logger.error(`Failed to save ${tableName}`, {
         error: err instanceof Error ? err.message : String(err),
       });
-      showToast(`Unexpected error saving ${tableName}`, "error");
+      showToast(errorMessage ?? "Error", "error");
     } finally {
       setSaving(false);
     }
@@ -164,13 +166,13 @@ export function useAdminCrud<T extends AdminCrudItem>({
         showToast(successMessages.delete, "success");
         loadItems();
       } else {
-        showToast(error.message, "error");
+        showToast(errorMessage ?? "Error", "error");
       }
     } catch (err) {
       logger.error(`Failed to delete from ${tableName}`, {
         error: err instanceof Error ? err.message : String(err),
       });
-      showToast(`Unexpected error deleting from ${tableName}`, "error");
+      showToast(errorMessage ?? "Error", "error");
     } finally {
       setSaving(false);
       setShowDeleteModal(false);

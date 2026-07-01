@@ -82,7 +82,7 @@ export default function SettingsPage({
             .maybeSingle();
 
           if (officeError) {
-            showToast(officeError.message, "error");
+            showToast(dict.common.unexpectedError, "error");
           } else if (office) {
             setOfficeData({
               name: office.name || "",
@@ -133,7 +133,7 @@ export default function SettingsPage({
         .eq("id", userId);
 
       if (error) {
-        showToast(error.message, "error");
+        showToast(dict.common.unexpectedError, "error");
       } else {
         setIsDirty(false);
         showToast(dict.common.save, "success");
@@ -183,7 +183,7 @@ export default function SettingsPage({
         .eq("id", officeId);
 
       if (error) {
-        showToast(error.message, "error");
+        showToast(dict.common.unexpectedError, "error");
       } else {
         setIsDirty(false);
         setOfficeData((prev) => ({ ...prev, logo_url: logoUrl }));

@@ -383,7 +383,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         .single();
 
       if (error) {
-        showToast(error.message, "error");
+        showToast(dict.common.unexpectedError, "error");
         setLoading(false);
         return;
       }
@@ -396,7 +396,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         .eq("id", propertyId);
 
       if (error) {
-        showToast(error.message, "error");
+        showToast(dict.common.unexpectedError, "error");
         setLoading(false);
         return;
       }

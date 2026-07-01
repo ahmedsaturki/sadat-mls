@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       type: "website",
       locale: validLocale === "ar" ? "ar_EG" : "en_US",
-      siteName: "Sadat MLS Cloud",
+      siteName: dict.common.appName,
       title: property.title,
       description: property.description || (dict.landing?.heroDescription ?? ""),
       url: `${baseUrl}/${validLocale}/explore/${id}`,
