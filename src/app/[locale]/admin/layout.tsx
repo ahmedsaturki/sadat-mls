@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     metadataBase: new URL(baseUrl),
-    title: dict.admin.dashboard || "Admin Dashboard",
+    title: dict.admin.dashboard,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/admin`,
       languages: {
@@ -37,7 +37,7 @@ export default function AdminLayout({ children, params }: { children: React.Reac
 
   return (
     <AuthGuard requiredRole={ROLES.SUPER_ADMIN}>
-      <ErrorBoundaryWrapper fallbackTitle={dict.admin.errorTitle || "Admin Error"} fallbackMessage={dict.admin.errorMessage || "An error occurred in the admin panel."}>
+      <ErrorBoundaryWrapper fallbackTitle={dict.admin.errorTitle} fallbackMessage={dict.admin.errorMessage}>
         {children}
       </ErrorBoundaryWrapper>
     </AuthGuard>

@@ -93,7 +93,7 @@ const locale = usePageLocale(params);
               <PaginatedTable
                 data={zones}
                 searchKey="name_ar"
-                searchPlaceholder={dict.admin.searchZones || "Search zones..."}
+                searchPlaceholder={dict.admin.searchZones}
                 emptyMessage={dict.common.noData}
                 emptyIcon={<MapPin className="w-12 h-12 text-green-300" />}
                 emptyHint={dict.admin.addZonesHint}

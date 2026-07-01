@@ -111,7 +111,7 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
             variant="ghost"
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="relative"
-            aria-label={dict.explore.advancedFilters || "Toggle advanced filters"}
+            aria-label={dict.explore.advancedFilters}
             aria-expanded={showAdvanced}
           >
             <SlidersHorizontal className="w-4 h-4" />

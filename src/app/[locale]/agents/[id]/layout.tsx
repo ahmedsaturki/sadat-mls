@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!agent) {
     return {
-      title: dict.agents.agentNotFound || "Agent Not Found",
+      title: dict.agents.agentNotFound,
     };
   }
 

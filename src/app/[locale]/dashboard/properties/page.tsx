@@ -140,7 +140,7 @@ export default function PropertiesPage({
 
   const handleStatusChange = async (propertyId: string, newStatus: Property["status"]) => {
     if (!PROPERTY_STATUSES.includes(newStatus as PropertyStatus)) {
-      showToast(dict.common.error || "Invalid status", "error");
+      showToast(dict.common.error, "error");
       return;
     }
     setUpdatingStatus(propertyId);

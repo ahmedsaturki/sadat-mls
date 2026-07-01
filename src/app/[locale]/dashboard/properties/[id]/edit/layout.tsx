@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     metadataBase: new URL(baseUrl),
-    title: dict.office.editProperty || "Edit Property",
+    title: dict.office.editProperty,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/dashboard/properties/${id}/edit`,
       languages: {

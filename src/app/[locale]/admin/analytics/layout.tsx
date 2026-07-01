@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     metadataBase: new URL(baseUrl),
-    title: dict.admin.analytics || "Analytics",
+    title: dict.admin.analytics,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/admin/analytics`,
       languages: {

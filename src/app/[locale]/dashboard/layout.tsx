@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     metadataBase: new URL(baseUrl),
-    title: dict.office.dashboard || "Office Dashboard",
+    title: dict.office.dashboard,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/dashboard`,
       languages: {

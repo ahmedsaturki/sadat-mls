@@ -270,7 +270,7 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
                 className={`p-2 rounded-lg transition-colors ${
                   showFilters ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"
                 }`}
-                aria-label={dict.common.filters || "Filters"}
+                aria-label={dict.common.filters}
                 aria-expanded={showFilters}
               >
                 <SlidersHorizontal className="w-5 h-5" />
@@ -310,7 +310,7 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
               onClick={() => loadProperties()}
               className="text-blue-600 hover:text-blue-700 font-medium text-sm"
             >
-              {dict.common.retry || "Try again"}
+              {dict.common.retry}
             </button>
           </div>
         ) : properties.length > 0 ? (

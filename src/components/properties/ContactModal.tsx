@@ -99,18 +99,18 @@ export default function ContactModal({
     const trimmedMessage = formData.message.trim();
 
     if (!trimmedName || trimmedName.length < 2) {
-      setError(dict.contact.nameRequired || "Name is required");
+      setError(dict.contact.nameRequired);
       return;
     }
 
     if (!trimmedMessage || trimmedMessage.length < 2) {
-      setError(dict.contact.messageRequired || "Message is required");
+      setError(dict.contact.messageRequired);
       return;
     }
 
     const { locked } = recordContactAttempt();
     if (locked) {
-      setError(dict.contact.error || "Too many attempts. Please try again later.");
+      setError(dict.contact.error);
       return;
     }
 

@@ -22,7 +22,7 @@ export default function PageHeader({ title, action, showBack, dict }: PageHeader
           <button
             onClick={() => router.back()}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label={dict?.common?.back || "Back"}
+            aria-label={dict?.common?.back}
           >
             <ArrowRight className="w-5 h-5" />
           </button>

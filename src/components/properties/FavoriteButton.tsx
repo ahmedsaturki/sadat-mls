@@ -90,9 +90,9 @@ const FavoriteButton = memo(function FavoriteButton({
 
         if (!error) {
           setIsFavorited(false);
-          showToast(dict?.common?.removeFavorite || "Removed from favorites", "success");
+          showToast(dict?.common?.removeFavorite ?? "", "success");
         } else {
-          showToast(dict?.common?.error || "Failed to remove favorite", "error");
+          showToast(dict?.common?.error ?? "", "error");
           logger.error("Failed to remove favorite", { error });
         }
       } else {
@@ -102,15 +102,15 @@ const FavoriteButton = memo(function FavoriteButton({
 
         if (!error) {
           setIsFavorited(true);
-          showToast(dict?.common?.addFavorite || "Added to favorites", "success");
+          showToast(dict?.common?.addFavorite ?? "", "success");
         } else {
-          showToast(dict?.common?.error || "Failed to add favorite", "error");
+          showToast(dict?.common?.error ?? "", "error");
           logger.error("Failed to add favorite", { error });
         }
       }
     } catch (err) {
       logger.error("Failed to toggle favorite", { error: err instanceof Error ? err.message : String(err) });
-      showToast(dict?.common?.error || "An error occurred", "error");
+      showToast(dict?.common?.error ?? "", "error");
     } finally {
       setLoading(false);
     }
@@ -130,7 +130,7 @@ const FavoriteButton = memo(function FavoriteButton({
         loading && "opacity-50 cursor-not-allowed",
         className
       )}
-      aria-label={isFavorited ? (dict?.common?.removeFavorite || "Remove from favorites") : (dict?.common?.addFavorite || "Add to favorites")}
+      aria-label={isFavorited ? dict?.common?.removeFavorite : dict?.common?.addFavorite}
       aria-pressed={isFavorited}
     >
       <Heart

@@ -19,14 +19,14 @@ export default function DashboardNotFound({ params }: PageProps) {
           <LayoutDashboard className="w-8 h-8 text-blue-600" />
         </div>
         <h1 className="text-5xl font-bold text-gray-300 mb-2">404</h1>
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">{dict.common.notFound || "Page not found"}</h2>
-        <p className="text-gray-500 mb-4">{dict.common.pageNotFound || "The requested page was not found or has been moved."}</p>
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">{dict.common.notFound}</h2>
+        <p className="text-gray-500 mb-4">{dict.common.pageNotFound}</p>
         <Link
           href={`/${validLocale}/dashboard`}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
         >
           <ArrowRight className="w-4 h-4" />
-          {dict.common.backToDashboard || "Back to dashboard"}
+          {dict.common.backToDashboard}
         </Link>
       </div>
     </div>

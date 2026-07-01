@@ -93,7 +93,7 @@ export default function PropertyTypesPage({
               <PaginatedTable
                 data={types}
                 searchKey="name_ar"
-                searchPlaceholder={dict.admin.searchPropertyTypes || "Search property types..."}
+                searchPlaceholder={dict.admin.searchPropertyTypes}
                 emptyMessage={dict.common.noData}
                 emptyIcon={<Tags className="w-12 h-12 text-orange-300" />}
                 emptyHint={dict.admin.addPropertyTypesHint}

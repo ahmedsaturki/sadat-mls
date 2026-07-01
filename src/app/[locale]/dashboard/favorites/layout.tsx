@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     metadataBase: new URL(baseUrl),
-    title: dict.dashboard.favorites || "Favorites",
+    title: dict.dashboard.favorites,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/dashboard/favorites`,
       languages: {
