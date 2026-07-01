@@ -50,7 +50,7 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
 
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const debouncedSearch = useCallback((newFilters: FilterState) => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);

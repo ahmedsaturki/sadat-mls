@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   // Handle offices which can be an array or object
-  let officeName = "Real Estate Agent";
+  let officeName = dict.agents.realEstateAgent;
   if (agent.offices) {
     if (Array.isArray(agent.offices) && agent.offices.length > 0) {
       officeName = agent.offices[0].name;

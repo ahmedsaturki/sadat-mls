@@ -170,7 +170,7 @@ export default async function LandingPage({
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Building2 className="w-6 h-6 text-blue-500" />
-                <span className="text-lg font-semibold text-white">Sadat MLS Cloud</span>
+                <span className="text-lg font-semibold text-white">{dict.common.appName}</span>
               </div>
               <p className="text-sm leading-relaxed">{dict.footer.description}</p>
             </div>
@@ -191,7 +191,7 @@ export default async function LandingPage({
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-blue-500" />
-                  info@sadatmls.com
+                  {dict.footer.email}
                 </li>
               </ul>
             </div>

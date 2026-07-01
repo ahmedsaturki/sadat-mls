@@ -24,11 +24,15 @@ export default function VerifyEmailPage({
 
   useEffect(() => {
     const checkVerification = async () => {
-      if (user?.email_confirmed_at) {
-        setStatus("success");
-      } else if (user) {
-        setStatus("pending");
-      } else {
+      try {
+        if (user?.email_confirmed_at) {
+          setStatus("success");
+        } else if (user) {
+          setStatus("pending");
+        } else {
+          setStatus("pending");
+        }
+      } catch {
         setStatus("pending");
       }
     };

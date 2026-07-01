@@ -104,10 +104,6 @@ const SAFE_TAGS = new Set([
   "time",
 ]);
 
-/** Attributes that are always removed (event handlers). */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const EVENT_HANDLER_RE = /^on[a-z]/i;
-
 /** Dangerous style values (CSS expressions). */
 const STYLE_EXPR_RE = /expression\s*\(|url\s*\(\s*["']?\s*javascript\s*:/i;
 

@@ -391,7 +391,8 @@
   },
   "agents": {
     "agentNotFound": "Agent Not Found",
-    "agentNotFoundDesc": "This agent was not found"
+    "agentNotFoundDesc": "This agent was not found",
+    "realEstateAgent": "Real Estate Agent"
   },
   "explore": {
     "title": "Explore Properties",
@@ -544,6 +545,7 @@
     "quickLinks": "Quick Links",
     "contactUs": "Contact Us",
     "emailUs": "Email Us",
+    "email": "info@sadatmls.com",
     "callUs": "Call Us",
     "location": "Sadat City, Egypt"
   },

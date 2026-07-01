@@ -63,7 +63,7 @@ export function useDebouncedQuery<T>(
 ) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cacheRef = useRef<Map<string, CacheEntry<T>>>(new Map());
   const queryFnRef = useRef(queryFn);
 

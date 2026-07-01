@@ -72,11 +72,16 @@ export default function ResetPasswordPage({
 
   useEffect(() => {
     const checkSession = async () => {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      setReady(!!session);
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        setReady(!!session);
 
-      if (!session) {
+        if (!session) {
+          setError(dict.auth.invalidResetLink);
+        }
+      } catch {
+        setReady(true);
         setError(dict.auth.invalidResetLink);
       }
     };

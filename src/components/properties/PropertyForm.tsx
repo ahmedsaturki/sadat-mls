@@ -59,7 +59,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const dict = getMessages(locale);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const { showToast } = useToast();
   const titleInputRef = useRef<HTMLInputElement>(null);
 

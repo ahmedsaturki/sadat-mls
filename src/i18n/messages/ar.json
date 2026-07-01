@@ -391,7 +391,8 @@
   },
   "agents": {
     "agentNotFound": "المندوب غير موجود",
-    "agentNotFoundDesc": "لم يتم العثور على هذا المندوب"
+    "agentNotFoundDesc": "لم يتم العثور على هذا المندوب",
+    "realEstateAgent": "مندوب عقارات"
   },
   "explore": {
     "title": "استكشاف العقارات",
@@ -544,6 +545,7 @@
     "quickLinks": "روابط سريعة",
     "contactUs": "تواصل معنا",
     "emailUs": "راسلنا",
+    "email": "info@sadatmls.com",
     "callUs": "اتصل بنا",
     "location": "مدينة السادات، مصر"
   },
