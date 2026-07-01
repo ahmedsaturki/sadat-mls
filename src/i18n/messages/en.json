@@ -72,6 +72,7 @@
     "removeFromComparison": "Remove from comparison",
     "dismiss": "Dismiss",
     "goBack": "Go back",
+    "goToImage": "Go to image {{number}}",
     "searchPlaceholder": "Search...",
     "maxCompare": "Maximum {{max}} properties",
     "navigationMenu": "Navigation menu",

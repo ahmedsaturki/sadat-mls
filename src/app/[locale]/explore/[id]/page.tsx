@@ -344,7 +344,7 @@ export default function PropertyDetailPage() {
                             <button
                               key={i}
                               onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i); }}
-                              aria-label={dict.common.goToImage?.replace("{{number}}", String(i + 1)) || `Go to image ${i + 1}`}
+                              aria-label={dict.common.goToImage?.replace("{{number}}", String(i + 1))}
                               className={`w-2 h-2 rounded-full transition-colors ${
                                 i === currentImageIndex ? "bg-white" : "bg-white/50"
                               }`}

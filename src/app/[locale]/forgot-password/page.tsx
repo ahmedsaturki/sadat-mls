@@ -51,7 +51,7 @@ export default function ForgotPasswordPage({
       }
 
       if (!rateResult.allowed) {
-        setError(rateResult.error || dict.auth.rateLimited?.replace("{{seconds}}", String(rateResult.retryAfter)) || `Too many requests. Please wait ${rateResult.retryAfter}s.`);
+        setError(rateResult.error || dict.auth.rateLimited?.replace("{{seconds}}", String(rateResult.retryAfter)) || dict.common.unexpectedError);
         setLoading(false);
         return;
       }
