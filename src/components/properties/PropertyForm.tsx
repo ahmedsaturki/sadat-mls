@@ -478,9 +478,22 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
   };
 
   const removeExistingImage = async (imageId: string, filePath: string) => {
-    await supabase.storage.from("properties").remove([filePath]);
-    await supabase.from("property_images").delete().eq("id", imageId);
-    setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+    try {
+      const { error: storageError } = await supabase.storage.from("properties").remove([filePath]);
+      if (storageError) {
+        logger.warn("Failed to remove image from storage", { error: storageError.message });
+      }
+      const { error: dbError } = await supabase.from("property_images").delete().eq("id", imageId);
+      if (dbError) {
+        logger.error("Failed to delete image record", { error: dbError.message });
+        showToast(dict.common.unexpectedError, "error");
+        return;
+      }
+      setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+    } catch (err) {
+      logger.error("Failed to remove image", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    }
   };
 
   const removeNewImage = (index: number) => {

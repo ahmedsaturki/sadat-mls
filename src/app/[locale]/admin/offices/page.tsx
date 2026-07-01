@@ -49,6 +49,7 @@ const locale = usePageLocale(params);
    const [deleteId, setDeleteId] = useState<string | null>(null);
    const [loading, setLoading] = useState(true);
    const [saving, setSaving] = useState(false);
+   const [togglingId, setTogglingId] = useState<string | null>(null);
    const [errors, setErrors] = useState<Record<string, string>>({});
    const [formData, setFormData] = useState({
      name: "",
@@ -254,12 +255,16 @@ const locale = usePageLocale(params);
   };
 
   const toggleOfficeStatus = async (id: string, currentStatus: boolean) => {
+    setTogglingId(id);
     try {
-      await supabase.from("offices").update({ is_active: !currentStatus }).eq("id", id);
+      const { error } = await supabase.from("offices").update({ is_active: !currentStatus }).eq("id", id);
+      if (error) throw error;
       loadOffices();
     } catch (err) {
       logger.error("Failed to update office status", { error: err instanceof Error ? err.message : String(err) });
       showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -360,7 +365,8 @@ const locale = usePageLocale(params);
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => toggleOfficeStatus(office.id, office.is_active)}
-                            className="p-2 rounded-lg hover:bg-gray-100"
+                            disabled={togglingId === office.id}
+                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                             title={office.is_active ? dict.admin.deactivate : dict.admin.activate}
                             aria-label={office.is_active ? dict.admin.deactivate : dict.admin.activate}
                           >
