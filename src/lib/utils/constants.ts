@@ -6,37 +6,8 @@ export const ROLES = {
 
 export type UserRole = (typeof ROLES)[keyof typeof ROLES];
 
-export const OFFICE_FEATURES = [
-  "مصعد",
-  "جراج",
-  "أمان 24/7",
-  "حديقة",
-  "مسبح",
-  "مكيف مركزي",
-  "شرفة",
-  "إطلالة",
-  "قريب من المترو",
-  "قريب من السوق",
-  "مسجد قريب",
-  "موقف سيارات",
-  "تكييف سبليت",
-  "خزينة",
-  "غرفة خادمة",
-  "غرفة سائق",
-  "مدخل خاص",
-  "روف",
-] as const;
-
 export const PROPERTY_STATUSES = ["available", "reserved", "sold", "rented", "pending_review"] as const;
 export type PropertyStatus = (typeof PROPERTY_STATUSES)[number];
-
-export const STATUS_OPTIONS: { value: PropertyStatus; labelAr: string; labelEn: string; color: string }[] = [
-  { value: "available", labelAr: "متاح", labelEn: "Available", color: "green" },
-  { value: "reserved", labelAr: "محجوز", labelEn: "Reserved", color: "yellow" },
-  { value: "sold", labelAr: "تم البيع", labelEn: "Sold", color: "red" },
-  { value: "rented", labelAr: "تم التأجير", labelEn: "Rented", color: "blue" },
-  { value: "pending_review", labelAr: "قيد المراجعة", labelEn: "Pending Review", color: "orange" },
-];
 
 export const SADAT_ZONES = [
   { name_ar: "الحي الأول", name_en: "First District" },

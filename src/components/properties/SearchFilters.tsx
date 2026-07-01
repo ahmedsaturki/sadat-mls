@@ -31,7 +31,7 @@ export interface FilterState {
   hasElevator: boolean;
 }
 
-export const EMPTY_FILTERS: FilterState = {
+export const EMPTY_FILTERS = {
   search: "",
   zoneId: "",
   typeId: "",
@@ -44,7 +44,7 @@ export const EMPTY_FILTERS: FilterState = {
   hasBalcony: false,
   hasParking: false,
   hasElevator: false,
-};
+} as const satisfies FilterState;
 
 export default function SearchFilters({ dict, zones, types, onSearch }: SearchFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
