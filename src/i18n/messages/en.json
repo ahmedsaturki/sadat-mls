@@ -96,7 +96,8 @@
     "pageNotFound": "The requested page was not found or has been moved.",
     "backToDashboard": "Back to dashboard",
     "hint": "Or check the URL and try again",
-    "developerErrorInfo": "Developer Error Info:"
+    "developerErrorInfo": "Developer Error Info:",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?"
   },
   "nav": {
     "explore": "Explore Properties",

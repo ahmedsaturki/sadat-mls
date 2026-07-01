@@ -52,19 +52,19 @@ const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps)
       <button
         onClick={() => setOpen(true)}
         className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-        aria-label={explore?.share || "Share"}
+        aria-label={explore?.share ?? ""}
       >
         <Share2 className="w-4 h-4" />
       </button>
 
-      <Modal isOpen={open} onClose={() => setOpen(false)} title={explore?.share || "Share"}>
+      <Modal isOpen={open} onClose={() => setOpen(false)} title={explore?.share ?? ""}>
         <div className="space-y-3">
-          <p className="text-sm text-gray-600 mb-4">{explore?.shareProperty || "Share this property"}</p>
+          <p className="text-sm text-gray-600 mb-4">{explore?.shareProperty ?? ""}</p>
 
           <button
             onClick={handleCopy}
             className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
-            aria-label={copied ? (explore?.copied || "Copied!") : (explore?.copyLink || "Copy link")}
+            aria-label={copied ? (explore?.copied ?? "") : (explore?.copyLink ?? "")}
           >
             <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
               {copied ? (
@@ -76,8 +76,8 @@ const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps)
             <div>
               <p className="text-sm font-medium text-gray-900">
                 {copied
-                  ? explore?.copied || "Copied!"
-                  : explore?.copyLink || "Copy link"}
+                  ? explore?.copied ?? ""
+                  : explore?.copyLink ?? ""}
               </p>
               <p className="text-xs text-gray-500 truncate max-w-[250px]">{shareUrl}</p>
             </div>
@@ -86,14 +86,14 @@ const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps)
           <button
             onClick={handleWhatsApp}
             className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
-            aria-label={explore?.shareVia || "Share via WhatsApp"}
+            aria-label={explore?.shareVia ?? ""}
           >
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <MessageCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">WhatsApp</p>
-              <p className="text-xs text-gray-500">{explore?.shareVia || "Share via WhatsApp"}</p>
+              <p className="text-xs text-gray-500">{explore?.shareVia ?? ""}</p>
             </div>
           </button>
         </div>

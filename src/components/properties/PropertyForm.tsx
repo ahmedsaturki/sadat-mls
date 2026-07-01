@@ -150,7 +150,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     setIsDirty(hasData || hasNewImages || hasDeletedImages);
   }, [formData, newImages, existingImages, initialExistingCount]);
 
-  useUnsavedChangesWarning(isDirty && !loading);
+  useUnsavedChangesWarning(isDirty && !loading, dict);
 
   useEffect(() => {
     return () => {

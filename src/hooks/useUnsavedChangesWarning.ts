@@ -2,17 +2,20 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
+const DEFAULT_WARNING = "You have unsaved changes. Are you sure you want to leave?";
+
 /**
  * Tracks form dirty state and warns before navigating away with unsaved changes.
- * Uses browser's native beforeunload dialog (no i18n needed — browser handles locale).
+ * Uses browser's native beforeunload dialog.
  * @param isDirty - Whether the form has unsaved changes
- * @param message - Optional custom warning message (browser may ignore custom messages)
+ * @param dict - Optional i18n messages object (preferred over message param)
+ * @param message - Optional custom warning message (fallback if dict not provided)
  */
-export function useUnsavedChangesWarning(isDirty: boolean, message?: string) {
+export function useUnsavedChangesWarning(isDirty: boolean, dict?: { common?: { unsavedChanges?: string } }, message?: string) {
+  const warningMessage = dict?.common?.unsavedChanges || message || DEFAULT_WARNING;
+
   useEffect(() => {
     if (!isDirty) return;
-
-    const warningMessage = message || "You have unsaved changes. Are you sure you want to leave?";
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -22,7 +25,7 @@ export function useUnsavedChangesWarning(isDirty: boolean, message?: string) {
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isDirty, message]);
+  }, [isDirty, warningMessage]);
 }
 
 /**
@@ -45,7 +48,7 @@ export function useFormDirty<T extends Record<string, unknown>>(initialValues: T
     setIsDirty(false);
   }, []);
 
-  useUnsavedChangesWarning(isDirty);
+  useUnsavedChangesWarning(isDirty, undefined, "You have unsaved changes. Are you sure you want to leave?");
 
   return [isDirty, checkDirty, resetDirty] as const;
 }

@@ -52,20 +52,20 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
               <LogOut className="w-8 h-8 text-gray-500" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">{dict.auth.logoutConfirmTitle || "Sign Out?"}</h1>
-            <p className="text-gray-600 mb-6">{dict.auth.logoutConfirmDesc || "Are you sure you want to sign out?"}</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{dict.auth.logoutConfirmTitle}</h1>
+            <p className="text-gray-600 mb-6">{dict.auth.logoutConfirmDesc}</p>
             <div className="flex gap-4 justify-center">
               <button
                 onClick={() => router.push(`/${locale}/dashboard`)}
                 className="px-6 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
               >
-                {dict.common.cancel || "Cancel"}
+                {dict.common.cancel}
               </button>
               <button
                 onClick={handleConfirmLogout}
                 className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
               >
-                {dict.auth.logoutButton || "Sign Out"}
+                {dict.auth.logoutButton}
               </button>
             </div>
           </div>
@@ -76,8 +76,8 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 animate-pulse">
               <LogOut className="w-8 h-8 text-gray-500" />
             </div>
-            <p className="text-gray-600 font-medium">{dict.auth.loggingOut || "Signing out..."}</p>
-            <p className="text-sm text-gray-400 mt-1">{dict.auth.redirecting || "Redirecting to home..."}</p>
+            <p className="text-gray-600 font-medium">{dict.auth.loggingOut}</p>
+            <p className="text-sm text-gray-400 mt-1">{dict.auth.redirectingToHome}</p>
           </div>
         )}
 
@@ -86,7 +86,7 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
               <LogOut className="w-8 h-8 text-green-500" />
             </div>
-            <p className="text-green-600 font-medium">{dict.auth.logoutSuccess || "Signed out successfully"}</p>
+            <p className="text-green-600 font-medium">{dict.auth.logoutSuccess}</p>
           </div>
         )}
 
@@ -95,12 +95,12 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
             <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
               <LogOut className="w-8 h-8 text-red-500" />
             </div>
-            <p className="text-red-600 font-medium mb-4">{dict.auth.logoutError || "Error signing out"}</p>
+            <p className="text-red-600 font-medium mb-4">{dict.auth.logoutError}</p>
             <button
               onClick={() => router.push(`/${locale}`)}
               className="text-blue-600 hover:text-blue-700 font-medium text-sm"
             >
-              {dict.auth.backToHome || "Go to home"}
+              {dict.auth.goHome}
             </button>
           </div>
         )}

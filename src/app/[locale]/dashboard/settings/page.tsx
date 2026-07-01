@@ -52,7 +52,7 @@ export default function SettingsPage({
 
   const [isDirty, setIsDirty] = useState(false);
 
-  useUnsavedChangesWarning(isDirty && !saving);
+  useUnsavedChangesWarning(isDirty && !saving, dict);
 
   const mountedRef = useRef(true);
 

@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  allowedDevOrigins: ["192.168.1.3", "localhost"],
+  allowedDevOrigins: [
+    ...(process.env.ALLOWED_DEV_ORIGINS?.split(",") || []),
+    "localhost",
+  ],
   images: {
     remotePatterns: [
       {
