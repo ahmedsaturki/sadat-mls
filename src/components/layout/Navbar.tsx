@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Building2, Globe, Home, LogOut, Menu, X, Search, Settings, LayoutDashboard, Mail, Heart } from "lucide-react";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils/cn";
+import { useEscapeKey } from "@/lib/utils/a11y";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
@@ -24,30 +25,25 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
 
   const closeMenu = useCallback(() => setMobileMenuOpen(false), []);
 
-  // Close mobile menu on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && mobileMenuOpen) {
-        closeMenu();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [mobileMenuOpen, closeMenu]);
+  useEscapeKey(closeMenu, mobileMenuOpen);
 
-  const navLinks = [
-    { href: `/${locale}`, label: dict.common.home, icon: Home, prefetch: true },
-    { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search, prefetch: true },
-  ];
+  const navLinks = useMemo(() => {
+    const links = [
+      { href: `/${locale}`, label: dict.common.home, icon: Home, prefetch: true },
+      { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search, prefetch: true },
+    ];
 
-  if (userRole === ROLES.SUPER_ADMIN) {
-    navLinks.push({ href: `/${locale}/admin`, label: dict.nav.dashboard, icon: Building2, prefetch: false });
-  } else if (userRole === ROLES.OFFICE_ADMIN) {
-    navLinks.push({ href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard, prefetch: false });
-    navLinks.push({ href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail, prefetch: false });
-    navLinks.push({ href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart, prefetch: false });
-    navLinks.push({ href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings, prefetch: false });
-  }
+    if (userRole === ROLES.SUPER_ADMIN) {
+      links.push({ href: `/${locale}/admin`, label: dict.nav.dashboard, icon: Building2, prefetch: false });
+    } else if (userRole === ROLES.OFFICE_ADMIN) {
+      links.push({ href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard, prefetch: false });
+      links.push({ href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail, prefetch: false });
+      links.push({ href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart, prefetch: false });
+      links.push({ href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings, prefetch: false });
+    }
+
+    return links;
+  }, [locale, dict, userRole]);
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50" role="navigation" aria-label={dict.common.mainNavigation}>
@@ -116,7 +112,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? dict.common.close : dict.common.open}
               aria-controls="mobile-menu"
@@ -130,8 +126,8 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
       {/* Mobile Menu */}
       <div
         id="mobile-menu"
-        className={`md:hidden border-t border-gray-200 bg-white transition-all duration-300 ${
-          mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        className={`md:hidden border-t border-gray-200 bg-white transition-all duration-200 ease-in-out ${
+          mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden pointer-events-none"
         }`}
         role="menu"
         aria-orientation="vertical"
@@ -147,7 +143,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               aria-current={pathname === link.href ? "page" : undefined}
               tabIndex={mobileMenuOpen ? 0 : -1}
               className={cn(
-                "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
                 pathname === link.href
                   ? "bg-blue-50 text-blue-600"
                   : "text-gray-600 hover:bg-gray-50"

@@ -163,16 +163,25 @@ function stripEventHandlers(html: string): string {
   return html.replace(/\s+on[a-z][a-z0-9_]*\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
 }
 
-/** Remove `href`, `src`, `action`, and `formaction` that use `javascript:` or `vbscript:`. */
+/** Remove `href`, `src`, `action`, and `formaction` that use `javascript:`, `vbscript:`, or dangerous `data:` (except safe images). */
 function stripJsUrls(html: string): string {
-  // Handle quoted values: href="javascript:..."
+  // Handle quoted values: href="javascript:..." or href="data:text/html..."
   let result = html.replace(
     /\b(href|src|action|formaction|data|poster|background)\s*=\s*(["'])\s*(?:java|vb)script\s*:[^"'\s>]*\2/gi,
+    "",
+  );
+  // Remove dangerous data: URLs (text/html, image/svg+xml, etc) but keep images for src
+  result = result.replace(
+    /\b(href|action|formaction|poster|background)\s*=\s*(["'])\s*data\s*:/gi,
     "",
   );
   // Handle unquoted values: href=javascript:... or href= javascript:...
   result = result.replace(
     /\b(href|src|action|formaction|data|poster|background)\s*=\s*(?:java|vb)script\s*:[^\s>"']*/gi,
+    "",
+  );
+  result = result.replace(
+    /\b(href|action|formaction|poster|background)\s*=\s*data\s*:/gi,
     "",
   );
   return result;
@@ -218,6 +227,17 @@ function stripUnsafeTags(html: string): string {
  * Removes any attribute with a dangerous scheme like javascript:, vbscript:, or data:.
  */
 function validateUrlSchemes(html: string): string {
+  // First, remove data: URLs from src attributes (only allow images via img-src CSP)
+  html = html.replace(
+    /\bsrc\s*=\s*(["'])\s*data\s*:[^"']*\1/gi,
+    "",
+  );
+  // Also remove unquoted data: URLs
+  html = html.replace(
+    /\bsrc\s*=\s*data\s*:[^\s>"']*/gi,
+    "",
+  );
+  
   return html.replace(
     /\b(href|src|action|formaction|data|poster|background)\s*=\s*(["'])([^"']*)\2/gi,
     (full, attr, quote, value) => {
@@ -228,7 +248,7 @@ function validateUrlSchemes(html: string): string {
       if (trimmed.startsWith("/") || trimmed.startsWith("#") || trimmed.startsWith("mailto:") || trimmed.startsWith("tel:") || trimmed.startsWith("https:") || trimmed.startsWith("http:") || trimmed.startsWith("blob:")) {
         return full;
       }
-      // Remove dangerous schemes
+      // Remove dangerous schemes (javascript:, vbscript:, data:)
       return "";
     },
   );

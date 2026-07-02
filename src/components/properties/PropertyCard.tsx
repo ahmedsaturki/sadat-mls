@@ -30,6 +30,28 @@ interface PropertyCardProps {
   userId?: string | null;
 }
 
+function arePropsEqual(
+  prev: PropertyCardProps,
+  next: PropertyCardProps
+): boolean {
+  return (
+    prev.id === next.id &&
+    prev.title === next.title &&
+    prev.price === next.price &&
+    prev.area === next.area &&
+    prev.bedrooms === next.bedrooms &&
+    prev.bathrooms === next.bathrooms &&
+    prev.zone === next.zone &&
+    prev.imageUrl === next.imageUrl &&
+    prev.status === next.status &&
+    prev.officeName === next.officeName &&
+    prev.locale === next.locale &&
+    prev.type === next.type &&
+    prev.dict === next.dict &&
+    prev.userId === next.userId
+  );
+}
+
 const PropertyCard = memo(function PropertyCard({
    id,
    title,
@@ -54,39 +76,39 @@ const PropertyCard = memo(function PropertyCard({
     return property?.[key] || explore?.[key] || fallback;
   };
 
-const statusConfig = {
-     available: { label: getLabel("statusAvailable", locale === "ar" ? "متاح" : "Available"), variant: "success" as const },
-     reserved: { label: getLabel("reserved", locale === "ar" ? "محجوز" : "Reserved"), variant: "warning" as const },
-     rented: { label: getLabel("rented", locale === "ar" ? "مؤجر" : "Rented"), variant: "warning" as const },
-     sold: { label: getLabel("sold", locale === "ar" ? "تم البيع" : "Sold"), variant: "danger" as const },
-     pending_review: { label: getLabel("pending_review", locale === "ar" ? "قيد المراجعة" : "Pending Review"), variant: "info" as const },
-   };
+  const statusConfig = {
+    available: { label: getLabel("statusAvailable", locale === "ar" ? "متاح" : "Available"), variant: "success" as const },
+    reserved: { label: getLabel("reserved", locale === "ar" ? "محجوز" : "Reserved"), variant: "warning" as const },
+    rented: { label: getLabel("rented", locale === "ar" ? "مؤجر" : "Rented"), variant: "warning" as const },
+    sold: { label: getLabel("sold", locale === "ar" ? "تم البيع" : "Sold"), variant: "danger" as const },
+    pending_review: { label: getLabel("pending_review", locale === "ar" ? "قيد المراجعة" : "Pending Review"), variant: "info" as const },
+  };
 
-   return (
-     <Link href={`/${locale}/explore/${id}`} className="group" aria-label={`${title} - ${statusConfig[status].label}`}>
-       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-         {/* Image */}
-         <div className="relative h-48 bg-gray-100">
-           {imageUrl ? (
-             <Image
-               src={imageUrl}
-               alt={title}
-               fill
-               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-               placeholder="blur"
-               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAyACgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAFRABAQAAAAAAAAAAAAAAAAAAAAf/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8ApsC/9k="
-               className="object-cover group-hover:scale-105 transition-transform duration-300"
-             />
-           ) : (
-             <div className="flex items-center justify-center h-full bg-gradient-to-br from-blue-50 to-blue-100">
-                <Home className="w-12 h-12 text-blue-300" aria-hidden="true" />
-             </div>
-           )}
-<div className="absolute top-2 right-2 flex gap-1">
-               <CompareButton property={{ id, title, price, area, bedrooms: bedrooms || 0, bathrooms: bathrooms || 0, zone, type, officeName, status }} locale={locale} dict={dict} size="sm" />
-               <FavoriteButton propertyId={id} userId={userId} locale={locale} dict={dict} size="sm" />
-               <Badge variant={statusConfig[status].variant} aria-label={statusConfig[status].label}>{statusConfig[status].label}</Badge>
-             </div>
+  return (
+    <Link href={`/${locale}/explore/${id}`} className="group" aria-label={`${title} - ${statusConfig[status].label}`}>
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        {/* Image */}
+        <div className="relative h-48 bg-gray-100">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAyACgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAFRABAQAAAAAAAAAAAAAAAAAAAAf/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8ApsC/9k="
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gradient-to-br from-blue-50 to-blue-100">
+              <Home className="w-12 h-12 text-blue-300" aria-hidden="true" />
+            </div>
+          )}
+          <div className="absolute top-2 right-2 flex gap-1">
+            <CompareButton property={{ id, title, price, area, bedrooms: bedrooms || 0, bathrooms: bathrooms || 0, zone, type, officeName, status }} locale={locale} dict={dict} size="sm" />
+            <FavoriteButton propertyId={id} userId={userId} locale={locale} dict={dict} size="sm" />
+            <Badge variant={statusConfig[status].variant} aria-label={statusConfig[status].label}>{statusConfig[status].label}</Badge>
+          </div>
         </div>
 
         {/* Content */}
@@ -138,6 +160,6 @@ const statusConfig = {
       </div>
     </Link>
   );
-});
+}, arePropsEqual);
 
 export default PropertyCard;

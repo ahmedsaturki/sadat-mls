@@ -6,37 +6,43 @@ import { SlidersHorizontal, X, Home, ArrowUpDown } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import { withRetry } from "@/lib/utils/retry";
 import { usePageLocale } from "@/hooks/usePageLocale";
 import PropertyCard from "@/components/properties/PropertyCard";
 import type { FilterState } from "@/components/properties/SearchFilters";
 import { EMPTY_FILTERS } from "@/components/properties/SearchFilters";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import type { Database } from "@/lib/supabase/types";
 import type { PropertyStatus } from "@/lib/utils/constants";
 import Navbar from "@/components/layout/Navbar";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
 const SearchFilters = lazy(() => import("@/components/properties/SearchFilters"));
 
-type Property = Database["public"]["Tables"]["properties"]["Row"] & {
+interface PropertyRow {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  area: number;
+  bedrooms: number;
+  bathrooms: number;
+  status: PropertyStatus;
+  zone_id: string | null;
+  property_type_id: string | null;
+  office_id: string;
   property_types: { name_ar: string } | null;
   zones: { name_ar: string } | null;
   offices: { name: string } | null;
+}
+
+type Property = PropertyRow & {
   primaryImage?: string | null;
-  status: PropertyStatus;
 };
 
 const PAGE_SIZE = 12;
 
-const OFFICE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-let cachedActiveOfficeIds: Set<string> | null = null;
-let cachedOfficeIdsExpiry = 0;
-
-type SupabaseQueryParams = {
-  data: Property[];
-  count?: number;
-};
+const PROPERTY_COLUMNS = "id, title, description, price, area, bedrooms, bathrooms, status, zone_id, property_type_id, office_id, property_types(name_ar), zones(name_ar), offices(name)";
 
 function ExploreContent({
   params,
@@ -65,10 +71,11 @@ function ExploreContent({
   const hasMore = page < totalPages;
 
   const mountedRef = useRef(true);
+  const supabaseRef = useRef(createClient());
 
   const loadZonesAndTypes = useCallback(async () => {
     if (!mountedRef.current) return;
-    const supabase = createClient();
+    const supabase = supabaseRef.current;
     try {
       const [{ data: zonesData }, { data: typesData }] = await Promise.all([
         supabase.from("zones").select("id, name_ar, name_en"),
@@ -88,93 +95,80 @@ function ExploreContent({
     setError(null);
 
     try {
-      const supabase = createClient();
+      const supabase = supabaseRef.current;
       const f = currentFilters || filters;
-      const retryWithBackoff = async (fn: () => Promise<SupabaseQueryParams>, retries = 3): Promise<SupabaseQueryParams> => {
-        for (let i = 0; i < retries; i++) {
-          try {
-            const result = await fn();
-            return { data: result.data || [], count: result.count };
-          } catch (err) {
-            const error = err as { code?: string };
-            if (error?.code === "over_request_rate_limit" && i < retries - 1) {
-              await new Promise(r => setTimeout(r, 500 * Math.pow(2, i)));
-              continue;
-            }
-            throw err;
-          }
-        }
-        return { data: [], count: 0 };
-      };
 
-const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => {
-         let query = supabase
-           .from("properties")
-           .select("*, property_types(name_ar), zones(name_ar), offices(name)", { count: "exact" })
-           .eq("status", "available")
-           .eq("is_active", true);
+      // Build query with specific columns instead of *
+      let query = supabase
+        .from("properties")
+        .select(PROPERTY_COLUMNS, { count: "exact" })
+        .eq("status", "available")
+        .eq("is_active", true);
 
-        switch (sortBy) {
-          case "newest": query = query.order("created_at", { ascending: false }); break;
-          case "price_low": query = query.order("price", { ascending: true }); break;
-          case "price_high": query = query.order("price", { ascending: false }); break;
-          case "area": query = query.order("area", { ascending: false }); break;
-        }
+      switch (sortBy) {
+        case "newest": query = query.order("created_at", { ascending: false }); break;
+        case "price_low": query = query.order("price", { ascending: true }); break;
+        case "price_high": query = query.order("price", { ascending: false }); break;
+        case "area": query = query.order("area", { ascending: false }); break;
+      }
 
-        if (f.zoneId) query = query.eq("zone_id", f.zoneId);
-        if (f.typeId) query = query.eq("property_type_id", f.typeId);
-        if (f.minPrice) query = query.gte("price", Number(f.minPrice));
-        if (f.maxPrice) query = query.lte("price", Number(f.maxPrice));
-        if (f.minArea) query = query.gte("area", Number(f.minArea));
-        if (f.maxArea) query = query.lte("area", Number(f.maxArea));
-        if (f.bedrooms) query = query.gte("bedrooms", Number(f.bedrooms));
-        if (f.bathrooms) query = query.gte("bathrooms", Number(f.bathrooms));
-        if (f.hasBalcony) query = query.eq("has_balcony", true);
-        if (f.hasParking) query = query.eq("has_parking", true);
-        if (f.hasElevator) query = query.eq("has_elevator", true);
-        if (f.search) {
-          const escapedSearch = f.search.replace(/%/g, "\\%").replace(/_/g, "\\_");
-          query = query.ilike("title", `%${escapedSearch}%`);
-        }
+      if (f.zoneId) query = query.eq("zone_id", f.zoneId);
+      if (f.typeId) query = query.eq("property_type_id", f.typeId);
+      if (f.minPrice) query = query.gte("price", Number(f.minPrice));
+      if (f.maxPrice) query = query.lte("price", Number(f.maxPrice));
+      if (f.minArea) query = query.gte("area", Number(f.minArea));
+      if (f.maxArea) query = query.lte("area", Number(f.maxArea));
+      if (f.bedrooms) query = query.gte("bedrooms", Number(f.bedrooms));
+      if (f.bathrooms) query = query.gte("bathrooms", Number(f.bathrooms));
+      if (f.hasBalcony) query = query.eq("has_balcony", true);
+      if (f.hasParking) query = query.eq("has_parking", true);
+      if (f.hasElevator) query = query.eq("has_elevator", true);
+      if (f.search) {
+        const escapedSearch = f.search.replace(/%/g, "\\%").replace(/_/g, "\\_");
+        query = query.ilike("title", `%${escapedSearch}%`);
+      }
 
-        const from = (page - 1) * PAGE_SIZE;
-        const to = from + PAGE_SIZE - 1;
-        const { data, count, error: queryError } = await query.range(from, to);
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
 
-        if (queryError) throw queryError;
-        return { data: data || [], count };
-      });
+      // Execute query with retry
+      const result = await withRetry(
+        () => query.range(from, to),
+        { maxRetries: 3, retryOn: (err) => (err as { code?: string })?.code === "over_request_rate_limit" }
+      );
+      const { data, count, error: queryError } = result as { data: PropertyRow[] | null; count: number | null; error: unknown };
 
-      const { data, count } = result;
+      if (queryError) throw queryError;
 
       if (data) {
-        const propertyIds = data.map((p: Property) => p.id);
+        const propertyIds = data.map((p: PropertyRow) => p.id);
 
-        const getActiveOfficeIds = async (): Promise<Set<string>> => {
-          if (cachedActiveOfficeIds && Date.now() < cachedOfficeIdsExpiry) return cachedActiveOfficeIds;
-          const { data: officesData } = await supabase.from("offices").select("id").eq("is_active", true);
-          cachedActiveOfficeIds = new Set((officesData as { id: string }[] | null)?.map((o) => o.id) || []);
-          cachedOfficeIdsExpiry = Date.now() + OFFICE_CACHE_TTL_MS;
-          return cachedActiveOfficeIds;
-        };
+        // Fetch images in parallel with the main query is already done above
+        // Now fetch primary images for the results
+        const { data: imagesResult } = await supabase
+          .from("property_images")
+          .select("property_id, url")
+          .in("property_id", propertyIds)
+          .eq("is_primary", true);
 
-        const [activeOfficeIds, imagesResult] = await Promise.all([
-          getActiveOfficeIds(),
-          supabase.from("property_images").select("property_id, url").in("property_id", propertyIds).eq("is_primary", true),
-        ]);
+        const imageMap = new Map(
+          (imagesResult as { property_id: string; url: string }[] | null)?.map(
+            (img) => [img.property_id, img.url]
+          ) || []
+        );
 
-        let filtered = data.filter((p: Property) => p.office_id && activeOfficeIds.has(p.office_id));
+        let filtered = data;
 
+        // Client-side search fallback (server-side handles most cases)
         if (f.search) {
           const search = f.search.toLowerCase();
-          filtered = filtered.filter((p: Property) =>
+          filtered = data.filter((p: PropertyRow) =>
             p.title.toLowerCase().includes(search) ||
             p.description?.toLowerCase().includes(search)
           );
         }
 
-        const imageMap = new Map((imagesResult.data as { property_id: string; url: string }[] | null)?.map((img) => [img.property_id, img.url]) || []);
-        const withImages = filtered.map((p: Property) => ({
+        const withImages = filtered.map((p: PropertyRow) => ({
           ...p,
           status: p.status as PropertyStatus,
           primaryImage: imageMap.get(p.id) || null,
@@ -249,21 +243,21 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 bg-gray-100 px-3 py-1.5 rounded-full"
+                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 bg-gray-100 px-3 py-1.5 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4" aria-hidden="true" />
                   {dict.explore.clearFilters}
                 </button>
               )}
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <ArrowUpDown className="w-4 h-4 text-gray-500" />
+                <ArrowUpDown className="w-4 h-4 text-gray-500" aria-hidden="true" />
                 <select
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value as typeof sortBy)}
                   aria-label={dict.property.sortNewest}
-                  className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 bg-white"
                 >
                   <option value="newest">{dict.property.sortNewest}</option>
                   <option value="price_low">{dict.property.sortPriceLow}</option>
@@ -273,7 +267,7 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                   showFilters ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"
                 }`}
                 aria-label={dict.common.filters}
@@ -301,27 +295,27 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
 
         {/* Results */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-busy="true" aria-live="polite">
             {Array.from({ length: 6 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : error ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16" role="alert">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <X className="w-8 h-8 text-red-500" />
+              <X className="w-8 h-8 text-red-500" aria-hidden="true" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">{error}</h3>
             <button
               onClick={() => loadProperties()}
-              className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+              className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
             >
               {dict.common.retry}
             </button>
           </div>
         ) : properties.length > 0 ? (
           <>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-500 mb-4" aria-live="polite">
               {totalCount} {dict.explore.results}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -346,11 +340,11 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
             </div>
 
             {/* Infinite scroll sentinel */}
-            <div ref={sentinelRef} className="h-4" />
+            <div ref={sentinelRef} className="h-4" aria-hidden="true" />
 
             {/* Loading more indicator */}
             {loadingMore && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4" aria-busy="true">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <SkeletonCard key={`loading-${i}`} />
                 ))}
@@ -367,7 +361,7 @@ const result = await retryWithBackoff(async (): Promise<SupabaseQueryParams> => 
         ) : (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Home className="w-8 h-8 text-gray-400" />
+              <Home className="w-8 h-8 text-gray-400" aria-hidden="true" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">{dict.explore.noResults || dict.explore.noProperties}</h3>
             <p className="text-sm text-gray-500">{dict.explore.tryDifferentSearch}</p>

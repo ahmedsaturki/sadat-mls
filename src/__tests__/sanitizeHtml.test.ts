@@ -98,4 +98,29 @@ describe("sanitizeHtml", () => {
     expect(result).toContain("src=");
     expect(result).toContain("alt=");
   });
+
+  it("strips svg with embedded script", () => {
+    const input = '<svg onload="alert(1)"><script>alert(1)</script></svg>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("onload");
+    expect(result).not.toContain("<script>");
+  });
+
+  it("strips data: URLs in href", () => {
+    const input = '<a href="data:text/html,<script>alert(1)</script>">Click</a>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("data:");
+  });
+
+  it("strips vbscript: URLs", () => {
+    const input = '<a href="vbscript:alert(1)">Click</a>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("vbscript:");
+  });
+
+  it("strips svg onload handlers", () => {
+    const input = '<svg onload="alert(1)"><circle></circle></svg>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("onload");
+  });
 });

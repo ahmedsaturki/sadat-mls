@@ -33,6 +33,12 @@ test.describe("Security Headers", () => {
     const hsts = response.headers()["strict-transport-security"];
     expect(hsts).toContain("max-age=");
   });
+
+  test("should have CSP report-uri directive", async ({ request }) => {
+    const response = await request.get("/");
+    const csp = response.headers()["content-security-policy"];
+    expect(csp).toContain("report-uri");
+  });
 });
 
 test.describe("XSS Prevention", () => {

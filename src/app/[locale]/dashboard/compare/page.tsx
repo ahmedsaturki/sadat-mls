@@ -26,7 +26,7 @@ export default function ComparePage() {
           </p>
           <a
             href={`/${locale}/explore`}
-            className="inline-block mt-4 text-blue-600 hover:text-blue-700"
+            className="inline-block mt-4 text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
           >
             {dict.common.backToExplore || dict.common.back}
           </a>
@@ -44,7 +44,7 @@ export default function ComparePage() {
           </h1>
           <button
             onClick={clearAll}
-            className="px-4 py-2 text-red-600 hover:text-red-700"
+            className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
           >
             {dict.dashboard.clearAll}
           </button>
@@ -61,7 +61,7 @@ export default function ComparePage() {
                   <th key={p.id} className="p-4 text-center min-w-[200px] relative">
                     <button
                       onClick={() => removeProperty(p.id)}
-                      className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                      className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
                       aria-label={`${dict.common.delete} ${p.title}`}
                     >
                       ×

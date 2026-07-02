@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
+import { useOptimisticUpdate } from "@/hooks/useOptimisticUpdate";
 
 interface AdminCrudItem {
   id: string;
@@ -49,7 +50,6 @@ export function useAdminCrud<T extends AdminCrudItem>({
   successMessages,
   errorMessage,
 }: UseAdminCrudOptions): UseAdminCrudReturn<T> {
-  const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -62,11 +62,21 @@ export function useAdminCrud<T extends AdminCrudItem>({
   const supabase = useMemo(() => createClient(), []);
   const mountedRef = useRef(true);
 
+  const { data: items, setData: setItems, add, update, remove, isPending } = useOptimisticUpdate<T>(
+    [],
+    {
+      onMutate: (current, optimistic) => [...current, optimistic],
+      onError: () => {
+        showToast(errorMessage ?? "Error", "error");
+      },
+    }
+  );
+
   const loadItems = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from(tableName)
-        .select("*")
+        .select("id, name_ar, name_en, created_at")
         .order("name_ar");
       if (error) {
         showToast(errorMessage ?? "Error", "error");
@@ -82,7 +92,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, [supabase, showToast, tableName, errorMessage]);
+  }, [supabase, showToast, tableName, errorMessage, setItems]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -96,33 +106,37 @@ export function useAdminCrud<T extends AdminCrudItem>({
 
     try {
       if (editId) {
-        const { error } = await supabase
-          .from(tableName)
-          .update({ name_ar: nameAr, name_en: nameEn || null })
-          .eq("id", editId);
-        if (error) {
-          showToast(errorMessage ?? "Error", "error");
-        } else {
-          showToast(successMessages.update, "success");
-          setShowModal(false);
-          setEditId(null);
-          setNameAr("");
-          setNameEn("");
-          loadItems();
-        }
+        const optimisticItem = { id: editId, name_ar: nameAr, name_en: nameEn || null, created_at: "" } as T;
+        await update(optimisticItem, async () => {
+          const { error } = await supabase
+            .from(tableName)
+            .update({ name_ar: nameAr, name_en: nameEn || null })
+            .eq("id", editId);
+          if (error) throw error;
+          return optimisticItem;
+        });
+        showToast(successMessages.update, "success");
+        setShowModal(false);
+        setEditId(null);
+        setNameAr("");
+        setNameEn("");
+        loadItems();
       } else {
-        const { error } = await supabase
-          .from(tableName)
-          .insert({ name_ar: nameAr, name_en: nameEn || null });
-        if (error) {
-          showToast(errorMessage ?? "Error", "error");
-        } else {
-          showToast(successMessages.create, "success");
-          setShowModal(false);
-          setNameAr("");
-          setNameEn("");
-          loadItems();
-        }
+        const optimisticItem = { id: crypto.randomUUID(), name_ar: nameAr, name_en: nameEn || null, created_at: new Date().toISOString() } as T;
+        await add(optimisticItem, async () => {
+          const { data, error } = await supabase
+            .from(tableName)
+            .insert({ name_ar: nameAr, name_en: nameEn || null })
+            .select()
+            .single();
+          if (error) throw error;
+          return data as T;
+        });
+        showToast(successMessages.create, "success");
+        setShowModal(false);
+        setNameAr("");
+        setNameEn("");
+        loadItems();
       }
     } catch (err) {
       logger.error(`Failed to save ${tableName}`, {
@@ -158,16 +172,15 @@ export function useAdminCrud<T extends AdminCrudItem>({
     setSaving(true);
 
     try {
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .eq("id", deleteId);
-      if (!error) {
-        showToast(successMessages.delete, "success");
-        loadItems();
-      } else {
-        showToast(errorMessage ?? "Error", "error");
-      }
+      await remove(deleteId, async () => {
+        const { error } = await supabase
+          .from(tableName)
+          .delete()
+          .eq("id", deleteId);
+        if (error) throw error;
+      });
+      showToast(successMessages.delete, "success");
+      loadItems();
     } catch (err) {
       logger.error(`Failed to delete from ${tableName}`, {
         error: err instanceof Error ? err.message : String(err),
@@ -183,7 +196,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
   return {
     items,
     loading,
-    saving,
+    saving: saving || isPending,
     showModal,
     showDeleteModal,
     editId,

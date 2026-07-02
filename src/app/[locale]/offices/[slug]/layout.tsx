@@ -4,11 +4,11 @@ import { isValidLocale, type Locale } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 
 interface PageProps {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
   const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
   const dict = getMessages(validLocale);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

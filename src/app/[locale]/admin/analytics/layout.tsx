@@ -3,11 +3,11 @@ import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 
 interface PageProps {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const resolvedParams = await Promise.resolve(params);
+  const resolvedParams = await params;
   const locale = resolvedParams?.locale || "ar";
   const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
   const dict = getMessages(validLocale);

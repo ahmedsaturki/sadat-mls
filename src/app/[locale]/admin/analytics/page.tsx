@@ -54,7 +54,7 @@ export default async function AdminAnalyticsPage({
   // Get all property data in one query to avoid N+1
   const [allPropertiesRes, officesRes, usersRes, agentsRes] = await Promise.all([
     supabase.from("properties").select("office_id, status"),
-    supabase.from("offices").select("*").order("name"),
+    supabase.from("offices").select("id, name, slug, is_active").order("name"),
     supabase.from("users").select("id, office_id, role"),
     supabase.from("users").select("id", { count: "exact", head: true }).eq("role", ROLES.OFFICE_AGENT),
   ]);
@@ -175,7 +175,7 @@ export default async function AdminAnalyticsPage({
               <Building2 className="w-5 h-5 text-gray-500" />
               <CardTitle>{dict.admin.officesSummary}</CardTitle>
             </div>
-            <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1">
+            <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
               {dict.landing.viewAll}
               <ArrowRight className="w-4 h-4 rotate-180" />
             </Link>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Menu, X } from "lucide-react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import MobileBottomNav from "./MobileBottomNav";
+import { useFocusTrap, useEscapeKey } from "@/lib/utils/a11y";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
 import type { UserRole } from "@/lib/utils/constants";
@@ -18,58 +19,13 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, locale, dict, role }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const sidebarNodeRef = useRef<HTMLDivElement | null>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
-
-  const setSidebarRef = useCallback((node: HTMLDivElement | null) => {
-    sidebarNodeRef.current = node;
-    if (node && sidebarOpen) {
-      previousFocusRef.current = document.activeElement as HTMLElement;
-      const focusable = node.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      if (focusable.length > 0) focusable[0].focus();
-    }
-  }, [sidebarOpen]);
+  const { containerRef, handleKeyDown } = useFocusTrap(sidebarOpen);
 
   const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
-    if (previousFocusRef.current && typeof previousFocusRef.current.focus === "function") {
-      previousFocusRef.current.focus();
-    }
   }, []);
 
-  useEffect(() => {
-    if (!sidebarOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        closeSidebar();
-        return;
-      }
-      if (e.key === "Tab") {
-        const node = sidebarNodeRef.current;
-        if (!node) return;
-        const focusable = Array.from(
-          node.querySelectorAll<HTMLElement>(
-            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-          )
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [sidebarOpen, closeSidebar]);
+  useEscapeKey(closeSidebar, sidebarOpen);
 
   useEffect(() => {
     if (sidebarOpen) {
@@ -109,7 +65,8 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
 
         {/* Mobile sidebar with slide animation */}
         <div
-          ref={setSidebarRef}
+          ref={containerRef}
+          onKeyDown={handleKeyDown}
           className={`lg:hidden fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-out ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}

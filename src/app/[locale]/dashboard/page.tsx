@@ -88,7 +88,7 @@ export default async function OfficeDashboard({
       .eq("office_id", profile.office_id),
     supabase
       .from("properties")
-      .select("*, property_types(name_ar), zones(name_ar)")
+      .select("id, title, description, property_type_id, zone_id, street, price, area, bedrooms, bathrooms, status, is_active, created_at, property_types(name_ar), zones(name_ar)")
       .eq("office_id", profile.office_id)
       .order("created_at", { ascending: false })
       .limit(6),
@@ -104,7 +104,7 @@ export default async function OfficeDashboard({
       .eq("role", ROLES.OFFICE_AGENT),
     supabase
       .from("contact_requests")
-      .select("*, properties(title)")
+      .select("id, office_id, property_id, name, email, phone, message, type, status, created_at, properties(title)")
       .eq("office_id", profile.office_id)
       .order("created_at", { ascending: false })
       .limit(5),
@@ -156,7 +156,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link href={`/${locale}/dashboard/properties`}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                   <Home className="w-6 h-6 text-blue-600" />
@@ -169,7 +169,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
             </Card>
           </Link>
           <Link href={`/${locale}/dashboard/properties`}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                   <Home className="w-6 h-6 text-green-600" />
@@ -182,7 +182,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
             </Card>
           </Link>
           <Link href={`/${locale}/dashboard/agents`}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                   <Users className="w-6 h-6 text-purple-600" />
@@ -195,7 +195,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
             </Card>
           </Link>
           <Link href={`/${locale}/dashboard/contact-requests`}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
                   <Mail className="w-6 h-6 text-orange-600" />
@@ -214,7 +214,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
           <Card>
             <div className="flex items-center justify-between mb-4">
               <CardTitle>{dict.contactRequests.title}</CardTitle>
-              <Link href={`/${locale}/dashboard/contact-requests`} className="text-sm text-blue-600 hover:text-blue-700">
+              <Link href={`/${locale}/dashboard/contact-requests`} className="text-sm text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded">
                 {dict.landing.viewAll} →
               </Link>
             </div>
@@ -255,28 +255,28 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Link
                 href={`/${locale}/dashboard/properties/new`}
-                className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+                className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
                 <Plus className="w-5 h-5 text-blue-600" />
                 <span className="font-medium text-blue-900">{dict.office.addProperty}</span>
               </Link>
               <Link
                 href={`/${locale}/dashboard/agents`}
-                className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors"
+                className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
                 <UserPlus className="w-5 h-5 text-purple-600" />
                 <span className="font-medium text-purple-900">{dict.office.addAgent}</span>
               </Link>
               <Link
                 href={`/${locale}/dashboard/contact-requests`}
-                className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors"
+                className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
                 <Mail className="w-5 h-5 text-orange-600" />
                 <span className="font-medium text-orange-900">{dict.nav.contactRequests}</span>
               </Link>
               <Link
                 href={`/${locale}/dashboard/settings`}
-                className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
                 <Settings className="w-5 h-5 text-gray-600" />
                 <span className="font-medium text-gray-900">{dict.common.settings}</span>
@@ -289,7 +289,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">{dict.office.myProperties}</h2>
-            <Link href={`/${locale}/dashboard/properties`} className="text-sm text-blue-600 hover:text-blue-700">
+            <Link href={`/${locale}/dashboard/properties`} className="text-sm text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded">
               {dict.landing.viewAll} →
             </Link>
           </div>
@@ -322,7 +322,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
                         <Home className="w-6 h-6 text-blue-400" />
                       </div>
                       <p className="text-gray-500 mb-2">{dict.office.noPropertiesYet}</p>
-                      <Link href={`/${locale}/dashboard/properties/new`} className="text-sm text-blue-600 hover:text-blue-700">
+                      <Link href={`/${locale}/dashboard/properties/new`} className="text-sm text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded">
                         {dict.office.addProperty} ←
                       </Link>
                     </div>

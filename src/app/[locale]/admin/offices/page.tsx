@@ -79,10 +79,10 @@ const locale = usePageLocale(params);
 
     const loadOffices = useCallback(async () => {
      try {
-       const { data, error } = await supabase
-         .from("offices")
-         .select("*")
-         .order("created_at", { ascending: false });
+        const { data, error } = await supabase
+          .from("offices")
+          .select("id, name, slug, email, phone, address, logo_url, is_active, created_at, updated_at")
+          .order("created_at", { ascending: false });
 
         if (error) {
           showToast(dict.common.unexpectedError, "error");
@@ -367,7 +367,7 @@ const locale = usePageLocale(params);
                           <button
                             onClick={() => toggleOfficeStatus(office.id, office.is_active)}
                             disabled={togglingId === office.id}
-                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                             title={office.is_active ? dict.admin.deactivate : dict.admin.activate}
                             aria-label={office.is_active ? dict.admin.deactivate : dict.admin.activate}
                           >
@@ -379,7 +379,7 @@ const locale = usePageLocale(params);
                           </button>
                           <button
                             onClick={() => confirmDelete(office.id)}
-                            className="p-2 rounded-lg hover:bg-red-50"
+                            className="p-2 rounded-lg hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
                             title={dict.admin.deleteOffice}
                             aria-label={dict.admin.deleteOffice}
                           >

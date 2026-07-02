@@ -6,11 +6,11 @@ import ErrorBoundaryWrapper from "@/components/ui/ErrorBoundaryWrapper";
 import { ROLES } from "@/lib/utils/constants";
 
 interface PageProps {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const resolvedParams = await Promise.resolve(params);
+  const resolvedParams = await params;
   const locale = resolvedParams?.locale || "ar";
   const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
   const dict = getMessages(validLocale);
@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default function AdminLayout({ children, params }: { children: React.ReactNode; params: { locale: string } }) {
-  const resolvedParams = params;
+export default async function AdminLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
+  const resolvedParams = await params;
   const locale = resolvedParams?.locale || "ar";
   const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
   const dict = getMessages(validLocale);

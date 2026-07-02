@@ -57,7 +57,7 @@ function FavoritesContent({
       const [{ data: props }, { data: images }] = await Promise.all([
         supabase
           .from("properties")
-          .select("*, property_types(name_ar), zones(name_ar), offices(name)")
+          .select("id, title, description, property_type_id, zone_id, street, price, area, bedrooms, bathrooms, status, created_at, property_types(name_ar), zones(name_ar), offices(name)")
           .in("id", propertyIds),
         supabase
           .from("property_images")

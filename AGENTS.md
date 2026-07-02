@@ -19,7 +19,7 @@ npm run build                  # Production build (requires env vars below)
 npm run analyze                # Bundle analysis (ANALYZE=true)
 
 # Testing
-npm run test:run               # Unit tests (Vitest) — 107 tests, 15 files
+npm run test:run               # Unit tests (Vitest) — 121 tests, 16 files
 npm run test:coverage          # Unit tests with coverage report
 npm run test:e2e               # E2E tests (Playwright) — 21 tests, 8 files
 npm run test:e2e:ui            # E2E tests with Playwright UI
@@ -106,9 +106,9 @@ sadat-mls-cloud/
 │   │   ├── services/              # Business Logic Services
 │   │   └── utils/                 # Helper Functions (cn.ts, logger.ts, constants.ts, validation.ts)
 │   │                                # constants.ts: PROPERTY_STATUSES, OFFICE_FEATURES, SADAT_ZONES, PROPERTY_TYPES
-│   └── __tests__/                 # Unit Tests (15 files, 107 tests)
+│   └── __tests__/                 # Unit Tests (16 files, 121 tests)
 ├── supabase/
-│   └── migrations/                # 12 migrations (001_initial_schema → 012_fix_duplicate_policies)
+│   └── migrations/                # 14 migrations (001_initial_schema → 014_performance_indexes)
 ├── e2e/                           # Playwright E2E Tests (8 files, 21 tests)
 ├── public/                        # Static Assets, PWA (sw.js, manifest.json, icons/)
 ├── .github/workflows/             # CI/CD (ci.yml)
@@ -169,8 +169,8 @@ sadat-mls-cloud/
 | **HTML Sanitization** | ✅ | `src/lib/security/sanitizeHtml.ts` (multi-pass regex) + `sanitize.ts` (entity escaping) |
 | **RLS Policies** | ✅ | All 9 tables (35+ policies) |
 | **Input Validation** | ✅ | Zod schemas in `src/lib/validation.ts` |
-| **Migrations** | ✅ | All 12 migrations idempotent (DROP TRIGGER/IF EXISTS) |
-| **Tests** | ✅ | **107 unit tests** (15 files) + **21 E2E tests** (8 files) passing |
+| **Migrations** | ✅ | All 14 migrations idempotent (DROP TRIGGER/IF EXISTS) |
+| **Tests** | ✅ | **121 unit tests** (16 files) + **21 E2E tests** (8 files) passing |
 | **CSP** | ✅ | Nonce-based, managed solely by `middleware.ts` |
 | **HSTS** | ✅ | 2-year max-age (63072000s) with preload (middleware) |
 | **Auth Security** | ✅ | Origin validation, sessionStorage minimal, AuthGuard RBAC |
@@ -264,7 +264,7 @@ sadat-mls-cloud/
 
 ### RLS
 - `office_agent`: INSERT + UPDATE policies on properties
-- `contact_requests`: UPDATE policy for status changes
+- `contact_requests`: UPDATE policy for notes/updates
 
 ## Useful Commands Reference
 
@@ -510,6 +510,8 @@ All rate-limited endpoints return:
 | `010_performance_and_rls_fixes.sql` | Performance indexes and RLS policy fixes |
 | `011_rls_final_fix.sql` | Final RLS policy corrections |
 | `012_fix_duplicate_policies.sql` | Remove duplicate RLS policies |
+| `013_fix_rate_limit_rls.sql` | Re-disable RLS on rate_limit_log |
+| `014_performance_indexes.sql` | Additional performance indexes |
 
 ## E2E Tests (e2e/)
 

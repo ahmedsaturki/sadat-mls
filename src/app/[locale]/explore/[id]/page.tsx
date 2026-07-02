@@ -32,6 +32,7 @@ import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Navbar from "@/components/layout/Navbar";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { useFocusTrap, useEscapeKey } from "@/lib/utils/a11y";
 import FavoriteButton from "@/components/properties/FavoriteButton";
 import CompareButton from "@/components/properties/CompareButton";
 import type { PropertyForComparison } from "@/hooks/useCompare";
@@ -63,7 +64,7 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
-  const lightboxRef = useRef<HTMLDivElement>(null);
+  const { containerRef: lightboxRef, handleKeyDown: handleLightboxKeyDown } = useFocusTrap(showLightbox);
   const triggerRef = useRef<HTMLDivElement>(null);
   const mountedRef = useRef(true);
 
@@ -73,12 +74,12 @@ export default function PropertyDetailPage() {
       const [propertyResult, imagesResult] = await Promise.all([
         supabase
           .from("properties")
-          .select("*, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name, phone, email)")
+          .select("id, title, description, property_type_id, zone_id, street, price, area, bedrooms, bathrooms, floors, has_balcony, has_parking, has_elevator, status, is_active, office_id, created_at, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name, phone, email)")
           .eq("id", id)
           .maybeSingle(),
         supabase
           .from("property_images")
-          .select("*")
+          .select("id, property_id, url, file_path, sort_order, is_primary")
           .eq("property_id", id)
           .order("sort_order"),
       ]);
@@ -133,52 +134,17 @@ export default function PropertyDetailPage() {
     );
   }, [images.length]);
 
+  useEscapeKey(() => setShowLightbox(false), showLightbox);
+
   useEffect(() => {
     if (!showLightbox) return;
 
-    const previousFocus = document.activeElement as HTMLElement;
-    const dialog = lightboxRef.current;
-
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowLightbox(false);
       if (e.key === "ArrowRight") navigateImage("next");
       if (e.key === "ArrowLeft") navigateImage("prev");
     };
 
     document.addEventListener("keydown", handleKey);
-
-    if (dialog) {
-      const focusable = dialog.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      if (focusable.length > 0) focusable[0].focus();
-
-      const handleTabTrap = (e: KeyboardEvent) => {
-        if (e.key !== "Tab") return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      };
-
-      document.addEventListener("keydown", handleTabTrap);
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.removeEventListener("keydown", handleKey);
-        document.removeEventListener("keydown", handleTabTrap);
-        document.body.style.overflow = "";
-        previousFocus?.focus();
-      };
-    }
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", handleKey);
@@ -546,6 +512,7 @@ export default function PropertyDetailPage() {
       {showLightbox && images.length > 0 && (
         <div
           ref={lightboxRef}
+          onKeyDown={handleLightboxKeyDown}
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           role="dialog"
           aria-modal="true"

@@ -55,7 +55,7 @@ function PublicAgentPage({
     try {
       const { data: agentData } = await supabase
         .from("users")
-        .select("*, offices(name, slug)")
+        .select("id, email, full_name, role, office_id, avatar_url, phone, is_active, created_at, offices(name, slug)")
         .eq("id", agentId)
         .eq("role", ROLES.OFFICE_AGENT)
         .maybeSingle();
@@ -69,7 +69,7 @@ function PublicAgentPage({
 
       const { data: propsData } = await supabase
         .from("properties")
-        .select("*, property_types(name_ar, name_en), zones(name_ar, name_en)")
+        .select("id, title, price, area, bedrooms, bathrooms, status, created_at, property_types(name_ar, name_en), zones(name_ar, name_en)")
         .eq("created_by", agentId)
         .eq("status", "available")
         .order("created_at", { ascending: false })

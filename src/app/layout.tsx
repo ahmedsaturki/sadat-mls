@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import Providers from "@/components/Providers";
 import "./globals.css";
-import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
 import { getMessages } from "@/i18n/getMessages";
 
 const cairo = Cairo({
@@ -49,9 +48,11 @@ export default async function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={cairo.variable} data-scroll-behavior="smooth">
       <head>
-        <script
+        <Script
+          id="locale-sync"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: `(function(){var l=location.pathname.split('/')[1];if(l==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}})();`,
+            __html: `/* CSP-compliant: sets dir/lang based on path locale */(function(){var l=location.pathname.split('/')[1];if(l==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}})();`,
           }}
         />
         <Script
@@ -61,10 +62,12 @@ export default async function RootLayout({
             __html: `if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").then(r=>r.update()).catch(()=>{})});}`,
           }}
         />
-        <script
+        <Script
+          id="org-json-ld"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
-            __html: sanitizeJsonLd(orgJsonLd),
+            __html: JSON.stringify(orgJsonLd),
           }}
         />
         <link rel="alternate" hrefLang="ar" href={`${baseUrl}/ar`} />

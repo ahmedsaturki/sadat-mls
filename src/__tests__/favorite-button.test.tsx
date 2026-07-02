@@ -1,6 +1,22 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
+const mockPush = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/ar/test",
+  useSearchParams: () => new URLSearchParams(),
+  useParams: () => ({ locale: "ar" }),
+}));
+
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
     from: () => ({
@@ -45,17 +61,11 @@ describe("FavoriteButton", () => {
   });
 
   it("shows login redirect when clicked without user", () => {
-    const mockLocation = { href: "" };
-    Object.defineProperty(window, "location", {
-      value: mockLocation,
-      writable: true,
-    });
-
     render(<FavoriteButton propertyId="prop-1" userId={null} />);
     const button = screen.getByRole("button");
     fireEvent.click(button);
     
-    expect(mockLocation.href).toContain("/login");
+    expect(mockPush).toHaveBeenCalledWith(expect.stringContaining("/login"));
   });
 
   it("does not check status when userId is null", () => {

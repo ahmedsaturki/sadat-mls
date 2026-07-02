@@ -26,9 +26,9 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           aria-describedby={error ? `${selectId}-error` : undefined}
           className={cn(
             "w-full px-3 py-2 border rounded-lg text-sm transition-colors duration-200",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500",
             "bg-white",
-            error ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-300",
+            error ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500" : "border-gray-300",
             className
           )}
           {...props}

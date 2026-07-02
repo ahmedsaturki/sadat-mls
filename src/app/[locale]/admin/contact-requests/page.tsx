@@ -64,7 +64,7 @@ export default function AdminContactRequestsPage({
     try {
       const { data, error } = await supabase
         .from("contact_requests")
-        .select("*, properties(title), offices(name)")
+        .select("id, office_id, property_id, name, email, phone, message, type, status, notes, created_at, properties(title), offices(name)")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -183,7 +183,7 @@ export default function AdminContactRequestsPage({
               key={type}
               onClick={() => setFilter(type)}
               aria-pressed={filter === type}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                 filter === type
                   ? "bg-blue-100 text-blue-700"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -204,7 +204,7 @@ export default function AdminContactRequestsPage({
                 value={officeFilter}
                 onChange={(e) => setOfficeFilter(e.target.value)}
                 aria-label={dict.contactRequests.allOffices}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:border-blue-500"
             >
               <option value="all">{dict.contactRequests.allOffices}</option>
               {offices.map(([id, name]) => (
@@ -259,7 +259,7 @@ export default function AdminContactRequestsPage({
                         href={request.contact_type === "whatsapp" ? `https://wa.me/${request.visitor_phone}` : `tel:${request.visitor_phone}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors"
                       >
                         <ExternalLink className="w-4 h-4" />
                         {dict.contactRequests.view}
@@ -268,7 +268,7 @@ export default function AdminContactRequestsPage({
                     <button
                       onClick={() => setDeleteId(request.id)}
                       aria-label={`${dict.common.delete} ${request.visitor_name ?? ""}`}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -298,14 +298,14 @@ export default function AdminContactRequestsPage({
         <div className="flex gap-2 justify-end">
           <button
             onClick={() => setDeleteId(null)}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             {dict.common.cancel}
           </button>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
           >
             {deleting ? dict.common.loading : dict.common.delete}
           </button>

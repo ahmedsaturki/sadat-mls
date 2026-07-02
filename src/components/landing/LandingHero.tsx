@@ -77,13 +77,13 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={dict.landing.searchPlaceholder}
                   aria-label={dict.landing.searchPlaceholder}
-                  className="w-full pl-14 pr-4 py-4 md:py-5 rounded-xl bg-white/5 text-white text-lg focus:outline-none focus:ring-2 focus:ring-[#C49A2A]/50 transition-all placeholder:text-gray-500"
+                  className="w-full pl-14 pr-4 py-4 md:py-5 rounded-xl bg-white/5 text-white text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A2A]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B2D4F] transition-all placeholder:text-gray-500"
                 />
               </div>
               <button
                 type="submit"
                 aria-label={dict.common.search}
-                className="bg-[#C49A2A] text-white px-8 py-4 md:py-5 rounded-xl font-semibold hover:bg-[#b08924] transition-all shadow-lg hover:shadow-xl hover:shadow-[#C49A2A]/20 flex items-center justify-center"
+                className="bg-[#C49A2A] text-white px-8 py-4 md:py-5 rounded-xl font-semibold hover:bg-[#b08924] transition-all shadow-lg hover:shadow-xl hover:shadow-[#C49A2A]/20 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#C49A2A]"
               >
                 <Search className="w-6 h-6" />
               </button>
@@ -93,14 +93,14 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
           <motion.div variants={fadeUpVariant} className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href={`/${locale}/explore`}
-              className="inline-flex items-center justify-center gap-2 glass-luxury text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-colors border border-white/10"
+              className="inline-flex items-center justify-center gap-2 glass-luxury text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-colors border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B2D4F]"
             >
               <Home className="w-5 h-5" />
               {dict.landing.viewAll}
             </Link>
             <Link
               href={`/${locale}/login`}
-              className="inline-flex items-center justify-center gap-2 bg-white text-[#1B2D4F] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center gap-2 bg-white text-[#1B2D4F] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
             >
               {dict.common.login}
               <ArrowLeft className="w-5 h-5" />

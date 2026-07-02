@@ -66,7 +66,7 @@ export default async function AdminDashboard({
   // Get recent contact requests
   const { data: recentContacts } = await supabase
     .from("contact_requests")
-    .select("*, properties(title), offices(name)")
+    .select("id, office_id, property_id, name, email, phone, message, type, status, created_at, properties(title), offices(name)")
     .order("created_at", { ascending: false })
     .limit(5);
 
@@ -130,7 +130,7 @@ export default async function AdminDashboard({
           <Card>
             <div className="flex items-center justify-between mb-4">
               <CardTitle>{dict.admin.recentOffices}</CardTitle>
-              <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700">
+              <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
                 {dict.landing.viewAll} →
               </Link>
             </div>
@@ -164,7 +164,7 @@ export default async function AdminDashboard({
           <Card>
             <div className="flex items-center justify-between mb-4">
               <CardTitle>{dict.contactRequests.title}</CardTitle>
-              <Link href={`/${locale}/admin/contact-requests`} className="text-sm text-blue-600 hover:text-blue-700">
+              <Link href={`/${locale}/admin/contact-requests`} className="text-sm text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
                 {dict.landing.viewAll} →
               </Link>
             </div>
@@ -200,21 +200,21 @@ export default async function AdminDashboard({
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Link
               href={`/${locale}/admin/offices`}
-              className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+              className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
               <Plus className="w-5 h-5 text-blue-600" />
               <span className="font-medium text-blue-900">{dict.admin.addOffice}</span>
             </Link>
             <Link
               href={`/${locale}/admin/zones`}
-              className="flex items-center gap-3 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+              className="flex items-center gap-3 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
             >
               <MapPin className="w-5 h-5 text-green-600" />
               <span className="font-medium text-green-900">{dict.admin.manageZones}</span>
             </Link>
             <Link
               href={`/${locale}/admin/property-types`}
-              className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors"
+              className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
             >
               <Home className="w-5 h-5 text-purple-600" />
               <span className="font-medium text-purple-900">{dict.admin.managePropertyTypes}</span>

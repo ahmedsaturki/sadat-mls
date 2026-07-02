@@ -59,7 +59,7 @@ export default function ContactRequestsPage({
 
       const { data, error: requestsError } = await supabase
         .from("contact_requests")
-        .select("*, properties(title)")
+        .select("id, office_id, property_id, name, email, phone, message, type, status, created_at, properties(title)")
         .eq("office_id", profile.office_id)
         .order("created_at", { ascending: false });
 
@@ -131,7 +131,7 @@ export default function ContactRequestsPage({
                 key={type}
                 onClick={() => setFilter(type)}
                 aria-pressed={filter === type}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                   filter === type
                     ? "bg-blue-100 text-blue-700"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -182,7 +182,7 @@ export default function ContactRequestsPage({
                         href={request.contact_type === "whatsapp" ? `https://wa.me/${request.visitor_phone}` : `tel:${request.visitor_phone}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
                       >
                         <ExternalLink className="w-4 h-4" />
                         {dict.contactRequests.view}

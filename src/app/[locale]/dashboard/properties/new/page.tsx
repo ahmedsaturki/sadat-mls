@@ -1,7 +1,10 @@
 "use client";
 
-import PropertyForm from "@/components/properties/PropertyForm";
+import { Suspense, lazy } from "react";
 import { usePageLocale } from "@/hooks/usePageLocale";
+import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
+
+const PropertyForm = lazy(() => import("@/components/properties/PropertyForm"));
 
 export default function NewPropertyPage({
   params,
@@ -10,5 +13,9 @@ export default function NewPropertyPage({
 }) {
   const locale = usePageLocale(params);
 
-  return <PropertyForm mode="create" locale={locale} />;
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><LuxuryLoader /></div>}>
+      <PropertyForm mode="create" locale={locale} />
+    </Suspense>
+  );
 }

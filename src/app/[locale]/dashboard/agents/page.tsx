@@ -218,7 +218,7 @@ export default function AgentsPage({
                     render: (agent) => (
                       <button
                         onClick={() => confirmDelete(agent.id)}
-                        className="p-2 rounded-lg hover:bg-red-50"
+                        className="p-2 rounded-lg hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                         title={dict.common.delete}
                         aria-label={dict.common.delete}
                       >

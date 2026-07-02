@@ -74,7 +74,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
               onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
-              className="w-full pl-3 pr-9 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-3 pr-9 py-2 border border-gray-200 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             />
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label={dir === "rtl" ? nextPageLabel : previousPageLabel}
             >
               {dir === "rtl" ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -144,7 +144,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
                   onClick={() => setPage(pageNum)}
                   aria-label={`${pageLabel} ${pageNum}`}
                   aria-current={page === pageNum ? "page" : undefined}
-                  className={`w-8 h-8 rounded-lg text-sm font-medium ${
+                  className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                     page === pageNum
                       ? "bg-blue-600 text-white"
                       : "text-gray-600 hover:bg-gray-100"
@@ -157,7 +157,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label={dir === "rtl" ? previousPageLabel : nextPageLabel}
             >
               {dir === "rtl" ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}

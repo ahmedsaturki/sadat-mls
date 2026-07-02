@@ -1,14 +1,18 @@
 const STATIC_CACHE = "sadat-static-v3";
 const DYNAMIC_CACHE = "sadat-dynamic-v3";
 
+const LOCALES = ["ar", "en"];
 const STATIC_ASSETS = [
   "/",
-  "/ar",
-  "/en",
-  "/ar/explore",
-  "/en/explore",
+  ...LOCALES.flatMap((loc) => [
+    `/${loc}`,
+    `/${loc}/login`,
+    `/${loc}/forgot-password`,
+    `/${loc}/manifest.json`,
+  ]),
   "/manifest.json",
   "/robots.txt",
+  "/og-image.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -107,20 +111,25 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Stale-while-revalidate for landing page and other pages
+// Stale-while-revalidate for landing page and other pages
+  // Skip RSC prefetch requests (let Next.js handle them natively)
+  if (url.searchParams.has("_rsc")) return;
+
+  // Detect locale from pathname
+  const pathLocale = LOCALES.find((loc) => url.pathname.startsWith(`/${loc}/`)) || "ar";
+  const fallbackPath = `/${pathLocale}${url.pathname.replace(/^\/(ar|en)/, "")}`;
+
   event.respondWith(
     caches.match(request).then((cached) => {
       const fetchPromise = fetch(request)
         .then((response) => {
           if (response && response.status === 200 && url.protocol.startsWith("http")) {
             const responseClone = response.clone();
-            caches.open(DYNAMIC_CACHE).then((cache) => {
-              cache.put(request, responseClone);
-            });
+            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, responseClone));
           }
           return response;
         })
-        .catch(() => cached);
+        .catch(() => cached || caches.match(fallbackPath));
 
       return cached || fetchPromise;
     })

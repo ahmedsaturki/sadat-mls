@@ -56,7 +56,7 @@ function PublicOfficePage({
     try {
       const { data: officeData } = await supabase
         .from("offices")
-        .select("*")
+        .select("id, name, slug, email, phone, address, logo_url, is_active")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -70,7 +70,7 @@ function PublicOfficePage({
 
       const { data: propsData } = await supabase
         .from("properties")
-        .select("*, property_types(name_ar, name_en), zones(name_ar, name_en)")
+        .select("id, title, price, area, bedrooms, bathrooms, status, created_at, property_types(name_ar, name_en), zones(name_ar, name_en)")
         .eq("office_id", officeData.id)
         .eq("status", "available")
         .order("created_at", { ascending: false })

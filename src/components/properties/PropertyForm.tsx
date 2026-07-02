@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, Suspense, lazy } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getMessages } from "@/i18n/getMessages";
@@ -15,10 +15,10 @@ import { ArrowRight, User, Keyboard } from "lucide-react";
 import { propertySchema, ownerSchema } from "@/lib/validation";
 import { ROLES, PROPERTY_STATUSES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
 import PropertyBasicInfo from "./PropertyBasicInfo";
-import PropertyDetails from "./PropertyDetails";
+const PropertyDetails = lazy(() => import("./PropertyDetails"));
 import PropertyFeatures from "./PropertyFeatures";
 import PropertyOwnerInfo from "./PropertyOwnerInfo";
-import PropertyImageManager from "./PropertyImageManager";
+const PropertyImageManager = lazy(() => import("./PropertyImageManager"));
 import { logger } from "@/lib/logger";
 
 interface PropertyImage {
@@ -225,17 +225,17 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     const [propertyResult, imagesResult, ownerResult] = await Promise.all([
       supabase
         .from("properties")
-        .select("*")
+        .select("id, title, description, property_type_id, zone_id, street, price, area, bedrooms, bathrooms, floors, has_balcony, has_parking, has_elevator, status, office_id, created_by")
         .eq("id", propertyId)
         .maybeSingle(),
       supabase
         .from("property_images")
-        .select("*")
+        .select("id, url, file_path, sort_order, is_primary")
         .eq("property_id", propertyId)
         .order("sort_order"),
       supabase
         .from("property_owners")
-        .select("*")
+        .select("id, owner_name, owner_phone, owner_email, notes")
         .eq("property_id", propertyId)
         .maybeSingle(),
     ]);
@@ -653,19 +653,21 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
              />
 
             <div className="border-t border-gray-200 pt-4">
-              <PropertyDetails
-                dict={dict}
-                formData={{
-                  price: formData.price,
-                  area: formData.area,
-                  bedrooms: formData.bedrooms,
-                  bathrooms: formData.bathrooms,
-                  floors: formData.floors,
-                  status: formData.status as PropertyStatus,
-                }}
-                errors={errors}
-                onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
-              />
+              <Suspense fallback={<div className="space-y-4"><div className="h-8 bg-gray-100 rounded animate-pulse" /><div className="h-8 bg-gray-100 rounded animate-pulse" /></div>}>
+                <PropertyDetails
+                  dict={dict}
+                  formData={{
+                    price: formData.price,
+                    area: formData.area,
+                    bedrooms: formData.bedrooms,
+                    bathrooms: formData.bathrooms,
+                    floors: formData.floors,
+                    status: formData.status as PropertyStatus,
+                  }}
+                  errors={errors}
+                  onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
+                />
+              </Suspense>
             </div>
 
             <div className="border-t border-gray-200 pt-4">
@@ -710,7 +712,9 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
               <h3 className="font-medium text-gray-900 mb-3">
                 {mode === "edit" ? dict.office.currentImages : dict.office.newImages}
               </h3>
-              <PropertyImageManager dict={dict} {...imageProps} />
+              <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse" />}>
+                <PropertyImageManager dict={dict} {...imageProps} />
+              </Suspense>
             </div>
           </Card>
 

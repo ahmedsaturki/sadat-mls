@@ -41,6 +41,23 @@ function generateNonce(): string {
   return btoa(String.fromCharCode(...array));
 }
 
+const PERMISSIONS_POLICY = [
+  "camera",
+  "microphone",
+  "geolocation",
+  "payment",
+  "usb",
+  "magnetometer",
+  "gyroscope",
+  "ambient-light-sensor",
+  "autoplay",
+  "encrypted-media",
+  "picture-in-picture",
+  "web-share",
+  "interest-cohort",
+  "accessibility-events",
+].map((p) => `${p}=()`).join(", ");
+
 function applySecurityHeaders(response: NextResponse): NextResponse {
   const nonce = generateNonce();
 
@@ -48,7 +65,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-XSS-Protection", "0");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), ambient-light-sensor=(), autoplay=(), encrypted-media=(), picture-in-picture=(), web-share=(), interest-cohort=(), accessibility-events=()");
+   response.headers.set("Permissions-Policy", PERMISSIONS_POLICY);
   response.headers.set(
     "Strict-Transport-Security",
     "max-age=63072000; includeSubDomains; preload",
@@ -69,6 +86,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
       "base-uri 'self'",
       "form-action 'self'",
       "upgrade-insecure-requests",
+      "report-uri /api/csp-report",
     ].join("; "),
   );
   return response;
@@ -83,7 +101,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/icons") ||
     pathname.includes(".") ||
     pathname === "/sw.js" ||
-    pathname === "/workbox-*.js" ||
+    pathname.startsWith("/workbox-") ||
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||
     pathname === "/manifest.json"
@@ -133,36 +151,34 @@ export async function middleware(request: NextRequest) {
      // This ensures the double-submit cookie pattern works for state-changing API calls
      const existingCsrf = request.cookies.get("csrf_token");
      if (!existingCsrf?.value) {
-       // Generate CSRF token using edge runtime crypto (available globally in middleware)
-       const randomValue = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 38);
-       const token = `${Date.now()}.${randomValue}`;
-       const response = NextResponse.next();
-       response.cookies.set("csrf_token", token, {
-         httpOnly: false,
-         secure: process.env.NODE_ENV === "production",
-         sameSite: "lax",
-         maxAge: 60 * 60 * 24,
-         path: "/",
-       });
-       return applySecurityHeaders(response);
-     }
-   } else {
-     // For non-auth routes, still seed CSRF for protected API paths when they have locale prefixes
-     // This catches /ar/api/agents, /en/api/agents, etc.
-     const pathPart = pathname.startsWith("/") ? pathname : `/${pathname}`;
-     const matchesProtectedAPI = PROTECTED_API_ROUTES.some(route => 
-       pathPart === `/${route}` || 
-       (pathname.startsWith("/ar/") && pathPart === `/ar/${route}`) || 
-       (pathname.startsWith("/en/") && pathPart === `/en/${route}`) ||
-       pathPart.startsWith(`${route}/`) ||
-       (pathname.startsWith("/ar/") && pathPart.startsWith(`/ar/${route}/`)) ||
-       (pathname.startsWith("/en/") && pathPart.startsWith(`/en/${route}/`))
-     );
-     
-     if (matchesProtectedAPI) {
-       // Generate CSRF token using edge runtime crypto (available globally in middleware)
-       const randomValue = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 38);
-       const token = `${Date.now()}.${randomValue}`;
+        // Generate CSRF token using edge runtime crypto (available globally in middleware)
+        const token = `${Date.now()}.${crypto.randomUUID()}`;
+        const response = NextResponse.next();
+        response.cookies.set("csrf_token", token, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24,
+          path: "/",
+        });
+        return applySecurityHeaders(response);
+      }
+    } else {
+      // For non-auth routes, still seed CSRF for protected API paths when they have locale prefixes
+      // This catches /ar/api/agents, /en/api/agents, etc.
+      const pathPart = pathname.startsWith("/") ? pathname : `/${pathname}`;
+      const matchesProtectedAPI = PROTECTED_API_ROUTES.some(route => 
+        pathPart === `/${route}` || 
+        (pathname.startsWith("/ar/") && pathPart === `/ar/${route}`) || 
+        (pathname.startsWith("/en/") && pathPart === `/en/${route}`) ||
+        pathPart.startsWith(`${route}/`) ||
+        (pathname.startsWith("/ar/") && pathPart.startsWith(`/ar/${route}/`)) ||
+        (pathname.startsWith("/en/") && pathPart.startsWith(`/en/${route}/`))
+      );
+      
+      if (matchesProtectedAPI) {
+        // Generate CSRF token using edge runtime crypto (available globally in middleware)
+        const token = `${Date.now()}.${crypto.randomUUID()}`;
        const response = NextResponse.next();
        response.cookies.set("csrf_token", token, {
          httpOnly: false,

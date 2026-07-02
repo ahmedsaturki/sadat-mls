@@ -2,6 +2,7 @@
 
 import { memo, useState, useCallback, useEffect, useRef } from "react";
 import { Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
 import { useToast } from "@/components/ui/Toast";
@@ -26,6 +27,7 @@ const FavoriteButton = memo(function FavoriteButton({
   className,
   size = "md",
 }: FavoriteButtonProps) {
+  const router = useRouter();
   const [isFavorited, setIsFavorited] = useState(false);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
@@ -73,7 +75,7 @@ const FavoriteButton = memo(function FavoriteButton({
     e.stopPropagation();
 
     if (!userId) {
-      window.location.href = `/${locale}/login`;
+      router.push(`/${locale}/login`);
       return;
     }
 
