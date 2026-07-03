@@ -148,8 +148,12 @@ export async function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 200 });
   }
 
+  // API routes: apply security headers only — they handle their own auth
+  if (pathname.startsWith("/api")) {
+    return applySecurityHeaders(NextResponse.next());
+  }
 
-  // Create Supabase server client for auth validation
+  // Create Supabase server client for auth validation (page routes only)
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

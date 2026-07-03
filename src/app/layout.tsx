@@ -49,7 +49,8 @@ export default async function RootLayout({
   const headersList = await headers();
   const nonce = headersList.get("x-nonce") || "";
   return (
-    <html lang="ar" dir="rtl" className={cairo.variable} data-scroll-behavior="smooth" nonce={nonce}>
+    // suppressHydrationWarning: beforeInteractive script sets lang/dir for non-ar locales
+    <html lang="ar" dir="rtl" className={cairo.variable} data-scroll-behavior="smooth" nonce={nonce} suppressHydrationWarning>
       <head>
         <Script
           id="locale-sync"
