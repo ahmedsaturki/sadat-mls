@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
+import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
 
 // GET - List notifications for current user
@@ -65,6 +66,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
+    // CSRF validation
+    const isValidCsrf = await validateCsrfToken(request);
+    if (!isValidCsrf) {
+      logger.warn("Invalid CSRF token on notifications POST", { ip });
+      return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
+    }
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -113,6 +121,13 @@ export async function PATCH(request: NextRequest) {
     const { allowed } = await checkApiRateLimit(`notifications-patch:${ip}`);
     if (!allowed) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    // CSRF validation
+    const isValidCsrf = await validateCsrfToken(request);
+    if (!isValidCsrf) {
+      logger.warn("Invalid CSRF token on notifications PATCH", { ip });
+      return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
     }
 
     const supabase = await createClient();
