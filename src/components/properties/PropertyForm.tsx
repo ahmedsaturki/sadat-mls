@@ -188,7 +188,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
     if (profile?.office_id) {
       setUserId(user.id);
-      setOfficeId(profile.officeId);
+      setOfficeId(profile.office_id);
       setUserRole(profile.role as UserRole);
     }
   }, [supabase, locale, router]);
@@ -219,7 +219,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     }
 
     setUserId(user.id);
-    setOfficeId(profile.officeId || "");
+    setOfficeId(profile.office_id || "");
     setUserRole((profile.role as UserRole) || ROLES.OFFICE_AGENT);
 
     const [propertyResult, imagesResult, ownerResult] = await Promise.all([
