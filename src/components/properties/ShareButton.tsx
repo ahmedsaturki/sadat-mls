@@ -30,7 +30,7 @@ const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps)
         ? `${window.location.origin}${window.location.pathname}`
         : "";
 
-    const handleWebShare = async () => {
+const handleWebShare = async () => {
       if (navigator.share) {
         try {
           await navigator.share({
@@ -39,11 +39,10 @@ const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps)
             url: shareUrl,
           });
           return true;
-        } catch (err) => {
-          // User cancelled or error occurred
+        } catch (err) {
           logger.info("Web Share API cancelled or failed", { error: err instanceof Error ? err.message : String(err) });
           return false;
-        };
+        }
       }
       return false;
     };

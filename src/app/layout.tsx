@@ -45,20 +45,17 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const dict = getMessages("ar");
+  // Get locale from Accept-Language header or default to ar
   const headersList = await headers();
+  const acceptLanguage = headersList.get("accept-language") || "";
+  const locale = acceptLanguage.startsWith("en") ? "en" : "ar";
+  const dir = locale === "en" ? "ltr" : "rtl";
+  const lang = locale === "en" ? "en" : "ar";
   const nonce = headersList.get("x-nonce") || "";
+  
   return (
-    // suppressHydrationWarning: beforeInteractive script sets lang/dir for non-ar locales
-    <html lang="ar" dir="rtl" className={cairo.variable} data-scroll-behavior="smooth" nonce={nonce} suppressHydrationWarning>
+    <html lang={lang} dir={dir} className={cairo.variable} data-scroll-behavior="smooth" nonce={nonce}>
       <head>
-        <Script
-          id="locale-sync"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `/* CSP-compliant: sets dir/lang based on path locale */(function(){var l=location.pathname.split('/')[1];if(l==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}})();`,
-          }}
-        />
         <Script
           id="sw-registration"
           strategy="afterInteractive"
@@ -86,7 +83,11 @@ export default async function RootLayout({
           {dict.common.skipToContent}
         </a>
         <Providers>
-          <main id="main-content" tabIndex={-1}>
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="outline-none"
+          >
             {children}
           </main>
         </Providers>
