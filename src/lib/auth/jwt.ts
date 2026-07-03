@@ -1,3 +1,5 @@
+import "server-only";
+
 interface JwtPayload {
   userId: string;
   email: string;

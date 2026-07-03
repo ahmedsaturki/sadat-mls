@@ -1,3 +1,4 @@
+import "server-only";
 /**
  * Server-only CSRF token validation and protection utilities.
  * Uses double-submit cookie pattern with constant-time comparison.

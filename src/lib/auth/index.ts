@@ -5,5 +5,4 @@ export { SecurityValidator as EnhancedSecurityService } from "../security/enhanc
 export { errorHandler as SecurityLogger } from "../security/error";
 export { ClientSecurityManager } from "../security/client";
 export { ProtectedApiClient } from "../api/protected";
-export { ApiClient } from "../api/client";
 export { AuthService } from "./service";

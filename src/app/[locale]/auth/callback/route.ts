@@ -45,8 +45,19 @@ function getAllowedHosts(origin: string): Set<string> {
 function isHostAllowed(hostname: string, allowedHosts: Set<string>): boolean {
   if (allowedHosts.has(hostname)) return true;
 
-  // Allow any *.vercel.app / *.vercel.app subdomains (preview deploys).
-  if (hostname.endsWith(".vercel.app")) return true;
+  // Allow only the project's own Vercel preview deploys (e.g. sadat-mls-*.vercel.app).
+  // Extract the project prefix from the production URL.
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  try {
+    const productionHost = new URL(envUrl).hostname;
+    // e.g. "sadat-mls.vercel.app" → prefix "sadat-mls"
+    const prefix = productionHost.split(".vercel.app")[0];
+    if (prefix && hostname === `${prefix}.vercel.app`) return true;
+    // Preview deploys append a hash: sadat-mls-abc123xyz.vercel.app
+    if (prefix && hostname.startsWith(`${prefix}-`) && hostname.endsWith(".vercel.app")) return true;
+  } catch {
+    // ignore
+  }
 
   return false;
 }

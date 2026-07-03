@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { logger } from "@/lib/logger";
 import { validateCsrfToken } from "@/lib/security/csrf";
+import { PasswordService } from "@/lib/security/password";
 import { ROLES } from "@/lib/utils/constants";
 import { logActivity } from "@/lib/utils/activity-logger";
 
@@ -144,8 +145,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
   }
 
-  if (password.length < 8) {
-    return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
+  const passwordValidation = PasswordService.validate(password);
+  if (!passwordValidation.isValid) {
+    return NextResponse.json({ error: passwordValidation.errors.join(", ") }, { status: 400 });
   }
 
   if (!role || !Object.values(ROLES).includes(role)) {

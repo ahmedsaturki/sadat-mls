@@ -4,7 +4,6 @@ import { csrfClient } from "@/lib/security/csrf-client";
 
 export interface ProtectedApiOptions extends RequestInit {
   requireCsrf?: boolean;
-  enableRateLimit?: boolean;
 }
 
 export class ProtectedApiClient {
@@ -12,7 +11,7 @@ export class ProtectedApiClient {
     url: string,
     options: ProtectedApiOptions = {}
   ): Promise<{ data: T | null; error: string | null; status: number }> {
-    const { requireCsrf = true, enableRateLimit: _enableRateLimit = true, ...fetchOptions } = options;
+    const { requireCsrf = true, ...fetchOptions } = options;
 
     try {
       const headers = new Headers(fetchOptions.headers);

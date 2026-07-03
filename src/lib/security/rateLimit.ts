@@ -1,3 +1,4 @@
+import "server-only";
 /**
  * Rate limiting utilities for Sadat MLS Cloud.
  * Includes middleware, risk-based configs, and IP-based tracking.

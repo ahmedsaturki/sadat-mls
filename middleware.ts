@@ -97,7 +97,7 @@ async function seedCsrfToken(cookieStore: { get(name: string): { value: string }
       const parts = existingCsrf.value.split(".");
       if (parts.length === 2) {
         const timestamp = parseInt(parts[0], 10);
-        if (!isNaN(timestamp) && Date.now() - timestamp < 4 * 60 * 60 * 1000) {
+        if (!isNaN(timestamp) && Date.now() - timestamp < 24 * 60 * 60 * 1000) {
           return; // Token is still valid
         }
       }
