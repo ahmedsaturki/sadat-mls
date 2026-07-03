@@ -19,7 +19,7 @@ import {
   X,
   ParkingCircle,
   Accessibility,
-  Fence,
+  DoorOpen,
   Image as ImageIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -226,7 +226,7 @@ export default function PropertyDetailPage() {
       : "warning";
 
   const features = [
-    { show: property.has_balcony, icon: Fence, label: dict.property.hasBalcony },
+    { show: property.has_balcony, icon: DoorOpen, label: dict.property.hasBalcony },
     { show: property.has_parking, icon: ParkingCircle, label: dict.property.hasParking },
     { show: property.has_elevator, icon: Accessibility, label: dict.property.hasElevator },
   ].filter((f) => f.show);

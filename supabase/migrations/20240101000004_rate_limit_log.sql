@@ -3,14 +3,13 @@
 -- Run this AFTER 003_office_logos_bucket.sql
 -- ============================================
 
--- Enable UUID extension (if not already enabled)
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- gen_random_uuid() is built into PostgreSQL 13+, no extension needed
 
 -- ============================================
 -- RATE LIMIT LOG TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS rate_limit_log (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   action TEXT NOT NULL,
   ip_address INET NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now()

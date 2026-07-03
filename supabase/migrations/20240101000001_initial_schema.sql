@@ -7,13 +7,13 @@ SET client_min_messages TO WARNING;
 -- ============================================
 -- EXTENSIONS
 -- ============================================
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- gen_random_uuid() is built into PostgreSQL 13+, no extension needed
 
 -- ============================================
 -- 1. OFFICES
 -- ============================================
 CREATE TABLE IF NOT EXISTS offices (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   email TEXT,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- 3. ZONES
 -- ============================================
 CREATE TABLE IF NOT EXISTS zones (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name_ar TEXT NOT NULL UNIQUE,
   name_en TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
@@ -71,7 +71,7 @@ ON CONFLICT DO NOTHING;
 -- 4. PROPERTY TYPES
 -- ============================================
 CREATE TABLE IF NOT EXISTS property_types (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name_ar TEXT NOT NULL UNIQUE,
   name_en TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
@@ -92,7 +92,7 @@ ON CONFLICT DO NOTHING;
 -- 5. PROPERTIES
 -- ============================================
 CREATE TABLE IF NOT EXISTS properties (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   office_id UUID NOT NULL REFERENCES offices(id) ON DELETE CASCADE,
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
   title TEXT NOT NULL,
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS properties (
 -- 6. PROPERTY OWNERS
 -- ============================================
 CREATE TABLE IF NOT EXISTS property_owners (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
   office_id UUID NOT NULL REFERENCES offices(id) ON DELETE CASCADE,
   owner_name TEXT NOT NULL,
@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS property_owners (
 -- 7. PROPERTY IMAGES
 -- ============================================
 CREATE TABLE IF NOT EXISTS property_images (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
   url TEXT NOT NULL,
   file_path TEXT,
@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS property_images (
 -- 8. CONTACT REQUESTS
 -- ============================================
 CREATE TABLE IF NOT EXISTS contact_requests (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
   office_id UUID NOT NULL REFERENCES offices(id) ON DELETE CASCADE,
   contact_type TEXT NOT NULL CHECK (contact_type IN ('whatsapp', 'phone', 'email')),
@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS contact_requests (
 -- 9. PROPERTY FAVORITES
 -- ============================================
 CREATE TABLE IF NOT EXISTS property_favorites (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS property_favorites (
 -- 10. RATE LIMIT LOG (operational)
 -- ============================================
 CREATE TABLE IF NOT EXISTS rate_limit_log (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   action TEXT NOT NULL,
   ip_address INET NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now()

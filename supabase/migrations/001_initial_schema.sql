@@ -15,11 +15,11 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP FUNCTION IF EXISTS handle_new_user() CASCADE;
 
 -- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- gen_random_uuid() is built into PostgreSQL 13+, no extension needed
 
 -- Offices table (Real estate agencies)
 CREATE TABLE offices (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
     email TEXT,
@@ -50,7 +50,7 @@ CREATE TABLE users (
 
 -- Zones table (Sadat City districts)
 CREATE TABLE zones (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     name_ar TEXT NOT NULL,
     description TEXT,
@@ -61,7 +61,7 @@ CREATE TABLE zones (
 
 -- Property types table (property categories)
 CREATE TABLE property_types (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     name_ar TEXT NOT NULL,
     description TEXT,
@@ -73,7 +73,7 @@ CREATE TABLE property_types (
 
 -- Properties table (property listings)
 CREATE TABLE properties (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     office_id UUID NOT NULL REFERENCES offices(id) ON DELETE CASCADE,
     property_type_id UUID REFERENCES property_types(id) ON DELETE SET NULL,
     zone_id UUID REFERENCES zones(id) ON DELETE SET NULL,
@@ -103,7 +103,7 @@ CREATE TABLE properties (
 
 -- Property owners table (contact data, sensitive info)
 CREATE TABLE property_owners (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     owner_name TEXT NOT NULL,
     owner_phone TEXT,
@@ -116,7 +116,7 @@ CREATE TABLE property_owners (
 
 -- Property images table (property photos)
 CREATE TABLE property_images (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     image_url TEXT NOT NULL,
     caption TEXT,
@@ -128,7 +128,7 @@ CREATE TABLE property_images (
 
 -- Contact requests table (visitor inquiries)
 CREATE TABLE contact_requests (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     phone TEXT,
@@ -142,7 +142,7 @@ CREATE TABLE contact_requests (
 
 -- Property favorites table (user saved properties)
 CREATE TABLE property_favorites (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -151,7 +151,7 @@ CREATE TABLE property_favorites (
 
 -- Rate limit log table (audit trail for rate limiting)
 CREATE TABLE rate_limit_log (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     ip_address INET NOT NULL,
     endpoint TEXT NOT NULL,
     method TEXT NOT NULL,

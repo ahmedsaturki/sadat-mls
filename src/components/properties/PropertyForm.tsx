@@ -304,7 +304,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         const key = issue.path.join(".");
         // Map validation errors to i18n keys
         if (issue.code === "too_small") {
-          const actual = String(issue.input ?? "").length;
+          const actual = String((issue as unknown as Record<string, unknown>).input ?? "").length;
           const min = issue.minimum as number;
           if (min === 2 && actual < 2) {
             newErrors[key] = dict.office.propertyNameMin;
