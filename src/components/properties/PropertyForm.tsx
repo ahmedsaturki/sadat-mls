@@ -155,6 +155,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
   });
 
   const [validationDelay, setValidationDelay] = useState<NodeJS.Timeout | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     const hasData = Boolean(formData.title || formData.description || formData.price);

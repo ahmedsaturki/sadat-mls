@@ -661,5 +661,17 @@
     "title": "حدث خطأ",
     "message": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
     "retry": "حاول مرة أخرى"
+  },
+  "propertyFeatures": {
+    "balconyDescription": "شرفة أو تراس خاص",
+    "parkingDescription": "مكان لوقوف السيارات مغطى أو مكشوف",
+    "elevatorDescription": "مصعد ركاب في المبنى",
+    "featureEnabled": "مفعل",
+    "featureDisabled": "غير مفعل",
+    "feature": {
+      "balcony": "بلكونة",
+      "parking": "موقف سيارات",
+      "elevator": "مصعد"
+    }
   }
 }

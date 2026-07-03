@@ -39,6 +39,18 @@ const mockDict = {
     ownerEmail: "Owner Email",
     ownerNotes: "Notes",
   },
+  propertyFeatures: {
+    balconyDescription: "Private balcony or terrace",
+    parkingDescription: "Covered or open parking space",
+    elevatorDescription: "Passenger elevator in building",
+    featureEnabled: "Enabled",
+    featureDisabled: "Disabled",
+    feature: {
+      balcony: "Balcony",
+      parking: "Parking",
+      elevator: "Elevator",
+    }
+  }
 } as unknown as Messages;
 
 describe("PropertyBasicInfo", () => {

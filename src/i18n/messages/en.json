@@ -661,5 +661,17 @@
     "title": "An error occurred",
     "message": "An unexpected error occurred. Please try again.",
     "retry": "Try again"
+  },
+  "propertyFeatures": {
+    "balconyDescription": "Private balcony or terrace",
+    "parkingDescription": "Covered or open parking space",
+    "elevatorDescription": "Passenger elevator in building",
+    "featureEnabled": "Enabled",
+    "featureDisabled": "Disabled",
+    "feature": {
+      "balcony": "Balcony",
+      "parking": "Parking",
+      "elevator": "Elevator"
+    }
   }
 }

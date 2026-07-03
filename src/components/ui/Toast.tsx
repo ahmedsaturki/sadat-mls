@@ -77,6 +77,19 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     warning: "bg-amber-50 border-amber-200 text-amber-800",
   };
 
+  // Escape key handler for dismissing toasts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && toasts.length > 0) {
+        // Dismiss the most recent toast
+        removeToast(toasts[toasts.length - 1].id);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toasts, removeToast]);
+
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
@@ -86,23 +99,37 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           const locale = getLocaleFromPath();
           const dismissLabel = locale === "en" ? enDict.common.dismiss : arDict.common.dismiss;
           return (
-            <div
-              key={toast.id}
-              className={cn(
-                "flex items-center gap-3 p-4 rounded-lg border shadow-lg animate-in slide-in-from-bottom-5",
-                colors[toast.type]
-              )}
-            >
-              <Icon className="w-5 h-5 shrink-0" />
-              <p className="flex-1 text-sm font-medium">{toast.message}</p>
-              <button
-                onClick={() => removeToast(toast.id)}
-                className="shrink-0 p-1 rounded-full hover:bg-black/10"
-                aria-label={dismissLabel}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+<div
+       key={toast.id}
+       className={cn(
+         "flex items-center gap-3 p-4 rounded-lg border shadow-lg animate-in slide-in-from-bottom-5",
+         colors[toast.type]
+       )}
+       onMouseEnter={() => {
+         const timer = timersRef.current.get(toast.id);
+         if (timer) {
+           clearTimeout(timer);
+           timersRef.current.delete(toast.id);
+         }
+       }}
+       onMouseLeave={() => {
+         const timer = setTimeout(() => {
+           setToasts((prev) => prev.filter((t) => t.id !== toast.id));
+           timersRef.current.delete(toast.id);
+         }, 4000);
+         timersRef.current.set(toast.id, timer);
+       }}
+     >
+       <Icon className="w-5 h-5 shrink-0" />
+       <p className="flex-1 text-sm font-medium">{toast.message}</p>
+       <button
+         onClick={() => removeToast(toast.id)}
+         className="shrink-0 p-1 rounded-full hover:bg-black/10"
+         aria-label={dismissLabel}
+       >
+         <X className="w-4 h-4" />
+       </button>
+     </div>
           );
         })}
       </div>
