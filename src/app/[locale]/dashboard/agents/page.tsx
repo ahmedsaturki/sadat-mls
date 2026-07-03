@@ -103,17 +103,25 @@ export default function AgentsPage({
     }
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showToast(dict.common.unexpectedError, "error");
+        setSaving(false);
+        return;
+      }
+
       const res = await fetch("/api/agents", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
           ...getCsrfHeaders(),
         },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          full_name: formData.name,
-          office_id: officeId,
+          fullName: formData.name,
+          officeId,
           role: ROLES.OFFICE_AGENT,
         }),
       });
@@ -147,9 +155,19 @@ export default function AgentsPage({
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/agents?id=${deleteId}`, { 
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showToast(dict.common.unexpectedError, "error");
+        setSaving(false);
+        return;
+      }
+
+      const res = await fetch(`/api/agents?id=${deleteId}`, {
         method: "DELETE",
-        headers: getCsrfHeaders(),
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          ...getCsrfHeaders(),
+        },
       });
 
       if (!res.ok) {

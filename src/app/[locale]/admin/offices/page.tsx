@@ -150,6 +150,7 @@ const locale = usePageLocale(params);
 
     const result = officeSchema.safeParse({
       name: formData.name,
+      slug: formData.slug,
       email: formData.email,
       phone: formData.phone,
       address: formData.address,
@@ -195,17 +196,26 @@ const locale = usePageLocale(params);
         return;
       }
 
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showToast(dict.common.unexpectedError, "error");
+        await supabase.from("offices").delete().eq("id", office.id);
+        setSaving(false);
+        return;
+      }
+
       const res = await fetch("/api/agents", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
           ...getCsrfHeaders(),
         },
         body: JSON.stringify({
           email: formData.adminEmail,
           password: formData.adminPassword,
-          full_name: formData.adminName,
-          office_id: office.id,
+          fullName: formData.adminName,
+          officeId: office.id,
           role: ROLES.OFFICE_ADMIN,
         }),
       });
