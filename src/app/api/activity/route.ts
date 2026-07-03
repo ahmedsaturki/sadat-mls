@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
+import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
@@ -45,6 +46,13 @@ export async function POST(request: NextRequest) {
     const { allowed } = await checkApiRateLimit(`activity-post:${ip}`);
     if (!allowed) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    // CSRF validation
+    const isValidCsrf = await validateCsrfToken(request);
+    if (!isValidCsrf) {
+      logger.warn("Invalid CSRF token on activity POST", { ip });
+      return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
     }
 
     const supabase = await createClient();
