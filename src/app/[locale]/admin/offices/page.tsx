@@ -212,7 +212,9 @@ const locale = usePageLocale(params);
 
       if (!res.ok) {
         const result = await res.json();
-        showToast(result.error || dict.common.unexpectedError, "error");
+        // Rollback: delete the orphaned office since admin user creation failed
+        await supabase.from("offices").delete().eq("id", office.id);
+        showToast(dict.admin.offices?.agentCreationFailed || result.error || dict.common.unexpectedError, "error");
       } else {
         showToast(dict.admin.officeCreated, "success");
       }

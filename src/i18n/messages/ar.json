@@ -252,6 +252,9 @@
     "officeCreated": "تم إنشاء المكتب بنجاح",
     "officeDeleted": "تم حذف المكتب بنجاح",
     "confirmDeleteOffice": "هل أنت متأكد من حذف هذا المكتب؟",
+    "offices": {
+      "agentCreationFailed": "تم إنشاء المكتب لكن فشل إنشاء حساب المدير. تم التراجع عن إنشاء المكتب."
+    },
     "manageZones": "إدارة المناطق",
     "addZone": "إضافة منطقة",
     "editZone": "تعديل المنطقة",
