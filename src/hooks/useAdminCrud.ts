@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
@@ -100,8 +101,20 @@ export function useAdminCrud<T extends AdminCrudItem>({
     return () => { mountedRef.current = false; };
   }, [loadItems]);
 
+  const nameSchema = z.object({
+    nameAr: z.string().min(1, "Arabic name is required").max(200),
+    nameEn: z.string().max(200).optional().or(z.literal("")),
+  });
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const parsed = nameSchema.safeParse({ nameAr, nameEn });
+    if (!parsed.success) {
+      showToast(parsed.error.flatten().fieldErrors.nameAr?.[0] ?? "Invalid input", "error");
+      return;
+    }
+
     setSaving(true);
 
     try {

@@ -94,6 +94,13 @@ export default function AdminContactRequestsPage({
 
   const handleDelete = async () => {
     if (!deleteId) return;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(deleteId)) {
+      showToast(dict.common.unexpectedError, "error");
+      return;
+    }
+
     setDeleting(true);
 
     try {
