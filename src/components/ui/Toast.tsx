@@ -4,6 +4,15 @@ import { useState, useEffect, useRef, createContext, useContext, useCallback } f
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import enDict from "@/i18n/messages/en.json";
+import arDict from "@/i18n/messages/ar.json";
+
+// Toast is a global component rendered outside page context, so it cannot
+// receive a dict prop. Detect locale from the URL path instead — the project
+// uses /ar/* and /en/* prefixes consistently.
+const getLocaleFromPath = (): "ar" | "en" => {
+  if (typeof window === "undefined") return "ar";
+  return window.location.pathname.startsWith("/en") ? "en" : "ar";
+};
 
 type ToastType = "success" | "error" | "info" | "warning";
 
@@ -74,6 +83,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div className="fixed bottom-4 left-4 right-4 z-50 flex flex-col gap-2 sm:max-w-sm sm:left-auto sm:bottom-4" role="status" aria-live="polite">
         {toasts.map((toast) => {
           const Icon = icons[toast.type];
+          const locale = getLocaleFromPath();
+          const dismissLabel = locale === "en" ? enDict.common.dismiss : arDict.common.dismiss;
           return (
             <div
               key={toast.id}
@@ -87,7 +98,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <button
                 onClick={() => removeToast(toast.id)}
                 className="shrink-0 p-1 rounded-full hover:bg-black/10"
-                aria-label={enDict.common.dismiss}
+                aria-label={dismissLabel}
               >
                 <X className="w-4 h-4" />
               </button>
