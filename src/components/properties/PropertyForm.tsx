@@ -733,8 +733,10 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
                 dict={dict}
                 locale={locale}
                 owners={[ownerData]}
+                errors={errors}
                 onChange={handleOwnerChange}
                 onAdd={() => {}}
+                onRemove={() => {}}
               />
               {errors.owner_owner_name && (
                 <p className="text-red-500 text-xs mt-1">{errors.owner_owner_name}</p>
