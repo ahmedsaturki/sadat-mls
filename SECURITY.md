@@ -8,12 +8,14 @@
 ```
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
-X-XSS-Protection: 1; mode=block
+X-XSS-Protection: 0 (deprecated, CSP replaces)
 Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: camera=(), microphone=(), geolocation=()
 Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-Content-Security-Policy: nonce-based scripts
+Content-Security-Policy: nonce-based scripts + style-src 'unsafe-inline' (Tailwind)
 ```
+
+**CSP Note:** `style-src 'unsafe-inline'` is required because Tailwind CSS 4 injects `<style>` tags at runtime for dynamic utility classes. The critical protection is on `<script>` tags which are nonce-enforced. This is an accepted limitation of Tailwind's runtime — CSS injection via `style-src` has minimal security impact compared to script injection.
 
 ### CSRF Protection
 - نمط double-submit cookie
