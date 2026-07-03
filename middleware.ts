@@ -9,9 +9,6 @@ const defaultLocale = "ar";
 /** Routes that require authentication (protected paths) */
 const PROTECTED_PREFIXES = ["/admin", "/dashboard"];
 
-/** API routes requiring CSRF tokens for state-changing operations */
-const PROTECTED_API_ROUTES = ["/api/agents", "/api/auth/resend-verification"];
-
 /** Allows both partial matches and exact matches for route protection */
 function needsAuth(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
@@ -88,33 +85,39 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-/** Seed CSRF token for API calls and authenticated users */
-async function seedCsrfToken(cookieStore: { get(name: string): { value: string } | undefined }, request: NextRequest) {
-  const existingCsrf = cookieStore.get("csrf_token");
-
-  if (existingCsrf?.value) {
-    try {
-      const parts = existingCsrf.value.split(".");
-      if (parts.length === 2) {
-        const timestamp = parseInt(parts[0], 10);
-        if (!isNaN(timestamp) && Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-          return; // Token is still valid
-        }
+/** Read existing CSRF token and check if it's still valid (24h) */
+function csrfTokenValid(token: string | undefined): boolean {
+  if (!token) return false;
+  try {
+    const parts = token.split(".");
+    if (parts.length === 2) {
+      const timestamp = parseInt(parts[0], 10);
+      if (!isNaN(timestamp) && Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+        return true;
       }
-    } catch {
-      // If parsing fails, generate new token
     }
+  } catch {
+    // If parsing fails, generate new token
+  }
+  return false;
+}
+
+/** Seed CSRF token for API calls and authenticated users by mutating the response */
+function seedCsrfToken(response: NextResponse, existingToken: string | undefined) {
+  if (csrfTokenValid(existingToken)) {
+    return;
   }
 
-  // Generate cryptographically secure CSRF token
+  // Generate cryptographically secure CSRF token with timestamp prefix
+  const timestamp = Date.now();
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  const token = btoa(String.fromCharCode(...array));
+  const randomPart = Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
+  const token = `${timestamp}.${randomPart}`;
 
-  const response = NextResponse.next();
   response.cookies.set("csrf_token", token, {
     httpOnly: false,
-    secure: process.env.NODE_ENV === "production", 
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24,
     path: "/",
@@ -124,10 +127,17 @@ async function seedCsrfToken(cookieStore: { get(name: string): { value: string }
   // No need to set x-csrf-token header on every response (leaks token).
 }
 
+/** Build a base page response and seed a valid CSRF token if needed */
+function buildPageResponse(request: NextRequest): NextResponse {
+  const response = NextResponse.next();
+  const existingCsrf = request.cookies.get("csrf_token")?.value;
+  seedCsrfToken(response, existingCsrf);
+  return response;
+}
+
 /** Middleware with comprehensive auth, CSRF, rate limiting, and locale support */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const cookieStore = await cookies();
 
   // Skip non-page routes - apply only security headers
   if (
@@ -152,6 +162,9 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/api")) {
     return applySecurityHeaders(NextResponse.next());
   }
+
+  // Single page response we'll mutate and return; CSRF token is seeded once.
+  const response = buildPageResponse(request);
 
   // Create Supabase server client for auth validation (page routes only)
   const supabase = createServerClient(
@@ -179,19 +192,15 @@ export async function middleware(request: NextRequest) {
       const locale = getLocale(request);
       const loginUrl = new URL(`/${locale}/login`, request.url);
       loginUrl.searchParams.set("next", pathname);
-      return applySecurityHeaders(NextResponse.redirect(loginUrl));
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      seedCsrfToken(redirectResponse, request.cookies.get("csrf_token")?.value);
+      return applySecurityHeaders(redirectResponse);
     }
-
-    // Seed CSRF token for authenticated users on protected routes
-    await seedCsrfToken(cookieStore, request);
-  } else {
-    // For non-protected routes, still seed CSRF for API calls
-    await seedCsrfToken(cookieStore, request);
   }
 
   // Skip RSC prefetch requests
   if (request.nextUrl.searchParams.has("_rsc")) {
-    return applySecurityHeaders(NextResponse.next());
+    return applySecurityHeaders(response);
   }
 
   // Locale handling for non-API routes
@@ -199,14 +208,16 @@ export async function middleware(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
 
-  if (!pathnameHasLocale && !pathname.startsWith("/api")) {
+  if (!pathnameHasLocale) {
     const locale = getLocale(request);
     const normalizedPathname = pathname === "/" ? "" : pathname;
     const newUrl = new URL(`/${locale}${normalizedPathname}`, request.url);
-    return applySecurityHeaders(NextResponse.redirect(newUrl));
+    const redirectResponse = NextResponse.redirect(newUrl);
+    seedCsrfToken(redirectResponse, request.cookies.get("csrf_token")?.value);
+    return applySecurityHeaders(redirectResponse);
   }
 
-  return applySecurityHeaders(NextResponse.next());
+  return applySecurityHeaders(response);
 }
 
 export const config = {
