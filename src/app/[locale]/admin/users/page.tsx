@@ -20,6 +20,7 @@ import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { getCsrfHeaders } from "@/lib/security/csrf-client";
+import { getFirstPasswordError } from "@/lib/security/password-rules";
 
 interface UserRecord {
   id: string;
@@ -164,6 +165,15 @@ export default function AdminUsersPage({
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
+
+    // Client-side password complexity check (mirrors server-side PasswordService.validate)
+    // Server-only module cannot be imported in client components; uses shared rules module.
+    const passwordErr = getFirstPasswordError(createForm.password);
+    if (passwordErr) {
+      showToast(passwordErr, "error");
+      setCreating(false);
+      return;
+    }
 
     try {
       const { data: { session } } = await supabase.auth.getSession();

@@ -18,6 +18,7 @@ import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { getCsrfHeaders } from "@/lib/security/csrf-client";
+import { getFirstPasswordError } from "@/lib/security/password-rules";
 
 interface Agent {
   id: string;
@@ -91,6 +92,15 @@ export default function AgentsPage({
   const handleCreateAgent = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+
+    // Client-side password complexity check (mirrors server-side PasswordService.validate)
+    // Server-only module cannot be imported in client components; uses shared rules module.
+    const passwordErr = getFirstPasswordError(formData.password);
+    if (passwordErr) {
+      showToast(passwordErr, "error");
+      setSaving(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/agents", {
