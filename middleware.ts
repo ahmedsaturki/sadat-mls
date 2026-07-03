@@ -120,8 +120,8 @@ async function seedCsrfToken(cookieStore: { get(name: string): { value: string }
     path: "/",
   });
 
-  // Set headers to ensure this response is returned
-  response.headers.set("x-csrf-token", token);
+  // Token is in the cookie (httpOnly: false) — client reads it directly.
+  // No need to set x-csrf-token header on every response (leaks token).
 }
 
 /** Middleware with comprehensive auth, CSRF, rate limiting, and locale support */

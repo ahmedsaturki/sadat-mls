@@ -1,5 +1,12 @@
 import "server-only";
 
+/**
+ * WARNING: This module decodes JWT payloads WITHOUT verifying the cryptographic
+ * signature. It is intended only for reading trusted tokens issued by Supabase
+ * Auth (which handles signature verification server-side). Do NOT use this to
+ * validate untrusted tokens — always verify via Supabase's auth.getUser() first.
+ */
+
 interface JwtPayload {
   userId: string;
   email: string;

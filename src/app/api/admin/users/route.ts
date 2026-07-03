@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { logger } from "@/lib/logger";
 import { validateCsrfToken } from "@/lib/security/csrf";
@@ -64,9 +65,24 @@ export async function GET(request: NextRequest) {
 
   const supabase = getAdminClient();
   const { searchParams } = new URL(request.url);
-  const search = searchParams.get("search") || "";
-  const role = searchParams.get("role") || "";
-  const officeId = searchParams.get("office_id") || "";
+
+  const querySchema = z.object({
+    search: z.string().max(100).regex(/^[a-zA-Z0-9\s@._-]*$/, "Invalid search characters").default(""),
+    role: z.enum(["", ...Object.values(ROLES)] as [string, ...string[]]).default(""),
+    office_id: z.string().uuid("Invalid office ID").or(z.literal("")).default(""),
+  });
+
+  const parsed = querySchema.safeParse({
+    search: searchParams.get("search") || "",
+    role: searchParams.get("role") || "",
+    office_id: searchParams.get("office_id") || "",
+  });
+
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid query parameters", details: parsed.error.flatten().fieldErrors }, { status: 400 });
+  }
+
+  const { search, role, office_id: officeId } = parsed.data;
 
   let query = supabase
     .from("users")
