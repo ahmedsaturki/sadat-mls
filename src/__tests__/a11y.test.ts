@@ -14,7 +14,7 @@ describe("useEscapeKey", () => {
   });
 
   it("calls callback when Escape is pressed", () => {
-    renderHook(() => useEscapeKey(handler));
+    renderHook(() => useEscapeKey(handler as unknown as () => void));
 
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
@@ -24,7 +24,7 @@ describe("useEscapeKey", () => {
   });
 
   it("does not call callback for other keys", () => {
-    renderHook(() => useEscapeKey(handler));
+    renderHook(() => useEscapeKey(handler as unknown as () => void));
 
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
@@ -34,7 +34,7 @@ describe("useEscapeKey", () => {
   });
 
   it("does not call callback when disabled", () => {
-    renderHook(() => useEscapeKey(handler, false));
+    renderHook(() => useEscapeKey(handler as unknown as () => void, false));
 
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
@@ -44,7 +44,7 @@ describe("useEscapeKey", () => {
   });
 
   it("removes listener on unmount", () => {
-    const { unmount } = renderHook(() => useEscapeKey(handler));
+    const { unmount } = renderHook(() => useEscapeKey(handler as unknown as () => void));
 
     unmount();
 

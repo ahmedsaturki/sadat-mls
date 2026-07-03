@@ -14,7 +14,7 @@ import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import PageHeader from "@/components/ui/PageHeader";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { SkeletonDashboard } from "@/components/ui/Skeleton";
-import { User, Building2 } from "lucide-react";
+import { User, Building2, Camera, Lock } from "lucide-react";
 import { logger } from "@/lib/logger";
 import { useAuthUser } from "@/hooks/useAuthUser";
 
@@ -30,6 +30,7 @@ export default function SettingsPage({
   const [officeId, setOfficeId] = useState("");
   const [logoUrls, setLogoUrls] = useState<{ preview?: string }>({});
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [profileData, setProfileData] = useState({
     full_name: "",
@@ -45,6 +46,22 @@ export default function SettingsPage({
     logo_url: "",
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
+
+  // Avatar state
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<{ [key: string]: string }>({});
+
   const { showToast } = useToast();
   const { supabase, user, profile } = useAuthUser();
   const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
@@ -67,18 +84,29 @@ export default function SettingsPage({
 
       if (profile) {
         setProfileData({
-          full_name: profile.full_name || "",
+          full_name: profile.fullName || "",
           email: profile.email || "",
           phone: profile.phone || "",
         });
 
-        if (profile.office_id) {
-          setOfficeId(profile.office_id);
+        // Fetch avatar_url from full profile
+        const { data: fullProfile } = await supabase
+          .from("users")
+          .select("avatar_url")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (fullProfile?.avatar_url) {
+          setAvatarUrl(fullProfile.avatar_url);
+        }
+
+        if (profile.officeId) {
+          setOfficeId(profile.officeId);
 
           const { data: office, error: officeError } = await supabase
             .from("offices")
             .select("id, name, email, phone, address, logo_url")
-            .eq("id", profile.office_id)
+            .eq("id", profile.officeId)
             .maybeSingle();
 
           if (officeError) {
@@ -116,8 +144,11 @@ export default function SettingsPage({
       if (logoUrls.preview && logoUrls.preview.startsWith("blob:")) {
         URL.revokeObjectURL(logoUrls.preview);
       }
+      if (avatarPreview && avatarPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarPreview);
+      }
     };
-  }, [logoUrls.preview]);
+  }, [logoUrls.preview, avatarPreview]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,13 +167,126 @@ export default function SettingsPage({
         showToast(dict.common.unexpectedError, "error");
       } else {
         setIsDirty(false);
-        showToast(dict.common.save, "success");
+        showToast(dict.office.profileUpdated || dict.common.save, "success");
       }
     } catch (err) {
       logger.error("Failed to save profile", { error: err instanceof Error ? err.message : String(err) });
       showToast(dict.common.unexpectedError, "error");
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Avatar upload
+  const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      showToast(dict.office.imageTooLarge || dict.contact.imageSizeError, "error");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      showToast(dict.office.notAnImage || dict.contact.notImage, "error");
+      return;
+    }
+
+    setAvatarFile(file);
+    const url = URL.createObjectURL(file);
+    if (avatarPreview && avatarPreview.startsWith("blob:")) URL.revokeObjectURL(avatarPreview);
+    setAvatarPreview(url);
+    setIsDirty(true);
+  }, [avatarPreview, showToast, dict]);
+
+  const handleUploadAvatar = async () => {
+    if (!avatarFile || !userId) return;
+    setUploadingAvatar(true);
+
+    try {
+      const ext = avatarFile.name.split(".").pop();
+      const filePath = `avatars/${userId}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, avatarFile, { upsert: true });
+
+      if (uploadError) {
+        showToast(dict.office.avatarError || dict.common.unexpectedError, "error");
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const newAvatarUrl = urlData.publicUrl;
+
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ avatar_url: newAvatarUrl })
+        .eq("id", userId);
+
+      if (updateError) {
+        showToast(dict.common.unexpectedError, "error");
+        return;
+      }
+
+      setAvatarUrl(newAvatarUrl);
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setIsDirty(false);
+      showToast(dict.office.avatarUploaded || dict.common.success, "success");
+    } catch (err) {
+      logger.error("Failed to upload avatar", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  // Password change
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangingPassword(true);
+    setPasswordErrors({});
+
+    const errors: { [key: string]: string } = {};
+    if (!passwordData.current_password) {
+      errors.current_password = dict.office.required || dict.common.error;
+    }
+    if (passwordData.new_password.length < 8) {
+      errors.new_password = dict.office.passwordMinLength;
+    }
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      errors.confirm_password = dict.auth.passwordMismatch;
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setPasswordErrors(errors);
+      setChangingPassword(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.new_password,
+      });
+
+      if (error) {
+        if (error.message.includes("password")) {
+          setPasswordErrors({ current_password: dict.office.wrongPassword || error.message });
+        } else {
+          showToast(dict.office.passwordError || dict.common.unexpectedError, "error");
+        }
+        return;
+      }
+
+      setPasswordData({ current_password: "", new_password: "", confirm_password: "" });
+      showToast(dict.office.passwordUpdated || dict.common.success, "success");
+    } catch (err) {
+      logger.error("Failed to change password", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -216,6 +360,8 @@ export default function SettingsPage({
     }
   }, [logoUrls.preview, showToast, dict]);
 
+  const displayAvatar = avatarPreview || avatarUrl;
+
   return (
     <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <ErrorBoundary>
@@ -226,7 +372,7 @@ export default function SettingsPage({
             <SkeletonDashboard />
           ) : (
             <>
-              {/* Profile Settings */}
+              {/* Avatar & Profile Settings */}
               <Card>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -234,7 +380,46 @@ export default function SettingsPage({
                   </div>
                   <CardTitle>{dict.office.profileSettings}</CardTitle>
                 </div>
-                <form onSubmit={handleSaveProfile} className="space-y-4 mt-4">
+
+                {/* Avatar Section */}
+                <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+                  <div className="relative group">
+                    {displayAvatar ? (
+                      <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                        <Image src={displayAvatar} alt={dict.office.avatar || ""} fill className="object-cover" sizes="80px" unoptimized />
+                      </div>
+                    ) : (
+                      <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-2xl font-bold text-blue-600">
+                        {(profileData.full_name || profileData.email).charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <Camera className="w-5 h-5 text-white" />
+                      <input
+                        ref={avatarInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600">{dict.office.avatar || dict.office.logo}</p>
+                    <p className="text-xs text-gray-400 mb-2">JPG, PNG, max 2MB</p>
+                    {avatarFile && (
+                      <Button
+                        size="sm"
+                        onClick={handleUploadAvatar}
+                        isLoading={uploadingAvatar}
+                      >
+                        {dict.office.uploadAvatar || dict.common.save}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <form onSubmit={handleSaveProfile} className="space-y-4">
                   <Input
                     label={dict.admin.adminName}
                     value={profileData.full_name}
@@ -254,6 +439,47 @@ export default function SettingsPage({
                   <div className="flex justify-end">
                     <Button type="submit" isLoading={saving}>
                       {dict.common.save}
+                    </Button>
+                  </div>
+                </form>
+              </Card>
+
+              {/* Password Change */}
+              <Card>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <CardTitle>{dict.office.changePassword}</CardTitle>
+                </div>
+                <form onSubmit={handlePasswordChange} className="space-y-4 mt-4">
+                  <Input
+                    label={dict.office.currentPassword}
+                    type="password"
+                    value={passwordData.current_password}
+                    onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
+                    error={passwordErrors.current_password}
+                    autoComplete="current-password"
+                  />
+                  <Input
+                    label={dict.office.newPassword}
+                    type="password"
+                    value={passwordData.new_password}
+                    onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                    error={passwordErrors.new_password}
+                    autoComplete="new-password"
+                  />
+                  <Input
+                    label={dict.office.confirmNewPassword}
+                    type="password"
+                    value={passwordData.confirm_password}
+                    onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                    error={passwordErrors.confirm_password}
+                    autoComplete="new-password"
+                  />
+                  <div className="flex justify-end">
+                    <Button type="submit" isLoading={changingPassword}>
+                      {dict.office.changePassword}
                     </Button>
                   </div>
                 </form>

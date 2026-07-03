@@ -1,125 +1,178 @@
 import { z } from "zod";
 
-export const propertySchema = z.object({
-  title: z
-    .string()
-    .min(3)
-    .max(200),
-  description: z.string().max(5000).optional().or(z.literal("")),
-  property_type_id: z.string().uuid().optional().or(z.literal("")),
-  zone_id: z.string().uuid().optional().or(z.literal("")),
-  street: z.string().max(200).optional().or(z.literal("")),
-  price: z
-    .string()
-    .min(1)
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0)
-    .refine((val) => Number(val) <= 999999999),
-  area: z
-    .string()
-    .min(1)
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0),
-  bedrooms: z
-    .string()
-    .min(1)
-    .refine(
-      (val) => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 20
-    ),
-  bathrooms: z
-    .string()
-    .min(1)
-    .refine(
-      (val) => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 10
-    ),
-  floors: z
-    .string()
-    .optional()
-    .or(z.literal(""))
-    .refine(
-      (val) => !val || (!isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100)
-    ),
-  has_balcony: z.boolean().default(false),
-  has_parking: z.boolean().default(false),
-  has_elevator: z.boolean().default(false),
-  status: z.enum(["available", "reserved", "sold", "rented", "pending_review"]).default("available"),
+export const agentSchema = z.object({
+  email: z.string().email({
+    message: "Please enter a valid email address",
+  }),
+  password: z.string().min(8, {
+    message: "Password must be at least 8 characters",
+  }).max(128, {
+    message: "Password cannot exceed 128 characters",
+  }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: "Password must include uppercase, lowercase, number, and special character",
+  }),
+  fullName: z.string().min(2, {
+    message: "Name must be at least 2 characters",
+  }).max(100, {
+    message: "Name cannot exceed 100 characters",
+  }),
+  role: z.enum(["office_agent", "office_admin"], {
+    message: "Role must be either office_agent or office_admin",
+  }),
+  officeId: z.string().uuid({
+    message: "Invalid office ID",
+  }),
+  phone: z.string().optional(),
 });
 
-export type PropertyFormData = z.infer<typeof propertySchema>;
+export const propertySchema = z.object({
+  title: z.string().min(1, {
+    message: "Title is required",
+  }).max(200, {
+    message: "Title cannot exceed 200 characters",
+  }),
+  description: z.string().optional(),
+  price: z.number().positive({
+    message: "Price must be positive",
+  }),
+  propertyTypeId: z.string().uuid({
+    message: "Invalid property type ID",
+  }),
+  zoneId: z.string().uuid({
+    message: "Invalid zone ID",
+  }),
+  bedrooms: z.number().int().min(0, {
+    message: "Bedrooms must be at least 0",
+  }).optional(),
+  bathrooms: z.number().int().min(0, {
+    message: "Bathrooms must be at least 0",
+  }).optional(),
+  area: z.number().positive({
+    message: "Area must be positive",
+  }).optional(),
+  address: z.string().optional(),
+  status: z.enum(["active", "pending", "sold", "rented", "inactive"], {
+    message: "Invalid status",
+  }),
+});
 
 export const ownerSchema = z.object({
-  owner_name: z.string().max(100).optional().or(z.literal("")),
-  owner_phone: z
-    .string()
-    .min(10)
-    .refine((val) => /^0[0-9]{9,10}$/.test(val)),
-  owner_email: z
-    .string()
-    .optional()
-    .or(z.literal(""))
-    .refine(
-      (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
-    ),
-  notes: z.string().max(500).optional().or(z.literal("")),
+  fullName: z.string().min(2, {
+    message: "Name must be at least 2 characters",
+  }).max(100, {
+    message: "Name cannot exceed 100 characters",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address",
+  }).optional(),
+  phone: z.string().min(10, {
+    message: "Phone must be at least 10 characters",
+  }).max(20, {
+    message: "Phone cannot exceed 20 characters",
+  }).optional(),
+  address: z.string().optional(),
 });
-
-export type OwnerFormData = z.infer<typeof ownerSchema>;
 
 export const officeSchema = z.object({
-  name: z
-    .string()
-    .min(2)
-    .max(100),
-  email: z.string().email().optional().or(z.literal("")),
-  phone: z
-    .string()
-    .optional()
-    .or(z.literal(""))
-    .refine(
-      (val) => !val || /^0[0-9]{9,10}$/.test(val)
-    ),
-  address: z.string().max(300).optional().or(z.literal("")),
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters",
+  }).max(100, {
+    message: "Name cannot exceed 100 characters",
+  }),
+  slug: z.string().min(2, {
+    message: "Slug must be at least 2 characters",
+  }).max(100, {
+    message: "Slug cannot exceed 100 characters",
+  }).regex(/^[a-z0-9-]+$/, {
+    message: "Slug can only contain lowercase letters, numbers, and hyphens",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address",
+  }).optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  description: z.string().optional(),
+  logoUrl: z.string().url({
+    message: "Invalid logo URL",
+  }).optional(),
 });
 
-export type OfficeFormData = z.infer<typeof officeSchema>;
+export const authSchemas = {
+  login: z.object({
+    email: z.string().email({
+      message: "Please enter a valid email address",
+    }),
+    password: z.string().min(1, {
+      message: "Password is required",
+    }),
+    rememberMe: z.boolean().default(false),
+  }),
 
-export const agentSchema = z.object({
-  full_name: z
-    .string()
-    .min(2)
-    .max(100),
-  email: z.string().email(),
-  password: z
-    .string()
-    .min(8)
-    .max(128),
-  phone: z
-    .string()
-    .optional()
-    .or(z.literal(""))
-    .refine(
-      (val) => !val || /^0[0-9]{9,10}$/.test(val)
-    ),
-});
+  register: z.object({
+    fullName: z.string().min(2, {
+      message: "Name must be at least 2 characters",
+    }).max(100, {
+      message: "Name cannot exceed 100 characters",
+    }),
+    email: z.string().email({
+      message: "Please enter a valid email address",
+    }),
+    password: z.string().min(8, {
+      message: "Password must be at least 8 characters",
+    }).max(128, {
+      message: "Password cannot exceed 128 characters",
+    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/, {
+      message: "Password must include uppercase, lowercase, number, and special character",
+    }),
+    officeId: z.string().uuid().optional(),
+    termsAccepted: z.boolean().refine((val) => val === true, {
+      message: "You must accept the terms and conditions",
+    }),
+  }),
 
-export type AgentFormData = z.infer<typeof agentSchema>;
+  forgotPassword: z.object({
+    email: z.string().email({
+      message: "Please enter a valid email address",
+    }),
+  }),
 
-export const contactSchema = z.object({
-  name: z.string().min(2).max(100),
-  phone: z
-    .string()
-    .optional()
-    .or(z.literal(""))
-    .refine(
-      (val) => !val || /^0[0-9]{9,10}$/.test(val),
-      { message: "Invalid phone format" }
-    ),
-  message: z.string().max(1000).optional().or(z.literal("")),
-});
+  resetPassword: z.object({
+    token: z.string().min(1, {
+      message: "Reset token is required",
+    }),
+    newPassword: z.string().min(8, {
+      message: "New password must be at least 8 characters",
+    }).max(128, {
+      message: "Password cannot exceed 128 characters",
+    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/, {
+      message: "Password must include uppercase, lowercase, number, and special character",
+    }),
+    confirmPassword: z.string(),
+  }).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  }),
 
-export type ContactFormData = z.infer<typeof contactSchema>;
+  verifyEmail: z.object({
+    token: z.string().min(1, {
+      message: "Verification token is required",
+    }),
+  }),
 
-export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
-
-export type LoginFormData = z.infer<typeof loginSchema>;
+  changePassword: z.object({
+    currentPassword: z.string().min(1, {
+      message: "Current password is required",
+    }),
+    newPassword: z.string().min(8, {
+      message: "New password must be at least 8 characters",
+    }).max(128, {
+      message: "Password cannot exceed 128 characters",
+    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/, {
+      message: "Password must include uppercase, lowercase, number, and special character",
+    }),
+    confirmPassword: z.string(),
+  }).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  }),
+};

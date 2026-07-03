@@ -53,17 +53,17 @@ export default function AgentsPage({
     try {
       if (!user || !mountedRef.current) return;
 
-      if (!profile?.office_id) {
+      if (!profile?.officeId) {
         setLoading(false);
         return;
       }
 
-      setOfficeId(profile.office_id);
+      setOfficeId(profile.officeId);
 
       const { data, error: agentsError } = await supabase
         .from("users")
         .select("id, email, full_name, role, is_active, created_at")
-        .eq("office_id", profile.office_id)
+        .eq("office_id", profile.officeId)
         .eq("role", ROLES.OFFICE_AGENT)
         .order("created_at", { ascending: false });
 

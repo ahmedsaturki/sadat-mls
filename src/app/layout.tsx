@@ -1,6 +1,7 @@
 import { Cairo } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { headers } from "next/headers";
 import Providers from "@/components/Providers";
 import "./globals.css";
 import { getMessages } from "@/i18n/getMessages";
@@ -45,8 +46,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const dict = getMessages("ar");
+  const headersList = await headers();
+  const nonce = headersList.get("x-nonce") || "";
   return (
-    <html lang="ar" dir="rtl" className={cairo.variable} data-scroll-behavior="smooth">
+    <html lang="ar" dir="rtl" className={cairo.variable} data-scroll-behavior="smooth" nonce={nonce}>
       <head>
         <Script
           id="locale-sync"

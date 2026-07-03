@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { logger } from "@/lib/logger";
 
 export function useLocalStorage<T>(
   key: string,
@@ -23,7 +24,7 @@ export function useLocalStorage<T>(
         setStoredValue(valueToStore);
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (error) {
-        console.error("localStorage set error:", error);
+        logger.error("localStorage set error", { error: error instanceof Error ? error.message : String(error) });
       }
     },
     [key, storedValue]
@@ -34,7 +35,7 @@ export function useLocalStorage<T>(
       window.localStorage.removeItem(key);
       setStoredValue(initialValue);
     } catch (error) {
-      console.error("localStorage remove error:", error);
+      logger.error("localStorage remove error", { error: error instanceof Error ? error.message : String(error) });
     }
   }, [key, initialValue]);
 
@@ -62,7 +63,7 @@ export function useSessionStorage<T>(
         setStoredValue(valueToStore);
         window.sessionStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (error) {
-        console.error("sessionStorage set error:", error);
+        logger.error("sessionStorage set error", { error: error instanceof Error ? error.message : String(error) });
       }
     },
     [key, storedValue]
@@ -73,7 +74,7 @@ export function useSessionStorage<T>(
       window.sessionStorage.removeItem(key);
       setStoredValue(initialValue);
     } catch (error) {
-      console.error("sessionStorage remove error:", error);
+      logger.error("sessionStorage remove error", { error: error instanceof Error ? error.message : String(error) });
     }
   }, [key, initialValue]);
 
@@ -116,7 +117,7 @@ export function useSyncLocalStorage<T>(
         setStoredValue(valueToStore);
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (error) {
-        console.error("localStorage set error:", error);
+        logger.error("localStorage set error", { error: error instanceof Error ? error.message : String(error) });
       }
     },
     [key, storedValue]

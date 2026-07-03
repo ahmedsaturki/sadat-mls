@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card, { CardTitle } from "@/components/ui/Card";
 import PropertyCard from "@/components/properties/PropertyCard";
-import { Home, Plus, Users, Mail, Settings, UserPlus } from "lucide-react";
+import { Home, Plus, Users, Mail } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { ROLES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
 import { getServerAuth } from "@/lib/supabase/server-auth";
+import ActivityFeed from "@/components/dashboard/ActivityFeed";
 
 interface PropertyImage {
   property_id: string;
@@ -249,39 +250,12 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
             </div>
           </Card>
 
-          {/* Quick Actions */}
+          {/* Recent Activity */}
           <Card>
-            <CardTitle>{dict.admin.quickActions}</CardTitle>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Link
-                href={`/${locale}/dashboard/properties/new`}
-                className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              >
-                <Plus className="w-5 h-5 text-blue-600" />
-                <span className="font-medium text-blue-900">{dict.office.addProperty}</span>
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/agents`}
-                className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              >
-                <UserPlus className="w-5 h-5 text-purple-600" />
-                <span className="font-medium text-purple-900">{dict.office.addAgent}</span>
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/contact-requests`}
-                className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              >
-                <Mail className="w-5 h-5 text-orange-600" />
-                <span className="font-medium text-orange-900">{dict.nav.contactRequests}</span>
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/settings`}
-                className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              >
-                <Settings className="w-5 h-5 text-gray-600" />
-                <span className="font-medium text-gray-900">{dict.common.settings}</span>
-              </Link>
+            <div className="flex items-center justify-between mb-4">
+              <CardTitle>{dict.office?.recentActivity || "Recent Activity"}</CardTitle>
             </div>
+            <ActivityFeed locale={locale} dict={dict} officeId={profile.office_id} />
           </Card>
         </div>
 

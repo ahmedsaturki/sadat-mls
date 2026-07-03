@@ -143,6 +143,21 @@ export default function ContactModal({
       setFormData({ visitor_name: "", visitor_phone: "", visitor_email: "", message: "" });
       clearContactAttempts();
 
+      // Create notification for office members (fire-and-forget)
+      if (officeId) {
+        fetch("/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            office_id: officeId,
+            type: "contact_request",
+            title: `New inquiry from ${trimmedName}`,
+            message: trimmedMessage.substring(0, 200),
+            entity_type: "contact_request",
+          }),
+        }).catch(() => {});
+      }
+
       if (contactType === "whatsapp" && whatsappUrl) {
         window.open(whatsappUrl, "_blank", "noopener,noreferrer");
       } else if (contactType === "phone" && officePhone) {

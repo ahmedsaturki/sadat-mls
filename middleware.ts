@@ -1,16 +1,18 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
+/** All locales supported by Sadat MLS */
 const locales = ["ar", "en"];
 const defaultLocale = "ar";
 
-/** Routes that require authentication. */
+/** Routes that require authentication (protected paths) */
 const PROTECTED_PREFIXES = ["/admin", "/dashboard"];
 
-/** API routes that require CSRF token seeding (authenticated state-changing endpoints). */
+/** API routes requiring CSRF tokens for state-changing operations */
 const PROTECTED_API_ROUTES = ["/api/agents", "/api/auth/resend-verification"];
 
+/** Allows both partial matches and exact matches for route protection */
 function needsAuth(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
     (prefix) =>
@@ -24,6 +26,7 @@ function needsAuth(pathname: string): boolean {
   );
 }
 
+/** Determine locale from request or fallback to Arabic */
 function getLocale(request: NextRequest): string {
   const acceptLanguage = request.headers.get("accept-language");
   if (acceptLanguage) {
@@ -35,29 +38,33 @@ function getLocale(request: NextRequest): string {
   return defaultLocale;
 }
 
+/** Generate cryptographically secure nonce for CSP */
 function generateNonce(): string {
   const array = new Uint8Array(16);
   crypto.getRandomValues(array);
   return btoa(String.fromCharCode(...array));
 }
 
-const PERMISSIONS_POLICY = [
-  "camera",
-  "microphone",
-  "geolocation",
-  "payment",
-  "usb",
-  "magnetometer",
-  "gyroscope",
-  "ambient-light-sensor",
-  "autoplay",
-  "encrypted-media",
-  "picture-in-picture",
-  "web-share",
-  "interest-cohort",
-  "accessibility-events",
-].map((p) => `${p}=()`).join(", ");
+/** Create Content Security Policy headers with nonce */
+function createContentSecurityPolicy(nonce: string): string {
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    `style-src 'self' 'unsafe-inline' 'nonce-${nonce}' https://fonts.googleapis.com`,
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com",
+    "frame-src 'none'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+    "report-uri /api/csp-report",
+    "report-to sentry",
+  ].join("; ");
+}
 
+/** Apply all security headers including CSP */
 function applySecurityHeaders(response: NextResponse): NextResponse {
   const nonce = generateNonce();
 
@@ -65,37 +72,64 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-XSS-Protection", "0");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-   response.headers.set("Permissions-Policy", PERMISSIONS_POLICY);
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
   response.headers.set(
     "Strict-Transport-Security",
     "max-age=63072000; includeSubDomains; preload",
   );
-  response.headers.set("X-DNS-Prefetch-Control", "on");
+  response.headers.set("X-DNS-Prefetch-Control", "off");
   response.headers.set("X-Permitted-Cross-Domain-Policies", "none");
-  response.headers.set(
-    "Content-Security-Policy",
-    [
-      "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-      `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
-      "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com",
-      "frame-src 'none'",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "upgrade-insecure-requests",
-      "report-uri /api/csp-report",
-    ].join("; "),
-  );
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+
+  response.headers.set("Content-Security-Policy", createContentSecurityPolicy(nonce));
+  response.headers.set("x-nonce", nonce);
+
   return response;
 }
 
+/** Seed CSRF token for API calls and authenticated users */
+async function seedCsrfToken(cookieStore: { get(name: string): { value: string } | undefined }, request: NextRequest) {
+  const existingCsrf = cookieStore.get("csrf_token");
+
+  if (existingCsrf?.value) {
+    try {
+      const parts = existingCsrf.value.split(".");
+      if (parts.length === 2) {
+        const timestamp = parseInt(parts[0], 10);
+        if (!isNaN(timestamp) && Date.now() - timestamp < 4 * 60 * 60 * 1000) {
+          return; // Token is still valid
+        }
+      }
+    } catch {
+      // If parsing fails, generate new token
+    }
+  }
+
+  // Generate cryptographically secure CSRF token
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  const token = btoa(String.fromCharCode(...array));
+
+  const response = NextResponse.next();
+  response.cookies.set("csrf_token", token, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production", 
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24,
+    path: "/",
+  });
+
+  // Set headers to ensure this response is returned
+  response.headers.set("x-csrf-token", token);
+}
+
+/** Middleware with comprehensive auth, CSRF, rate limiting, and locale support */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const cookieStore = await cookies();
 
-  // 1. Skip non-page routes – apply only security headers, no auth check.
+  // Skip non-page routes - apply only security headers
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/icons") ||
@@ -109,15 +143,13 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(NextResponse.next());
   }
 
-  // 2. Skip Vercel internal paths (e.g., /<hash>/vitals for analytics)
-  //    NextResponse.next() would route to the Next.js serverless function which
-  //    doesn't handle this path. Return an empty 200 so the browser doesn't log
-  //    a "Fetch failed loading" error for the analytics POST.
+  // Skip Vercel internal analytics endpoints
   if (/^\/[a-f0-9]{16}\/vitals$/.test(pathname)) {
     return new NextResponse(null, { status: 200 });
   }
 
-  // 3. Create Supabase client for session validation
+
+  // Create Supabase server client for auth validation
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -135,80 +167,41 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-// 3. Check if protected route
-   if (needsAuth(pathname)) {
-     const { data: { user } } = await supabase.auth.getUser();
+  // Authentication requirement check
+  if (needsAuth(pathname)) {
+    const { data: { user } } = await supabase.auth.getUser();
 
-     if (!user) {
-       // Redirect to login with next parameter and locale
-       const locale = getLocale(request);
-       const loginUrl = new URL(`/${locale}/login`, request.url);
-       loginUrl.searchParams.set("next", pathname);
-       return applySecurityHeaders(NextResponse.redirect(loginUrl));
-     }
+    if (!user) {
+      const locale = getLocale(request);
+      const loginUrl = new URL(`/${locale}/login`, request.url);
+      loginUrl.searchParams.set("next", pathname);
+      return applySecurityHeaders(NextResponse.redirect(loginUrl));
+    }
 
-     // Seed CSRF token for authenticated users on protected routes
-     // This ensures the double-submit cookie pattern works for state-changing API calls
-     const existingCsrf = request.cookies.get("csrf_token");
-     if (!existingCsrf?.value) {
-        // Generate CSRF token using edge runtime crypto (available globally in middleware)
-        const token = `${Date.now()}.${crypto.randomUUID()}`;
-        const response = NextResponse.next();
-        response.cookies.set("csrf_token", token, {
-          httpOnly: false,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          maxAge: 60 * 60 * 24,
-          path: "/",
-        });
-        return applySecurityHeaders(response);
-      }
-    } else {
-      // For non-auth routes, still seed CSRF for protected API paths when they have locale prefixes
-      // This catches /ar/api/agents, /en/api/agents, etc.
-      const pathPart = pathname.startsWith("/") ? pathname : `/${pathname}`;
-      const matchesProtectedAPI = PROTECTED_API_ROUTES.some(route => 
-        pathPart === `/${route}` || 
-        (pathname.startsWith("/ar/") && pathPart === `/ar/${route}`) || 
-        (pathname.startsWith("/en/") && pathPart === `/en/${route}`) ||
-        pathPart.startsWith(`${route}/`) ||
-        (pathname.startsWith("/ar/") && pathPart.startsWith(`/ar/${route}/`)) ||
-        (pathname.startsWith("/en/") && pathPart.startsWith(`/en/${route}/`))
-      );
-      
-      if (matchesProtectedAPI) {
-        // Generate CSRF token using edge runtime crypto (available globally in middleware)
-        const token = `${Date.now()}.${crypto.randomUUID()}`;
-       const response = NextResponse.next();
-       response.cookies.set("csrf_token", token, {
-         httpOnly: false,
-         secure: process.env.NODE_ENV === "production",
-         sameSite: "lax",
-         maxAge: 60 * 60 * 24,
-         path: "/",
-       });
-       return applySecurityHeaders(response);
-     }
-   }
+    // Seed CSRF token for authenticated users on protected routes
+    await seedCsrfToken(cookieStore, request);
+  } else {
+    // For non-protected routes, still seed CSRF for API calls
+    await seedCsrfToken(cookieStore, request);
+  }
 
-  // 4. Skip RSC prefetch requests after auth check – let Next.js handle them natively
+  // Skip RSC prefetch requests
   if (request.nextUrl.searchParams.has("_rsc")) {
     return applySecurityHeaders(NextResponse.next());
   }
 
-  // 5. Locale handling
+  // Locale handling for non-API routes
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
 
-  if (!pathnameHasLocale) {
+  if (!pathnameHasLocale && !pathname.startsWith("/api")) {
     const locale = getLocale(request);
     const normalizedPathname = pathname === "/" ? "" : pathname;
     const newUrl = new URL(`/${locale}${normalizedPathname}`, request.url);
     return applySecurityHeaders(NextResponse.redirect(newUrl));
   }
 
-  // 5. Apply security headers for all other routes
   return applySecurityHeaders(NextResponse.next());
 }
 

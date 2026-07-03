@@ -1,35 +1,84 @@
-"use client";
+/**
+ * Client-side rate limiting utilities for Sadat MLS Cloud.
+ */
+import { logger } from "@/lib/logger";
 
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
-}
-
-const rateLimitMap = new Map<string, RateLimitEntry>();
-
-const FORGOT_PASSWORD_CONFIG = {
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 3, // 3 attempts per 15 min
-};
-
-export function checkForgotPasswordRateLimit(key: string): {
-  allowed: boolean;
+export interface RateLimitInfo {
   remaining: number;
-  retryAfter: number;
-} {
-  const now = Date.now();
-  const record = rateLimitMap.get(key);
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + FORGOT_PASSWORD_CONFIG.windowMs });
-    return { allowed: true, remaining: FORGOT_PASSWORD_CONFIG.maxRequests - 1, retryAfter: 0 };
-  }
-
-  if (record.count >= FORGOT_PASSWORD_CONFIG.maxRequests) {
-    const retryAfter = Math.ceil((record.resetTime - now) / 1000);
-    return { allowed: false, remaining: 0, retryAfter };
-  }
-
-  record.count++;
-  return { allowed: true, remaining: FORGOT_PASSWORD_CONFIG.maxRequests - record.count, retryAfter: 0 };
+  reset: number;
+  retryAfter?: number;
 }
+
+export class RateLimitClient {
+  private defaultConfig = {
+    windowMs: 60000, // 1 minute default
+    maxRequests: 100,
+    keyPrefix: "rl",
+  };
+
+  async checkRateLimit(
+    endpoint: string,
+    config?: Partial<RateLimitInfo>
+  ): Promise<RateLimitInfo> {
+    const url = new URL(endpoint, window.location.origin);
+    const searchParams = new URLSearchParams(url.search);
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: "HEAD",
+        headers: {
+          "X-RateLimit-Client": "true",
+        },
+      });
+
+      const remaining = parseInt(response.headers.get("X-RateLimit-Remaining") || "0");
+      const reset = parseInt(response.headers.get("X-RateLimit-Reset") || "0");
+      const retryAfter = response.headers.get("Retry-After");
+
+      const result: RateLimitInfo = { remaining, reset };
+      if (retryAfter) result.retryAfter = parseInt(retryAfter);
+
+      if (remaining < 20) {
+        logger.warn(`Low rate limit remaining for ${endpoint}: ${remaining}`);
+      }
+
+      return result;
+    } catch (error) {
+      logger.error(`Rate limit check failed for ${endpoint}:`, { error: error instanceof Error ? error.message : String(error) });
+      return { remaining: -1, reset: Date.now() + 60000, ...config };
+    }
+  }
+
+  getClientKey(endpoint: string): string {
+    const hash = this.hashString(endpoint);
+    return `${this.defaultConfig.keyPrefix}.${hash}`;
+  }
+
+  private hashString(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(16);
+  }
+
+  shouldRetry(error: unknown, maxRetries: number = 3): boolean {
+    if (maxRetries <= 0) return false;
+    
+    const err = error as { status?: number; headers?: { get(name: string): string | null } };
+    if (err.status === 429) {
+      const retryAfter = err.headers?.get("Retry-After");
+      return true;
+    }
+    
+    return typeof err.status === "number" && err.status >= 500 && err.status < 600;
+  }
+
+  getBackoffDelay(attempt: number, baseDelay: number = 1000): number {
+    return Math.min(baseDelay * Math.pow(2, attempt), 30000);
+  }
+}
+
+export const rateLimitClient = new RateLimitClient();

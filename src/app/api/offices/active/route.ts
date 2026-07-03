@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
+import { NextRequest } from "next/server";
 import { logger } from "@/lib/logger";
+import { checkApiRateLimit } from "@/lib/security/rateLimit";
 
 export const revalidate = 300; // ISR: 5 minutes
 
@@ -12,8 +14,16 @@ const supabaseAdmin = createClient(
  * Get active office IDs - cached at edge/network level.
  * Uses service role client to avoid cookies in SSG context.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const { allowed } = await checkApiRateLimit(`offices-active:${ip}`);
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
     const { data: offices, error } = await supabaseAdmin
       .from("offices")
       .select("id")

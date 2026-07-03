@@ -4,8 +4,8 @@ import { isValidLocale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card, { CardTitle } from "@/components/ui/Card";
-import LuxuryStatCard from "@/components/ui/LuxuryStatCard";
-import { Building2, Users, Home, MessageCircle, MapPin, Plus } from "lucide-react";
+import AdminStatCards from "@/components/admin/AdminStatCards";
+import { Building2, MapPin, Plus, Home } from "lucide-react";
 import { ROLES } from "@/lib/utils/constants";
 import { getServerAuth } from "@/lib/supabase/server-auth";
 
@@ -22,6 +22,7 @@ interface RecentContact {
   id: string;
   visitor_name: string | null;
   contact_type: string;
+  status: string;
   created_at: string;
 }
 
@@ -66,34 +67,34 @@ export default async function AdminDashboard({
   // Get recent contact requests
   const { data: recentContacts } = await supabase
     .from("contact_requests")
-    .select("id, office_id, property_id, name, email, phone, message, type, status, created_at, properties(title), offices(name)")
+    .select("id, property_id, visitor_name, contact_type, status, created_at, properties(title)")
     .order("created_at", { ascending: false })
     .limit(5);
 
   const stats = [
     {
-      icon: Building2,
+      iconKey: "Building2",
       label: dict.admin.totalOffices,
       value: officesCount.count || 0,
       color: "blue",
       href: `/${locale}/admin/offices`,
     },
     {
-      icon: Users,
+      iconKey: "Users",
       label: dict.admin.totalUsers,
       value: usersCount.count || 0,
       color: "green",
       href: `/${locale}/admin/offices`,
     },
     {
-      icon: Home,
+      iconKey: "Home",
       label: dict.admin.totalProperties,
       value: propertiesCount.count || 0,
       color: "purple",
       href: `/${locale}/explore`,
     },
     {
-      icon: MessageCircle,
+      iconKey: "MessageCircle",
       label: dict.admin.contactRequests,
       value: contactCount.count || 0,
       color: "orange",
@@ -112,18 +113,7 @@ export default async function AdminDashboard({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat, i) => (
-            <Link key={i} href={stat.href}>
-              <LuxuryStatCard
-                icon={stat.icon}
-                label={stat.label}
-                value={stat.value}
-                color={stat.color as "blue" | "green" | "purple" | "orange"}
-              />
-            </Link>
-          ))}
-        </div>
+        <AdminStatCards stats={stats} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Offices */}

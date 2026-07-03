@@ -54,17 +54,20 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
   const getLabel = (key: string, fallback: string): string => {
     if (!dict) return fallback;
     const d = dict as Record<string, unknown>;
-    const property = d.property as Record<string, string> | undefined;
+    const property = d.property as Record<string, unknown> | undefined;
     const explore = d.explore as Record<string, string> | undefined;
-    return property?.[key] || explore?.[key] || fallback;
+    const flatVal = property?.[key] || explore?.[key];
+    if (flatVal) return flatVal as string;
+    const nested = property?.status as Record<string, string> | undefined;
+    return nested?.[key] || fallback;
   };
 
   const statusConfig = {
-    available: { label: getLabel("statusAvailable", locale === "ar" ? "متاح" : "Available"), variant: "success" as const },
-    reserved: { label: getLabel("reserved", locale === "ar" ? "محجوز" : "Reserved"), variant: "warning" as const },
-    rented: { label: getLabel("rented", locale === "ar" ? "مؤجر" : "Rented"), variant: "warning" as const },
-    sold: { label: getLabel("sold", locale === "ar" ? "تم البيع" : "Sold"), variant: "danger" as const },
-    pending_review: { label: getLabel("pending_review", locale === "ar" ? "قيد المراجعة" : "Pending Review"), variant: "info" as const },
+    available: { label: getLabel("available", "متاح"), variant: "success" as const },
+    reserved: { label: getLabel("reserved", "محجوز"), variant: "warning" as const },
+    rented: { label: getLabel("rented", "مؤجر"), variant: "warning" as const },
+    sold: { label: getLabel("sold", "تم البيع"), variant: "danger" as const },
+    pending_review: { label: getLabel("pending_review", "قيد المراجعة"), variant: "info" as const },
   };
 
   return (
@@ -108,7 +111,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
           {/* Bottom Price & Location Overlay */}
           <div className="absolute bottom-4 left-4 right-4 text-white z-10">
             <p className="text-2xl font-bold font-serif text-[#C49A2A] drop-shadow-md">
-               {formatPrice(price, locale)} <span className="text-sm text-gray-200 font-sans">{dict?.property?.priceUnit || (locale === "ar" ? "ج.م" : "EGP")}</span>
+               {formatPrice(price, locale)} <span className="text-sm text-gray-200 font-sans">{dict?.property?.priceUnit || "ج.م"}</span>
             </p>
             {zone && (
               <p className="text-sm text-gray-200 mt-1 flex items-center gap-1.5">
@@ -145,7 +148,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
             <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-gray-50/50">
               <Maximize className="w-4 h-4 text-[#C49A2A] mb-1" aria-hidden="true" />
               <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                {area} <span className="text-[10px] text-gray-500">{(dict?.property?.areaUnit as string) || (locale === "ar" ? "م²" : "m²")}</span>
+                 {area} <span className="text-[10px] text-gray-500">{(dict?.property?.areaUnit as string) || "م²"}</span>
               </span>
             </div>
           </div>

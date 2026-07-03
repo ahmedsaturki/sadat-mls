@@ -85,7 +85,7 @@ export default function ForgotPasswordPage({
       <div className="w-full max-w-md relative">
         <Link
           href={`/${locale}/login`}
-          className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-8 transition-colors text-sm"
+          className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-8 transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-600 rounded"
         >
           <ArrowRight className="w-4 h-4" />
           {dict.auth.backToLogin}
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage({
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {sent ? (
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-4" role="status" aria-live="polite">
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
               <h2 className="text-xl font-semibold text-gray-900">
                 {dict.auth.forgotPasswordSent}
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage({
               <p className="text-sm text-gray-500">{email}</p>
               <Link
                 href={`/${locale}/login`}
-                className="inline-block mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="inline-block mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
               >
                 {dict.auth.backToLogin}
               </Link>

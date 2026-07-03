@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export type PropertyForComparison = {
   id: string;
@@ -26,6 +26,7 @@ interface CompareState {
 
 export function useCompare() {
   const [state, setState] = useState<CompareState>({ ids: [], props: [] });
+  const pendingRef = useRef<CompareState>({ ids: [], props: [] });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -33,7 +34,9 @@ export function useCompare() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setState({ ids: parsed.ids || [], props: parsed.props || [] });
+        const restored = { ids: parsed.ids || [], props: parsed.props || [] };
+        setState(restored);
+        pendingRef.current = restored;
       } catch {
         // Ignore parse errors
       }
@@ -47,19 +50,16 @@ export function useCompare() {
   }, []);
 
   const addProperty = useCallback((property: PropertyForComparison): boolean => {
-    let result = false;
-    setState(prev => {
-      if (prev.ids.length >= MAX_COMPARE || prev.ids.includes(property.id)) {
-        result = false;
-        return prev;
-      }
-      const newIds = [...prev.ids, property.id];
-      const newProps = [...prev.props, property];
-      saveToStorage(newIds, newProps);
-      result = true;
-      return { ids: newIds, props: newProps };
-    });
-    return result;
+    const pending = pendingRef.current;
+    if (pending.ids.length >= MAX_COMPARE || pending.ids.includes(property.id)) {
+      return false;
+    }
+    const newIds = [...pending.ids, property.id];
+    const newProps = [...pending.props, property];
+    pendingRef.current = { ids: newIds, props: newProps };
+    setState({ ids: newIds, props: newProps });
+    saveToStorage(newIds, newProps);
+    return true;
   }, [saveToStorage]);
 
   const removeProperty = useCallback((id: string) => {
@@ -67,22 +67,21 @@ export function useCompare() {
       if (!prev.ids.includes(id)) return prev;
       const newIds = prev.ids.filter(pid => pid !== id);
       const newProps = prev.props.filter(p => p.id !== id);
+      pendingRef.current = { ids: newIds, props: newProps };
       saveToStorage(newIds, newProps);
       return { ids: newIds, props: newProps };
     });
   }, [saveToStorage]);
 
   const clearAll = useCallback(() => {
-    setState(prev => {
-      if (prev.ids.length === 0) return prev;
-      return { ids: [], props: [] };
-    });
+    pendingRef.current = { ids: [], props: [] };
+    setState({ ids: [], props: [] });
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("compare_properties");
     }
   }, []);
 
-  const isSelected = useCallback((id: string) => state.ids.includes(id), [state.ids]);
+  const isSelected = useCallback((id: string) => pendingRef.current.ids.includes(id), []);
 
   return {
     selectedIds: state.ids,

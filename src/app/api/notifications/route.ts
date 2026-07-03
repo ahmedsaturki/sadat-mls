@@ -1,0 +1,157 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { checkApiRateLimit } from "@/lib/security/rateLimit";
+import { logger } from "@/lib/logger";
+
+// GET - List notifications for current user
+export async function GET(request: NextRequest) {
+  try {
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const { allowed } = await checkApiRateLimit(`notifications-get:${ip}`);
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
+    const offset = parseInt(searchParams.get("offset") || "0");
+    const unreadOnly = searchParams.get("unread") === "true";
+
+    let query = supabase
+      .from("notifications")
+      .select("id, type, title, message, entity_type, entity_id, is_read, created_at")
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (unreadOnly) {
+      query = query.eq("is_read", false);
+    }
+
+    const { data: notifications, error } = await query;
+
+    if (error) {
+      logger.error("Failed to fetch notifications", { error: error.message });
+      return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 });
+    }
+
+    // Get unread count
+    const { count: unreadCount } = await supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("is_read", false);
+
+    return NextResponse.json({
+      notifications: notifications || [],
+      unreadCount: unreadCount || 0,
+    });
+  } catch (err) {
+    logger.error("Notifications API error", { error: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+// POST - Create a notification (system/admin only — uses authenticated user's ID)
+export async function POST(request: NextRequest) {
+  try {
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const { allowed } = await checkApiRateLimit(`notifications-post:${ip}`);
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { type, title, message, entity_type, entity_id } = body;
+
+    if (!type || !title || !message) {
+      return NextResponse.json(
+        { error: "type, title, and message are required" },
+        { status: 400 }
+      );
+    }
+
+    // Always use authenticated user's ID — never accept user_id from body
+    const { error } = await supabase
+      .from("notifications")
+      .insert({
+        user_id: user.id,
+        office_id: null,
+        type,
+        title,
+        message,
+        entity_type: entity_type || null,
+        entity_id: entity_id || null,
+      });
+
+    if (error) {
+      logger.error("Failed to create notification", { error: error.message });
+      return NextResponse.json({ error: "Failed to create notification" }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    logger.error("Notification create error", { error: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+// PATCH - Mark notification(s) as read
+export async function PATCH(request: NextRequest) {
+  try {
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const { allowed } = await checkApiRateLimit(`notifications-patch:${ip}`);
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { ids, markAll } = body;
+
+    let query = supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("user_id", user.id);
+
+    if (markAll) {
+      // Mark all as read
+      query = query.eq("is_read", false);
+    } else if (ids && Array.isArray(ids)) {
+      // Mark specific notifications as read
+      query = query.in("id", ids);
+    } else {
+      return NextResponse.json(
+        { error: "Provide ids array or markAll: true" },
+        { status: 400 }
+      );
+    }
+
+    const { error } = await query;
+
+    if (error) {
+      logger.error("Failed to update notifications", { error: error.message });
+      return NextResponse.json({ error: "Failed to update notifications" }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    logger.error("Notification update error", { error: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

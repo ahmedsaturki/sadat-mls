@@ -73,19 +73,20 @@ export async function GET(request: Request) {
 
       const allowedHosts = getAllowedHosts(origin);
 
+      // For recovery links, always redirect to reset-password page
+      const redirectPath = type === "recovery" ? "/reset-password" : safeNext;
+
       let redirectUrl: string;
       if (isLocalEnv) {
-        redirectUrl = `${origin}/${safeLocale}${safeNext}`;
+        redirectUrl = `${origin}/${safeLocale}${redirectPath}`;
       } else if (forwardedHost) {
-        // Validate the forwarded host against our whitelist.
         if (!isHostAllowed(forwardedHost, allowedHosts)) {
-          // Reject the untrusted host – fall back to the safe origin.
-          redirectUrl = `${origin}/${safeLocale}${safeNext}`;
+          redirectUrl = `${origin}/${safeLocale}${redirectPath}`;
         } else {
-          redirectUrl = `https://${forwardedHost}/${safeLocale}${safeNext}`;
+          redirectUrl = `https://${forwardedHost}/${safeLocale}${redirectPath}`;
         }
       } else {
-        redirectUrl = `${origin}/${safeLocale}${safeNext}`;
+        redirectUrl = `${origin}/${safeLocale}${redirectPath}`;
       }
 
       return NextResponse.redirect(redirectUrl);

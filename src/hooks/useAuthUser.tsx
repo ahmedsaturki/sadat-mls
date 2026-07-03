@@ -1,184 +1,467 @@
 "use client";
-
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
-import { createClient } from "@/lib/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { supabase, createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
-import type { UserRole } from "@/lib/utils/constants";
+import { authSchemas } from "@/lib/validation";
+import { z } from "zod";
 
-interface UserProfile {
+interface User {
   id: string;
   email: string;
-  full_name: string;
+  fullName?: string;
+  role?: string;
+  officeId?: string;
+  avatarUrl?: string;
   phone?: string;
-  role: UserRole;
-  office_id: string | null;
+  isActive?: boolean;
+  createdAt?: string;
+  emailConfirmedAt?: string;
 }
 
-interface AuthContextValue {
+interface AuthState {
   user: User | null;
-  profile: UserProfile | null;
-  supabase: ReturnType<typeof createClient>;
-  loading: boolean;
-  error: string | null;
+  isLoading: boolean;
   isAuthenticated: boolean;
-  refresh: () => Promise<User | null>;
-  clearError: () => void;
+  error: string | null;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
-
-const supabaseClient = createClient();
-const CACHE_DURATION = 5 * 60 * 1000;
-
-interface AuthCache {
-  user: User | null;
-  profile: UserProfile | null;
-  timestamp: number;
+interface LoginResult {
+  success: boolean;
+  error?: string;
+  user?: User;
 }
 
-function createAuthCache(): AuthCache {
-  return {
-    user: null,
-    profile: null,
-    timestamp: 0,
-  };
-}
-
-let authCache: AuthCache = createAuthCache();
-let loadingPromise: Promise<User | null> | null = null;
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadUser = useCallback(async (force = false): Promise<User | null> => {
-    const now = Date.now();
-
-    if (!force && authCache.user && now - authCache.timestamp < CACHE_DURATION) {
-      setUser(authCache.user);
-      setProfile(authCache.profile);
-      return authCache.user;
-    }
-
-    if (!force && typeof window !== "undefined") {
-      try {
-        const stored = sessionStorage.getItem("auth-cache");
-        if (stored) {
-          const data = JSON.parse(stored);
-          if (now - data.timestamp < CACHE_DURATION && data.userId) {
-            // Only use sessionStorage to know which user was logged in;
-            // never trust the cached profile — always fetch from Supabase.
-          }
-        }
-      } catch {
-        // ignore parse errors
-      }
-    }
-
-    if (loadingPromise && !force) {
-      return loadingPromise;
-    }
-
-    loadingPromise = (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser();
-
-        if (authError) {
-          if (!authError.message?.includes("session missing")) {
-            logger.warn("Auth fetch failed", { error: authError.message });
-          }
-          authCache = createAuthCache();
-          setUser(null);
-          setProfile(null);
-          return null;
-        }
-
-        if (!authUser) {
-          authCache = createAuthCache();
-          setUser(null);
-          setProfile(null);
-          return null;
-        }
-
-        authCache.user = authUser;
-        authCache.timestamp = now;
-
-        const { data: profileData } = await supabaseClient
-          .from("users")
-          .select("id, email, full_name, role, office_id, avatar_url, phone, is_active, created_at, updated_at")
-          .eq("id", authUser.id)
-          .maybeSingle();
-
-        authCache.profile = profileData as UserProfile;
-
-        if (typeof window !== "undefined") {
-          // Only store userId — never the full profile (XSS privilege escalation risk)
-          sessionStorage.setItem("auth-cache", JSON.stringify({
-            userId: authCache.user?.id || null,
-            timestamp: authCache.timestamp,
-          }));
-        }
-
-        setUser(authCache.user);
-        setProfile(authCache.profile);
-        return authCache.user;
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Auth error";
-        setError(message);
-        authCache = createAuthCache();
-        return null;
-      } finally {
-        setLoading(false);
-        loadingPromise = null;
-      }
-    })();
-
-    return loadingPromise;
-  }, []);
-
-  useEffect(() => {
-    loadUser();
-
-    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event: unknown, session: Session | null) => {
-      if (session?.user) {
-        loadUser(true);
-      } else {
-        authCache = createAuthCache();
-        setUser(null);
-        setProfile(null);
-        sessionStorage.removeItem("auth-cache");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [loadUser]);
-
-  return (
-    <AuthContext.Provider value={{
-      user,
-      profile,
-      supabase: supabaseClient,
-      loading,
-      error,
-      isAuthenticated: !!user,
-      refresh: loadUser,
-      clearError: () => setError(null),
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+interface RegisterResult {
+  success: boolean;
+  error?: string;
+  user?: User;
 }
 
 export function useAuthUser() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuthUser must be used within AuthProvider");
-  }
-  return context;
+  const auth = useAuth();
+  return {
+    ...auth,
+    profile: auth.user,
+    supabase: typeof window !== "undefined" ? createClient() : null,
+    refresh: auth.clearError,
+  };
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+
+export function useAuth() {
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    isLoading: true,
+    isAuthenticated: false,
+    error: null,
+  });
+
+  const isProcessingRef = useRef(false);
+
+  // Fetch initial session
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSession = async () => {
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
+
+      try {
+        setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) {
+          throw error;
+        }
+
+        if (!session?.user) {
+          setState({
+            user: null,
+            isLoading: false,
+            isAuthenticated: false,
+            error: null,
+          });
+          return;
+        }
+
+        // Fetch user profile
+        const { data: profile, error: profileError } = await supabase
+          .from("users")
+          .select("id, email, full_name, phone, role, office_id, avatar_url, is_active, created_at, email_confirmed_at")
+          .eq("id", session.user.id)
+          .single();
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        if (!isMounted) return;
+
+        const user: User = {
+          id: profile.id,
+          email: profile.email || session.user.email || "",
+          fullName: profile.full_name,
+          phone: profile.phone,
+          role: profile.role,
+          officeId: profile.office_id,
+          avatarUrl: profile.avatar_url,
+          isActive: profile.is_active,
+          createdAt: profile.created_at,
+          emailConfirmedAt: profile.email_confirmed_at,
+        };
+
+        setState({
+          user,
+          isLoading: false,
+          isAuthenticated: true,
+          error: null,
+        });
+
+        // Setup auth state change listener
+        const { data: authListener } = supabase.auth.onAuthStateChange(
+          async (event: string, session: { user: { id: string; email?: string } } | null) => {
+            if (event === "SIGNED_OUT" || !session) {
+              setState({
+                user: null,
+                isLoading: false,
+                isAuthenticated: false,
+                error: null,
+              });
+            } else if (event === "SIGNED_IN" && session?.user) {
+              // Fetch profile for signed-in user
+              const { data: profile } = await supabase
+                .from("users")
+                .select("id, email, full_name, phone, role, office_id, avatar_url, is_active, created_at, email_confirmed_at")
+                .eq("id", session.user.id)
+                .single();
+
+              if (profile) {
+                const user: User = {
+                  id: profile.id,
+                  email: profile.email || session.user.email || "",
+                  fullName: profile.full_name,
+                  phone: profile.phone,
+                  role: profile.role,
+                  officeId: profile.office_id,
+                  avatarUrl: profile.avatar_url,
+                  isActive: profile.is_active,
+                  createdAt: profile.created_at,
+                  emailConfirmedAt: profile.email_confirmed_at,
+                };
+
+                setState((prev) => ({
+                  ...prev,
+                  user,
+                  isAuthenticated: true,
+                  error: null,
+                }));
+              }
+            }
+          }
+        );
+
+        return () => {
+          authListener.subscription.unsubscribe();
+        };
+      } catch (error) {
+        if (!isMounted) return;
+
+        const errorMessage =
+          error instanceof Error ? error.message : "Authentication error";
+
+        logger.error("Auth error:", { error: errorMessage });
+
+        setState({
+          user: null,
+          isLoading: false,
+          isAuthenticated: false,
+          error: errorMessage,
+        });
+      } finally {
+        isProcessingRef.current = false;
+      }
+    };
+
+    fetchSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const login = useCallback(async (email: string, password: string, rememberMe = false) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      // Validate input
+      const result = authSchemas.login.safeParse({ email, password, rememberMe });
+      if (!result.success) {
+        const errorMessage = result.error.issues[0]?.message || "Invalid input";
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: result.data.email,
+        password: result.data.password,
+      });
+
+      if (error) {
+        const errorMessage = error.message || "Login failed";
+        logger.error("Login error:", { error: error instanceof Error ? error.message : String(error) });
+
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      if (!data.session || !data.user) {
+        const errorMessage = "Invalid credentials";
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      // Fetch user profile
+      const { data: profile, error: profileError } = await supabase
+        .from("users")
+        .select("id, email, full_name, role, office_id, avatar_url, is_active, created_at")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError) {
+        logger.error("Error fetching user profile:", profileError);
+        setState((prev) => ({ ...prev, error: "Login successful but failed to fetch user data" }));
+      }
+
+      const user: User = {
+        id: profile?.id || data.user.id,
+        email: profile?.email || data.user.email || "",
+        fullName: profile?.full_name,
+        role: profile?.role,
+        officeId: profile?.office_id,
+        avatarUrl: profile?.avatar_url,
+        isActive: profile?.is_active,
+        createdAt: profile?.created_at,
+      };
+
+      setState({
+        user,
+        isLoading: false,
+        isAuthenticated: true,
+        error: null,
+      });
+
+      return { success: true, user };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Login failed";
+      logger.error("Login exception:", { error: errorMessage });
+
+      setState((prev) => ({ ...prev, error: errorMessage }));
+      return { success: false, error: errorMessage };
+    } finally {
+      setState((prev) => ({ ...prev, isLoading: false }));
+    }
+  }, []);
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const register = useCallback(async (userData: z.infer<typeof authSchemas.register>) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      // Validate input
+      const result = authSchemas.register.safeParse(userData);
+      if (!result.success) {
+        const errorMessage = result.error.issues[0]?.message || "Invalid input";
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email: result.data.email,
+        password: result.data.password,
+        options: {
+          data: {
+            full_name: result.data.fullName,
+            role: "office_agent",
+            office_id: result.data.officeId,
+          },
+          emailRedirectTo: `${window.location.origin}/ar/verify-email?registered=true`,
+        },
+      });
+
+      if (error) {
+        const errorMessage = error.message || "Registration failed";
+        logger.error("Register error:", { error: error instanceof Error ? error.message : String(error) });
+
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      if (!data.user) {
+        const errorMessage = "Registration successful but user was not created";
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      // For email confirmation required, show success message
+      setState({
+        user: null,
+        isLoading: false,
+        isAuthenticated: false,
+        error: null,
+      });
+
+      return {
+        success: true,
+        user: {
+          id: data.user.id,
+          email: data.user.email || "",
+          fullName: result.data.fullName,
+          role: "office_agent",
+          officeId: result.data.officeId,
+        },
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Registration failed";
+      logger.error("Register exception:", { error: error instanceof Error ? error.message : String(error) });
+
+      setState((prev) => ({ ...prev, error: errorMessage }));
+      return { success: false, error: errorMessage };
+    } finally {
+      setState((prev) => ({ ...prev, isLoading: false }));
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true }));
+
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        logger.error("Logout error:", { error: error instanceof Error ? error.message : String(error) });
+        throw error;
+      }
+
+      setState({
+        user: null,
+        isLoading: false,
+        isAuthenticated: false,
+        error: null,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Logout failed";
+      logger.error("Logout exception:", { error: error instanceof Error ? error.message : String(error) });
+
+      setState((prev) => ({
+        ...prev,
+        error: errorMessage,
+        isLoading: false,
+      }));
+    }
+  }, []);
+
+  const resetPassword = useCallback(async (email: string) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      const result = authSchemas.forgotPassword.safeParse({ email });
+      if (!result.success) {
+        const errorMessage = result.error.issues[0]?.message || "Invalid email";
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(result.data.email, {
+        redirectTo: `${window.location.origin}/ar/reset-password`,
+      });
+
+      if (error) {
+        const errorMessage = error.message || "Password reset request failed";
+        logger.error("Reset password error:", { error: error instanceof Error ? error.message : String(error) });
+
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      setState((prev) => ({ ...prev, isLoading: false }));
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Password reset request failed";
+      logger.error("Reset password exception:", { error: error instanceof Error ? error.message : String(error) });
+
+      setState((prev) => ({ ...prev, error: errorMessage }));
+      return { success: false, error: errorMessage };
+    } finally {
+      setState((prev) => ({ ...prev, isLoading: false }));
+    }
+  }, []);
+
+  const updateProfile = useCallback(async (updates: Partial<User>) => {
+    if (!state.user?.id) {
+      return { success: false, error: "No user found" };
+    }
+
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      const { data, error } = await supabase
+        .from("users")
+        .update({
+          full_name: updates.fullName,
+          avatar_url: updates.avatarUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", state.user.id)
+        .select()
+        .single();
+
+      if (error) {
+        const errorMessage = error.message || "Profile update failed";
+        logger.error("Profile update error:", { error: error instanceof Error ? error.message : String(error) });
+
+        setState((prev) => ({ ...prev, error: errorMessage }));
+        return { success: false, error: errorMessage };
+      }
+
+      const updatedUser: User = {
+        ...state.user,
+        fullName: data.full_name,
+        avatarUrl: data.avatar_url,
+      };
+
+      setState((prev) => ({
+        ...prev,
+        user: updatedUser,
+        isLoading: false,
+      }));
+
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Profile update failed";
+      logger.error("Profile update exception:", { error: error instanceof Error ? error.message : String(error) });
+
+      setState((prev) => ({ ...prev, error: errorMessage }));
+      return { success: false, error: errorMessage };
+    } finally {
+      setState((prev) => ({ ...prev, isLoading: false }));
+    }
+  }, [state.user?.id]);
+
+  const clearError = useCallback(() => {
+    setState((prev) => ({ ...prev, error: null }));
+  }, []);
+
+  return {
+    ...state,
+    login,
+    register,
+    logout,
+    resetPassword,
+    updateProfile,
+    clearError,
+  };
 }

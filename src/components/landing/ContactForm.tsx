@@ -133,6 +133,21 @@ export default function ContactForm({ dict }: ContactFormProps) {
       setContactSent(true);
       setContactForm({ name: "", email: "", phone: "", message: "" });
       clearContactAttempts();
+
+      // Create notification for office members (fire-and-forget)
+      if (officeId) {
+        fetch("/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            office_id: officeId,
+            type: "contact_request",
+            title: `New inquiry from ${contactForm.name.trim()}`,
+            message: contactForm.message.trim().substring(0, 200),
+            entity_type: "contact_request",
+          }),
+        }).catch(() => {});
+      }
     } catch (err) {
       logger.warn("Contact form submission failed", { error: err instanceof Error ? err.message : String(err) });
       const isServerError = err instanceof Error && (

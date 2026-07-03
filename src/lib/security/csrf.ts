@@ -1,120 +1,105 @@
+/**
+ * Server-only CSRF token validation and protection utilities.
+ * Uses double-submit cookie pattern with constant-time comparison.
+ *
+ * IMPORTANT: This module imports "next/headers" which is server-only.
+ * Client code must import shared constants from csrf-constants.ts instead.
+ */
 import { cookies } from "next/headers";
+import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from "@/lib/security/csrf-constants";
 import { logger } from "@/lib/logger";
 
-export const CSRF_COOKIE_NAME = "csrf_token";
-export const CSRF_HEADER_NAME = "x-csrf-token";
+// Re-export shared constants so server-only consumers can import from this module
+export { CSRF_COOKIE_NAME, CSRF_HEADER_NAME };
 
-/** Token rotation interval: regenerate every 4 hours. */
-const TOKEN_ROTATION_MS = 4 * 60 * 60 * 1000;
+/** Token validity duration (24 hours) */
+const TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
-/**
- * Generate a secure CSRF token using crypto API.
- * Uses 256-bit random values for strong entropy.
- */
+/** Generate a cryptographically secure CSRF token */
 export function generateCsrfToken(): string {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  // Fallback for environments without crypto.randomUUID
+  const timestamp = Date.now();
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  const randomPart = Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+  return `${timestamp}.${randomPart}`;
 }
 
-/**
- * Get or create CSRF token for the current session.
- * Stores in NON-HttpOnly cookie so the client can read it
- * and send it back as a header (double-submit cookie pattern).
- * Rotates token every TOKEN_ROTATION_MS to limit token reuse window.
- */
+/** Get existing token from cookie or generate a new one */
 export async function getOrCreateCsrfToken(): Promise<string> {
   const cookieStore = await cookies();
-  const existing = cookieStore.get(CSRF_COOKIE_NAME);
+  const existing = cookieStore.get(CSRF_COOKIE_NAME)?.value;
 
-  if (existing?.value) {
-    // Check if token needs rotation based on cookie age
-    // We embed a timestamp in the token: "timestamp.randomUUID"
-    const parts = existing.value.split(".");
+  if (existing) {
+    const parts = existing.split(".");
     if (parts.length === 2) {
       const timestamp = parseInt(parts[0], 10);
-      if (!isNaN(timestamp) && Date.now() - timestamp < TOKEN_ROTATION_MS) {
-        return existing.value;
+      if (!isNaN(timestamp) && Date.now() - timestamp < TOKEN_MAX_AGE_MS) {
+        return existing;
       }
     }
-    // Token is missing timestamp or expired — rotate
   }
 
-  const token = `${Date.now()}.${generateCsrfToken()}`;
+  const token = generateCsrfToken();
   cookieStore.set(CSRF_COOKIE_NAME, token, {
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24, // 24 hours
+    maxAge: 60 * 60 * 24,
     path: "/",
   });
-
   return token;
 }
 
-/**
- * Extract CSRF token from request headers.
- */
+/** Extract CSRF token from request headers */
 export function getCsrfTokenFromRequest(request: Request): string | null {
   return request.headers.get(CSRF_HEADER_NAME);
 }
 
-/**
- * Validate CSRF token using double-submit cookie pattern.
- * Compares header token with cookie token using constant-time comparison.
- * Also validates token age to prevent replay attacks.
- */
+/** Validate CSRF token using constant-time comparison */
 export async function validateCsrfToken(request: Request): Promise<boolean> {
-  const headerToken = getCsrfTokenFromRequest(request);
-  if (!headerToken) {
-    logger.warn("CSRF validation failed: missing header token");
-    return false;
-  }
-
-  const cookieStore = await cookies();
-  const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value;
-
-  if (!cookieToken) {
-    logger.warn("CSRF validation failed: missing cookie token");
-    return false;
-  }
-
-  // Constant-time comparison to prevent timing attacks
-  if (headerToken.length !== cookieToken.length) {
-    logger.warn("CSRF validation failed: token length mismatch");
-    return false;
-  }
-
-  let result = 0;
-  for (let i = 0; i < headerToken.length; i++) {
-    result |= headerToken.charCodeAt(i) ^ cookieToken.charCodeAt(i);
-  }
-
-  if (result !== 0) {
-    logger.warn("CSRF validation failed: token mismatch");
-    return false;
-  }
-
-  // Validate token age — reject tokens older than 24 hours
-  const parts = cookieToken.split(".");
-  if (parts.length === 2) {
-    const timestamp = parseInt(parts[0], 10);
-    if (!isNaN(timestamp) && Date.now() - timestamp >= 24 * 60 * 60 * 1000) {
-      logger.warn("CSRF validation failed: token expired");
+  try {
+    const headerToken = request.headers.get("x-csrf-token");
+    if (!headerToken) {
       return false;
     }
-  }
 
-  return true;
+    const cookieStore = await cookies();
+    const cookieToken = cookieStore.get("csrf_token")?.value;
+
+    if (!cookieToken) {
+      return false;
+    }
+
+    // Constant-time comparison (always compare full length to prevent timing leaks)
+    const maxLen = Math.max(headerToken.length, cookieToken.length);
+    let result = 0;
+    for (let i = 0; i < maxLen; i++) {
+      const a = i < headerToken.length ? headerToken.charCodeAt(i) : 0;
+      const b = i < cookieToken.length ? cookieToken.charCodeAt(i) : 0;
+      result |= a ^ b;
+    }
+
+    if (result !== 0) {
+      return false;
+    }
+
+    // Validate token age (24 hours)
+    const parts = cookieToken.split(".");
+    if (parts.length === 2) {
+      const timestamp = parseInt(parts[0], 10);
+      if (!isNaN(timestamp) && Date.now() - timestamp >= TOKEN_MAX_AGE_MS) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch (error) {
+    logger.error("CSRF validation error:", { error: error instanceof Error ? error.message : String(error) });
+    return false;
+  }
 }
 
-/**
- * Clear CSRF token (e.g., on logout).
- */
+/** Clear CSRF token from cookie */
 export async function clearCsrfToken(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(CSRF_COOKIE_NAME);
