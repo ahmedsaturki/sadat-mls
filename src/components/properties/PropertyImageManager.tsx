@@ -65,23 +65,23 @@ export default function PropertyImageManager({
       </div>
 
       {existingImages.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 overflow-hidden">
           {existingImages.map((img) => (
-            <div key={img.id} className="relative group">
-              <div className="relative aspect-square rounded-lg overflow-hidden border">
+            <div key={img.id} className="relative group min-h-[200px] rounded-lg overflow-hidden border flex flex-col">
+              <div className="relative flex-1">
                 <Image
                   src={img.url}
                   alt={img.alt_text}
                   fill
-                  className="object-cover"
+                  className="object-cover group-hover:opacity-80 transition-opacity"
                   sizes="(max-width: 768px) 50vw, 25vw"
                 />
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => onSetPrimary(img.id)}
-                  className={`text-xs px-2 py-1 rounded ${img.is_primary ? "bg-yellow-500 text-white" : "bg-white/80 text-gray-800"}`}
+                  className={`text-xs px-2 py-1 rounded-sm ${img.is_primary ? "bg-yellow-500 text-white" : "bg-white/80 text-gray-800"}`}
                   aria-label={img.is_primary ? dict.common.primaryImage : dict.common.setAsPrimary}
                 >
                   ★
@@ -89,7 +89,7 @@ export default function PropertyImageManager({
                 <button
                   type="button"
                   onClick={() => onRemoveExisting(img.id)}
-                  className="text-xs px-2 py-1 rounded bg-red-500 text-white"
+                  className="text-xs px-2 py-1 rounded-sm bg-red-500 text-white flex items-center justify-center gap-1"
                   aria-label={dict.common.removeImage}
                 >
                   ✕
@@ -101,32 +101,32 @@ export default function PropertyImageManager({
       )}
 
       {newImages.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 overflow-hidden">
           {newImages.map((img, index) => (
-            <div key={index} className="relative group">
-              <div className="relative aspect-square rounded-lg overflow-hidden border">
+            <div key={index} className="relative group min-h-[200px] rounded-lg overflow-hidden border flex flex-col">
+              <div className="relative flex-1">
                 <Image
                   src={img.preview}
                   alt={img.alt_text}
                   fill
-                  className="object-cover"
+                  className="object-cover group-hover:opacity-80 transition-opacity"
                   unoptimized
                   sizes="(max-width: 768px) 50vw, 25vw"
                 />
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                 <input
                   type="text"
                   value={img.alt_text}
                   onChange={(e) => onSetAltText(index, e.target.value)}
                   placeholder={dict.common.edit}
                   aria-label={dict.common.editAltText}
-                  className="absolute bottom-2 left-2 right-2 text-xs px-2 py-1 rounded bg-white/90 text-gray-800"
+                  className="absolute bottom-2 left-2 right-2 text-xs px-2 py-1 rounded-sm bg-white/90 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="button"
                   onClick={() => onRemoveNew(index)}
-                  className="absolute top-2 right-2 text-xs px-2 py-1 rounded bg-red-500 text-white"
+                  className="text-xs px-2 py-1 rounded-sm bg-red-500 text-white flex items-center justify-center gap-1"
                   aria-label={dict.common.removeImage}
                 >
                   ✕
@@ -143,7 +143,9 @@ export default function PropertyImageManager({
           onClick={() => inputRef.current?.click()}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }}
+          onKeyDown={(e) => { 
+            if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
+          }}
           aria-label={dict.common.add}
         >
           <p className="text-sm text-gray-500">{dict.common.add}</p>
