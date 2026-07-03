@@ -64,7 +64,7 @@ export default function AdminContactRequestsPage({
     try {
       const { data, error } = await supabase
         .from("contact_requests")
-        .select("id, office_id, property_id, visitor_name, visitor_email, visitor_phone, contact_type, message, status, notes, created_at, properties(title), offices(name)")
+        .select("id, office_id, property_id, visitor_name, visitor_email, visitor_phone, contact_type, message, created_at, updated_at, properties(title), offices(name)")
         .order("created_at", { ascending: false });
 
       if (error) {
