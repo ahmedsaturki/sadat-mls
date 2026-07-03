@@ -9,6 +9,7 @@ import { useFocusTrap, useEscapeKey } from "@/lib/utils/a11y";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
 import type { UserRole } from "@/lib/utils/constants";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, locale, dict, role }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { containerRef, handleKeyDown } = useFocusTrap(sidebarOpen);
+  const { profile } = useAuthUser();
 
   const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
@@ -60,7 +62,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
 
         {/* Desktop sidebar */}
         <div className="hidden lg:block lg:w-64 lg:shrink-0">
-          <Sidebar locale={locale} dict={dict} role={role} />
+          <Sidebar locale={locale} dict={dict} role={role} profile={profile} />
         </div>
 
         {/* Mobile sidebar with slide animation */}
@@ -75,7 +77,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
           aria-label={dict.common.navigationMenu}
         >
           <div className="h-full bg-white shadow-xl pt-16">
-            <Sidebar locale={locale} dict={dict} role={role} onNavigate={closeSidebar} />
+            <Sidebar locale={locale} dict={dict} role={role} onNavigate={closeSidebar} profile={profile} />
           </div>
         </div>
 

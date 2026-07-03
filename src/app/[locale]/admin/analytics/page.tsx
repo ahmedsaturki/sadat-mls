@@ -150,21 +150,28 @@ export default async function AdminAnalyticsPage({
             <CardTitle>{dict.admin.propertiesByStatus}</CardTitle>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {statusCards.map((status, i) => (
-              <div key={i} className="p-4 bg-gray-50 rounded-xl">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-3 h-3 rounded-full ${status.color}`} />
-                  <span className="text-sm font-medium text-gray-700">{status.label}</span>
+            {statusCards.map((status, i) => {
+              const pct = totalProperties > 0 ? Math.round((status.value / totalProperties) * 100) : 0;
+              return (
+                <div key={i} className="p-4 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-3 h-3 rounded-full ${status.color}`} />
+                    <span className="text-sm font-medium text-gray-700">{status.label}</span>
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900">{status.value}</p>
+                  <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${status.color} w-full`}
+                      role="progressbar"
+                      aria-valuenow={status.value}
+                      aria-valuemin={0}
+                      aria-valuemax={totalProperties}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{status.value}</p>
-                <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${status.color}`}
-                    style={{ width: totalProperties > 0 ? `${(status.value / totalProperties) * 100}%` : "0%" }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Card>
 

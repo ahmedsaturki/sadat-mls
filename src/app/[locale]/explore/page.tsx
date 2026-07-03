@@ -285,7 +285,7 @@ function ExploreContent({
         {showFilters && (
           <div className="mb-6">
             <SearchFilters
-              dict={dict}
+              dict={dict as unknown as { common: Record<string, string>; explore: Record<string, string> }}
               zones={zones}
               types={types}
               onSearch={handleSearch}

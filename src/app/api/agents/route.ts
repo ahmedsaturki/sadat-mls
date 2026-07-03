@@ -5,6 +5,8 @@ import { logger } from "@/lib/logger";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { agentSchema } from "@/lib/validation";
 import { ROLES } from "@/lib/utils/constants";
+import { logActivity } from "@/lib/utils/activity-logger";
+import { notifyOffice } from "@/lib/utils/notifier";
 
 function getAdminClient() {
   return createClient(
@@ -84,17 +86,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid data", details: result.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const { full_name, email, password } = result.data;
+  const { email, password, fullName, role: agentRole, officeId } = result.data;
   // Zod schema already validates format — do NOT run HTML-entity sanitizer on
   // email/name/phone as it corrupts values (e.g. adds "&amp;" into addresses).
   const sanitizedEmail = email.trim();
-  const sanitizedName = full_name.trim();
+  const sanitizedName = fullName.trim();
   const phone = result.data.phone ? result.data.phone.trim() : "";
 
   // Role assignment based on caller's role
   // SUPER_ADMIN can specify any role, OFFICE_ADMIN can only create OFFICE_AGENT
   const role = user.role === ROLES.SUPER_ADMIN
-    ? (body.role === ROLES.OFFICE_ADMIN ? ROLES.OFFICE_ADMIN : ROLES.OFFICE_AGENT)
+    ? (agentRole === ROLES.OFFICE_ADMIN ? ROLES.OFFICE_ADMIN : ROLES.OFFICE_AGENT)
     : ROLES.OFFICE_AGENT;
   const office_id = user.office_id;
 
@@ -103,12 +105,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "OFFICE_ADMIN must belong to an office" }, { status: 400 });
   }
 
-  // Validate office_id in body for SUPER_ADMIN
-  if (user.role === ROLES.SUPER_ADMIN && body.office_id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.office_id)) {
+  // Validate officeId in body for SUPER_ADMIN
+  if (user.role === ROLES.SUPER_ADMIN && officeId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(officeId)) {
     return NextResponse.json({ error: "Invalid office ID format" }, { status: 400 });
   }
 
-  const targetOfficeId = user.role === ROLES.SUPER_ADMIN && body.office_id ? body.office_id : office_id;
+  const targetOfficeId = user.role === ROLES.SUPER_ADMIN && officeId ? officeId : office_id;
 
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     logger.error("SUPABASE_SERVICE_ROLE_KEY not configured");
@@ -148,6 +150,30 @@ export async function POST(request: NextRequest) {
   }
 
   logger.info("Agent created successfully", { userId: authData.user?.id, createdBy: user.id });
+
+  // Log activity
+  await logActivity({
+    userId: user.id,
+    officeId: targetOfficeId,
+    action: "agent.created",
+    entityType: "agent",
+    entityId: authData.user?.id,
+    entityTitle: sanitizedName,
+    metadata: { email: sanitizedEmail, role },
+    ipAddress: ip,
+  });
+
+  // Notify office members (fire-and-forget)
+  if (targetOfficeId) {
+    notifyOffice(targetOfficeId, {
+      type: "agent_joined",
+      title: `New agent joined: ${sanitizedName}`,
+      message: `${sanitizedName} (${sanitizedEmail}) has joined your office as ${role === ROLES.OFFICE_ADMIN ? "Office Admin" : "Office Agent"}`,
+      entityType: "agent",
+      entityId: authData.user?.id,
+    }).catch(() => {});
+  }
+
   return NextResponse.json({ success: true, userId: authData.user?.id });
 }
 
@@ -237,5 +263,17 @@ export async function DELETE(request: NextRequest) {
   }
 
   logger.info("Agent deleted successfully", { userId, deletedBy: user.id });
+
+  // Log activity
+  await logActivity({
+    userId: user.id,
+    officeId: user.office_id,
+    action: "agent.deleted",
+    entityType: "agent",
+    entityId: userId,
+    metadata: { deletedBy: user.id },
+    ipAddress: ip,
+  });
+
   return NextResponse.json({ success: true });
 }

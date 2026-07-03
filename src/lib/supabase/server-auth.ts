@@ -36,7 +36,13 @@ export async function getServerAuth(): Promise<AuthUser> {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
-          } catch {}
+          } catch {
+            // Expected in Server Components (cookies immutable after response).
+            // Log in non-SC contexts for debugging token refresh failures.
+            if (process.env.NODE_ENV === "development") {
+              console.debug("[server-auth] cookie write skipped (expected in SC)");
+            }
+          }
         },
       },
     }
@@ -70,4 +76,35 @@ export async function getServerProfile() {
 
 export async function clearAuthCache() {
   // No-op in serverless - each request is independent
+}
+
+/**
+ * Get authenticated user and profile.
+ * Returns null user/profile if not authenticated.
+ */
+export async function getAuthenticatedUser() {
+  const { user, profile } = await getServerAuth();
+  return { user, profile };
+}
+
+/**
+ * Require authentication. Throws if not authenticated.
+ */
+export async function requireAuth(redirectPath: string) {
+  const { user, profile } = await getServerAuth();
+  if (!user) {
+    throw new Error(`REDIRECT:${redirectPath}`);
+  }
+  return { user, profile };
+}
+
+/**
+ * Require specific role. Throws if not authenticated or wrong role.
+ */
+export async function requireRole(requiredRole: UserRole, redirectPath: string) {
+  const { user, profile } = await requireAuth(redirectPath);
+  if (!profile || profile.role !== requiredRole) {
+    throw new Error(`REDIRECT:${redirectPath}`);
+  }
+  return { user, profile };
 }

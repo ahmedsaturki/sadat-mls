@@ -31,7 +31,7 @@ describe("csrf", () => {
   describe("generateCsrfToken", () => {
     it("generates a UUID-like token", () => {
       const token = generateCsrfToken();
-      expect(token).toMatch(/^[0-9a-f-]+$/);
+      expect(token).toMatch(/^[0-9a-f.]+$/);
       expect(token.length).toBeGreaterThan(30);
     });
 

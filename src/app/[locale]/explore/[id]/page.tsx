@@ -19,7 +19,7 @@ import {
   X,
   ParkingCircle,
   Accessibility,
-  Fence,
+  DoorOpen,
   Image as ImageIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -226,7 +226,7 @@ export default function PropertyDetailPage() {
       : "warning";
 
   const features = [
-    { show: property.has_balcony, icon: Fence, label: dict.property.hasBalcony },
+    { show: property.has_balcony, icon: DoorOpen, label: dict.property.hasBalcony },
     { show: property.has_parking, icon: ParkingCircle, label: dict.property.hasParking },
     { show: property.has_elevator, icon: Accessibility, label: dict.property.hasElevator },
   ].filter((f) => f.show);
@@ -470,7 +470,7 @@ export default function PropertyDetailPage() {
                   <CompareButton
                     property={property as unknown as PropertyForComparison}
                     locale={locale}
-                    dict={dict}
+          dict={dict}
                   />
                   <FavoriteButton propertyId={property.id} userId={userId} locale={locale} dict={dict} />
                 </div>
@@ -600,7 +600,7 @@ export default function PropertyDetailPage() {
           officeName={property.offices?.name || ""}
           officePhone={property.offices?.phone}
           officeEmail={property.offices?.email}
-          dict={dict}
+          dict={dict as unknown as { contact: Record<string, string>; common: Record<string, string> }}
         />
       </Suspense>
     </div>

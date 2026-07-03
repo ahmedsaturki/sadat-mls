@@ -59,11 +59,11 @@ export default function PropertiesPage({
   const mountedRef = useRef(true);
 
   const loadStats = useCallback(async () => {
-    if (!profile?.office_id || !supabase || !mountedRef.current) return;
+    if (!profile?.officeId || !supabase || !mountedRef.current) return;
     const [avail, sold, rented] = await Promise.all([
-      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "available"),
-      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "sold"),
-      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.office_id).eq("status", "rented"),
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.officeId).eq("status", "available"),
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.officeId).eq("status", "sold"),
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("office_id", profile.officeId).eq("status", "rented"),
     ]);
     setStats({ available: avail.count || 0, sold: sold.count || 0, rented: rented.count || 0 });
   }, [supabase, profile]);
@@ -74,7 +74,7 @@ export default function PropertiesPage({
       return;
     }
 
-    if (!profile?.office_id) {
+    if (!profile?.officeId) {
       router.push(`/${locale}/explore`);
       return;
     }
@@ -83,7 +83,7 @@ export default function PropertiesPage({
       let query = supabase
         .from("properties")
         .select("id, title, description, property_type_id, zone_id, street, price, area, bedrooms, bathrooms, floors, has_balcony, has_parking, has_elevator, status, is_active, office_id, created_at, property_types(name_ar), zones(name_ar)", { count: "exact" })
-        .eq("office_id", profile.office_id)
+        .eq("office_id", profile.officeId)
         .order("created_at", { ascending: false });
 
       if (statusFilter !== "all") {
@@ -95,7 +95,7 @@ export default function PropertiesPage({
 
       const [propertiesResult, officeResult] = await Promise.all([
         query.range(from, to),
-        supabase.from("offices").select("name").eq("id", profile.office_id).maybeSingle(),
+        supabase.from("offices").select("name").eq("id", profile.officeId).maybeSingle(),
       ]);
 
       const { data, count } = propertiesResult;
@@ -155,6 +155,17 @@ export default function PropertiesPage({
       );
       showToast(dict.common.save, "success");
       loadStats();
+      // Log activity (fire-and-forget)
+      fetch("/api/activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "property.updated",
+          entity_type: "property",
+          entity_id: propertyId,
+          metadata: { field: "status", new_value: newStatus },
+        }),
+      }).catch(() => {});
     } else {
       showToast(dict.common.unexpectedError, "error");
     }
@@ -171,6 +182,16 @@ export default function PropertiesPage({
       if (!error) {
         showToast(dict.common.delete, "success");
         setProperties((prev) => prev.filter((p) => p.id !== deleteId));
+        // Log activity (fire-and-forget)
+        fetch("/api/activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "property.deleted",
+            entity_type: "property",
+            entity_id: deleteId,
+          }),
+        }).catch(() => {});
       } else {
         showToast(dict.common.unexpectedError, "error");
       }

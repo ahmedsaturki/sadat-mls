@@ -52,7 +52,7 @@ export default function ContactRequestsPage({
         return;
       }
 
-      if (!profile?.office_id) {
+      if (!profile?.officeId) {
         router.push(`/${locale}/explore`);
         return;
       }
@@ -60,7 +60,7 @@ export default function ContactRequestsPage({
       const { data, error: requestsError } = await supabase
         .from("contact_requests")
         .select("id, office_id, property_id, name, email, phone, message, type, status, created_at, properties(title)")
-        .eq("office_id", profile.office_id)
+        .eq("office_id", profile.officeId)
         .order("created_at", { ascending: false });
 
       if (requestsError) {

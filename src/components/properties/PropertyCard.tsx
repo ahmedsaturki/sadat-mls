@@ -71,17 +71,18 @@ const PropertyCard = memo(function PropertyCard({
   const getLabel = (key: string, fallback: string): string => {
     if (!dict) return fallback;
     const d = dict as Record<string, unknown>;
-    const property = d.property as Record<string, string> | undefined;
+    const property = d.property as Record<string, unknown> | undefined;
     const explore = d.explore as Record<string, string> | undefined;
-    return property?.[key] || explore?.[key] || fallback;
+    const status = property?.status as Record<string, string> | undefined;
+    return (status?.[key] as string) || (property?.[key] as string) || explore?.[key] || fallback;
   };
 
   const statusConfig = {
-    available: { label: getLabel("statusAvailable", locale === "ar" ? "متاح" : "Available"), variant: "success" as const },
-    reserved: { label: getLabel("reserved", locale === "ar" ? "محجوز" : "Reserved"), variant: "warning" as const },
-    rented: { label: getLabel("rented", locale === "ar" ? "مؤجر" : "Rented"), variant: "warning" as const },
-    sold: { label: getLabel("sold", locale === "ar" ? "تم البيع" : "Sold"), variant: "danger" as const },
-    pending_review: { label: getLabel("pending_review", locale === "ar" ? "قيد المراجعة" : "Pending Review"), variant: "info" as const },
+    available: { label: getLabel("available", "متاح"), variant: "success" as const },
+    reserved: { label: getLabel("reserved", "محجوز"), variant: "warning" as const },
+    rented: { label: getLabel("rented", "مؤجر"), variant: "warning" as const },
+    sold: { label: getLabel("sold", "تم البيع"), variant: "danger" as const },
+    pending_review: { label: getLabel("pending_review", "قيد المراجعة"), variant: "info" as const },
   };
 
   return (
@@ -136,7 +137,7 @@ const PropertyCard = memo(function PropertyCard({
             )}
             <span className="flex items-center gap-1">
               <Maximize className="w-4 h-4" aria-hidden="true" />
-              {area} {(dict?.property?.areaUnit as string) || (locale === "ar" ? "م²" : "m²")}
+              {area} {dict?.property?.areaUnit || "م²"}
             </span>
           </div>
 
@@ -149,7 +150,7 @@ const PropertyCard = memo(function PropertyCard({
 
           <div className="flex items-center justify-between pt-3 border-t border-gray-100">
             <span className="text-lg font-bold text-blue-600">
-              {formatPrice(price, locale)} {dict?.property?.priceUnit || (locale === "ar" ? "ج.م" : "EGP")}
+              {formatPrice(price, locale)} {dict?.property?.priceUnit || "ج.م"}
             </span>
             <div className="flex items-center gap-1">
               <ShareButton title={title} dict={dict} />

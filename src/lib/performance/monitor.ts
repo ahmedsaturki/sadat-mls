@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import { logger } from "@/lib/logger";
 
 interface MetricEntry {
   name: string;
@@ -185,7 +186,7 @@ export function usePerformanceMonitor() {
       reportedRef.current.add(metric.name);
 
       if (process.env.NODE_ENV === "development") {
-        console.log(`[Perf] ${metric.name}: ${metric.value} (${metric.rating})`);
+        logger.info(`[Perf] ${metric.name}: ${metric.value} (${metric.rating})`);
       }
     },
     []
@@ -217,7 +218,7 @@ export function useMeasureRender(name: string) {
     return () => {
       const duration = performance.now() - startRef.current;
       if (duration > 16) {
-        console.warn(`[Perf] Slow render: ${name} took ${Math.round(duration)}ms`);
+        logger.warn(`Slow render: ${name} took ${Math.round(duration)}ms`);
       }
     };
   }, [name]);

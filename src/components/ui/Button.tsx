@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils/cn";
 import { ButtonHTMLAttributes, forwardRef } from "react";
-import { useTouchTarget } from "@/hooks/useTouchTarget";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
@@ -30,23 +29,19 @@ const Button = forwardRef<HTMLButtonElement | null, ButtonProps>(
       lg: "px-6 py-3 text-base",
     };
 
-    const { ref: touchRef, style: touchStyle } = useTouchTarget({
-      minWidth: 44,
-      minHeight: 44,
-    });
+    const touchStyles = touchTarget ? "min-w-[44px] min-h-[44px]" : "";
 
     // Merge refs
     const mergedRef = (node: HTMLButtonElement | null) => {
       if (typeof ref === "function") ref(node);
       else if (ref && typeof ref === "object" && "current" in ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
-      if (touchTarget && touchRef) touchRef.current = node;
     };
 
     return (
       <button
         ref={mergedRef}
-        className={cn(baseStyles, variants[variant], sizes[size], className)}
-        style={touchTarget ? { ...touchStyle, ...props.style } : props.style}
+        className={cn(baseStyles, variants[variant], sizes[size], touchStyles, className)}
+        style={props.style}
         disabled={disabled || isLoading}
         aria-busy={isLoading || undefined}
         {...props}

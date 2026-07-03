@@ -1,11 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Building2, Globe, Home, LogOut, Menu, X, Search, Settings, LayoutDashboard, Mail, Heart } from "lucide-react";
+import NotificationsBell from "@/components/layout/NotificationsBell";
 import { useState, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils/cn";
 import { useEscapeKey } from "@/lib/utils/a11y";
+import { useAuthUser } from "@/hooks/useAuthUser";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
@@ -19,6 +22,7 @@ interface NavbarProps {
 export default function Navbar({ locale, dict, userRole }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { profile } = useAuthUser();
 
   const switchLocale = locale === "ar" ? "en" : "ar";
   const switchPath = pathname.replace(`/${locale}`, `/${switchLocale}`);
@@ -28,14 +32,15 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
   useEscapeKey(closeMenu, mobileMenuOpen);
 
   const navLinks = useMemo(() => {
+    const role = userRole ?? profile?.role;
     const links = [
       { href: `/${locale}`, label: dict.common.home, icon: Home, prefetch: true },
       { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search, prefetch: true },
     ];
 
-    if (userRole === ROLES.SUPER_ADMIN) {
+    if (role === ROLES.SUPER_ADMIN) {
       links.push({ href: `/${locale}/admin`, label: dict.nav.dashboard, icon: Building2, prefetch: false });
-    } else if (userRole === ROLES.OFFICE_ADMIN) {
+    } else if (role === ROLES.OFFICE_ADMIN) {
       links.push({ href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard, prefetch: false });
       links.push({ href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail, prefetch: false });
       links.push({ href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart, prefetch: false });
@@ -43,7 +48,9 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
     }
 
     return links;
-  }, [locale, dict, userRole]);
+  }, [locale, dict, userRole, profile?.role]);
+
+  const isLoggedIn = !!(userRole ?? profile);
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50" role="navigation" aria-label={dict.common.mainNavigation}>
@@ -89,16 +96,47 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               {dict.nav?.switchLanguage || (switchLocale === "ar" ? "عربي" : "EN")}
             </Link>
 
-            {/* Login/Logout */}
-            {userRole ? (
-              <Link
-                href={`/${locale}/logout`}
-                className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                aria-label={dict.common.logout}
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">{dict.common.logout}</span>
-              </Link>
+            {/* Notifications Bell (only for logged-in users) */}
+            {isLoggedIn && (
+              <NotificationsBell
+                locale={locale}
+                dict={{
+                  notifications: {
+                    title: dict.nav?.notifications || "Notifications",
+                    markAllRead: dict.nav?.markAllRead || "Mark all read",
+                    noNotifications: dict.nav?.noNotifications || "No notifications",
+                    contactRequest: dict.nav?.contactRequest || "Contact Request",
+                    propertyInquiry: dict.nav?.propertyInquiry || "Property Inquiry",
+                    agentJoined: dict.nav?.agentJoined || "Agent Joined",
+                    system: dict.nav?.system || "System",
+                    timeAgo: dict.common?.timeAgo,
+                  },
+                }}
+              />
+            )}
+
+            {/* Avatar + Login/Logout */}
+            {isLoggedIn ? (
+              <div className="flex items-center gap-2">
+                {profile?.avatarUrl && (
+                  <Image
+                    src={profile.avatarUrl}
+                    alt={profile.fullName || profile.email}
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                <Link
+                  href={`/${locale}/logout`}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  aria-label={dict.common.logout}
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">{dict.common.logout}</span>
+                </Link>
+              </div>
             ) : (
               <Link
                 href={`/${locale}/login`}

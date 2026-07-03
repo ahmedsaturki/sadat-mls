@@ -1,8 +1,14 @@
-/** @type {import('next').NextConfig} */
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   turbopack: {
@@ -46,4 +52,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withBundleAnalyzer(nextConfig);
+export default withBundleAnalyzer(nextConfig);

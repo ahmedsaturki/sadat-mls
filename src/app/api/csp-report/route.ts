@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { checkApiRateLimit } from "@/lib/security/rateLimit";
 
 /**
  * CSP Violation Report Endpoint
@@ -7,6 +8,12 @@ import { logger } from "@/lib/logger";
  */
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const { allowed } = await checkApiRateLimit(`csp-report:${ip}`);
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const body = await request.json();
     
     // Log CSP violations for monitoring

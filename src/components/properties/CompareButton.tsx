@@ -34,9 +34,8 @@ const CompareButton = memo(function CompareButton({
 
   const getLabel = useCallback((key: string, fallback: string): string => {
     if (!dict) return fallback;
-    const commonVal = dict.common as Record<string, string> | undefined;
-    const exploreVal = dict.explore as Record<string, string> | undefined;
-    return commonVal?.[key] || exploreVal?.[key] || fallback;
+    const commonVal = dict.common as unknown as Record<string, string> | undefined;
+    return commonVal?.[key] || fallback;
   }, [dict]);
 
    const handleToggle = useCallback((e: React.MouseEvent) => {
@@ -45,18 +44,18 @@ const CompareButton = memo(function CompareButton({
 
 if (isSelected(property.id)) {
         removeProperty(property.id);
-        showToast(getLabel("removeFromComparison", locale === "ar" ? "تمت الإزالة من المقارنة" : "Removed from comparison"), "success");
+        showToast(getLabel("removeFromComparison", "تمت الإزالة من المقارنة"), "success");
       } else {
         const added = addProperty(property);
         if (added) {
-          showToast(getLabel("addToComparison", locale === "ar" ? "تمت الإضافة للمقارنة" : "Added to comparison"), "success");
+          showToast(getLabel("addToComparison", "تمت الإضافة للمقارنة"), "success");
        } else {
           logger.warn("Cannot add more properties to compare", { currentCount: count, max });
-          const maxCompareMsg = getLabel("maxCompare", locale === "ar" ? `الحد الأقصى ${max} عقارات` : `Maximum ${max} properties`);
+          const maxCompareMsg = getLabel("maxCompare", `الحد الأقصى ${max} عقارات`);
           showToast(maxCompareMsg.replace("{{max}}", String(max)), "warning");
        }
      }
-   }, [isSelected, property, removeProperty, addProperty, showToast, getLabel, locale, count, max]);
+    }, [isSelected, property, removeProperty, addProperty, showToast, getLabel, count, max]);
 
   return (
     <button
@@ -70,8 +69,8 @@ if (isSelected(property.id)) {
         className
       )}
       aria-label={isSelected(property.id) ? 
-        getLabel("removeFromComparison", locale === "ar" ? "إزالة من المقارنة" : "Remove from comparison") : 
-        getLabel("addToComparison", locale === "ar" ? "إضافة للمقارنة" : "Add to comparison")}
+        getLabel("removeFromComparison", "إزالة من المقارنة") : 
+        getLabel("addToComparison", "إضافة للمقارنة")}
       aria-pressed={isSelected(property.id)}
     >
       <GitCompare className={cn(size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5")} />

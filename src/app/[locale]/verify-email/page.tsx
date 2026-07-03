@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Building2, ArrowRight, Mail, CheckCircle, XCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -18,15 +18,20 @@ export default function VerifyEmailPage({
   const [status, setStatus] = useState<"loading" | "success" | "error" | "pending">("loading");
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
-  const { user } = useAuthUser();
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const { user, refresh } = useAuthUser();
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const dict = getMessages(locale);
 
+  // Poll for verification status every 5 seconds
   useEffect(() => {
     const checkVerification = async () => {
       try {
-        if (user?.email_confirmed_at) {
+        if (user?.emailConfirmedAt) {
           setStatus("success");
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         } else if (user) {
           setStatus("pending");
         } else {
@@ -36,11 +41,38 @@ export default function VerifyEmailPage({
         setStatus("pending");
       }
     };
+
     checkVerification();
+
+    // Poll every 5 seconds while pending
+    const interval = setInterval(checkVerification, 5000);
+    pollIntervalRef.current = interval;
+
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
   }, [user]);
 
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    cooldownIntervalRef.current = timer;
+    return () => {
+      if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
+    };
+  }, [resendCooldown]);
+
   const handleResend = useCallback(async () => {
-    if (!user?.email) return;
+    if (!user?.email || resendCooldown > 0) return;
     
     setResending(true);
     try {
@@ -52,6 +84,9 @@ export default function VerifyEmailPage({
       
       if (response.ok) {
         setResent(true);
+        setResendCooldown(60); // 60-second cooldown
+        // Refresh auth to pick up any changes
+        await refresh();
       } else {
         logger.warn("Resend verification failed", { status: response.status });
       }
@@ -60,7 +95,7 @@ export default function VerifyEmailPage({
     } finally {
       setResending(false);
     }
-  }, [user]);
+  }, [user, resendCooldown, refresh]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
@@ -72,7 +107,7 @@ export default function VerifyEmailPage({
       <div className="w-full max-w-md relative">
         <Link
           href={`/${locale}`}
-          className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-8 transition-colors text-sm"
+          className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-8 transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-600 rounded"
         >
           <ArrowRight className="w-4 h-4" />
           {dict.auth.backToHome}
@@ -94,7 +129,7 @@ export default function VerifyEmailPage({
           )}
 
           {status === "success" && (
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-4" role="status" aria-live="polite">
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
               <h2 className="text-xl font-semibold text-gray-900">
                 {dict.auth.verifyEmailSuccess}
@@ -119,7 +154,7 @@ export default function VerifyEmailPage({
               </p>
 
               {resent ? (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600">
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600" role="status" aria-live="polite">
                   {dict.auth.resendVerificationSent}
                 </div>
               ) : (
@@ -127,23 +162,26 @@ export default function VerifyEmailPage({
                   variant="outline"
                   onClick={handleResend}
                   isLoading={resending}
+                  disabled={resendCooldown > 0}
                   className="mt-4"
                 >
-                  {dict.auth.resendVerification}
+                  {resendCooldown > 0
+                    ? `${dict.auth.resendVerification} (${resendCooldown}s)`
+                    : dict.auth.resendVerification}
                 </Button>
               )}
             </div>
           )}
 
           {status === "error" && (
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-4" role="alert" aria-live="assertive">
               <XCircle className="w-12 h-12 text-red-500 mx-auto" />
               <h2 className="text-xl font-semibold text-gray-900">
                 {dict.auth.verifyEmailFailed}
               </h2>
               <Link
                 href={`/${locale}/login`}
-                className="inline-block mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="inline-block mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
               >
                 {dict.auth.backToLogin}
               </Link>

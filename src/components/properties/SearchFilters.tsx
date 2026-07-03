@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, SlidersHorizontal, X, Fence, ParkingCircle, Accessibility } from "lucide-react";
+import { Search, SlidersHorizontal, X, DoorOpen, ParkingCircle, Accessibility } from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
@@ -207,7 +207,7 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
                     onChange={(e) => updateFilter("hasBalcony", e.target.checked)}
                     className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                   />
-                  <Fence className="w-4 h-4 text-gray-500" />
+                  <DoorOpen className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-700">{dict.explore.balcony}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">

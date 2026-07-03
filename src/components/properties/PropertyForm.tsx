@@ -188,7 +188,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
     if (profile?.office_id) {
       setUserId(user.id);
-      setOfficeId(profile.office_id);
+      setOfficeId(profile.officeId);
       setUserRole(profile.role as UserRole);
     }
   }, [supabase, locale, router]);
@@ -219,7 +219,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     }
 
     setUserId(user.id);
-    setOfficeId(profile.office_id || "");
+    setOfficeId(profile.officeId || "");
     setUserRole((profile.role as UserRole) || ROLES.OFFICE_AGENT);
 
     const [propertyResult, imagesResult, ownerResult] = await Promise.all([
@@ -304,7 +304,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         const key = issue.path.join(".");
         // Map validation errors to i18n keys
         if (issue.code === "too_small") {
-          const actual = String(issue.input ?? "").length;
+          const actual = String((issue as unknown as Record<string, unknown>).input ?? "").length;
           const min = issue.minimum as number;
           if (min === 2 && actual < 2) {
             newErrors[key] = dict.office.propertyNameMin;
@@ -394,6 +394,17 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
       }
       resultPropertyId = property.id;
       showToast(dict.office.propertyCreated, "success");
+      // Log activity (fire-and-forget)
+      fetch("/api/activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "property.created",
+          entity_type: "property",
+          entity_id: property.id,
+          entity_title: propertyData.title,
+        }),
+      }).catch(() => {});
     } else {
       const { error } = await supabase
         .from("properties")
@@ -406,6 +417,17 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         return;
       }
       showToast(dict.common.save, "success");
+      // Log activity (fire-and-forget)
+      fetch("/api/activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "property.updated",
+          entity_type: "property",
+          entity_id: propertyId,
+          entity_title: propertyData.title,
+        }),
+      }).catch(() => {});
     }
 
     if (ownerData.owner_name && ownerData.owner_phone) {

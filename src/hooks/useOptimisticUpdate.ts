@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { logger } from "@/lib/logger";
 
 interface OptimisticUpdateOptions<T> {
@@ -16,10 +16,15 @@ export function useOptimisticUpdate<T extends { id: string }>(
   const [data, setData] = useState<T[]>(initialData);
   const [isPending, setIsPending] = useState(false);
   const previousDataRef = useRef<T[]>(initialData);
+  const dataRef = useRef<T[]>(initialData);
+
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
   const mutate = useCallback(
     async (optimistic: T, action: () => Promise<T | null>) => {
-      previousDataRef.current = data;
+      previousDataRef.current = dataRef.current;
 
       setData((current) => options.onMutate(current, optimistic));
       setIsPending(true);
@@ -42,7 +47,7 @@ export function useOptimisticUpdate<T extends { id: string }>(
         options.onSettled?.();
       }
     },
-    [data, options]
+    [options]
   );
 
   const add = useCallback(
@@ -64,8 +69,8 @@ export function useOptimisticUpdate<T extends { id: string }>(
 
   const remove = useCallback(
     async (id: string, action: () => Promise<void>) => {
+      const previous = dataRef.current;
       setIsPending(true);
-      const previous = data;
 
       setData((current) => current.filter((item) => item.id !== id));
 
@@ -80,7 +85,7 @@ export function useOptimisticUpdate<T extends { id: string }>(
         setIsPending(false);
       }
     },
-    [data]
+    []
   );
 
   const setDataDirectly = useCallback((newData: T[] | ((prev: T[]) => T[])) => {

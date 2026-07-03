@@ -45,8 +45,19 @@ function getAllowedHosts(origin: string): Set<string> {
 function isHostAllowed(hostname: string, allowedHosts: Set<string>): boolean {
   if (allowedHosts.has(hostname)) return true;
 
-  // Allow any *.vercel.app / *.vercel.app subdomains (preview deploys).
-  if (hostname.endsWith(".vercel.app")) return true;
+  // Allow only the project's own Vercel preview deploys (e.g. sadat-mls-*.vercel.app).
+  // Extract the project prefix from the production URL.
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  try {
+    const productionHost = new URL(envUrl).hostname;
+    // e.g. "sadat-mls.vercel.app" → prefix "sadat-mls"
+    const prefix = productionHost.split(".vercel.app")[0];
+    if (prefix && hostname === `${prefix}.vercel.app`) return true;
+    // Preview deploys append a hash: sadat-mls-abc123xyz.vercel.app
+    if (prefix && hostname.startsWith(`${prefix}-`) && hostname.endsWith(".vercel.app")) return true;
+  } catch {
+    // ignore
+  }
 
   return false;
 }
@@ -73,19 +84,20 @@ export async function GET(request: Request) {
 
       const allowedHosts = getAllowedHosts(origin);
 
+      // For recovery links, always redirect to reset-password page
+      const redirectPath = type === "recovery" ? "/reset-password" : safeNext;
+
       let redirectUrl: string;
       if (isLocalEnv) {
-        redirectUrl = `${origin}/${safeLocale}${safeNext}`;
+        redirectUrl = `${origin}/${safeLocale}${redirectPath}`;
       } else if (forwardedHost) {
-        // Validate the forwarded host against our whitelist.
         if (!isHostAllowed(forwardedHost, allowedHosts)) {
-          // Reject the untrusted host – fall back to the safe origin.
-          redirectUrl = `${origin}/${safeLocale}${safeNext}`;
+          redirectUrl = `${origin}/${safeLocale}${redirectPath}`;
         } else {
-          redirectUrl = `https://${forwardedHost}/${safeLocale}${safeNext}`;
+          redirectUrl = `https://${forwardedHost}/${safeLocale}${redirectPath}`;
         }
       } else {
-        redirectUrl = `${origin}/${safeLocale}${safeNext}`;
+        redirectUrl = `${origin}/${safeLocale}${redirectPath}`;
       }
 
       return NextResponse.redirect(redirectUrl);

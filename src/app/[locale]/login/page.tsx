@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Building2, ArrowRight } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -34,6 +34,7 @@ export default function LoginPage({
   const locale = usePageLocale(params);
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const dict = getMessages(locale);
 
@@ -124,7 +125,10 @@ export default function LoginPage({
       return;
     }
 
-    if (profile?.role === ROLES.SUPER_ADMIN) {
+    const nextParam = searchParams.get("next");
+    if (nextParam) {
+      router.push(nextParam);
+    } else if (profile?.role === ROLES.SUPER_ADMIN) {
       router.push(`/${locale}/admin`);
     } else if (profile?.role === ROLES.OFFICE_ADMIN || profile?.role === ROLES.OFFICE_AGENT) {
       router.push(`/${locale}/dashboard`);
