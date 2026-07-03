@@ -115,29 +115,33 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               />
             )}
 
-            {/* Avatar + Login/Logout */}
-            {isLoggedIn ? (
-              <div className="flex items-center gap-2">
-                {profile?.avatarUrl && (
-                  <Image
-                    src={profile.avatarUrl}
-                    alt={profile.fullName || profile.email}
-                    width={32}
-                    height={32}
-                    className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-                <Link
-                  href={`/${locale}/logout`}
-                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                  aria-label={dict.common.logout}
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">{dict.common.logout}</span>
-                </Link>
-              </div>
-            ) : (
+{/* Avatar + Login/Logout */}
+          {isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              {profile?.avatarUrl ? (
+                <Image
+                  src={profile.avatarUrl}
+                  alt={profile.fullName || profile.email}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center border border-gray-200 text-sm font-medium">
+                  {profile?.fullName?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+              )}
+              <Link
+                href={`/${locale}/logout`}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                aria-label={dict.common.logout}
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">{dict.common.logout}</span>
+              </Link>
+            </div>
+          ) : (
               <Link
                 href={`/${locale}/login`}
                 className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
