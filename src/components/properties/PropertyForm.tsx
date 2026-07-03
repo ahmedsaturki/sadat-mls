@@ -73,14 +73,22 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
-        if (!loading) {
+        if (!loading && !isSubmitting) {
+          // Provide visual feedback that shortcut is working
+          const submitButton = document.querySelector("button[type=\"submit\"]") as HTMLButtonElement;
+          if (submitButton) {
+            submitButton.classList.add("ring-2", "ring-blue-500", "ring-offset-2");
+            setTimeout(() => {
+              submitButton.classList.remove("ring-2", "ring-blue-500", "ring-offset-2");
+            }, 200);
+          }
           document.querySelector("form")?.requestSubmit();
         }
       }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [loading]);
+  }, [loading, isSubmitting]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -98,6 +106,10 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     has_elevator: false,
     status: "available",
   });
+
+  const [validationDelay, setValidationDelay] = useState<NodeJS.Timeout | null>(null);
+  const [fieldValidation, setFieldValidation] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleGenerateDescription = useCallback(async (): Promise<string | null> => {
     if (!formData.title) {
@@ -142,7 +154,8 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     notes: "",
   });
 
-  const [isDirty, setIsDirty] = useState(false);
+  const [validationDelay, setValidationDelay] = useState<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     const hasData = Boolean(formData.title || formData.description || formData.price);
     const hasNewImages = newImages.length > 0;
@@ -150,7 +163,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     setIsDirty(hasData || hasNewImages || hasDeletedImages);
   }, [formData, newImages, existingImages, initialExistingCount]);
 
-  useUnsavedChangesWarning(isDirty && !loading, dict);
+  useUnsavedChangesWarning(isDirty && !loading && !isSubmitting, dict);
 
   useEffect(() => {
     return () => {
@@ -347,161 +360,164 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
     if (!validateForm()) {
       showToast(dict.office.formErrors, "error");
+      // Focus on first error field
+      const firstErrorKey = Object.keys(errors)[0];
+      if (firstErrorKey) {
+        const inputElement = document.querySelector(`[name="${firstErrorKey}"]`) as HTMLInputElement;
+        inputElement?.focus();
+      }
       return;
     }
 
+    setIsSubmitting(true);
     setLoading(true);
 
-    // Defensive: ensure status is a valid DB value before hitting the constraint
-    if (!PROPERTY_STATUSES.includes(formData.status as PropertyStatus)) {
-      showToast(dict.common.error, "error");
-      setLoading(false);
-      return;
-    }
-
-    const propertyData = {
-      office_id: officeId,
-      created_by: userId,
-      title: formData.title,
-      description: formData.description,
-      property_type_id: formData.property_type_id || null,
-      zone_id: formData.zone_id || null,
-      street: formData.street,
-      price: Number(formData.price),
-      area: Number(formData.area),
-      bedrooms: Number(formData.bedrooms),
-      bathrooms: Number(formData.bathrooms),
-      floors: formData.floors ? Number(formData.floors) : null,
-      has_balcony: formData.has_balcony,
-      has_parking: formData.has_parking,
-      has_elevator: formData.has_elevator,
-      status: formData.status,
-    };
-
-    let resultPropertyId = propertyId;
-
-    if (mode === "create") {
-      const { data: property, error } = await supabase
-        .from("properties")
-        .insert(propertyData)
-        .select()
-        .single();
-
-      if (error) {
-        showToast(dict.common.unexpectedError, "error");
+    try {
+      // Defensive: ensure status is a valid DB value before hitting the constraint
+      if (!PROPERTY_STATUSES.includes(formData.status as PropertyStatus)) {
+        showToast(dict.common.error, "error");
         setLoading(false);
+        setIsSubmitting(false);
         return;
       }
-      resultPropertyId = property.id;
-      showToast(dict.office.propertyCreated, "success");
-      // Log activity (fire-and-forget)
-      fetch("/api/activity", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "property.created",
-          entity_type: "property",
-          entity_id: property.id,
-          entity_title: propertyData.title,
-        }),
-      }).catch(() => {});
-    } else {
-      const { error } = await supabase
-        .from("properties")
-        .update({ ...propertyData, updated_at: new Date().toISOString() })
-        .eq("id", propertyId);
 
-      if (error) {
-        showToast(dict.common.unexpectedError, "error");
-        setLoading(false);
-        return;
+      const propertyData = {
+        office_id: officeId,
+        created_by: userId,
+        title: formData.title,
+        description: formData.description,
+        property_type_id: formData.property_type_id || null,
+        zone_id: formData.zone_id || null,
+        street: formData.street,
+        price: Number(formData.price),
+        area: Number(formData.area),
+        bedrooms: Number(formData.bedrooms),
+        bathrooms: Number(formData.bathrooms),
+        floors: formData.floors ? Number(formData.floors) : null,
+        has_balcony: formData.has_balcony,
+        has_parking: formData.has_parking,
+        has_elevator: formData.has_elevator,
+        status: formData.status,
+      };
+
+      let resultPropertyId = propertyId;
+
+      if (mode === "create") {
+        showToast(dict.office.creatingProperty, "info");
+        const { data: property, error } = await supabase
+          .from("properties")
+          .insert(propertyData)
+          .select()
+          .single();
+
+        if (error) {
+          showToast(error.message || dict.common.unexpectedError, "error");
+          setLoading(false);
+          setIsSubmitting(false);
+          return;
+        }
+        resultPropertyId = property.id;
+        showToast(dict.office.propertyCreated, "success");
+      } else {
+        showToast(dict.office.updatingProperty, "info");
+        const { error } = await supabase
+          .from("properties")
+          .update({ ...propertyData, updated_at: new Date().toISOString() })
+          .eq("id", propertyId);
+
+        if (error) {
+          showToast(error.message || dict.common.unexpectedError, "error");
+          setLoading(false);
+          setIsSubmitting(false);
+          return;
+        }
+        showToast(dict.common.save, "success");
       }
-      showToast(dict.common.save, "success");
-      // Log activity (fire-and-forget)
-      fetch("/api/activity", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "property.updated",
-          entity_type: "property",
-          entity_id: propertyId,
-          entity_title: propertyData.title,
-        }),
-      }).catch(() => {});
-    }
 
-    if (ownerData.owner_name && ownerData.owner_phone) {
-      if (existingOwner) {
-        try {
-          const { error: ownerError } = await supabase
-            .from("property_owners")
-            .update({
+      // Handle owner update
+      if (ownerData.owner_name && ownerData.owner_phone) {
+        if (existingOwner) {
+          try {
+            const { error: ownerError } = await supabase
+              .from("property_owners")
+              .update({
+                owner_name: ownerData.owner_name,
+                owner_phone: ownerData.owner_phone,
+                owner_email: ownerData.owner_email || null,
+                notes: ownerData.notes || null,
+              })
+              .eq("id", existingOwner.id);
+            if (ownerError) {
+              showToast(dict.office.ownerUpdateFailed, "error");
+            }
+          } catch {
+            showToast(dict.office.ownerUpdateFailed, "error");
+          }
+        } else {
+          try {
+            const { error: ownerError } = await supabase.from("property_owners").insert({
+              property_id: resultPropertyId,
+              office_id: officeId,
               owner_name: ownerData.owner_name,
               owner_phone: ownerData.owner_phone,
               owner_email: ownerData.owner_email || null,
               notes: ownerData.notes || null,
-            })
-            .eq("id", existingOwner.id);
-          if (ownerError) {
-            showToast(dict.office.ownerUpdateFailed, "error");
-          }
-        } catch {
-          showToast(dict.office.ownerUpdateFailed, "error");
-        }
-      } else {
-        try {
-          const { error: ownerError } = await supabase.from("property_owners").insert({
-            property_id: resultPropertyId,
-            office_id: officeId,
-            owner_name: ownerData.owner_name,
-            owner_phone: ownerData.owner_phone,
-            owner_email: ownerData.owner_email || null,
-            notes: ownerData.notes || null,
-          });
-          if (ownerError) {
+            });
+            if (ownerError) {
+              showToast(dict.office.ownerCreateFailed, "error");
+            }
+          } catch {
             showToast(dict.office.ownerCreateFailed, "error");
           }
-        } catch {
-          showToast(dict.office.ownerCreateFailed, "error");
         }
-      }
-    } else if (existingOwner) {
-      try {
-        const { error: ownerError } = await supabase.from("property_owners").delete().eq("id", existingOwner.id);
-        if (ownerError) {
+      } else if (existingOwner) {
+        try {
+          const { error: ownerError } = await supabase.from("property_owners").delete().eq("id", existingOwner.id);
+          if (ownerError) {
+            showToast(dict.office.ownerDeleteFailed, "error");
+          }
+        } catch {
           showToast(dict.office.ownerDeleteFailed, "error");
         }
-      } catch {
-        showToast(dict.office.ownerDeleteFailed, "error");
       }
-    }
 
-    if (newImages.length > 0) {
-      for (let i = 0; i < newImages.length; i++) {
-        const file = newImages[i];
-        const filePath = `${officeId}/${resultPropertyId}/${Date.now()}_${file.name}`;
+      // Handle image upload with progress feedback
+      if (newImages.length > 0) {
+        showToast(dict.office.uploadingImages, "info");
+        for (let i = 0; i < newImages.length; i++) {
+          const file = newImages[i];
+          const filePath = `${officeId}/${resultPropertyId}/${Date.now()}_${file.name}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from("properties")
-          .upload(filePath, file);
+          const { error: uploadError } = await supabase.storage
+            .from("properties")
+            .upload(filePath, file);
 
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage.from("properties").getPublicUrl(filePath);
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage.from("properties").getPublicUrl(filePath);
 
-          await supabase.from("property_images").insert({
-            property_id: resultPropertyId,
-            url: urlData.publicUrl,
-            file_path: filePath,
-            sort_order: (existingImages.length || 0) + i,
-            is_primary: existingImages.length === 0 && i === 0,
-          });
+            await supabase.from("property_images").insert({
+              property_id: resultPropertyId,
+              url: urlData.publicUrl,
+              file_path: filePath,
+              sort_order: (existingImages.length || 0) + i,
+              is_primary: existingImages.length === 0 && i === 0,
+            });
+          }
         }
+        showToast(dict.office.imagesUploaded, "success");
       }
-    }
 
-    setLoading(false);
-    setIsDirty(false);
-    router.push(`/${locale}/dashboard/properties`);
+      setLoading(false);
+      setIsSubmitting(false);
+      setIsDirty(false);
+      router.push(`/${locale}/dashboard/properties`);
+
+    } catch (err) {
+      logger.error("Form submission failed", { error: err instanceof Error ? err.message : "Unknown error" });
+      showToast(err instanceof Error ? err.message : dict.common.unexpectedError, "error");
+      setLoading(false);
+      setIsSubmitting(false);
+    }
   };
 
   const removeExistingImage = async (imageId: string, filePath: string) => {
