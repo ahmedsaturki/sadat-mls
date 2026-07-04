@@ -8,9 +8,10 @@ interface PageLoaderProps {
   variant?: "spinner" | "luxury" | "fullscreen";
   text?: string;
   fullScreen?: boolean;
+  loadingText?: string;
 }
 
-export function PageLoader({ variant = "luxury", text, fullScreen = false }: PageLoaderProps) {
+export function PageLoader({ variant = "luxury", text, fullScreen = false, loadingText = "Loading..." }: PageLoaderProps) {
   if (variant === "spinner") {
     return (
       <LoadingSpinner size="lg" text={text} />
@@ -53,7 +54,7 @@ export function PageLoader({ variant = "luxury", text, fullScreen = false }: Pag
               className="h-full w-1/2 bg-[#C49A2A] rounded-full"
             />
           </motion.div>
-          <p className="text-sm font-medium text-gray-500 tracking-widest uppercase mt-2">{text || "Loading..."}</p>
+          <p className="text-sm font-medium text-gray-500 tracking-widest uppercase mt-2">{text || loadingText}</p>
         </div>
       </div>
     );
@@ -94,7 +95,7 @@ export function PageLoader({ variant = "luxury", text, fullScreen = false }: Pag
             className="h-full w-1/2 bg-[#C49A2A] rounded-full"
           />
         </motion.div>
-        <p className="text-sm font-medium text-gray-500 tracking-widest uppercase mt-2">{text || "Loading..."}</p>
+        <p className="text-sm font-medium text-gray-500 tracking-widest uppercase mt-2">{text || loadingText}</p>
       </div>
     </div>
   );

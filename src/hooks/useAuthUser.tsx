@@ -39,10 +39,16 @@ interface RegisterResult {
 
 export function useAuthUser() {
   const auth = useAuth();
+  const supabaseClient = useRef<ReturnType<typeof createClient> | null>(null);
+
+  if (typeof window !== "undefined" && !supabaseClient.current) {
+    supabaseClient.current = createClient();
+  }
+
   return {
     ...auth,
     profile: auth.user,
-    supabase: typeof window !== "undefined" ? createClient() : null,
+    supabase: supabaseClient.current,
     refresh: auth.clearError,
   };
 }
@@ -125,12 +131,14 @@ export function useAuth() {
         const { data: authListener } = supabase.auth.onAuthStateChange(
           async (event: string, session: { user: { id: string; email?: string } } | null) => {
             if (event === "SIGNED_OUT" || !session) {
-              setState({
-                user: null,
-                isLoading: false,
-                isAuthenticated: false,
-                error: null,
-              });
+              if (isMounted) {
+                setState({
+                  user: null,
+                  isLoading: false,
+                  isAuthenticated: false,
+                  error: null,
+                });
+              }
             } else if (event === "SIGNED_IN" && session?.user) {
               // Fetch profile for signed-in user
               const { data: profile } = await supabase
@@ -138,6 +146,8 @@ export function useAuth() {
                 .select("id, email, full_name, phone, role, office_id, avatar_url, is_active, created_at, email_confirmed_at")
                 .eq("id", session.user.id)
                 .single();
+
+              if (!isMounted) return;
 
               if (profile) {
                 const user: User = {

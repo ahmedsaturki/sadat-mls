@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { logger } from "@/lib/logger";
 
 interface CacheEntry<T> {
   data: T;
@@ -19,7 +20,7 @@ export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
 
   useEffect(() => {
     queryFnRef.current = queryFn;
-  });
+  }, [queryFn]);
 
   const fetchData = useCallback(async (forceRefresh = false) => {
     const cache = cacheRef.current;
@@ -69,7 +70,7 @@ export function useDebouncedQuery<T>(
 
   useEffect(() => {
     queryFnRef.current = queryFn;
-  });
+  }, [queryFn]);
 
   const fetchData = useCallback((forceRefresh = false) => {
     if (timeoutRef.current) {
@@ -100,7 +101,8 @@ export function useDebouncedQuery<T>(
           cache.set(key, { data: result, timestamp: Date.now(), key });
           setData(result);
           resolve(result);
-        } catch {
+        } catch (error) {
+          logger.error("Debounced query failed", { error: error instanceof Error ? error.message : String(error) });
           resolve(undefined as T);
         } finally {
           setLoading(false);

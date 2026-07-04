@@ -198,14 +198,14 @@ export function clearRateLimitStore(): void {
 /**
  * Get current rate limit status for monitoring.
  */
-export function getRateLimitStatus(key: string): { count: number; resetTime: number; limit: number } | null {
+export function getRateLimitStatus(key: string, limit?: number): { count: number; resetTime: number; limit: number } | null {
   const record = rateLimitStore.get(key);
   if (!record) return null;
 
   return {
     count: record.count,
     resetTime: record.resetTime,
-    limit: 30,
+    limit: limit ?? 30,
   };
 }
 

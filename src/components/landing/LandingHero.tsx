@@ -26,21 +26,23 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
   return (
     <section className="relative bg-[#1B2D4F] text-white overflow-hidden min-h-[90vh] flex items-center">
       {/* Luxury Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1B2D4F] via-[#152340] to-[#0D1526]" />
-      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1B2D4F] via-[#152340] to-[#0D1526]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" aria-hidden="true" />
       
       {/* Golden Accents - responsive sizing to prevent mobile overflow */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="absolute top-0 right-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-[#C49A2A]/10 rounded-full blur-[100px] pointer-events-none" 
+        className="absolute top-0 right-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-[#C49A2A]/10 rounded-full blur-[100px] pointer-events-none"
+        aria-hidden="true" 
       />
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
-        className="absolute bottom-0 left-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-blue-400/5 rounded-full blur-[100px] pointer-events-none" 
+        className="absolute bottom-0 left-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-blue-400/5 rounded-full blur-[100px] pointer-events-none"
+        aria-hidden="true" 
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 relative z-10 w-full">

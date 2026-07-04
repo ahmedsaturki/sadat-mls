@@ -94,7 +94,6 @@
     "page": "صفحة {{number}}",
     "skipToContent": "تخطي إلى المحتوى",
     "officeLogo": "شعار المكتب",
-    "goToImage": "الانتقال إلى الصورة {{number}}",
     "pageNotFound": "الصفحة المطلوبة غير موجودة أو تم نقلها.",
     "backToDashboard": "العودة للوحة التحكم",
     "hint": "أو تحقق من الرابط والمحاولة مرة أخرى",
@@ -239,7 +238,19 @@
     "redirectingToHome": "جاري التحويل للرئيسية...",
     "goHome": "الذهاب للرئيسية",
     "dashboardError": "خطأ في لوحة التحكم",
-    "dashboardErrorMessage": "حدث خطأ في لوحة التحكم."
+    "dashboardErrorMessage": "حدث خطأ في لوحة التحكم.",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailInvalid": "البريد الإلكتروني غير صحيح",
+    "accessDenied": "ليس لديك صلاحية للوصول إلى هذه الصفحة",
+    "sessionExpired": "انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى",
+    "passwordStrength": "قوة كلمة المرور",
+    "passwordRequirements": "متطلبات كلمة المرور",
+    "ruleMinLength": "8 أحرف على الأقل",
+    "ruleMaxLength": "128 حرف كحد أقصى",
+    "ruleUppercase": "حرف كبير واحد على الأقل",
+    "ruleLowercase": "حرف صغير واحد على الأقل",
+    "ruleNumber": "رقم واحد على الأقل",
+    "ruleSpecial": "رمز خاص واحد على الأقل"
   },
   "admin": {
     "dashboard": "لوحة تحكم المسؤول العام",
@@ -330,9 +341,6 @@
     "columnName": "الاسم",
     "columnEmail": "البريد الإلكتروني",
     "columnRole": "الدور",
-    "columnOffice": "المكتب",
-    "columnStatus": "الحالة",
-    "columnDate": "التاريخ",
     "changeRole": "تغيير الدور",
     "roleChanged": "تم تغيير الدور بنجاح",
     "createUserTitle": "إنشاء مستخدم جديد",
@@ -522,7 +530,6 @@
     "copyLink": "نسخ الرابط",
     "copied": "تم النسخ!",
     "shareVia": "مشاركة عبر واتساب",
-    "openGallery": "فتح معرض الصور",
     "searchNamePlaceholder": "أدخل اسم البحث..."
   },
   "property": {

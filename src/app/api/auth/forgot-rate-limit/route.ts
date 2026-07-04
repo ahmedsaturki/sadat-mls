@@ -11,18 +11,18 @@ export async function POST(request: NextRequest) {
   if (!rate.allowed) {
     logger.warn("Forgot password rate limit exceeded", { ip });
     return NextResponse.json(
-      { 
+      {
         error: "Too many password reset requests",
         retryAfter: rate.retryAfter,
-        locked: true
+        locked: true,
       },
-      { 
-        status: 429, 
+      {
+        status: 429,
         headers: rate.headers || {
           "Retry-After": String(rate.retryAfter),
           "X-RateLimit-Remaining": String(rate.remaining),
-          "X-RateLimit-Reset": String(Math.ceil(Date.now() / 1000) + rate.retryAfter)
-        }
+          "X-RateLimit-Reset": String(Math.ceil(Date.now() / 1000) + rate.retryAfter),
+        },
       }
     );
   }
@@ -30,6 +30,6 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     allowed: true,
     remaining: rate.remaining,
-    retryAfter: 0
+    retryAfter: 0,
   });
 }

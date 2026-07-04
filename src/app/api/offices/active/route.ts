@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 
@@ -16,14 +16,16 @@ const supabaseAdmin = createClient(
  */
 export async function GET(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const { allowed } = await checkApiRateLimit(`offices-active:${ip}`);
-    if (!allowed) {
-      return new Response(JSON.stringify({ error: "Too many requests" }), {
-        status: 429,
-        headers: { "Content-Type": "application/json" },
-      });
+    const rawIp = request.headers.get("x-forwarded-for") || "unknown";
+    const ip = rawIp.split(",")[0].trim();
+    const rate = await checkApiRateLimit(`offices-active:${ip}`);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } }
+      );
     }
+
     const { data: offices, error } = await supabaseAdmin
       .from("offices")
       .select("id")
@@ -31,28 +33,24 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       logger.error("Failed to fetch active offices", { error: error.message });
-      return new Response(JSON.stringify({ ids: [] }), { 
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
+      return NextResponse.json({ ids: [] }, { status: 500 });
     }
 
     const ids = (offices as { id: string }[] | null)?.map((o) => o.id) || [];
-    
-    return new Response(JSON.stringify({ ids }), {
-      status: 200,
-      headers: { 
-        "Content-Type": "application/json",
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60"
+
+    return NextResponse.json(
+      { ids },
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
+        },
       }
-    });
+    );
   } catch (err) {
-    logger.error("Active offices API error", { 
-      error: err instanceof Error ? err.message : "Unknown" 
+    logger.error("Active offices API error", {
+      error: err instanceof Error ? err.message : "Unknown",
     });
-    return new Response(JSON.stringify({ ids: [] }), { 
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return NextResponse.json({ ids: [] }, { status: 500 });
   }
 }

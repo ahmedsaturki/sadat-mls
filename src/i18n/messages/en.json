@@ -94,7 +94,6 @@
     "page": "Page {{number}}",
     "skipToContent": "Skip to content",
     "officeLogo": "Office logo",
-    "goToImage": "Go to image {{number}}",
     "pageNotFound": "The requested page was not found or has been moved.",
     "backToDashboard": "Back to dashboard",
     "hint": "Or check the URL and try again",
@@ -239,7 +238,19 @@
     "redirectingToHome": "Redirecting to home...",
     "goHome": "Go to home",
     "dashboardError": "Dashboard Error",
-    "dashboardErrorMessage": "An error occurred in the dashboard."
+    "dashboardErrorMessage": "An error occurred in the dashboard.",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email address",
+    "accessDenied": "You do not have permission to access this page",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "passwordStrength": "Password strength",
+    "passwordRequirements": "Password requirements",
+    "ruleMinLength": "At least 8 characters",
+    "ruleMaxLength": "Max 128 characters",
+    "ruleUppercase": "One uppercase letter",
+    "ruleLowercase": "One lowercase letter",
+    "ruleNumber": "One number",
+    "ruleSpecial": "One special character"
   },
   "admin": {
     "dashboard": "Super Admin Dashboard",
@@ -330,9 +341,6 @@
     "columnName": "Name",
     "columnEmail": "Email",
     "columnRole": "Role",
-    "columnOffice": "Office",
-    "columnStatus": "Status",
-    "columnDate": "Date",
     "changeRole": "Change Role",
     "roleChanged": "Role changed successfully",
     "createUserTitle": "Create New User",
@@ -522,7 +530,6 @@
     "copyLink": "Copy link",
     "copied": "Copied!",
     "shareVia": "Share via WhatsApp",
-    "openGallery": "Open image gallery",
     "searchNamePlaceholder": "Enter search name..."
   },
   "property": {

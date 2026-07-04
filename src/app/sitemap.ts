@@ -38,6 +38,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
+  // Add office profile pages
+  try {
+    const supabaseForOffices = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data: offices } = await supabaseForOffices
+      .from("offices")
+      .select("slug, updated_at")
+      .eq("is_active", true)
+      .order("updated_at", { ascending: false })
+      .limit(200);
+
+    if (offices) {
+      for (const office of offices) {
+        for (const locale of locales) {
+          sitemapEntries.push({
+            url: `${BASE_URL}/${locale}/offices/${office.slug}`,
+            lastModified: new Date(office.updated_at || new Date()),
+            changeFrequency: "weekly",
+            priority: 0.6,
+            alternates: {
+              languages: {
+                ar: `${BASE_URL}/ar/offices/${office.slug}`,
+                en: `${BASE_URL}/en/offices/${office.slug}`,
+              },
+            },
+          });
+        }
+      }
+    }
+  } catch {
+    logger.warn("Failed to fetch offices for sitemap");
+  }
+
   // Add individual property pages
   try {
     const supabase = createClient(

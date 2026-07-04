@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
 
 const ALLOWED_LOCALES = ["ar", "en"];
 
@@ -92,6 +93,7 @@ export async function GET(request: Request) {
         redirectUrl = `${origin}/${safeLocale}${redirectPath}`;
       } else if (forwardedHost) {
         if (!isHostAllowed(forwardedHost, allowedHosts)) {
+          logger.warn("Auth callback: forwarded host not in allowed list", { forwardedHost });
           redirectUrl = `${origin}/${safeLocale}${redirectPath}`;
         } else {
           redirectUrl = `https://${forwardedHost}/${safeLocale}${redirectPath}`;
@@ -102,6 +104,10 @@ export async function GET(request: Request) {
 
       return NextResponse.redirect(redirectUrl);
     }
+
+    logger.warn("Auth callback: code exchange failed", { error: error.message, type: type ?? "none" });
+  } else if (type !== "recovery") {
+    logger.warn("Auth callback: no code provided", { type: type ?? "none" });
   }
 
   if (type === "recovery") {

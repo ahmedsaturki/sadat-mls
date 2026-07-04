@@ -3,6 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
+import { z } from "zod";
+
+const createNotificationSchema = z.object({
+  type: z.string().min(1).max(50),
+  title: z.string().min(1).max(200),
+  message: z.string().min(1).max(1000),
+  entity_type: z.string().max(50).optional().nullable(),
+  entity_id: z.string().uuid().optional().nullable(),
+});
+
+const patchNotificationSchema = z.object({
+  ids: z.array(z.string().uuid()).optional(),
+  markAll: z.boolean().optional(),
+}).refine(
+  (data) => data.markAll === true || (data.ids && data.ids.length > 0),
+  { message: "Provide ids array or markAll: true" }
+);
 
 // GET - List notifications for current user
 export async function GET(request: NextRequest) {
@@ -79,15 +96,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { type, title, message, entity_type, entity_id } = body;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
 
-    if (!type || !title || !message) {
+    const parsed = createNotificationSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "type, title, and message are required" },
+        { error: "Invalid data", details: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+
+    const { type, title, message, entity_type, entity_id } = parsed.data;
 
     // Always use authenticated user's ID — never accept user_id from body
     const { error } = await supabase
@@ -136,8 +160,22 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { ids, markAll } = body;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const parsed = patchNotificationSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid data", details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const { ids, markAll } = parsed.data;
 
     let query = supabase
       .from("notifications")
@@ -147,7 +185,7 @@ export async function PATCH(request: NextRequest) {
     if (markAll) {
       // Mark all as read
       query = query.eq("is_read", false);
-    } else if (ids && Array.isArray(ids)) {
+    } else if (ids && ids.length > 0) {
       // Mark specific notifications as read
       query = query.in("id", ids);
     } else {

@@ -233,6 +233,9 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <a href="#property-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+        {dict.common.skipToContent}
+      </a>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: sanitizedJsonLd }}
@@ -255,7 +258,7 @@ export default function PropertyDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6" id="property-content" tabIndex={-1}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -283,6 +286,7 @@ export default function PropertyDetailPage() {
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 50vw"
+                      priority={currentImageIndex === 0}
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                     <div className="absolute top-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">

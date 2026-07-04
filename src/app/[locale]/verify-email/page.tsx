@@ -136,7 +136,7 @@ export default function VerifyEmailPage({
               </h2>
               <Link
                 href={`/${locale}/login`}
-                className="inline-block mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="inline-block mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
               >
                 {dict.auth.backToLogin}
               </Link>

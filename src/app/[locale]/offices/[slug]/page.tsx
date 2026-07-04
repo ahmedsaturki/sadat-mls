@@ -138,10 +138,13 @@ function PublicOfficePage({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <a href="#office-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+        {dict.common.skipToContent}
+      </a>
       <Navbar locale={locale} dict={dict} />
 
       {/* Office Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-200" id="office-content" tabIndex={-1}>
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="flex items-center gap-6">
             {office.logo_url ? (
@@ -187,7 +190,7 @@ function PublicOfficePage({
       </div>
 
       {/* Properties */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
           <Home className="w-5 h-5" />
           {dict.admin.officeProperties}
@@ -232,7 +235,14 @@ function PublicOfficePage({
             </p>
           </div>
         )}
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="py-8 bg-gray-900 text-gray-400 mt-12" role="contentinfo">
+        <div className="max-w-6xl mx-auto px-4 text-center text-sm">
+          © {new Date().getFullYear()} {dict.footer.sadatMLS}. {dict.footer.rights}.
+        </div>
+      </footer>
     </div>
   );
 }

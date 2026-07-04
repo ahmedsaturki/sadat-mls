@@ -1,17 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { useCompare } from "@/hooks/useCompare";
-import { useParams } from "next/navigation";
+import { usePageLocale } from "@/hooks/usePageLocale";
 import { getMessages } from "@/i18n/getMessages";
-import type { Locale } from "@/i18n/config";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import Image from "next/image";
+import { X } from "lucide-react";
 
-export default function ComparePage() {
-  const params = useParams();
-  const locale = params.locale as Locale;
+function CompareContent({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  const locale = usePageLocale(params);
   const dict = getMessages(locale);
   const { profile } = useAuthUser();
   const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
@@ -24,12 +29,12 @@ export default function ComparePage() {
           <p className="text-lg text-gray-600">
             {dict.dashboard.noPropertiesForCompare}
           </p>
-          <a
+          <Link
             href={`/${locale}/explore`}
             className="inline-block mt-4 text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
           >
             {dict.common.backToExplore || dict.common.back}
-          </a>
+          </Link>
         </div>
       </DashboardLayout>
     );
@@ -63,10 +68,10 @@ export default function ComparePage() {
         <th key={p.id} className="p-4 text-center min-w-[200px] relative" role="columnheader">
           <button
             onClick={() => removeProperty(p.id)}
-            className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+            className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
             aria-label={`${dict.common.delete} ${p.title}`}
           >
-            ×
+            <X className="w-4 h-4" />
           </button>
           {p.imageUrl && (
             <div className="relative w-full h-32 mb-2 bg-gray-50 rounded">
@@ -145,5 +150,17 @@ export default function ComparePage() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function ComparePage({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  return (
+    <ErrorBoundary>
+      <CompareContent params={params} />
+    </ErrorBoundary>
   );
 }
