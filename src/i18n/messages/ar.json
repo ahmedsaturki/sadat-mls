@@ -101,6 +101,12 @@
     "developerErrorInfo": "معلومات خطأ المطور:",
     "unsavedChanges": "لديك تغييرات لم يتم حفظها. هل أنت متأكد من المغادرة؟",
     "current": "الحالي",
+    "addImage": "إضافة صورة",
+    "propertyImage": "صورة العقار",
+    "primary": "أساسي",
+    "remove": "إزالة",
+    "newImage": "صورة جديدة",
+    "clickOrDrag": "انقر أو اسحب",
     "timeAgo": {
       "justNow": "الآن",
       "minutesAgo": "منذ {{count}} دقيقة",
@@ -441,7 +447,14 @@
     "passwordMinLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
     "wrongPassword": "كلمة المرور الحالية غير صحيحة",
     "required": "هذا الحقل مطلوب",
-    "profileUpdated": "تم تحديث الملف الشخصي بنجاح"
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
+    "creatingProperty": "إنشاء عقار",
+    "updatingProperty": "تحديث عقار",
+    "uploadingImages": "جارٍ رفع الصور",
+    "imagesUploaded": "تم رفع الصور",
+    "propertyImage": "صورة العقار",
+    "newImage": "صورة جديدة",
+    "clickOrDrag": "انقر أو اسحب"
   },
   "contactRequests": {
     "title": "طلبات التواصل",

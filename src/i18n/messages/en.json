@@ -101,6 +101,12 @@
     "developerErrorInfo": "Developer Error Info:",
     "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
     "current": "Current",
+    "addImage": "Add image",
+    "propertyImage": "Property image",
+    "primary": "Primary",
+    "remove": "Remove",
+    "newImage": "New image",
+    "clickOrDrag": "Click or drag",
     "timeAgo": {
       "justNow": "Just now",
       "minutesAgo": "{{count}}m ago",
@@ -441,7 +447,14 @@
     "passwordMinLength": "Password must be at least 8 characters",
     "wrongPassword": "Current password is incorrect",
     "required": "This field is required",
-    "profileUpdated": "Profile updated successfully"
+    "profileUpdated": "Profile updated successfully",
+    "creatingProperty": "Creating property",
+    "updatingProperty": "Updating property",
+    "uploadingImages": "Uploading images",
+    "imagesUploaded": "Images uploaded",
+    "propertyImage": "Property image",
+    "newImage": "New image",
+    "clickOrDrag": "Click or drag"
   },
   "contactRequests": {
     "title": "Contact Requests",

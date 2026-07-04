@@ -17,8 +17,7 @@ interface PropertyDetailsProps {
     status: string;
   };
   errors: Record<string, string>;
-  loadingFields: Record<string, boolean>;
-  statusOptions: Array<{ value: string; label: string }>;
+  statusOptions?: Array<{ value: string; label: string }>;
   onChange: (field: string, value: string) => void;
 }
 
@@ -26,7 +25,6 @@ export default function PropertyDetails({
   dict,
   formData,
   errors,
-  loadingFields,
   statusOptions,
   onChange,
 }: PropertyDetailsProps) {
