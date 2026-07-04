@@ -137,13 +137,21 @@ describe("useInfiniteScroll", () => {
   });
 
   it("should disconnect observer on cleanup", () => {
-    const { unmount } = renderHook(() =>
+    let hasMore = true;
+    const { result, unmount, rerender } = renderHook(() =>
       useInfiniteScroll({
-        hasMore: true,
+        hasMore,
         loading: false,
         onLoadMore: vi.fn(),
       })
     );
+
+    // Set the sentinel ref to a DOM element so the effect creates an observer
+    result.current.sentinelRef.current = document.createElement("div");
+
+    // Re-render with changed prop to re-run the effect with sentinel available
+    hasMore = false;
+    rerender();
 
     unmount();
 

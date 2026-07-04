@@ -50,11 +50,11 @@ describe("useTouchTarget", () => {
 });
 
 describe("useIsTouchDevice", () => {
-  const originalOntouchstart = (window as Record<string, unknown>).ontouchstart;
+  const originalOntouchstart = (window as unknown as Record<string, unknown>).ontouchstart;
 
   beforeEach(() => {
     // Remove touch support by default for deterministic tests
-    delete (window as Record<string, unknown>).ontouchstart;
+    delete (window as unknown as Record<string, unknown>).ontouchstart;
     Object.defineProperty(window.navigator, "maxTouchPoints", {
       value: 0,
       writable: true,
@@ -64,9 +64,9 @@ describe("useIsTouchDevice", () => {
 
   afterEach(() => {
     if (originalOntouchstart !== undefined) {
-      (window as Record<string, unknown>).ontouchstart = originalOntouchstart;
+      (window as unknown as Record<string, unknown>).ontouchstart = originalOntouchstart;
     } else {
-      delete (window as Record<string, unknown>).ontouchstart;
+      delete (window as unknown as Record<string, unknown>).ontouchstart;
     }
   });
 
@@ -76,7 +76,7 @@ describe("useIsTouchDevice", () => {
   });
 
   it("should return true when ontouchstart exists", () => {
-    (window as Record<string, unknown>).ontouchstart = {};
+    (window as unknown as Record<string, unknown>).ontouchstart = {};
 
     const { result } = renderHook(() => useIsTouchDevice());
     expect(result.current).toBe(true);

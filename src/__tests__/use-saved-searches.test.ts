@@ -1,15 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useSavedSearches } from "@/hooks/useSavedSearches";
-
-// Mock FilterState type (from SearchFilters component)
-interface FilterState {
-  query?: string;
-  minPrice?: string;
-  maxPrice?: string;
-  propertyType?: string;
-  zone?: string;
-}
+import type { FilterState } from "@/components/properties/SearchFilters";
 
 describe("useSavedSearches", () => {
   beforeEach(() => {
@@ -27,7 +19,7 @@ describe("useSavedSearches", () => {
       {
         id: "1",
         name: "My Search",
-        filters: { query: "apartment" } as FilterState,
+        filters: { search: "apartment" } as unknown as FilterState,
         createdAt: "2024-01-01T00:00:00.000Z",
       },
     ];
@@ -49,12 +41,12 @@ describe("useSavedSearches", () => {
     const { result } = renderHook(() => useSavedSearches());
 
     act(() => {
-      result.current.saveSearch("My Search", { query: "apartment" } as FilterState);
+      result.current.saveSearch("My Search", { search: "apartment" } as unknown as FilterState);
     });
 
     expect(result.current.savedSearches).toHaveLength(1);
     expect(result.current.savedSearches[0].name).toBe("My Search");
-    expect(result.current.savedSearches[0].filters).toEqual({ query: "apartment" });
+    expect(result.current.savedSearches[0].filters).toEqual({ search: "apartment" });
     expect(result.current.count).toBe(1);
   });
 
@@ -62,7 +54,7 @@ describe("useSavedSearches", () => {
     const { result } = renderHook(() => useSavedSearches());
 
     act(() => {
-      result.current.saveSearch("My Search", { query: "apartment" } as FilterState);
+      result.current.saveSearch("My Search", { search: "apartment" } as unknown as FilterState);
     });
 
     const stored = JSON.parse(localStorage.getItem("saved_searches") || "[]");
@@ -74,11 +66,11 @@ describe("useSavedSearches", () => {
     const { result } = renderHook(() => useSavedSearches());
 
     act(() => {
-      result.current.saveSearch("Search 1", { query: "a" } as FilterState);
+      result.current.saveSearch("Search 1", { search: "a" } as unknown as FilterState);
     });
 
     act(() => {
-      result.current.saveSearch("Search 2", { query: "b" } as FilterState);
+      result.current.saveSearch("Search 2", { search: "b" } as unknown as FilterState);
     });
 
     expect(result.current.count).toBe(2);
@@ -97,7 +89,7 @@ describe("useSavedSearches", () => {
     const { result } = renderHook(() => useSavedSearches());
 
     act(() => {
-      result.current.saveSearch("My Search", { query: "apartment" } as FilterState);
+      result.current.saveSearch("My Search", { search: "apartment" } as unknown as FilterState);
     });
 
     const id = result.current.savedSearches[0].id;
@@ -114,11 +106,11 @@ describe("useSavedSearches", () => {
     const { result } = renderHook(() => useSavedSearches());
 
     act(() => {
-      result.current.saveSearch("Search 1", { query: "a" } as FilterState);
+      result.current.saveSearch("Search 1", { search: "a" } as unknown as FilterState);
     });
 
     act(() => {
-      result.current.saveSearch("Search 2", { query: "b" } as FilterState);
+      result.current.saveSearch("Search 2", { search: "b" } as unknown as FilterState);
     });
 
     expect(result.current.count).toBe(2);
@@ -136,7 +128,7 @@ describe("useSavedSearches", () => {
     const { result } = renderHook(() => useSavedSearches());
 
     act(() => {
-      result.current.saveSearch("Search 1", { query: "a" } as FilterState);
+      result.current.saveSearch("Search 1", { search: "a" } as unknown as FilterState);
     });
 
     act(() => {
