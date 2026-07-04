@@ -84,7 +84,6 @@ export function PageLoader({ variant = "luxury", text, fullScreen = false }: Pag
       <div className="flex flex-col items-center gap-2">
         <motion.div 
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="h-2 w-32 bg-gray-200 rounded-full overflow-hidden"

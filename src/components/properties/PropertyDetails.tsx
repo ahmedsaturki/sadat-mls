@@ -90,7 +90,7 @@ export default function PropertyDetails({
         const isNumericField = isNumeric;
         
         // Add descriptive labels for numeric fields
-        let fieldLabel = dict.property?.[field] || field;
+        let fieldLabel = ((dict.property as Record<string, string>)?.[field]) || field;
         if (field === "price") fieldLabel = dict.property.price;
         if (field === "area") fieldLabel = dict.property.area;
         if (field === "bedrooms") fieldLabel = dict.property.bedrooms;
@@ -160,7 +160,7 @@ export default function PropertyDetails({
           label={dict.property.statusLabel}
           value={formData.status}
           onChange={(e) => onChange("status", e.target.value)}
-          options={statusOptions}
+          options={statusOptions ?? []}
           className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         {errors.status && (

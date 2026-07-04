@@ -127,6 +127,7 @@ describe("PropertyOwnerInfo", () => {
     ],
     onChange: () => {},
     onAdd: () => {},
+    onRemove: () => {},
   };
 
   it("renders all four owner info inputs with aria-labels", () => {
