@@ -695,5 +695,17 @@
       "parking": "Parking",
       "elevator": "Elevator"
     }
+  },
+  "compare": {
+    "title": "Compare Properties",
+    "description": "Compare properties to find the best fit",
+    "share": "Share",
+    "clearComparison": "Clear",
+    "needMoreProperties": "Select at least 2 properties to compare",
+    "noPropertiesForComparison": "No properties selected for comparison",
+    "selectedProperties": "{{count}} properties selected",
+    "recommendedAction": "Compare up to 4 properties to find the best fit",
+    "addToComparison": "Add to Comparison",
+    "removeFromComparison": "Remove from Comparison"
   }
 }

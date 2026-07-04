@@ -1,44 +1,24 @@
-import {
-  ROLE_PERMISSIONS,
-  type UserRole,
-  type Permission,
-} from "@/lib/utils/constants";
+import { ROLES, type UserRole, type Permission, ROLE_PERMISSIONS } from "@/lib/utils/constants";
 
-/**
- * Check if a role has a specific permission.
- */
-export function hasPermission(role: UserRole | undefined | null, permission: Permission): boolean {
+export function hasPermission(role: UserRole | null | undefined, permission: Permission): boolean {
   if (!role) return false;
-  const perms = ROLE_PERMISSIONS[role];
-  if (!perms) return false;
-  return (perms as readonly Permission[]).includes(permission);
+  return ROLE_PERMISSIONS[role]?.includes(permission) || false;
 }
 
-/**
- * Check if a role has ALL of the given permissions.
- */
-export function hasAllPermissions(
-  role: UserRole | undefined | null,
-  permissions: readonly Permission[]
-): boolean {
+export function hasAllPermissions(role: UserRole | null | undefined, permissions: readonly Permission[]): boolean {
   if (!role) return false;
-  return permissions.every((p) => hasPermission(role, p));
+  const granted = ROLE_PERMISSIONS[role] || [];
+  return permissions.every((p) => granted.includes(p));
 }
 
-/**
- * Check if a role has ANY of the given permissions.
- */
-export function hasAnyPermission(
-  role: UserRole | undefined | null,
-  permissions: readonly Permission[]
-): boolean {
+export function hasAnyPermission(role: UserRole | null | undefined, permissions: readonly Permission[]): boolean {
   if (!role) return false;
-  return permissions.some((p) => hasPermission(role, p));
+  const granted = ROLE_PERMISSIONS[role] || [];
+  return permissions.some((p) => granted.includes(p));
 }
 
-/**
- * Get all permissions for a given role.
- */
-export function getRolePermissions(role: UserRole): readonly Permission[] {
-  return ROLE_PERMISSIONS[role] ?? [];
+export function getPermissions(role: UserRole): Permission[] {
+  return [...(ROLE_PERMISSIONS[role] || [])];
 }
+
+export { ROLES } from "@/lib/utils/constants";

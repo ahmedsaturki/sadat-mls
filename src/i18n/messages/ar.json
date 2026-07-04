@@ -674,6 +674,18 @@
     "noPropertiesForCompare": "لا توجد عقارات محددة للمقارنة",
     "priceUnit": "ج.م"
   },
+  "compare": {
+    "title": "مقارنة العقارات",
+    "description": "قارن بين العقارات للعثور على الأنسب لك",
+    "share": "مشاركة",
+    "clearComparison": "مسح المقارنة",
+    "needMoreProperties": "اختر على الأقل عقارين للمقارنة",
+    "noPropertiesForComparison": "لم يتم اختيار عقارات للمقارنة",
+    "selectedProperties": "{{count}} عقارات مختارة",
+    "recommendedAction": "قارن حتى 4 عقارات للعثور على الأنسب",
+    "addToComparison": "إضافة للمقارنة",
+    "removeFromComparison": "إزالة من المقارنة"
+  },
   "offline": {
     "title": "أنت غير متصل بالإنترنت",
     "description": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",

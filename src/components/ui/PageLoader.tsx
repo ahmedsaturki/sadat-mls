@@ -9,9 +9,11 @@ interface PageLoaderProps {
   text?: string;
   fullScreen?: boolean;
   loadingText?: string;
+  ariaBusy?: string;
+  role?: string;
 }
 
-export function PageLoader({ variant = "luxury", text, fullScreen = false, loadingText = "Loading..." }: PageLoaderProps) {
+export function PageLoader({ variant = "luxury", text, fullScreen = false, loadingText = "Loading...", ariaBusy, role }: PageLoaderProps) {
   if (variant === "spinner") {
     return (
       <LoadingSpinner size="lg" text={text} />
@@ -20,7 +22,7 @@ export function PageLoader({ variant = "luxury", text, fullScreen = false, loadi
 
   if (variant === "fullscreen" || fullScreen) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm" aria-busy={ariaBusy === "true"} role={role}>
         <motion.div
           animate={{ 
             scale: [1, 1.2, 1],

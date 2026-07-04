@@ -73,9 +73,9 @@ function CompareContent({
           >
             <X className="w-4 h-4" />
           </button>
-          {p.imageUrl && (
+          {p.primaryImage && (
             <div className="relative w-full h-32 mb-2 bg-gray-50 rounded">
-              <Image src={p.imageUrl} alt={p.title} fill className="object-cover rounded-lg" />
+              <Image src={p.primaryImage} alt={p.title} fill className="object-cover rounded-lg" />
             </div>
           )}
           <p className="font-semibold">{p.title}</p>

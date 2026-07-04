@@ -103,7 +103,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
               {statusConfig[status].label}
             </Badge>
             <div className="flex gap-1.5" onClick={(e) => e.preventDefault()}>
-              <CompareButton property={{ id, title, price, area, bedrooms: bedrooms || 0, bathrooms: bathrooms || 0, zone, type, officeName, status }} locale={locale} dict={dict} size="sm" />
+              <CompareButton property={{ id, title, price, area, bedrooms: bedrooms || 0, bathrooms: bathrooms || 0, zone: zone ?? null, type: type ?? null, officeName: officeName ?? null, status: status ?? null, primaryImage: null, description: null }} locale={locale} dict={dict} size="sm" />
               <FavoriteButton propertyId={id} userId={userId} locale={locale} dict={dict} size="sm" />
             </div>
           </div>
