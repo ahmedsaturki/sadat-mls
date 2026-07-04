@@ -389,6 +389,7 @@
     "sold": "Sold",
     "rented": "Rented",
     "logo": "Office Logo",
+    "uploadImage": "Upload Image",
     "uploadLogo": "Upload Logo",
     "logoUploaded": "Logo uploaded successfully",
     "logoError": "Error uploading logo",
