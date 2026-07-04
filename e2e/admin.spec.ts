@@ -1,7 +1,20 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Admin Zones Page", () => {
-  test("should load zones page in Arabic", async ({ page }) => {
+// @admin-tagged tests require an authenticated super_admin session.
+// They run only in the `admin-chromium` project which:
+//   1. depends on `admin-auth-setup` (logs in via E2E_ADMIN_EMAIL/PASSWORD)
+//   2. consumes playwright/.auth/admin.json as storageState.
+// If those env vars aren't set, auth setup is skipped (no storageState),
+// and admin tests will fail with a clear login-redirect error — that's
+// intended: it surfaces the missing seed credentials on the CI environment
+// instead of silently passing.
+//
+// The 404 tests at the bottom are untagged (no @admin) so they run on
+// any browser without auth: /admin/nonexistent-page returns 404 before
+// AuthGuard can redirect, since the route itself doesn't exist.
+
+test.describe("Admin Zones Page @admin", () => {
+  test("should load zones page in Arabic @admin", async ({ page }) => {
     await page.goto("/ar/admin/zones");
     await expect(page).toHaveURL(/\/ar\/admin\/zones/);
     await expect(page.locator("html")).toHaveAttribute("lang", "ar");
@@ -55,7 +68,7 @@ test.describe("Admin Zones Page", () => {
   });
 });
 
-test.describe("Admin Property Types Page", () => {
+test.describe("Admin Property Types Page @admin", () => {
   test("should load property types page in Arabic", async ({ page }) => {
     await page.goto("/ar/admin/property-types");
     await expect(page).toHaveURL(/\/ar\/admin\/property-types/);
@@ -102,7 +115,7 @@ test.describe("Admin Property Types Page", () => {
   });
 });
 
-test.describe("Admin Contact Requests Page", () => {
+test.describe("Admin Contact Requests Page @admin", () => {
   test("should load contact requests page", async ({ page }) => {
     await page.goto("/ar/admin/contact-requests");
     await expect(page).toHaveURL(/\/ar\/admin\/contact-requests/);
@@ -116,7 +129,7 @@ test.describe("Admin Contact Requests Page", () => {
   });
 });
 
-test.describe("Admin Navigation", () => {
+test.describe("Admin Navigation @admin", () => {
   test("should navigate between admin pages", async ({ page }) => {
     await page.goto("/ar/admin/zones");
     await expect(page).toHaveURL(/\/ar\/admin\/zones/);
