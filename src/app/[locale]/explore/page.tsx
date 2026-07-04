@@ -333,12 +333,12 @@ function ExploreContent({
                   area={property.area}
                   bedrooms={property.bedrooms}
                   bathrooms={property.bathrooms}
-                  zone={locale === "ar" ? property.zones?.name_ar : property.zones?.name_en}
+                  zone={locale === "ar" ? property.zones?.name_ar : (property.zones?.name_en ?? undefined)}
                   imageUrl={property.primaryImage || undefined}
                   status={property.status}
                   officeName={property.offices?.name || ""}
                   locale={locale}
-                  type={locale === "ar" ? property.property_types?.name_ar : property.property_types?.name_en}
+                  type={locale === "ar" ? property.property_types?.name_ar : (property.property_types?.name_en ?? undefined)}
                   dict={dict}
                 />
               ))}

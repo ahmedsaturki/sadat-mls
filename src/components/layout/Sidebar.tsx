@@ -18,7 +18,7 @@ import {
   Heart,
   UserCog,
   Bookmark,
-  GitCompareArrows,
+  GitCompare,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Locale } from "@/i18n/config";
@@ -54,7 +54,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
     { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
     { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
     { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || "البحث المحفوظ", icon: Bookmark },
-    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || "مقارنة العقارات", icon: GitCompareArrows },
+    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || "مقارنة العقارات", icon: GitCompare },
     { href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings },
     { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
   ];
@@ -66,7 +66,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
     { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
     { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
     { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || "البحث المحفوظ", icon: Bookmark },
-    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || "مقارنة العقارات", icon: GitCompareArrows },
+    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || "مقارنة العقارات", icon: GitCompare },
     { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
   ];
 

@@ -462,7 +462,8 @@
     "imagesUploaded": "Images uploaded",
     "propertyImage": "Property image",
     "newImage": "New image",
-    "clickOrDrag": "Click or drag"
+    "clickOrDrag": "Click or drag",
+    "imageFormat": "Image format: JPG, PNG, max 2MB"
   },
   "contactRequests": {
     "title": "Contact Requests",

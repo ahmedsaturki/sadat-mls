@@ -462,7 +462,8 @@
     "imagesUploaded": "تم رفع الصور",
     "propertyImage": "صورة العقار",
     "newImage": "صورة جديدة",
-    "clickOrDrag": "انقر أو اسحب"
+    "clickOrDrag": "انقر أو اسحب",
+    "imageFormat": "صيغة الصورة: JPG، PNG، الحد الأقصى 2 ميجابايت"
   },
   "contactRequests": {
     "title": "طلبات التواصل",

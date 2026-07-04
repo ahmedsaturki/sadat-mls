@@ -7,8 +7,8 @@ describe("useUnsavedChangesWarning", () => {
   let removeEventListenerSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    addEventListenerSpy = vi.spyOn(window, "addEventListener");
-    removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
+    addEventListenerSpy = vi.spyOn(window, "addEventListener") as unknown as ReturnType<typeof vi.fn>;
+    removeEventListenerSpy = vi.spyOn(window, "removeEventListener") as unknown as ReturnType<typeof vi.fn>;
   });
 
   afterEach(() => {
@@ -76,8 +76,9 @@ describe("useUnsavedChangesWarning", () => {
     renderHook(() => useUnsavedChangesWarning(true));
 
     // Get the registered handler
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handler = addEventListenerSpy.mock.calls.find(
-      (call: [string, unknown]) => call[0] === "beforeunload"
+      (call: any[]) => call[0] === "beforeunload"
     )?.[1] as ((e: BeforeUnloadEvent) => void) | undefined;
 
     expect(handler).toBeDefined();
