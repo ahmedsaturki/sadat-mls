@@ -154,7 +154,6 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     notes: "",
   });
 
-  const [validationDelay, setValidationDelay] = useState<NodeJS.Timeout | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {

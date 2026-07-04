@@ -47,10 +47,11 @@ export default async function RootLayout({
 }) {
   // Get locale from Accept-Language header or default to ar
   const headersList = await headers();
-  const acceptLanguage = headersList.get("accept-language") || "";
+  const acceptLanguage = headersList.get("accept-language") || "ar";
   const locale = acceptLanguage.startsWith("en") ? "en" : "ar";
   const dir = locale === "en" ? "ltr" : "rtl";
   const lang = locale === "en" ? "en" : "ar";
+  const dict = getMessages(locale);
   const nonce = headersList.get("x-nonce") || "";
   
   return (
