@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "analyze": "node scripts/analyze.js",
     "start": "next start",
     "lint": "eslint . --quiet",
     "typecheck": "tsc --noEmit",
