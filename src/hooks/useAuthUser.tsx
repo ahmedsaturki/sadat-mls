@@ -39,16 +39,12 @@ interface RegisterResult {
 
 export function useAuthUser() {
   const auth = useAuth();
-  const supabaseClient = useRef<ReturnType<typeof createClient> | null>(null);
-
-  if (typeof window !== "undefined" && !supabaseClient.current) {
-    supabaseClient.current = createClient();
-  }
+  const [supabaseClient] = useState(() => createClient());
 
   return {
     ...auth,
     profile: auth.user,
-    supabase: supabaseClient.current,
+    supabase: supabaseClient,
     refresh: auth.clearError,
   };
 }
