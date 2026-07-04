@@ -90,7 +90,7 @@ export default function PropertyDetails({
         const isNumericField = isNumeric;
         
         // Add descriptive labels for numeric fields
-        let fieldLabel = ((dict.property as Record<string, string>)?.[field]) || field;
+        let fieldLabel = ((dict.property as unknown as Record<string, string>)?.[field]) || field;
         if (field === "price") fieldLabel = dict.property.price;
         if (field === "area") fieldLabel = dict.property.area;
         if (field === "bedrooms") fieldLabel = dict.property.bedrooms;
