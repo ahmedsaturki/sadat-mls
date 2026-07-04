@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { AlertTriangle, RefreshCcw } from "lucide-react";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -29,20 +28,15 @@ export function LuxuryErrorBoundary({
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden"
+      <div
+        className="animate-scale-up max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden"
       >
         <div className="bg-gradient-to-br from-[#1B2D4F] to-[#1B2D4F]/80 p-8 flex flex-col items-center text-center">
-          <motion.div
-            initial={{ rotate: -10 }}
-            animate={{ rotate: 0 }}
-            transition={{ type: "spring", stiffness: 200, damping: 10 }}
-            className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm"
+          <div
+            className="animate-fade-up w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm"
           >
             <AlertTriangle className="w-8 h-8 text-[#C49A2A]" />
-          </motion.div>
+          </div>
           <h2 className="text-2xl font-bold text-white mb-2">
             {dict.common.oops}
           </h2>
@@ -65,7 +59,7 @@ export function LuxuryErrorBoundary({
              {error.message}
            </div>
          )}
-      </motion.div>
+      </div>
     </div>
   );
 }

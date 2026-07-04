@@ -1,9 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { fadeUpVariant } from "@/lib/utils/animations";
 
 interface LuxuryCardProps {
   title: string;
@@ -17,10 +15,8 @@ interface LuxuryCardProps {
 
 export function LuxuryCard({ title, description, imageUrl, price, location, href, badge }: LuxuryCardProps) {
   return (
-    <motion.div 
-      variants={fadeUpVariant}
-      whileHover={{ y: -10 }}
-      className="group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl hover:shadow-[#C49A2A]/20 transition-all duration-300"
+    <div
+      className="animate-fade-up group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl hover:shadow-[#C49A2A]/20 transition-all duration-300"
     >
       <Link href={href} className="block w-full h-full">
         {/* Image Container with Zoom Effect */}
@@ -57,6 +53,6 @@ export function LuxuryCard({ title, description, imageUrl, price, location, href
         {/* Decorative Bottom Bar */}
         <div className="h-1 w-full bg-gray-100 group-hover:bg-[#C49A2A] transition-colors duration-300" />
       </Link>
-    </motion.div>
+    </div>
   );
 }
