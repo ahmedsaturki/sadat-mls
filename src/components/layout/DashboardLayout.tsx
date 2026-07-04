@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
 import { Menu, X } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
