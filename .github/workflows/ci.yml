@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --no-optional
       - run: npm run lint
 
   typecheck:
@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --no-optional
       - run: npx tsc --noEmit
 
   test:
@@ -39,7 +39,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --no-optional
       - run: npm run test:run
 
   e2e:
@@ -51,7 +51,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --no-optional
       # Playwright browsers
       - run: npx playwright install --with-deps chromium
       - name: Run Playwright tests
@@ -77,7 +77,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --no-optional
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
