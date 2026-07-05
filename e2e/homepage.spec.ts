@@ -8,13 +8,15 @@ test.describe("Homepage", () => {
 
   test("should load Arabic homepage", async ({ page }) => {
     await page.goto("/ar");
-    await expect(page).toHaveTitle(/Sadat MLS Cloud/);
+    // Title is in Arabic (fully localized): "الساداتMLS كلاود | منصة العقارات السحابية"
+    await expect(page).toHaveTitle(/MLS|السادات/);
     await expect(page.locator("html")).toHaveAttribute("lang", "ar");
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   });
 
   test("should load English homepage", async ({ page }) => {
     await page.goto("/en");
+    // Title is in English: "Sadat MLS Cloud"
     await expect(page).toHaveTitle(/Sadat MLS Cloud/);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
