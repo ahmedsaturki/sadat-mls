@@ -80,8 +80,9 @@ npm run test:e2e
 - `rate_limit_log` - Rate limiting audit log
 
 ## Testing
-- **Unit Tests:** Vitest with @testing-library/react (107 tests, 15 files)
-- **E2E Tests:** Playwright (21 tests, 8 files)
+- **Unit Tests:** Vitest with @testing-library/react (753 tests, 50 files)
+- **E2E Tests:** Playwright (111 tests, 12 files)
+- Verify with: `npm run test:run && npm run test:e2e`
 
 ## Security
 - CSP with nonce-based scripts

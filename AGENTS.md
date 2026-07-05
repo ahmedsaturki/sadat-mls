@@ -108,7 +108,7 @@ sadat-mls-cloud/
 │   │   ├── services/              # Business Logic Services
 │       │   └── utils/                 # Helper Functions (cn.ts, logger.ts, constants.ts, validation.ts, activity-logger.ts, notifier.ts, throttle.ts)
 │       │                                # constants.ts: PROPERTY_STATUSES, OFFICE_FEATURES, SADAT_ZONES, PROPERTY_TYPES
-│   └── __tests__/                 # Unit Tests (34 files, 564 tests)
+│   ├── __tests__/                # Unit Tests (50 files, 753 tests)
 ├── supabase/
 │   └── migrations/                # 19 migrations (001_initial_schema → 019_idempotent_rls_recreate)
 ├── e2e/                           # Playwright E2E Tests (12 files, 111 tests)
@@ -172,7 +172,7 @@ sadat-mls-cloud/
 | **RLS Policies** | ✅ | All 12 tables (40+ policies) |
 | **Input Validation** | ✅ | Zod schemas in `src/lib/validation.ts` |
 | **Migrations** | ✅ | All 18 migrations idempotent (DROP TRIGGER/IF EXISTS) |
-| **Tests** | ✅ | **564 unit tests** (34 files) + **111 E2E tests** (12 files) passing |
+| **Tests** | ✅ | **753 unit tests** (50 files) + **111 E2E tests** (12 files) passing |
 | **CSP** | ✅ | Nonce-based, managed solely by `middleware.ts` |
 | **HSTS** | ✅ | 2-year max-age (63072000s) with preload (middleware) |
 | **Auth Security** | ✅ | Origin validation, sessionStorage minimal, AuthGuard RBAC |

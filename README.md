@@ -312,7 +312,7 @@ npm run test:e2e:ui
 5. Open a Pull Request
 
 Please ensure:
-- All tests pass (`npm run test:run`) — 87 unit tests + 21 E2E tests
+- All tests pass (`npm run test:run`) — 753 unit tests + 111 E2E tests
 - Linting passes (`npm run lint`)
 - TypeScript compiles (`npx tsc --noEmit`)
 - E2E tests pass (`npm run test:e2e`)
