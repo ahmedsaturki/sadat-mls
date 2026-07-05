@@ -19,11 +19,11 @@ npm run build                  # Production build (requires env vars below)
 npm run analyze                # Bundle analysis (ANALYZE=true)
 
 # Testing
-npm run test:run               # Unit tests (Vitest) — 121 tests, 16 files
+npm run test:run               # Unit tests (Vitest) — 564 tests, 34 files (last verified 2026-07-05, head bdff3bb)
 npm run test:coverage          # Unit tests with coverage report
-npm run test:e2e               # E2E tests (Playwright) — 21 tests, 8 files
-npm run test:e2e:ui            # E2E tests with Playwright UI
-npm run test:e2e:headed        # E2E tests in headed mode
+npx playwright test            # E2E tests (Playwright) — 111 tests, 12 files. NOT wired to package.json;
+npx playwright test --ui       # E2E tests with Playwright UI
+npx playwright test --headed   # E2E tests in headed mode
 
 # Code quality
 npm run lint                   # ESLint (extends next/core-web-vitals + next/typescript)
@@ -95,7 +95,8 @@ sadat-mls-cloud/
 │   ├── components/
 │   │   ├── ui/                    # Base UI Components (Button, Input, Modal, etc.)
 │   │   ├── properties/            # Property Components
-│   │   ├── layout/                # Layout Components (Navbar, Footer, AuthGuard)
+│   │   ├── layout/                # Layout Components (Navbar, Footer, AuthGuard, NotificationsBell)
+│   │   ├── dashboard/             # Dashboard Components (ActivityFeed, etc.)
 │   │   └── landing/               # Landing Page Components
 │   ├── hooks/                     # Custom React Hooks
 │   ├── i18n/                      # Internationalization (ar.json, en.json, request.ts)
@@ -104,12 +105,12 @@ sadat-mls-cloud/
 │   │   ├── security/              # Security Utils (csrf.ts, rateLimit.ts, sanitizeHtml.ts, sanitize.ts)
 │   │   ├── queries/               # Database Queries
 │   │   ├── services/              # Business Logic Services
-│   │   └── utils/                 # Helper Functions (cn.ts, logger.ts, constants.ts, validation.ts)
-│   │                                # constants.ts: PROPERTY_STATUSES, OFFICE_FEATURES, SADAT_ZONES, PROPERTY_TYPES
-│   └── __tests__/                 # Unit Tests (16 files, 121 tests)
+│       │   └── utils/                 # Helper Functions (cn.ts, logger.ts, constants.ts, validation.ts, activity-logger.ts, notifier.ts, throttle.ts)
+│       │                                # constants.ts: PROPERTY_STATUSES, OFFICE_FEATURES, SADAT_ZONES, PROPERTY_TYPES
+│   └── __tests__/                 # Unit Tests (34 files, 564 tests)
 ├── supabase/
-│   └── migrations/                # 14 migrations (001_initial_schema → 014_performance_indexes)
-├── e2e/                           # Playwright E2E Tests (8 files, 21 tests)
+│   └── migrations/                # 18 migrations (001_initial_schema → 018_notifications)
+├── e2e/                           # Playwright E2E Tests (12 files, 111 tests)
 ├── public/                        # Static Assets, PWA (sw.js, manifest.json, icons/)
 ├── .github/workflows/             # CI/CD (ci.yml)
 └── scripts/                       # Utility Scripts (generate-icons.js)
@@ -122,7 +123,7 @@ sadat-mls-cloud/
 - **HTML Sanitization:** Multi-pass regex sanitizer (`src/lib/security/sanitizeHtml.ts`) + entity escaping (`sanitize.ts`)
 - **UPSERT** for agent creation (DB trigger coexistence)
 - **Auth callback** validates origin against allowed hosts whitelist
-- **RLS Policies:** All 9 tables have policies (offices, users, zones, property_types, properties, property_owners, property_images, contact_requests, property_favorites)
+- **RLS Policies:** 12 tables have policies (offices, users, zones, property_types, properties, property_owners, property_images, contact_requests, property_favorites, user_avatars (in storage), activity_log, notifications)
 - **Input Validation:** Zod schemas in `src/lib/validation.ts` (phone optional in contactSchema)
 - **Migrations:** Idempotent (DROP TRIGGER/IF EXISTS patterns)
 - **Auth Guard:** Component-level with role-based redirects for admin/dashboard
@@ -167,17 +168,17 @@ sadat-mls-cloud/
 | **CSRF** | ✅ | `src/lib/security/csrf.ts` (double-submit cookie) |
 | **Rate Limiting** | ✅ | `src/lib/security/rateLimit.ts` (memory + DB fallback) |
 | **HTML Sanitization** | ✅ | `src/lib/security/sanitizeHtml.ts` (multi-pass regex) + `sanitize.ts` (entity escaping) |
-| **RLS Policies** | ✅ | All 9 tables (35+ policies) |
+| **RLS Policies** | ✅ | All 12 tables (40+ policies) |
 | **Input Validation** | ✅ | Zod schemas in `src/lib/validation.ts` |
-| **Migrations** | ✅ | All 14 migrations idempotent (DROP TRIGGER/IF EXISTS) |
-| **Tests** | ✅ | **121 unit tests** (16 files) + **21 E2E tests** (8 files) passing |
+| **Migrations** | ✅ | All 18 migrations idempotent (DROP TRIGGER/IF EXISTS) |
+| **Tests** | ✅ | **564 unit tests** (34 files) + **111 E2E tests** (12 files) passing |
 | **CSP** | ✅ | Nonce-based, managed solely by `middleware.ts` |
 | **HSTS** | ✅ | 2-year max-age (63072000s) with preload (middleware) |
 | **Auth Security** | ✅ | Origin validation, sessionStorage minimal, AuthGuard RBAC |
 
 ## Database Schema (Supabase/PostgreSQL)
 
-### Tables (9 total, all with RLS)
+### Tables (12 total, all with RLS where applicable)
 
 | Table | Description | RLS |
 |-------|-------------|-----|
@@ -191,6 +192,9 @@ sadat-mls-cloud/
 | `contact_requests` | Visitor inquiries | ✅ |
 | `rate_limit_log` | Rate limiting audit log | ❌ (operational) |
 | `property_favorites` | User favorite properties | ✅ |
+| `activity_log` | Per-office audit trail | ✅ |
+| `notifications` | Per-user notification feed | ✅ |
+| `storage.objects` (avatars bucket) | User avatar storage | ✅ |
 
 ### Roles
 
@@ -265,6 +269,9 @@ sadat-mls-cloud/
 ### RLS
 - `office_agent`: INSERT + UPDATE policies on properties
 - `contact_requests`: UPDATE policy for notes/updates
+- `activity_log`: office-scoped SELECT, super-admin override, INSERT for auth users
+- `notifications`: user-scoped SELECT/UPDATE, office visibility, super-admin DELETE
+- `storage.objects` (avatars): per-user CRUD keyed by `auth.uid()`, super-admin override
 
 ## Useful Commands Reference
 
@@ -393,6 +400,14 @@ npm run analyze
 | GET | `/api/auth/forgot-rate-limit` | Check rate limit status | ❌ |
 | POST | `/api/auth/rate-limit` | Record rate limit attempt | ❌ |
 | POST | `/api/ai/description` | AI property description (mock) | Rate limited |
+| GET | `/api/activity` | List office activity feed | ✅ Auth + Rate limited |
+| POST | `/api/activity` | Log activity event | ✅ Auth + CSRF + Rate limited |
+| GET | `/api/notifications` | List user notifications | ✅ Auth + Rate limited |
+| POST | `/api/notifications` | Create notification | ✅ Auth + CSRF + Rate limited |
+| PATCH | `/api/notifications` | Mark notifications read | ✅ Auth + CSRF + Rate limited |
+| DELETE | `/api/notifications/cleanup` | Cleanup old notifications | ✅ Super Admin + CSRF + Rate limited |
+| POST | `/api/admin/users` | Admin user management | ✅ Super Admin + CSRF + Rate limited |
+| POST | `/api/contact` | Public contact request submission | ✅ CSRF + Rate limited |
 
 ### API Implementation Details
 
@@ -512,19 +527,31 @@ All rate-limited endpoints return:
 | `012_fix_duplicate_policies.sql` | Remove duplicate RLS policies |
 | `013_fix_rate_limit_rls.sql` | Re-disable RLS on rate_limit_log |
 | `014_performance_indexes.sql` | Additional performance indexes |
+| `015_contact_requests_rls_hardening.sql` | Tightens `contact_requests` INSERT (active-office + contact_type) + validation trigger |
+| `016_user_avatars.sql` | Adds `users.avatar_url` + `avatars` bucket + storage RLS keyed on `auth.uid()` |
+| `017_activity_log.sql` | `activity_log` table, office-scoped SELECT, super-admin override, INSERT for auth users |
+| `018_notifications.sql` | `notifications` table, user/office-scoped SELECT+UPDATE, super-admin DELETE |
+
+> **Note:** AGENTS.md previously listed only `001–014`. Migrations `015–018` were added later but went undocumented; verified loaded 2026-07-05 at head `bdff3bb`.
 
 ## E2E Tests (e2e/)
 
 | Test File | Focus Area | Tests |
 |-----------|------------|-------|
-| `accessibility.spec.ts` | WCAG 2.1 AA compliance | Keyboard nav, ARIA, focus management |
-| `compare.spec.ts` | Property comparison | Add/remove, side-by-side view |
-| `favorites.spec.ts` | Favorites | Add/remove favorites, persistence |
-| `saved-searches.spec.ts` | Saved searches | Save/load/delete searches |
-| `security.spec.ts` | Security | CSRF, XSS, injection prevention |
-| `navigation.spec.ts` | Navigation | Locale switching, mobile menu |
-| `property-details.spec.ts` | Property details | View, contact, share |
-| `auth.spec.ts` | Authentication | Login, register, password reset |
+| `accessibility.spec.ts` | WCAG 2.1 AA compliance | 5 |
+| `admin.spec.ts` | Super admin flows | 20 |
+| `auth.spec.ts` | Authentication | 15 |
+| `compare.spec.ts` | Property comparison | 7 |
+| `explore.spec.ts` | Property listings/browse | 12 |
+| `favorites.spec.ts` | Favorites | 6 |
+| `flows.spec.ts` | End-to-end user flows | 10 |
+| `homepage.spec.ts` | Landing page | 12 |
+| `login.spec.ts` | Login flows | 10 |
+| `saved-searches.spec.ts` | Saved searches | 6 |
+| `security.spec.ts` | Security/CSRF/XSS | 8 |
+| `auth.setup.ts` | Auth state setup (not a spec) | — |
+
+> **Note:** Last verified 2026-07-05 at head `bdff3bb`. Two spec files referenced in older docs (`navigation.spec.ts`, `property-details.spec.ts`) are no longer present in `e2e/`. `auth.setup.ts` is the Playwright setup file, not a spec. E2E runs via `npx playwright test` (not via a package.json script — verify whether to wire it).
 
 ## Middleware Configuration (middleware.ts)
 
