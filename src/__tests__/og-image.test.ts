@@ -60,4 +60,44 @@ describe("OG Image API Route", () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(200);
   });
+
+  it("should handle missing text parameter", async () => {
+    const { GET } = await import("@/app/og-image/route");
+
+    const mockRequest = new Request("http://localhost/og-image");
+    const response = await GET(mockRequest as any);
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(200);
+  });
+
+  it("should handle both text and locale parameters", async () => {
+    const { GET } = await import("@/app/og-image/route");
+
+    const mockRequest = new Request("http://localhost/og-image?text=Villa&locale=ar");
+    const response = await GET(mockRequest as any);
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(200);
+  });
+
+  it("should handle empty text parameter", async () => {
+    const { GET } = await import("@/app/og-image/route");
+
+    const mockRequest = new Request("http://localhost/og-image?text=");
+    const response = await GET(mockRequest as any);
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(200);
+  });
+
+  it("should handle special characters in text", async () => {
+    const { GET } = await import("@/app/og-image/route");
+
+    const mockRequest = new Request("http://localhost/og-image?text=%3Cscript%3Ealert(1)%3C/script%3E");
+    const response = await GET(mockRequest as any);
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(200);
+  });
 });

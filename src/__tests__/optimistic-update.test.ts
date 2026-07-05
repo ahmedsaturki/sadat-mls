@@ -8,10 +8,11 @@ interface TestItem {
 }
 
 describe("useOptimisticUpdate", () => {
-  const createOptions = () => ({
+  const createOptions = (overrides?: { onMutate?: (current: TestItem[], optimistic: TestItem) => TestItem[] }) => ({
     onMutate: vi.fn((current: TestItem[], optimistic: TestItem) => [...current, optimistic]),
     onError: vi.fn(),
     onSettled: vi.fn(),
+    ...overrides,
   });
 
   it("initializes with provided data", () => {
@@ -98,7 +99,6 @@ describe("useOptimisticUpdate", () => {
       });
     });
 
-    // remove rolls back to previous data (without calling onError - it logs internally)
     expect(result.current.data).toEqual([
       { id: "1", name: "Item 1" },
       { id: "2", name: "Item 2" },
@@ -125,6 +125,82 @@ describe("useOptimisticUpdate", () => {
 
     act(() => {
       result.current.setData((prev) => [...prev, { id: "2", name: "Item 2" }]);
+    });
+
+    expect(result.current.data).toHaveLength(2);
+  });
+
+  it("update - calls mutate and replaces with server result", async () => {
+    const options = createOptions({
+      onMutate: (current, optimistic) =>
+        current.map((item) =>
+          item.id === optimistic.id ? optimistic : item
+        ),
+    });
+    const { result } = renderHook(() =>
+      useOptimisticUpdate<TestItem>(
+        [
+          { id: "1", name: "Item 1" },
+          { id: "2", name: "Item 2" },
+        ],
+        options
+      )
+    );
+
+    const serverResult: TestItem = { id: "1", name: "Server Updated" };
+
+    await act(async () => {
+      await result.current.update(
+        { id: "1", name: "Optimistic" },
+        async () => serverResult
+      );
+    });
+
+    expect(result.current.data).toEqual([
+      { id: "1", name: "Server Updated" },
+      { id: "2", name: "Item 2" },
+    ]);
+  });
+
+  it("add - returns null action replaces with optimistic item", async () => {
+    const options = createOptions();
+    const newItem: TestItem = { id: "3", name: "New Item" };
+
+    const { result } = renderHook(() =>
+      useOptimisticUpdate<TestItem>([], options)
+    );
+
+    await act(async () => {
+      await result.current.add(newItem, async () => null);
+    });
+
+    expect(result.current.data).toEqual([{ id: "3", name: "New Item" }]);
+  });
+
+  it("remove - removes non-existent item gracefully", async () => {
+    const options = createOptions();
+    const { result } = renderHook(() =>
+      useOptimisticUpdate<TestItem>([{ id: "1", name: "Item 1" }], options)
+    );
+
+    await act(async () => {
+      await result.current.remove("nonexistent", async () => {});
+    });
+
+    expect(result.current.data).toEqual([{ id: "1", name: "Item 1" }]);
+  });
+
+  it("multiple concurrent adds", async () => {
+    const options = createOptions();
+    const { result } = renderHook(() =>
+      useOptimisticUpdate<TestItem>([], options)
+    );
+
+    await act(async () => {
+      await Promise.all([
+        result.current.add({ id: "1", name: "A" }, async () => ({ id: "1", name: "A-srv" })),
+        result.current.add({ id: "2", name: "B" }, async () => ({ id: "2", name: "B-srv" })),
+      ]);
     });
 
     expect(result.current.data).toHaveLength(2);
