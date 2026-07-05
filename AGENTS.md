@@ -19,11 +19,12 @@ npm run build                  # Production build (requires env vars below)
 npm run analyze                # Bundle analysis (ANALYZE=true)
 
 # Testing
-npm run test:run               # Unit tests (Vitest) — 564 tests, 34 files (last verified 2026-07-05, head bdff3bb)
+npm run test:run               # Unit tests (Vitest) — 753 tests, 50 files (last verified 2026-07-06, head ddd1739)
 npm run test:coverage          # Unit tests with coverage report
-npx playwright test            # E2E tests (Playwright) — 111 tests, 12 files. NOT wired to package.json;
-npx playwright test --ui       # E2E tests with Playwright UI
-npx playwright test --headed   # E2E tests in headed mode
+npm run test:e2e               # E2E tests (Playwright) — 111 tests, 12 files
+npm run test:e2e:ui            # E2E tests with Playwright UI
+npm run test:e2e:headed        # E2E tests in headed mode
+npm run test:e2e:install       # Install Playwright browsers
 
 # Code quality
 npm run lint                   # ESLint (extends next/core-web-vitals + next/typescript)
