@@ -180,8 +180,9 @@ describe("useThrottledValue", () => {
 
   it("handles string, number, and object value types", () => {
     const { result, rerender } = renderHook(
-      ({ value, delay }) => useThrottledValue(value, delay),
-      { initialProps: { value: "string", delay: 100 } }
+      ({ value, delay }: { value: unknown; delay: number }) =>
+        useThrottledValue<unknown>(value, delay),
+      { initialProps: { value: "string" as unknown, delay: 100 } }
     );
 
     rerender({ value: 42, delay: 100 });
