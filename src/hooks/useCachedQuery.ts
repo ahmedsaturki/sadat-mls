@@ -25,7 +25,7 @@ export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
   const fetchData = useCallback(async (forceRefresh = false) => {
     const cache = cacheRef.current;
     const cached = cache.get(key);
-    
+
     if (cached && !forceRefresh && Date.now() - cached.timestamp < CACHE_TTL) {
       setData(cached.data);
       return cached.data;
@@ -34,17 +34,23 @@ export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
     setLoading(true);
     try {
       const result = await queryFnRef.current();
-      
+
       // Enforce cache size limit
       if (cache.size >= MAX_CACHE_SIZE) {
         // Remove oldest entry
         const oldestKey = cache.keys().next().value;
         if (oldestKey) cache.delete(oldestKey);
       }
-      
+
       cache.set(key, { data: result, timestamp: Date.now(), key });
       setData(result);
       return result;
+    } catch (error) {
+      logger.error("useCachedQuery fetch failed", {
+        key,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return undefined as T;
     } finally {
       setLoading(false);
     }

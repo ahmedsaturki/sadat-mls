@@ -141,20 +141,25 @@ export class SecurityValidator {
    * Check for potential SQL injection patterns
    */
   static containsSqlInjection(input: string): boolean {
+    // Improved SQL patterns: most DML/DDL statements appear as `UPDATE <ident> SET ...`,
+    // `INSERT INTO <ident> ...`, `DELETE FROM <ident> ...`. The original regex list was
+    // missing the identifier slot, allowing `UPDATE users SET password='x'` to evade
+    // detection. Update tightens each shape to require an identifier between keyword and
+    // the secondary token.
     const sqlPatterns = [
       /union\s+all\s+select/i,
       /execute\s+immediate/i,
-      /drop\s+table/i,
-      /insert\s+into/i,
-      /delete\s+from/i,
-      /update\s+set/i,
-      /alter\s+table/i,
-      /create\s+view/i,
-      /truncate\s+table/i,
-      /xp_cmdshell/i,
-      /sp_/i,
-      /\/\*.*\*\//i,
-      /;\s*(select|insert|update|delete|alter)/i,
+      /\bdrop\s+(table|database|schema|index)\b/i,
+      /\binsert\s+into\s+\w/i,
+      /\bdelete\s+from\s+\w/i,
+      /\bupdate\s+\w+\s+set\s+\w/i,
+      /\balter\s+(table|database|schema|index)\b/i,
+      /\bcreate\s+(view|table|index|database)\b/i,
+      /\btruncate\s+(table|schema)\b/i,
+      /\bxp_cmdshell\b/i,
+      /\bsp_/i,
+      /\/\*[\s\S]*?\*\//i,
+      /;\s*(select|insert|update|delete|alter)\b/i,
     ];
 
     return sqlPatterns.some(pattern => pattern.test(input));
