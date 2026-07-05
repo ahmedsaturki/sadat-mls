@@ -109,7 +109,7 @@ sadat-mls-cloud/
 │       │                                # constants.ts: PROPERTY_STATUSES, OFFICE_FEATURES, SADAT_ZONES, PROPERTY_TYPES
 │   └── __tests__/                 # Unit Tests (34 files, 564 tests)
 ├── supabase/
-│   └── migrations/                # 18 migrations (001_initial_schema → 018_notifications)
+│   └── migrations/                # 19 migrations (001_initial_schema → 019_idempotent_rls_recreate)
 ├── e2e/                           # Playwright E2E Tests (12 files, 111 tests)
 ├── public/                        # Static Assets, PWA (sw.js, manifest.json, icons/)
 ├── .github/workflows/             # CI/CD (ci.yml)
@@ -531,8 +531,9 @@ All rate-limited endpoints return:
 | `016_user_avatars.sql` | Adds `users.avatar_url` + `avatars` bucket + storage RLS keyed on `auth.uid()` |
 | `017_activity_log.sql` | `activity_log` table, office-scoped SELECT, super-admin override, INSERT for auth users |
 | `018_notifications.sql` | `notifications` table, user/office-scoped SELECT+UPDATE, super-admin DELETE |
+| `019_idempotent_rls_recreate.sql` | Idempotent re-creation patterns for `activity_log` + `notifications` policies (partial-failure recovery) |
 
-> **Note:** AGENTS.md previously listed only `001–014`. Migrations `015–018` were added later but went undocumented; verified loaded 2026-07-05 at head `bdff3bb`.
+> **Note:** AGENTS.md previously listed only `001–014`. Migrations `015–018` were added later but went undocumented; verified loaded 2026-07-05 at head `bdff3bb`. Migration `019` (this commit) adds `DROP POLICY IF EXISTS` re-creation for migrations `017`/`018` so the system handles partial-failure recovery correctly.
 
 ## E2E Tests (e2e/)
 
