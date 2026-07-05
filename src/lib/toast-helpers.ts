@@ -1,6 +1,7 @@
 "use client";
 
 import { useToast } from "@/components/ui/Toast";
+import { logger } from "@/lib/logger";
 
 /**
  * Toast helper functions for consistent error/success/warning/info toasts
@@ -29,8 +30,7 @@ export const useToastHelpers = () => {
  * Use this in server components and API routes
  */
 export const logToastError = (message: string, context?: Record<string, unknown>) => {
-  // In server components, use the logger directly
-  console.error(`[TOAST ERROR] ${message}`, context || "");
+  logger.error(`[TOAST ERROR] ${message}`, context);
 };
 
 /**
@@ -38,6 +38,5 @@ export const logToastError = (message: string, context?: Record<string, unknown>
  * Use this in client components when you need both
  */
 export const showToastError = (message: string) => {
-  console.error(`[TOAST ERROR] ${message}`);
-  // The toast will be shown via useToastHelpers().toastError()
+  logger.error(`[TOAST ERROR] ${message}`);
 };

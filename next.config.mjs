@@ -11,6 +11,11 @@ const withBundleAnalyzer = bundleAnalyzer({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  serverExternalPackages: ["bcryptjs", "jsonwebtoken"],
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   turbopack: {
     root: __dirname,
   },

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
+import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
 
 const contactRequestSchema = z.object({
@@ -25,6 +26,11 @@ function getAdminClient() {
 }
 
 export async function POST(request: NextRequest) {
+  const csrfValid = await validateCsrfToken(request);
+  if (!csrfValid) {
+    return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
+  }
+
   const rawIp = request.headers.get("x-forwarded-for") || "unknown";
   const ip = rawIp.split(",")[0].trim();
   const rate = await checkApiRateLimit(`contact-post:${ip}`, undefined, { maxRequests: 5, windowMs: 60 * 60 * 1000 });

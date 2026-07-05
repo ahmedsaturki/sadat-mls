@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sanitize, isValidEmail, isValidPhone } from "@/lib/security/sanitize";
+import { sanitize, sanitizeObject, truncate, isValidEmail, isValidPhone } from "@/lib/security/sanitize";
 
 describe("sanitize", () => {
   describe("sanitize", () => {
@@ -27,6 +27,70 @@ describe("sanitize", () => {
     it("escapes forward slashes", () => {
       const result = sanitize("a/b");
       expect(result).toContain("&#x2F;");
+    });
+  });
+
+  describe("sanitizeObject", () => {
+    it("sanitizes string values in objects", () => {
+      const result = sanitizeObject({ name: '<script>alert("xss")</script>' });
+      expect(result.name).not.toContain("<script>");
+      expect(result.name).toContain("&lt;script&gt;");
+    });
+
+    it("sanitizes nested objects", () => {
+      const result = sanitizeObject({ outer: { inner: '<img onerror="alert(1)">' } });
+      expect(result.outer.inner).not.toContain("<img");
+      expect(result.outer.inner).toContain("&lt;img");
+    });
+
+    it("sanitizes arrays of strings", () => {
+      const result = sanitizeObject(["<b>bold</b>", "normal"]);
+      expect(result[0]).not.toContain("<b>");
+      expect(result[0]).toContain("&lt;b&gt;");
+      expect(result[1]).toBe("normal");
+    });
+
+    it("passes through non-string primitives", () => {
+      const result = sanitizeObject({ count: 42, active: true, empty: null });
+      expect(result.count).toBe(42);
+      expect(result.active).toBe(true);
+      expect(result.empty).toBe(null);
+    });
+
+    it("passes through null", () => {
+      expect(sanitizeObject(null)).toBe(null);
+    });
+
+    it("passes through undefined", () => {
+      expect(sanitizeObject(undefined)).toBe(undefined);
+    });
+
+    it("sanitizes deeply nested objects", () => {
+      const result = sanitizeObject({ a: { b: { c: '<span>xss</span>' } } });
+      expect(result.a.b.c).not.toContain("<span>");
+      expect(result.a.b.c).toContain("&lt;span&gt;");
+    });
+  });
+
+  describe("truncate", () => {
+    it("returns original string if shorter than max", () => {
+      expect(truncate("hello", 10)).toBe("hello");
+    });
+
+    it("returns original string if equal to max", () => {
+      expect(truncate("hello", 5)).toBe("hello");
+    });
+
+    it("truncates long strings with ellipsis", () => {
+      expect(truncate("hello world", 5)).toBe("hello…");
+    });
+
+    it("handles empty string", () => {
+      expect(truncate("", 10)).toBe("");
+    });
+
+    it("handles max of 1", () => {
+      expect(truncate("hello", 1)).toBe("h…");
     });
   });
 

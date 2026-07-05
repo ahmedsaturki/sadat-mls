@@ -13,6 +13,9 @@ export function sanitize(input: string): string {
 
 export function sanitizeObject<T>(obj: T): T {
   if (typeof obj !== "object" || obj === null) {
+    if (typeof obj === "string") {
+      return sanitize(obj) as T;
+    }
     return obj;
   }
 

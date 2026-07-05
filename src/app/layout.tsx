@@ -8,11 +8,23 @@ import { getMessages } from "@/i18n/getMessages";
 
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "600", "700"],
   variable: "--font-cairo",
 });
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+function sanitizeJsonLd(obj: Record<string, unknown>): string {
+  return JSON.stringify(obj, (_key, value) => {
+    if (typeof value === "string") {
+      return value.replace(/[<>&"']/g, (c) => {
+        const map: Record<string, string> = { "<": "\\u003c", ">": "\\u003e", "&": "\\u0026", '"': "\\u0022", "'": "\\u0027" };
+        return map[c] || c;
+      });
+    }
+    return value;
+  });
+}
 
 const orgJsonLd = {
   "@context": "https://schema.org",
@@ -69,7 +81,7 @@ export default async function RootLayout({
           type="application/ld+json"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(orgJsonLd),
+            __html: sanitizeJsonLd(orgJsonLd),
           }}
         />
         <link rel="alternate" hrefLang="ar" href={`${baseUrl}/ar`} />

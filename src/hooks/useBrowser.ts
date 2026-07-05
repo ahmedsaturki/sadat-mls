@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export function useInterval(callback: () => void, delay: number | null) {
   const savedCallback = useRef(callback);
@@ -54,8 +54,6 @@ export function useMediaQuery(query: string): boolean {
 
   return matches;
 }
-
-import { useState } from "react";
 
 export function useWindowSize() {
   const [size, setSize] = useState({
