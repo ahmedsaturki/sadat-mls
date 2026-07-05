@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sanitizeHtml } from "@/lib/security/sanitizeHtml";
+import { sanitizeHtml, sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
 
 describe("sanitizeHtml", () => {
   it("allows safe HTML tags", () => {
@@ -122,5 +122,120 @@ describe("sanitizeHtml", () => {
     const input = '<svg onload="alert(1)"><circle></circle></svg>';
     const result = sanitizeHtml(input);
     expect(result).not.toContain("onload");
+  });
+
+  it("strips nested dangerous tags", () => {
+    const input = '<div><p>Hello</p><script>alert(1)</script><p>World</p></div>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("<script>");
+    expect(result).toContain("<p>Hello</p>");
+    expect(result).toContain("<p>World</p>");
+  });
+
+  it("strips case-insensitive script tags", () => {
+    const input = '<SCRIPT>alert(1)</SCRIPT>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("<SCRIPT>");
+  });
+
+  it("strips noscript tags", () => {
+    const input = '<noscript><img src=x onerror=alert(1)></noscript>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("<noscript>");
+  });
+
+  it("strips base tag", () => {
+    const input = '<base href="https://evil.com/"><p>Text</p>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("<base>");
+  });
+
+  it("strips link tags", () => {
+    const input = '<link rel="stylesheet" href="evil.css"><p>Text</p>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("<link");
+  });
+
+  it("allows mailto: links", () => {
+    const input = '<a href="mailto:test@example.com">Email</a>';
+    const result = sanitizeHtml(input);
+    expect(result).toContain("mailto:");
+  });
+
+  it("allows tel: links", () => {
+    const input = '<a href="tel:+1234567890">Call</a>';
+    const result = sanitizeHtml(input);
+    expect(result).toContain("tel:");
+  });
+
+  it("strips data: URLs in img src", () => {
+    const input = '<img src="data:text/html,<script>alert(1)</script>">';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("data:");
+  });
+
+  it("strips formaction attribute", () => {
+    const input = '<button formaction="javascript:alert(1)">Submit</button>';
+    const result = sanitizeHtml(input);
+    expect(result).not.toContain("formaction");
+  });
+});
+
+describe("sanitizeJsonLd", () => {
+  it("escapes HTML entities in string values", () => {
+    const input = { name: '<script>alert("xss")</script>' };
+    const result = sanitizeJsonLd(input);
+    expect(result).not.toContain("<script>");
+    expect(result).toContain("&lt;script&gt;");
+  });
+
+  it("escapes ampersands in URLs", () => {
+    const input = { url: "https://example.com?a=1&b=2" };
+    const result = sanitizeJsonLd(input);
+    expect(result).toContain("&amp;");
+  });
+
+  it("handles nested objects", () => {
+    const input = { outer: { inner: '<img onerror="alert(1)">' } };
+    const result = sanitizeJsonLd(input);
+    expect(result).not.toContain("<img");
+    expect(result).toContain("&lt;img");
+  });
+
+  it("handles arrays", () => {
+    const input = { items: ["<b>bold</b>", "normal"] };
+    const result = sanitizeJsonLd(input);
+    expect(result).toContain("&lt;b&gt;");
+  });
+
+  it("returns valid JSON", () => {
+    const input = { name: "Test", count: 42, active: true };
+    const result = sanitizeJsonLd(input);
+    const parsed = JSON.parse(result);
+    expect(parsed.name).toBe("Test");
+    expect(parsed.count).toBe(42);
+    expect(parsed.active).toBe(true);
+  });
+
+  it("handles circular references", () => {
+    const input: Record<string, unknown> = { name: "Test" };
+    input.self = input;
+    const result = sanitizeJsonLd(input);
+    expect(result).toContain("[Circular]");
+  });
+
+  it("handles null values", () => {
+    const input = { name: "Test", value: null };
+    const result = sanitizeJsonLd(input);
+    const parsed = JSON.parse(result);
+    expect(parsed.value).toBeNull();
+  });
+
+  it("handles numeric values", () => {
+    const input = { price: 1500000, area: 250 };
+    const result = sanitizeJsonLd(input);
+    const parsed = JSON.parse(result);
+    expect(parsed.price).toBe(1500000);
+    expect(parsed.area).toBe(250);
   });
 });
