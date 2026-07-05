@@ -29,7 +29,7 @@ export default function AdminStatCards({ stats }: AdminStatCardsProps) {
       {stats.map((stat, i) => {
         const Icon = iconMap[stat.iconKey];
         return (
-          <Link key={i} href={stat.href}>
+           <Link key={i} href={stat.href} aria-label={`${stat.label}: ${stat.value}`}>
             <LuxuryStatCard
               icon={Icon}
               label={stat.label}

@@ -18,6 +18,7 @@ import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { getCsrfHeaders } from "@/lib/security/csrf-client";
+import { getFirstPasswordError } from "@/lib/security/password-rules";
 
 interface Agent {
   id: string;
@@ -92,18 +93,35 @@ export default function AgentsPage({
     e.preventDefault();
     setSaving(true);
 
+    // Client-side password complexity check (mirrors server-side PasswordService.validate)
+    // Server-only module cannot be imported in client components; uses shared rules module.
+    const passwordErr = getFirstPasswordError(formData.password);
+    if (passwordErr) {
+      showToast(passwordErr, "error");
+      setSaving(false);
+      return;
+    }
+
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showToast(dict.common.unexpectedError, "error");
+        setSaving(false);
+        return;
+      }
+
       const res = await fetch("/api/agents", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
           ...getCsrfHeaders(),
         },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          full_name: formData.name,
-          office_id: officeId,
+          fullName: formData.name,
+          officeId,
           role: ROLES.OFFICE_AGENT,
         }),
       });
@@ -137,9 +155,19 @@ export default function AgentsPage({
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/agents?id=${deleteId}`, { 
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showToast(dict.common.unexpectedError, "error");
+        setSaving(false);
+        return;
+      }
+
+      const res = await fetch(`/api/agents?id=${deleteId}`, {
         method: "DELETE",
-        headers: getCsrfHeaders(),
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          ...getCsrfHeaders(),
+        },
       });
 
       if (!res.ok) {

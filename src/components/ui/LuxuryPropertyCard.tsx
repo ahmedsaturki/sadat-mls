@@ -4,13 +4,11 @@ import { memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Bed, Bath, Maximize, MapPin, Home } from "lucide-react";
-import { motion } from "framer-motion";
 import Badge from "@/components/ui/Badge";
 import ShareButton from "@/components/properties/ShareButton";
 import FavoriteButton from "@/components/properties/FavoriteButton";
 import CompareButton from "@/components/properties/CompareButton";
 import { formatPrice } from "@/lib/utils/cn";
-import { fadeUpVariant } from "@/lib/utils/animations";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
 import type { PropertyStatus } from "@/lib/utils/constants";
@@ -71,10 +69,8 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
   };
 
   return (
-    <motion.div
-      variants={fadeUpVariant}
-      whileHover={{ y: -5 }}
-      className="group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl hover:shadow-[#C49A2A]/20 transition-all duration-300 border border-gray-100"
+    <div
+      className="animate-fade-up group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl hover:shadow-[#C49A2A]/20 transition-all duration-300 border border-gray-100"
     >
       <Link href={`/${locale}/explore/${id}`} className="block w-full" aria-label={`${title} - ${statusConfig[status].label}`}>
         {/* Image Container with Zoom Effect */}
@@ -103,7 +99,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
               {statusConfig[status].label}
             </Badge>
             <div className="flex gap-1.5" onClick={(e) => e.preventDefault()}>
-              <CompareButton property={{ id, title, price, area, bedrooms: bedrooms || 0, bathrooms: bathrooms || 0, zone, type, officeName, status }} locale={locale} dict={dict} size="sm" />
+              <CompareButton property={{ id, title, price, area, bedrooms: bedrooms || 0, bathrooms: bathrooms || 0, zone: zone ?? null, type: type ?? null, officeName: officeName ?? null, status: status ?? null, primaryImage: null, description: null }} locale={locale} dict={dict} size="sm" />
               <FavoriteButton propertyId={id} userId={userId} locale={locale} dict={dict} size="sm" />
             </div>
           </div>
@@ -164,7 +160,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
         {/* Decorative Bottom Bar */}
         <div className="h-1 w-full bg-gray-100 group-hover:bg-[#C49A2A] transition-colors duration-300" />
       </Link>
-    </motion.div>
+    </div>
   );
 });
 

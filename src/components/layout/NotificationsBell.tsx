@@ -203,7 +203,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
         <div
           ref={dropdownRef}
           className={cn(
-            "absolute right-0 mt-2 w-80 max-h-96 overflow-hidden",
+            `absolute mt-2 w-80 max-h-96 overflow-hidden ${locale === "en" ? "right-0" : "left-0"}`,
             "bg-white rounded-xl shadow-lg border border-gray-200",
             "z-50"
           )}

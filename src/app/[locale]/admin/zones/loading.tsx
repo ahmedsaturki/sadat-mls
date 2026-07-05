@@ -1,5 +1,5 @@
-import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 export default function Loading() {
-  return <LuxuryLoader />;
+  return <PageLoader aria-busy="true" role="status" />;
 }

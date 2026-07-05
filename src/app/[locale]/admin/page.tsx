@@ -29,10 +29,10 @@ interface RecentContact {
 export default async function AdminDashboard({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const resolvedParams = await Promise.resolve(params);
-  const locale = resolvedParams?.locale || "ar";
+  const resolvedParams = await params;
+  const locale = resolvedParams.locale || "ar";
 
   if (!isValidLocale(locale)) {
     return null;
@@ -192,21 +192,21 @@ export default async function AdminDashboard({
               href={`/${locale}/admin/offices`}
               className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
-              <Plus className="w-5 h-5 text-blue-600" />
+              <Plus className="w-5 h-5 text-blue-600" aria-hidden="true" />
               <span className="font-medium text-blue-900">{dict.admin.addOffice}</span>
             </Link>
             <Link
               href={`/${locale}/admin/zones`}
               className="flex items-center gap-3 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
             >
-              <MapPin className="w-5 h-5 text-green-600" />
+              <MapPin className="w-5 h-5 text-green-600" aria-hidden="true" />
               <span className="font-medium text-green-900">{dict.admin.manageZones}</span>
             </Link>
             <Link
               href={`/${locale}/admin/property-types`}
               className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
             >
-              <Home className="w-5 h-5 text-purple-600" />
+              <Home className="w-5 h-5 text-purple-600" aria-hidden="true" />
               <span className="font-medium text-purple-900">{dict.admin.managePropertyTypes}</span>
             </Link>
           </div>

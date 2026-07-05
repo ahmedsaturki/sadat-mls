@@ -66,7 +66,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
       {searchKey && (
         <div className="p-3 border-b border-gray-200">
           <div className="relative max-w-xs">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 ${dir === "rtl" ? "left-3" : "right-3"}`} />
             <input
               ref={inputRef}
               type="text"
@@ -74,7 +74,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
               onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
-              className="w-full pl-3 pr-9 py-2 border border-gray-200 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className={`w-full py-2 border border-gray-200 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${dir === "rtl" ? "pr-3 pl-9" : "pl-3 pr-9"}`}
             />
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROPERTY_STATUSES } from "@/lib/utils/constants";
 
 export const agentSchema = z.object({
   email: z.string().email({
@@ -25,6 +26,30 @@ export const agentSchema = z.object({
   phone: z.string().optional(),
 });
 
+const optionalUuidString = (message: string) =>
+  z.string().refine(
+    (value) => value === "" || z.string().uuid().safeParse(value).success,
+    { message },
+  );
+
+const positiveNumberString = (message: string) =>
+  z.string().trim().refine(
+    (value) => value !== "" && Number.isFinite(Number(value)) && Number(value) > 0,
+    { message },
+  );
+
+const optionalNonNegativeIntegerString = (message: string) =>
+  z.string().trim().refine(
+    (value) => value === "" || (Number.isInteger(Number(value)) && Number(value) >= 0),
+    { message },
+  );
+
+const optionalEmailString = (message: string) =>
+  z.string().trim().refine(
+    (value) => value === "" || z.string().email().safeParse(value).success,
+    { message },
+  ).optional();
+
 export const propertySchema = z.object({
   title: z.string().min(1, {
     message: "Title is required",
@@ -32,45 +57,67 @@ export const propertySchema = z.object({
     message: "Title cannot exceed 200 characters",
   }),
   description: z.string().optional(),
-  price: z.number().positive({
-    message: "Price must be positive",
-  }),
-  propertyTypeId: z.string().uuid({
-    message: "Invalid property type ID",
-  }),
-  zoneId: z.string().uuid({
-    message: "Invalid zone ID",
-  }),
-  bedrooms: z.number().int().min(0, {
-    message: "Bedrooms must be at least 0",
-  }).optional(),
-  bathrooms: z.number().int().min(0, {
-    message: "Bathrooms must be at least 0",
-  }).optional(),
-  area: z.number().positive({
-    message: "Area must be positive",
-  }).optional(),
-  address: z.string().optional(),
-  status: z.enum(["active", "pending", "sold", "rented", "inactive"], {
+  price: positiveNumberString("Price must be positive"),
+  property_type_id: optionalUuidString("Invalid property type ID"),
+  zone_id: optionalUuidString("Invalid zone ID"),
+  bedrooms: optionalNonNegativeIntegerString("Bedrooms must be at least 0").optional(),
+  bathrooms: optionalNonNegativeIntegerString("Bathrooms must be at least 0").optional(),
+  floors: optionalNonNegativeIntegerString("Floors must be at least 0").optional(),
+  area: positiveNumberString("Area must be positive"),
+  street: z.string().optional(),
+  status: z.enum(PROPERTY_STATUSES, {
     message: "Invalid status",
   }),
 });
 
 export const ownerSchema = z.object({
-  fullName: z.string().min(2, {
-    message: "Name must be at least 2 characters",
-  }).max(100, {
-    message: "Name cannot exceed 100 characters",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address",
-  }).optional(),
-  phone: z.string().min(10, {
-    message: "Phone must be at least 10 characters",
-  }).max(20, {
-    message: "Phone cannot exceed 20 characters",
-  }).optional(),
-  address: z.string().optional(),
+  owner_name: z.string(),
+  owner_email: z.string(),
+  owner_phone: z.string(),
+  notes: z.string().optional(),
+}).superRefine((owner, ctx) => {
+  const hasOwnerData = Boolean(
+    owner.owner_name.trim() ||
+    owner.owner_phone.trim() ||
+    owner.owner_email.trim() ||
+    owner.notes?.trim(),
+  );
+
+  if (!hasOwnerData) {
+    return;
+  }
+
+  if (owner.owner_name.trim().length < 2) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["owner_name"],
+      message: "Name must be at least 2 characters",
+    });
+  }
+
+  if (owner.owner_name.trim().length > 100) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["owner_name"],
+      message: "Name cannot exceed 100 characters",
+    });
+  }
+
+  if (owner.owner_phone.trim().length < 10 || owner.owner_phone.trim().length > 20) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["owner_phone"],
+      message: "Phone must be between 10 and 20 characters",
+    });
+  }
+
+  if (owner.owner_email.trim() && !z.string().email().safeParse(owner.owner_email.trim()).success) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["owner_email"],
+      message: "Please enter a valid email address",
+    });
+  }
 });
 
 export const officeSchema = z.object({
@@ -79,16 +126,11 @@ export const officeSchema = z.object({
   }).max(100, {
     message: "Name cannot exceed 100 characters",
   }),
-  slug: z.string().min(2, {
-    message: "Slug must be at least 2 characters",
-  }).max(100, {
-    message: "Slug cannot exceed 100 characters",
-  }).regex(/^[a-z0-9-]+$/, {
-    message: "Slug can only contain lowercase letters, numbers, and hyphens",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address",
-  }).optional(),
+  slug: z.string().trim().refine(
+    (value) => value === "" || /^[a-z0-9-]+$/.test(value),
+    { message: "Slug can only contain lowercase letters, numbers, and hyphens" },
+  ).optional(),
+  email: optionalEmailString("Please enter a valid email address"),
   phone: z.string().optional(),
   address: z.string().optional(),
   description: z.string().optional(),
@@ -121,7 +163,7 @@ export const authSchemas = {
       message: "Password must be at least 8 characters",
     }).max(128, {
       message: "Password cannot exceed 128 characters",
-    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/, {
+    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
       message: "Password must include uppercase, lowercase, number, and special character",
     }),
     officeId: z.string().uuid().optional(),
@@ -144,7 +186,7 @@ export const authSchemas = {
       message: "New password must be at least 8 characters",
     }).max(128, {
       message: "Password cannot exceed 128 characters",
-    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/, {
+    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
       message: "Password must include uppercase, lowercase, number, and special character",
     }),
     confirmPassword: z.string(),
@@ -167,7 +209,7 @@ export const authSchemas = {
       message: "New password must be at least 8 characters",
     }).max(128, {
       message: "Password cannot exceed 128 characters",
-    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/, {
+    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
       message: "Password must include uppercase, lowercase, number, and special character",
     }),
     confirmPassword: z.string(),

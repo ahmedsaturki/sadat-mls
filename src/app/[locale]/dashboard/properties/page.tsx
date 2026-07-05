@@ -15,6 +15,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { ROLES, PROPERTY_STATUSES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { logger } from "@/lib/logger";
+import { getCsrfHeaders } from "@/lib/security/csrf-client";
 
 interface Property {
   id: string;
@@ -158,7 +159,10 @@ export default function PropertiesPage({
       // Log activity (fire-and-forget)
       fetch("/api/activity", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...getCsrfHeaders(),
+        },
         body: JSON.stringify({
           action: "property.updated",
           entity_type: "property",
@@ -185,7 +189,10 @@ export default function PropertiesPage({
         // Log activity (fire-and-forget)
         fetch("/api/activity", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...getCsrfHeaders(),
+          },
           body: JSON.stringify({
             action: "property.deleted",
             entity_type: "property",
@@ -219,7 +226,7 @@ export default function PropertiesPage({
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">{dict.office.myProperties}</h1>
-          {userRole === ROLES.OFFICE_ADMIN && (
+          {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
             <Link href={`/${locale}/dashboard/properties/new`}>
               <Button>
                 <Plus className="w-4 h-4 ml-2" />
@@ -284,10 +291,10 @@ export default function PropertiesPage({
                   type={property.property_types?.name_ar}
                   userId={user?.id || null}
                 />
-          {userRole === ROLES.OFFICE_ADMIN && (
+          {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
                   <div className="absolute top-2 left-2 flex items-center gap-1">
                     {/* Status dropdown */}
-<select
+                    <select
                        value={property.status}
                        onChange={(e) => handleStatusChange(property.id, e.target.value as Property["status"])}
                        disabled={updatingStatus === property.id}
@@ -309,8 +316,8 @@ export default function PropertiesPage({
                        <option value="reserved">{dict.property.status.reserved}</option>
                        <option value="pending_review">{dict.property.status.pending_review}</option>
                      </select>
-                    {/* Edit/Delete buttons */}
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Edit/Delete buttons - visible on hover and focus for keyboard accessibility */}
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                       <Link
                         href={`/${locale}/dashboard/properties/${property.id}/edit`}
                         className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
@@ -342,7 +349,7 @@ export default function PropertiesPage({
             <p className="text-sm text-gray-400 max-w-xs mx-auto mb-6">
               {dict.office.startAdding}
             </p>
-          {userRole === ROLES.OFFICE_ADMIN && (
+          {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
               <Link href={`/${locale}/dashboard/properties/new`} className="mt-2 inline-block">
                 <Button>{dict.office.addProperty}</Button>
               </Link>

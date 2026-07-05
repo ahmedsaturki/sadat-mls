@@ -64,7 +64,7 @@ export default function AdminContactRequestsPage({
     try {
       const { data, error } = await supabase
         .from("contact_requests")
-        .select("id, office_id, property_id, visitor_name, visitor_email, visitor_phone, contact_type, message, status, notes, created_at, properties(title), offices(name)")
+        .select("id, office_id, property_id, visitor_name, visitor_email, visitor_phone, contact_type, message, created_at, updated_at, properties(title), offices(name)")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -251,7 +251,7 @@ export default function AdminContactRequestsPage({
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                       {request.offices && (
                         <span className="flex items-center gap-1">
-                          <Building2 className="w-3 h-3" />
+                           <Building2 className="w-3 h-3" aria-hidden="true" />
                           {request.offices.name}
                         </span>
                       )}
@@ -268,7 +268,7 @@ export default function AdminContactRequestsPage({
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors"
                       >
-                        <ExternalLink className="w-4 h-4" />
+                         <ExternalLink className="w-4 h-4" aria-hidden="true" />
                         {dict.contactRequests.view}
                       </a>
                     )}

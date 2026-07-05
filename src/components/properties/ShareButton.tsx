@@ -13,93 +13,118 @@ interface ShareButtonProps {
 }
 
 const ShareButton = memo(function ShareButton({ title, dict }: ShareButtonProps) {
-  const [open, setOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [open, setOpen] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+    useEffect(() => {
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current);
+      };
+    }, []);
+
+    const explore = dict?.explore as Record<string, string> | undefined;
+
+    const shareUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}${window.location.pathname}`
+        : "";
+
+const handleWebShare = async () => {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: title,
+            text: title,
+            url: shareUrl,
+          });
+          return true;
+        } catch (err) {
+          logger.info("Web Share API cancelled or failed", { error: err instanceof Error ? err.message : String(err) });
+          return false;
+        }
+      }
+      return false;
     };
-  }, []);
 
-  const explore = dict?.explore as Record<string, string> | undefined;
+    const handleCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        logger.error("Failed to copy share URL to clipboard", { error: err instanceof Error ? err.message : String(err) });
+        setCopied(false);
+      }
+    };
 
-  const shareUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}${window.location.pathname}`
-      : "";
+    const handleWhatsApp = () => {
+      const text = encodeURIComponent(`${title}\n${shareUrl}`);
+      window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
+    };
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      logger.error("Failed to copy share URL to clipboard", { error: err instanceof Error ? err.message : String(err) });
-      setCopied(false);
-    }
-  };
+    const handleShare = async () => {
+      const shared = await handleWebShare();
+      if (!shared) {
+        // Fallback to modal if Web Share API is not available or failed
+        setOpen(true);
+      }
+    };
 
-  const handleWhatsApp = () => {
-    const text = encodeURIComponent(`${title}\n${shareUrl}`);
-    window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
-  };
+    return (
+      <>
+        <button
+          onClick={handleShare}
+          className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+          aria-label={explore?.share}
+        >
+          <Share2 className="w-4 h-4" />
+        </button>
 
-  return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-        aria-label={explore?.share}
-      >
-        <Share2 className="w-4 h-4" />
-      </button>
+        <Modal isOpen={open} onClose={() => setOpen(false)} title={explore?.share ?? ""}>
+          <div className="space-y-3">
+            <p className="text-sm text-gray-600 mb-4">{explore?.shareProperty ?? ""}</p>
 
-      <Modal isOpen={open} onClose={() => setOpen(false)} title={explore?.share ?? ""}>
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600 mb-4">{explore?.shareProperty ?? ""}</p>
+            <button
+              onClick={handleCopy}
+              className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
+              aria-label={copied ? explore?.copied : explore?.copyLink}
+            >
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                {copied ? (
+                  <Check className="w-5 h-5 text-green-600" />
+                ) : (
+                  <LinkIcon className="w-5 h-5 text-gray-600" />
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">
+                  {copied
+                    ? explore?.copied ?? ""
+                    : explore?.copyLink ?? ""}
+                </p>
+                <p className="text-xs text-gray-500 truncate max-w-[250px]">{shareUrl}</p>
+              </div>
+            </button>
 
-          <button
-            onClick={handleCopy}
-            className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
-            aria-label={copied ? explore?.copied : explore?.copyLink}
-          >
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              {copied ? (
-                <Check className="w-5 h-5 text-green-600" />
-              ) : (
-                <LinkIcon className="w-5 h-5 text-gray-600" />
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900">
-                {copied
-                  ? explore?.copied ?? ""
-                  : explore?.copyLink ?? ""}
-              </p>
-              <p className="text-xs text-gray-500 truncate max-w-[250px]">{shareUrl}</p>
-            </div>
-          </button>
-
-          <button
-            onClick={handleWhatsApp}
-            className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
-            aria-label={explore?.shareVia}
-          >
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <MessageCircle className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900">WhatsApp</p>
-              <p className="text-xs text-gray-500">{explore?.shareVia ?? ""}</p>
-            </div>
-          </button>
-        </div>
-      </Modal>
-    </>
-  );
-});
+            <button
+              onClick={handleWhatsApp}
+              className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
+              aria-label={explore?.shareVia}
+            >
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <MessageCircle className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">WhatsApp</p>
+                <p className="text-xs text-gray-500">{explore?.shareVia ?? ""}</p>
+              </div>
+            </button>
+          </div>
+        </Modal>
+      </>
+    );
+  });
 
 export default ShareButton;

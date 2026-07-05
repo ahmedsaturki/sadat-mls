@@ -31,10 +31,10 @@ interface OfficeStats {
 export default async function AdminAnalyticsPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const resolvedParams = await Promise.resolve(params);
-  const locale = resolvedParams?.locale || "ar";
+  const resolvedParams = await params;
+  const locale = resolvedParams.locale || "ar";
 
   if (!isValidLocale(locale)) {
     return null;
@@ -132,7 +132,7 @@ export default async function AdminAnalyticsPage({
             <Card key={i}>
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorMap[stat.color]}`}>
-                  <stat.icon className="w-6 h-6" />
+                  <stat.icon className="w-6 h-6" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
@@ -146,7 +146,7 @@ export default async function AdminAnalyticsPage({
         {/* Property Status Breakdown */}
         <Card>
           <div className="flex items-center gap-2 mb-6">
-            <BarChart3 className="w-5 h-5 text-gray-500" />
+            <BarChart3 className="w-5 h-5 text-gray-500" aria-hidden="true" />
             <CardTitle>{dict.admin.propertiesByStatus}</CardTitle>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -179,7 +179,7 @@ export default async function AdminAnalyticsPage({
         <Card>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-gray-500" />
+              <Building2 className="w-5 h-5 text-gray-500" aria-hidden="true" />
               <CardTitle>{dict.admin.officesSummary}</CardTitle>
             </div>
             <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
@@ -194,7 +194,7 @@ export default async function AdminAnalyticsPage({
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Building2 className="w-5 h-5 text-blue-600" />
+                         <Building2 className="w-5 h-5 text-blue-600" aria-hidden="true" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{office.name}</p>

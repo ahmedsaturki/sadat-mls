@@ -14,6 +14,7 @@ interface SearchFiltersProps {
   zones: { id: string; name: string }[];
   types: { id: string; name: string }[];
   onSearch: (filters: FilterState) => void;
+  locale?: string;
 }
 
 export interface FilterState {
@@ -46,7 +47,7 @@ export const EMPTY_FILTERS = {
   hasElevator: false,
 } as const satisfies FilterState;
 
-export default function SearchFilters({ dict, zones, types, onSearch }: SearchFiltersProps) {
+export default function SearchFilters({ dict, zones, types, onSearch, locale }: SearchFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
 
@@ -87,20 +88,22 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
     return v !== "";
   }).length;
 
+  const isRtl = locale !== "en";
+
   return (
     <div className="glass-luxury rounded-2xl p-5 shadow-lg shadow-[#1B2D4F]/5">
       <form onSubmit={handleSubmit}>
         {/* Main Search */}
         <div className="flex gap-3 mb-4">
           <div className="flex-1 relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#C49A2A]" />
+            <Search className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 text-[#C49A2A] ${isRtl ? "left-3" : "right-3"}`} />
             <input
               type="text"
               value={filters.search}
               onChange={(e) => updateFilter("search", e.target.value)}
               placeholder={dict.explore.searchPlaceholder}
               aria-label={dict.explore.searchPlaceholder}
-              className="w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#C49A2A]/50 focus:border-[#C49A2A] transition-all duration-300 placeholder:text-gray-400"
+              className={`w-full py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#C49A2A]/50 focus:border-[#C49A2A] transition-all duration-300 placeholder:text-gray-400 ${isRtl ? "pr-4 pl-10" : "pl-4 pr-10"}`}
             />
           </div>
           <Button type="submit" className="bg-gradient-to-r from-[#1B2D4F] to-[#1B2D4F]/90 hover:from-[#1B2D4F]/90 hover:to-[#1B2D4F] text-white px-6 rounded-xl shadow-md shadow-[#1B2D4F]/20 hover:shadow-lg hover:shadow-[#1B2D4F]/30 transition-all duration-300">
@@ -113,6 +116,7 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
             className="relative"
             aria-label={dict.explore.advancedFilters}
             aria-expanded={showAdvanced}
+            aria-controls="advanced-filters-section"
           >
             <SlidersHorizontal className="w-4 h-4" />
             {activeFilterCount > 0 && (
@@ -125,7 +129,14 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
 
         {/* Advanced Filters */}
         {showAdvanced && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/20">
+          <div
+            id="advanced-filters-section"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/20"
+            aria-labelledby="advanced-filters-heading"
+          >
+            <h3 id="advanced-filters-heading" className="sr-only">
+              {dict.explore.advancedFilters}
+            </h3>
             <Select
               label={dict.explore.zone}
               value={filters.zoneId}
@@ -299,10 +310,19 @@ export default function SearchFilters({ dict, zones, types, onSearch }: SearchFi
 
 function FilterTag({ label, onRemove, removeLabel }: { label: string; onRemove: () => void; removeLabel: string }) {
   return (
-    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C49A2A]/10 text-[#1B2D4F] text-xs font-medium rounded-full border border-[#C49A2A]/20 backdrop-blur-sm hover:bg-[#C49A2A]/20 transition-colors duration-200">
+    <span
+      className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C49A2A]/10 text-[#1B2D4F] text-xs font-medium rounded-full border border-[#C49A2A]/20 backdrop-blur-sm hover:bg-[#C49A2A]/20 transition-colors duration-200"
+      role="chip"
+      aria-label={`${label} filter`}
+    >
       {label}
-      <button onClick={onRemove} aria-label={`${removeLabel} ${label}`} className="hover:text-[#C49A2A] transition-colors">
-        <X className="w-3 h-3" />
+      <button
+        onClick={onRemove}
+        aria-label={`${removeLabel} ${label}`}
+        className="hover:text-[#C49A2A] transition-colors focus:outline-none focus:ring-1 focus:ring-[#C49A2A] rounded"
+        type="button"
+      >
+        <X className="w-3 h-3" aria-hidden="true" />
       </button>
     </span>
   );

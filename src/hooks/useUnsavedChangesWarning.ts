@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const DEFAULT_WARNING = "You have unsaved changes. Are you sure you want to leave?";
+const DEFAULT_WARNING = "لديك تغييرات غير محفوظة. هل أنت متأكد أنك تريد المغادرة؟";
 
 /**
  * Tracks form dirty state and warns before navigating away with unsaved changes.
@@ -48,7 +48,7 @@ export function useFormDirty<T extends Record<string, unknown>>(initialValues: T
     setIsDirty(false);
   }, []);
 
-  useUnsavedChangesWarning(isDirty, undefined, "You have unsaved changes. Are you sure you want to leave?");
+  useUnsavedChangesWarning(isDirty, undefined, "لديك تغييرات غير محفوظة. هل أنت متأكد أنك تريد المغادرة؟");
 
   return [isDirty, checkDirty, resetDirty] as const;
 }

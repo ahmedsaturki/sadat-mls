@@ -105,7 +105,7 @@ export default async function OfficeDashboard({
       .eq("role", ROLES.OFFICE_AGENT),
     supabase
       .from("contact_requests")
-      .select("id, office_id, property_id, name, email, phone, message, type, status, created_at, properties(title)")
+      .select("id, office_id, property_id, visitor_name, visitor_email, visitor_phone, contact_type, message, created_at, properties(title)")
       .eq("office_id", profile.office_id)
       .order("created_at", { ascending: false })
       .limit(5),

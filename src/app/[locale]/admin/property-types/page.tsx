@@ -96,7 +96,7 @@ export default function PropertyTypesPage({
                 searchKey="name_ar"
                 searchPlaceholder={dict.admin.searchPropertyTypes}
                 emptyMessage={dict.common.noData}
-                emptyIcon={<Tags className="w-12 h-12 text-orange-300" />}
+                emptyIcon={<Tags className="w-12 h-12 text-orange-300" aria-hidden="true" />} 
                 emptyHint={dict.admin.addPropertyTypesHint}
 columns={[
                    {

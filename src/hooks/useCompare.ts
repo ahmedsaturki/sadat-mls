@@ -3,19 +3,22 @@ import { useState, useEffect, useCallback, useRef } from "react";
 export type PropertyForComparison = {
   id: string;
   title: string;
-  price: number;
-  area: number;
+  description: string | null;
+  price: number | null;
+  area: number | null;
   bedrooms: number;
   bathrooms: number;
-  zone?: string;
-  type?: string;
-  officeName?: string;
-  status?: string;
-  imageUrl?: string;
+  zone: string | null;
+  type: string | null;
+  officeName: string | null;
+  status: string | null;
+  primaryImage: string | null;
   hasBalcony?: boolean;
   hasParking?: boolean;
   hasElevator?: boolean;
 };
+
+type InputProperty = Partial<PropertyForComparison> & Pick<PropertyForComparison, "id" | "title">;
 
 const MAX_COMPARE = 4;
 
@@ -49,13 +52,32 @@ export function useCompare() {
     }
   }, []);
 
-  const addProperty = useCallback((property: PropertyForComparison): boolean => {
+  const normalize = (p: InputProperty): PropertyForComparison => ({
+    id: p.id,
+    title: p.title,
+    description: p.description ?? null,
+    price: p.price ?? null,
+    area: p.area ?? null,
+    bedrooms: p.bedrooms ?? 0,
+    bathrooms: p.bathrooms ?? 0,
+    zone: p.zone ?? null,
+    type: p.type ?? null,
+    officeName: p.officeName ?? null,
+    status: p.status ?? null,
+    primaryImage: p.primaryImage ?? null,
+    hasBalcony: p.hasBalcony,
+    hasParking: p.hasParking,
+    hasElevator: p.hasElevator,
+  });
+
+  const addProperty = useCallback((property: InputProperty): boolean => {
     const pending = pendingRef.current;
     if (pending.ids.length >= MAX_COMPARE || pending.ids.includes(property.id)) {
       return false;
     }
+    const normalized = normalize(property);
     const newIds = [...pending.ids, property.id];
-    const newProps = [...pending.props, property];
+    const newProps = [...pending.props, normalized];
     pendingRef.current = { ids: newIds, props: newProps };
     setState({ ids: newIds, props: newProps });
     saveToStorage(newIds, newProps);

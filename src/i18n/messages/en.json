@@ -94,13 +94,18 @@
     "page": "Page {{number}}",
     "skipToContent": "Skip to content",
     "officeLogo": "Office logo",
-    "goToImage": "Go to image {{number}}",
     "pageNotFound": "The requested page was not found or has been moved.",
     "backToDashboard": "Back to dashboard",
     "hint": "Or check the URL and try again",
     "developerErrorInfo": "Developer Error Info:",
     "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
     "current": "Current",
+    "addImage": "Add image",
+    "propertyImage": "Property image",
+    "primary": "Primary",
+    "remove": "Remove",
+    "newImage": "New image",
+    "clickOrDrag": "Click or drag",
     "timeAgo": {
       "justNow": "Just now",
       "minutesAgo": "{{count}}m ago",
@@ -233,7 +238,19 @@
     "redirectingToHome": "Redirecting to home...",
     "goHome": "Go to home",
     "dashboardError": "Dashboard Error",
-    "dashboardErrorMessage": "An error occurred in the dashboard."
+    "dashboardErrorMessage": "An error occurred in the dashboard.",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email address",
+    "accessDenied": "You do not have permission to access this page",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "passwordStrength": "Password strength",
+    "passwordRequirements": "Password requirements",
+    "ruleMinLength": "At least 8 characters",
+    "ruleMaxLength": "Max 128 characters",
+    "ruleUppercase": "One uppercase letter",
+    "ruleLowercase": "One lowercase letter",
+    "ruleNumber": "One number",
+    "ruleSpecial": "One special character"
   },
   "admin": {
     "dashboard": "Super Admin Dashboard",
@@ -252,6 +269,9 @@
     "officeCreated": "Office created successfully",
     "officeDeleted": "Office deleted successfully",
     "confirmDeleteOffice": "Are you sure you want to delete this office?",
+    "offices": {
+      "agentCreationFailed": "Office created but admin user creation failed. The office has been rolled back."
+    },
     "manageZones": "Manage Zones",
     "addZone": "Add Zone",
     "editZone": "Edit Zone",
@@ -321,9 +341,6 @@
     "columnName": "Name",
     "columnEmail": "Email",
     "columnRole": "Role",
-    "columnOffice": "Office",
-    "columnStatus": "Status",
-    "columnDate": "Date",
     "changeRole": "Change Role",
     "roleChanged": "Role changed successfully",
     "createUserTitle": "Create New User",
@@ -386,6 +403,7 @@
     "sold": "Sold",
     "rented": "Rented",
     "logo": "Office Logo",
+    "uploadImage": "Upload Image",
     "uploadLogo": "Upload Logo",
     "logoUploaded": "Logo uploaded successfully",
     "logoError": "Error uploading logo",
@@ -437,7 +455,15 @@
     "passwordMinLength": "Password must be at least 8 characters",
     "wrongPassword": "Current password is incorrect",
     "required": "This field is required",
-    "profileUpdated": "Profile updated successfully"
+    "profileUpdated": "Profile updated successfully",
+    "creatingProperty": "Creating property",
+    "updatingProperty": "Updating property",
+    "uploadingImages": "Uploading images",
+    "imagesUploaded": "Images uploaded",
+    "propertyImage": "Property image",
+    "newImage": "New image",
+    "clickOrDrag": "Click or drag",
+    "imageFormat": "Image format: JPG, PNG, max 2MB"
   },
   "contactRequests": {
     "title": "Contact Requests",
@@ -505,7 +531,6 @@
     "copyLink": "Copy link",
     "copied": "Copied!",
     "shareVia": "Share via WhatsApp",
-    "openGallery": "Open image gallery",
     "searchNamePlaceholder": "Enter search name..."
   },
   "property": {
@@ -658,5 +683,29 @@
     "title": "An error occurred",
     "message": "An unexpected error occurred. Please try again.",
     "retry": "Try again"
+  },
+  "propertyFeatures": {
+    "balconyDescription": "Private balcony or terrace",
+    "parkingDescription": "Covered or open parking space",
+    "elevatorDescription": "Passenger elevator in building",
+    "featureEnabled": "Enabled",
+    "featureDisabled": "Disabled",
+    "feature": {
+      "balcony": "Balcony",
+      "parking": "Parking",
+      "elevator": "Elevator"
+    }
+  },
+  "compare": {
+    "title": "Compare Properties",
+    "description": "Compare properties to find the best fit",
+    "share": "Share",
+    "clearComparison": "Clear",
+    "needMoreProperties": "Select at least 2 properties to compare",
+    "noPropertiesForComparison": "No properties selected for comparison",
+    "selectedProperties": "{{count}} properties selected",
+    "recommendedAction": "Compare up to 4 properties to find the best fit",
+    "addToComparison": "Add to Comparison",
+    "removeFromComparison": "Remove from Comparison"
   }
 }

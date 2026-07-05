@@ -1,8 +1,6 @@
 "use client";
 
 import { memo } from "react";
-import { motion } from "framer-motion";
-import { fadeUpVariant } from "@/lib/utils/animations";
 
 interface LuxuryStatCardProps {
   icon: React.ElementType;
@@ -47,10 +45,8 @@ const LuxuryStatCard = memo(function LuxuryStatCard({
   const config = colorConfig[color];
 
   return (
-    <motion.div
-      variants={fadeUpVariant}
-      whileHover={{ y: -5, scale: 1.02 }}
-      className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${config.bg} border ${config.border} p-6 transition-all duration-300 ${config.glow}`}
+    <div
+      className={`animate-fade-up group relative overflow-hidden rounded-2xl bg-gradient-to-br ${config.bg} border ${config.border} p-6 transition-all duration-300 ${config.glow}`}
     >
       {/* Background decoration */}
       <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/40 transition-colors duration-500" />
@@ -70,7 +66,7 @@ const LuxuryStatCard = memo(function LuxuryStatCard({
       
       {/* Bottom glowing line */}
       <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-transparent via-[#C49A2A] to-transparent group-hover:w-full transition-all duration-700 ease-out opacity-0 group-hover:opacity-100" />
-    </motion.div>
+    </div>
   );
 });
 

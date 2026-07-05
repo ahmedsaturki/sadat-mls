@@ -1,6 +1,6 @@
 export default function AgentsLoading() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" aria-busy="true" role="status">
       <div className="flex items-center justify-between">
         <div className="h-8 bg-gray-200 rounded w-40 animate-pulse" />
         <div className="h-10 bg-gray-200 rounded w-28 animate-pulse" />

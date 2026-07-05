@@ -94,13 +94,18 @@
     "page": "صفحة {{number}}",
     "skipToContent": "تخطي إلى المحتوى",
     "officeLogo": "شعار المكتب",
-    "goToImage": "الانتقال إلى الصورة {{number}}",
     "pageNotFound": "الصفحة المطلوبة غير موجودة أو تم نقلها.",
     "backToDashboard": "العودة للوحة التحكم",
     "hint": "أو تحقق من الرابط والمحاولة مرة أخرى",
     "developerErrorInfo": "معلومات خطأ المطور:",
     "unsavedChanges": "لديك تغييرات لم يتم حفظها. هل أنت متأكد من المغادرة؟",
     "current": "الحالي",
+    "addImage": "إضافة صورة",
+    "propertyImage": "صورة العقار",
+    "primary": "أساسي",
+    "remove": "إزالة",
+    "newImage": "صورة جديدة",
+    "clickOrDrag": "انقر أو اسحب",
     "timeAgo": {
       "justNow": "الآن",
       "minutesAgo": "منذ {{count}} دقيقة",
@@ -233,7 +238,19 @@
     "redirectingToHome": "جاري التحويل للرئيسية...",
     "goHome": "الذهاب للرئيسية",
     "dashboardError": "خطأ في لوحة التحكم",
-    "dashboardErrorMessage": "حدث خطأ في لوحة التحكم."
+    "dashboardErrorMessage": "حدث خطأ في لوحة التحكم.",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailInvalid": "البريد الإلكتروني غير صحيح",
+    "accessDenied": "ليس لديك صلاحية للوصول إلى هذه الصفحة",
+    "sessionExpired": "انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى",
+    "passwordStrength": "قوة كلمة المرور",
+    "passwordRequirements": "متطلبات كلمة المرور",
+    "ruleMinLength": "8 أحرف على الأقل",
+    "ruleMaxLength": "128 حرف كحد أقصى",
+    "ruleUppercase": "حرف كبير واحد على الأقل",
+    "ruleLowercase": "حرف صغير واحد على الأقل",
+    "ruleNumber": "رقم واحد على الأقل",
+    "ruleSpecial": "رمز خاص واحد على الأقل"
   },
   "admin": {
     "dashboard": "لوحة تحكم المسؤول العام",
@@ -252,6 +269,9 @@
     "officeCreated": "تم إنشاء المكتب بنجاح",
     "officeDeleted": "تم حذف المكتب بنجاح",
     "confirmDeleteOffice": "هل أنت متأكد من حذف هذا المكتب؟",
+    "offices": {
+      "agentCreationFailed": "تم إنشاء المكتب لكن فشل إنشاء حساب المدير. تم التراجع عن إنشاء المكتب."
+    },
     "manageZones": "إدارة المناطق",
     "addZone": "إضافة منطقة",
     "editZone": "تعديل المنطقة",
@@ -321,9 +341,6 @@
     "columnName": "الاسم",
     "columnEmail": "البريد الإلكتروني",
     "columnRole": "الدور",
-    "columnOffice": "المكتب",
-    "columnStatus": "الحالة",
-    "columnDate": "التاريخ",
     "changeRole": "تغيير الدور",
     "roleChanged": "تم تغيير الدور بنجاح",
     "createUserTitle": "إنشاء مستخدم جديد",
@@ -386,6 +403,7 @@
     "sold": "تم البيع",
     "rented": "مؤجر",
     "logo": "شعار المكتب",
+    "uploadImage": "رفع صورة",
     "uploadLogo": "رفع شعار",
     "logoUploaded": "تم رفع الشعار بنجاح",
     "logoError": "حدث خطأ أثناء رفع الشعار",
@@ -437,7 +455,15 @@
     "passwordMinLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
     "wrongPassword": "كلمة المرور الحالية غير صحيحة",
     "required": "هذا الحقل مطلوب",
-    "profileUpdated": "تم تحديث الملف الشخصي بنجاح"
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
+    "creatingProperty": "إنشاء عقار",
+    "updatingProperty": "تحديث عقار",
+    "uploadingImages": "جارٍ رفع الصور",
+    "imagesUploaded": "تم رفع الصور",
+    "propertyImage": "صورة العقار",
+    "newImage": "صورة جديدة",
+    "clickOrDrag": "انقر أو اسحب",
+    "imageFormat": "صيغة الصورة: JPG، PNG، الحد الأقصى 2 ميجابايت"
   },
   "contactRequests": {
     "title": "طلبات التواصل",
@@ -505,7 +531,6 @@
     "copyLink": "نسخ الرابط",
     "copied": "تم النسخ!",
     "shareVia": "مشاركة عبر واتساب",
-    "openGallery": "فتح معرض الصور",
     "searchNamePlaceholder": "أدخل اسم البحث..."
   },
   "property": {
@@ -649,6 +674,18 @@
     "noPropertiesForCompare": "لا توجد عقارات محددة للمقارنة",
     "priceUnit": "ج.م"
   },
+  "compare": {
+    "title": "مقارنة العقارات",
+    "description": "قارن بين العقارات للعثور على الأنسب لك",
+    "share": "مشاركة",
+    "clearComparison": "مسح المقارنة",
+    "needMoreProperties": "اختر على الأقل عقارين للمقارنة",
+    "noPropertiesForComparison": "لم يتم اختيار عقارات للمقارنة",
+    "selectedProperties": "{{count}} عقارات مختارة",
+    "recommendedAction": "قارن حتى 4 عقارات للعثور على الأنسب",
+    "addToComparison": "إضافة للمقارنة",
+    "removeFromComparison": "إزالة من المقارنة"
+  },
   "offline": {
     "title": "أنت غير متصل بالإنترنت",
     "description": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
@@ -658,5 +695,17 @@
     "title": "حدث خطأ",
     "message": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
     "retry": "حاول مرة أخرى"
+  },
+  "propertyFeatures": {
+    "balconyDescription": "شرفة أو تراس خاص",
+    "parkingDescription": "مكان لوقوف السيارات مغطى أو مكشوف",
+    "elevatorDescription": "مصعد ركاب في المبنى",
+    "featureEnabled": "مفعل",
+    "featureDisabled": "غير مفعل",
+    "feature": {
+      "balcony": "بلكونة",
+      "parking": "موقف سيارات",
+      "elevator": "مصعد"
+    }
   }
 }

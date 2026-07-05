@@ -1,4 +1,4 @@
-type LogLevel = "debug" | "info" | "warn" | "error";
+type LogLevel = "debug" | "info" | "warn" | "error" | "toast";
 
 interface LogContext {
   [key: string]: unknown;
@@ -24,6 +24,9 @@ function log(level: LogLevel, message: string, context?: LogContext) {
       break;
     case "error":
       console.error(`${prefix} ${message}${contextStr}`);
+      break;
+    case "toast":
+      console.error(`[TOAST] ${message}${contextStr}`);
       break;
   }
 }
@@ -54,5 +57,10 @@ export const logger = {
   /** Log rate limit warnings */
   rateLimit: (endpoint: string, retryAfter?: number) => {
     log("warn", `Rate limit hit for ${endpoint}`, { retryAfter });
+  },
+
+  /** Convenience: log platform toast errors */
+  toastError: (message: string, context?: Record<string, unknown>) => {
+    log("toast", `TOAST: ${message}`, context);
   },
 };

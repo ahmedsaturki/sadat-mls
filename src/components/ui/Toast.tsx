@@ -4,6 +4,15 @@ import { useState, useEffect, useRef, createContext, useContext, useCallback } f
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import enDict from "@/i18n/messages/en.json";
+import arDict from "@/i18n/messages/ar.json";
+
+// Toast is a global component rendered outside page context, so it cannot
+// receive a dict prop. Detect locale from the URL path instead — the project
+// uses /ar/* and /en/* prefixes consistently.
+const getLocaleFromPath = (): "ar" | "en" => {
+  if (typeof window === "undefined") return "ar";
+  return window.location.pathname.startsWith("/en") ? "en" : "ar";
+};
 
 type ToastType = "success" | "error" | "info" | "warning";
 
@@ -68,28 +77,60 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     warning: "bg-amber-50 border-amber-200 text-amber-800",
   };
 
+  // Escape key handler for dismissing toasts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && toasts.length > 0) {
+        // Dismiss the most recent toast
+        removeToast(toasts[toasts.length - 1].id);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toasts, removeToast]);
+
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
       <div className="fixed bottom-4 left-4 right-4 z-50 flex flex-col gap-2 sm:max-w-sm sm:left-auto sm:bottom-4" role="status" aria-live="polite">
-        {toasts.map((toast) => {
+{toasts.map((toast) => {
           const Icon = icons[toast.type];
+          const locale = getLocaleFromPath();
+          const dismissLabel = locale === "en" ? enDict.common.dismiss : arDict.common.dismiss;
           return (
             <div
               key={toast.id}
+              role={toast.type === "error" ? "alert" : "status"}
+              aria-live={toast.type === "error" ? "assertive" : "polite"}
               className={cn(
                 "flex items-center gap-3 p-4 rounded-lg border shadow-lg animate-in slide-in-from-bottom-5",
                 colors[toast.type]
               )}
+              onMouseEnter={() => {
+                const timer = timersRef.current.get(toast.id);
+                if (timer) {
+                  clearTimeout(timer);
+                  timersRef.current.delete(toast.id);
+                }
+              }}
+              onMouseLeave={() => {
+                const timer = setTimeout(() => {
+                  setToasts((prev) => prev.filter((t) => t.id !== toast.id));
+                  timersRef.current.delete(toast.id);
+                }, 4000);
+                timersRef.current.set(toast.id, timer);
+              }}
             >
-              <Icon className="w-5 h-5 shrink-0" />
+              <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
               <p className="flex-1 text-sm font-medium">{toast.message}</p>
               <button
+                type="button"
                 onClick={() => removeToast(toast.id)}
-                className="shrink-0 p-1 rounded-full hover:bg-black/10"
-                aria-label={enDict.common.dismiss}
+                className="shrink-0 p-1 rounded-full hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                aria-label={dismissLabel}
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           );

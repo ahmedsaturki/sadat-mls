@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Send } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { isValidEmail } from "@/lib/security/sanitize";
 import type { Messages } from "@/i18n/getMessages";
@@ -102,56 +101,37 @@ export default function ContactForm({ dict }: ContactFormProps) {
         setContactLoading(false);
         return;
       }
-      const supabase = createClient();
-      const { data: officeData } = await supabase
-        .from("offices")
-        .select("id")
-        .eq("is_active", true)
-        .limit(1)
-        .maybeSingle();
-
-      const officeId = officeData?.id;
-      if (!officeId) throw new Error("NO_ACTIVE_OFFICE");
-
       // Determine contact_type based on provided fields
       let contactType: "email" | "phone" | "whatsapp" = "email";
       if (contactForm.phone.trim()) {
         contactType = "phone";
       }
 
-      const { error } = await supabase.from("contact_requests").insert({
-        visitor_name: contactForm.name.trim(),
-        visitor_email: contactForm.email.trim() ? contactForm.email.trim() : null,
-        visitor_phone: contactForm.phone.trim() ? contactForm.phone.trim() : null,
-        message: contactForm.message.trim(),
-        contact_type: contactType,
-        office_id: officeId,
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          visitorName: trimmedName,
+          visitorEmail: contactForm.email.trim() || null,
+          visitorPhone: contactForm.phone.trim() || null,
+          message: trimmedMessage,
+          contactType,
+        }),
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `CONTACT_REQUEST_FAILED_${response.status}`);
+      }
 
       setContactSent(true);
       setContactForm({ name: "", email: "", phone: "", message: "" });
       clearContactAttempts();
 
-      // Create notification for office members (fire-and-forget)
-      if (officeId) {
-        fetch("/api/notifications", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            office_id: officeId,
-            type: "contact_request",
-            title: `New inquiry from ${contactForm.name.trim()}`,
-            message: contactForm.message.trim().substring(0, 200),
-            entity_type: "contact_request",
-          }),
-        }).catch(() => {});
-      }
     } catch (err) {
       logger.warn("Contact form submission failed", { error: err instanceof Error ? err.message : String(err) });
       const isServerError = err instanceof Error && (
-        err.message === "NO_ACTIVE_OFFICE" || err.message.includes("500") || err.message.includes("server")
+        err.message === "No active office available" || err.message.includes("500") || err.message.includes("server")
       );
       if (!isServerError) {
         const { count, locked } = recordContactAttempt();
