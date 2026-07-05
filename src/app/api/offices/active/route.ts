@@ -5,11 +5,6 @@ import { checkApiRateLimit } from "@/lib/security/rateLimit";
 
 export const revalidate = 300; // ISR: 5 minutes
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 /**
  * Get active office IDs - cached at edge/network level.
  * Uses service role client to avoid cookies in SSG context.
@@ -25,6 +20,11 @@ export async function GET(request: NextRequest) {
         { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } }
       );
     }
+
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     const { data: offices, error } = await supabaseAdmin
       .from("offices")
