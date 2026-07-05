@@ -10,6 +10,8 @@ import { getMessages } from "@/i18n/getMessages";
 import { usePageLocale } from "@/hooks/usePageLocale";
 import { logger } from "@/lib/logger";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 interface RateLimitResponse {
   allowed: boolean;
   remaining: number;
@@ -36,6 +38,18 @@ export default function ForgotPasswordPage({
       e.preventDefault();
       setLoading(true);
       setError("");
+
+      // Client-side email validation
+      if (!email.trim()) {
+        setError(dict.auth.emailRequired || dict.auth.forgotPasswordError);
+        setLoading(false);
+        return;
+      }
+      if (!EMAIL_REGEX.test(email)) {
+        setError(dict.auth.emailInvalid || dict.auth.forgotPasswordError);
+        setLoading(false);
+        return;
+      }
 
       // Server-side rate limiting check
       let rateResult: RateLimitResponse;

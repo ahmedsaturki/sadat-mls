@@ -57,6 +57,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<Map<number, string>>(new Map());
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const dict = getMessages(locale);
   const supabase = useMemo(() => createClient(), []);
@@ -109,7 +110,6 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
   const [validationDelay, setValidationDelay] = useState<NodeJS.Timeout | null>(null);
   const [fieldValidation, setFieldValidation] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleGenerateDescription = useCallback(async (): Promise<string | null> => {
     if (!formData.title) {
@@ -154,7 +154,6 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     notes: "",
   });
 
-  const [validationDelay, setValidationDelay] = useState<NodeJS.Timeout | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
@@ -704,6 +703,12 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
                     status: formData.status as PropertyStatus,
                   }}
                   errors={errors}
+                  statusOptions={[
+                    { value: "available", label: dict.office.available },
+                    { value: "reserved", label: dict.office.reserved },
+                    { value: "sold", label: dict.office.sold },
+                    { value: "rented", label: dict.office.rented },
+                  ]}
                   onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
                 />
               </Suspense>

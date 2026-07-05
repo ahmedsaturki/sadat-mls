@@ -9,6 +9,10 @@ import Input from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
 import { getMessages } from "@/i18n/getMessages";
 import { usePageLocale } from "@/hooks/usePageLocale";
+import {
+  getPasswordRuleErrors,
+  DEFAULT_PASSWORD_RULES,
+} from "@/lib/security/password-rules";
 
 export default function ResetPasswordPage({
   params,
@@ -29,19 +33,19 @@ export default function ResetPasswordPage({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getPasswordStrength = (pwd: string): { score: number; label: string; color: string; width: string } => {
-    let score = 0;
-    if (pwd.length >= 8) score++;
-    if (pwd.length >= 12) score++;
-    if (/[A-Z]/.test(pwd)) score++;
-    if (/[0-9]/.test(pwd)) score++;
-    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    const errors = getPasswordRuleErrors(pwd, DEFAULT_PASSWORD_RULES);
+    // Score based on how many rules pass (7 total rules)
+    const totalRules = 7;
+    const passed = totalRules - errors.length;
+    const score = Math.max(0, Math.min(totalRules, passed));
 
     if (score <= 2) return { score, label: dict.auth?.weak || "Weak", color: "bg-red-500", width: "w-1/5" };
-    if (score <= 3) return { score, label: dict.auth?.fair || "Fair", color: "bg-yellow-500", width: "w-3/5" };
+    if (score <= 4) return { score, label: dict.auth?.fair || "Fair", color: "bg-yellow-500", width: "w-3/5" };
     return { score, label: dict.auth?.strong || "Strong", color: "bg-green-500", width: "w-full" };
   };
 
   const strength = getPasswordStrength(password);
+  const passwordErrors = getPasswordRuleErrors(password, DEFAULT_PASSWORD_RULES);
 
   useEffect(() => {
     return () => {
@@ -58,8 +62,10 @@ export default function ResetPasswordPage({
       return;
     }
 
-    if (password.length < 8) {
-      setError(dict.auth.passwordMinLength);
+    // Use centralized password rules for validation
+    const passwordErrors = getPasswordRuleErrors(password, DEFAULT_PASSWORD_RULES);
+    if (passwordErrors.length > 0) {
+      setError(passwordErrors[0]);
       return;
     }
 
@@ -186,11 +192,28 @@ export default function ResetPasswordPage({
                   />
 
                   {password.length > 0 && (
-                    <div className="mt-1">
+                    <div className="mt-1" role="group" aria-label={dict.auth.passwordStrength || "Password strength"}>
                       <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div className={`h-full rounded-full transition-all duration-300 ${strength.color} ${strength.width}`} />
                       </div>
                       <p className={`text-xs mt-1 ${strength.color.replace("bg-", "text-")}`}>{strength.label}</p>
+                      <ul className="mt-2 space-y-0.5" aria-label={dict.auth.passwordRequirements || "Password requirements"}>
+                        {[
+                          { test: password.length >= 8, label: dict.auth.ruleMinLength || "At least 8 characters" },
+                          { test: password.length <= 128, label: dict.auth.ruleMaxLength || "Max 128 characters" },
+                          { test: /[A-Z]/.test(password), label: dict.auth.ruleUppercase || "One uppercase letter" },
+                          { test: /[a-z]/.test(password), label: dict.auth.ruleLowercase || "One lowercase letter" },
+                          { test: /\d/.test(password), label: dict.auth.ruleNumber || "One number" },
+                          { test: /[!@#$%^&*()_+\-=[\]{};:'",.<>?/\\|`~]/.test(password), label: dict.auth.ruleSpecial || "One special character" },
+                        ].map((rule) => (
+                          <li key={rule.label} className="flex items-center gap-1.5 text-xs">
+                            <span className={rule.test ? "text-green-500" : "text-gray-400"} aria-hidden="true">
+                              {rule.test ? "✓" : "○"}
+                            </span>
+                            <span className={rule.test ? "text-green-600" : "text-gray-500"}>{rule.label}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
 

@@ -14,15 +14,11 @@ import {
   Mail,
   Share2,
   ChevronLeft,
-  ChevronRight,
   Building2,
-  X,
   ParkingCircle,
   Accessibility,
   DoorOpen,
-  Image as ImageIcon,
 } from "lucide-react";
-import Image from "next/image";
 import { type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import { createClient } from "@/lib/supabase/client";
@@ -32,9 +28,10 @@ import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Navbar from "@/components/layout/Navbar";
 import { useAuthUser } from "@/hooks/useAuthUser";
-import { useFocusTrap, useEscapeKey } from "@/lib/utils/a11y";
 import FavoriteButton from "@/components/properties/FavoriteButton";
 import CompareButton from "@/components/properties/CompareButton";
+import PropertyGallery from "@/components/properties/PropertyGallery";
+import PropertyLightbox from "@/components/properties/PropertyLightbox";
 import type { PropertyForComparison } from "@/hooks/useCompare";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
@@ -51,12 +48,12 @@ type Property = Database["public"]["Tables"]["properties"]["Row"] & {
 type PropertyImage = Database["public"]["Tables"]["property_images"]["Row"];
 
 export default function PropertyDetailPage() {
-   const params = useParams();
-   const locale = params.locale as Locale;
-   const id = params.id as string;
-   const dict = getMessages(locale);
-   const { user } = useAuthUser();
-   const userId = user?.id || null;
+  const params = useParams();
+  const locale = params.locale as Locale;
+  const id = params.id as string;
+  const dict = getMessages(locale);
+  const { user } = useAuthUser();
+  const userId = user?.id || null;
 
   const [property, setProperty] = useState<Property | null>(null);
   const [images, setImages] = useState<PropertyImage[]>([]);
@@ -64,8 +61,6 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
-  const { containerRef: lightboxRef, handleKeyDown: handleLightboxKeyDown } = useFocusTrap(showLightbox);
-  const triggerRef = useRef<HTMLDivElement>(null);
   const mountedRef = useRef(true);
 
   const loadProperty = useCallback(async () => {
@@ -100,9 +95,7 @@ export default function PropertyDetailPage() {
     return () => { mountedRef.current = false; };
   }, [id, loadProperty]);
 
-  const handleContact = () => {
-    setShowContactModal(true);
-  };
+  const handleContact = () => setShowContactModal(true);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -134,24 +127,6 @@ export default function PropertyDetailPage() {
     );
   }, [images.length]);
 
-  useEscapeKey(() => setShowLightbox(false), showLightbox);
-
-  useEffect(() => {
-    if (!showLightbox) return;
-
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") navigateImage("next");
-      if (e.key === "ArrowLeft") navigateImage("prev");
-    };
-
-    document.addEventListener("keydown", handleKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handleKey);
-      document.body.style.overflow = "";
-    };
-  }, [showLightbox, navigateImage]);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -181,7 +156,6 @@ export default function PropertyDetailPage() {
     );
   }
 
-  // JSON-LD structured data for SEO
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
@@ -233,124 +207,44 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <a href="#property-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+        {dict.common.skipToContent}
+      </a>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: sanitizedJsonLd }}
       />
       <Navbar locale={locale} dict={dict} />
+
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
           <nav className="flex items-center gap-2 text-sm text-gray-500" aria-label={dict.common.breadcrumb}>
-<Link href={`/${locale}`} className="hover:text-gray-900 transition-colors">
-               {dict.common.home}
-             </Link>
-             <ChevronLeft className="w-4 h-4" />
-             <Link href={`/${locale}/explore`} className="hover:text-gray-900 transition-colors">
-               {dict.nav.explore}
-             </Link>
+            <Link href={`/${locale}`} className="hover:text-gray-900 transition-colors">
+              {dict.common.home}
+            </Link>
+            <ChevronLeft className="w-4 h-4" />
+            <Link href={`/${locale}/explore`} className="hover:text-gray-900 transition-colors">
+              {dict.nav.explore}
+            </Link>
             <ChevronLeft className="w-4 h-4" />
             <span className="text-gray-900 font-medium truncate max-w-[200px]">{property.title}</span>
           </nav>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6" id="property-content" tabIndex={-1}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Image Gallery */}
-            <div className="bg-white rounded-xl overflow-hidden shadow-sm">
-              {images.length > 0 ? (
-                <>
-                  <div
-                    className="relative aspect-video cursor-pointer group"
-                    onClick={() => setShowLightbox(true)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setShowLightbox(true);
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    ref={triggerRef}
-                    aria-label={dict.explore.openGallery}
-                  >
-                    <Image
-                      src={images[currentImageIndex].url}
-                      alt={property.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                    <div className="absolute top-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                      <ImageIcon className="w-3 h-3" />
-                      {currentImageIndex + 1}/{images.length}
-                    </div>
-                    {images.length > 1 && (
-                      <>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); navigateImage("prev"); }}
-                          className="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70"
-                          aria-label={dict.common.previousImage}
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); navigateImage("next"); }}
-                          className="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70"
-                          aria-label={dict.common.nextImage}
-                        >
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
-                          {images.map((_, i) => (
-                            <button
-                              key={i}
-                              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i); }}
-                              aria-label={dict.common.goToImage?.replace("{{number}}", String(i + 1))}
-                              className={`w-2 h-2 rounded-full transition-colors ${
-                                i === currentImageIndex ? "bg-white" : "bg-white/50"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  {/* Thumbnails */}
-                  {images.length > 1 && (
-                    <div className="flex gap-2 p-3 overflow-x-auto">
-                      {images.map((img, i) => (
-                        <button
-                          key={img.id}
-                          onClick={() => setCurrentImageIndex(i)}
-                          aria-label={`${dict.property.imageAlt} ${i + 1}`}
-                          aria-current={i === currentImageIndex ? "true" : undefined}
-                          className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors ${
-                            i === currentImageIndex ? "border-blue-500" : "border-transparent"
-                          }`}
-                        >
-                          <Image
-                            src={img.url}
-                            alt={`${dict.property.imageAlt} ${i + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="64px"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                  <Building2 className="w-16 h-16 text-gray-300" />
-                </div>
-              )}
-            </div>
+            <PropertyGallery
+              images={images}
+              currentIndex={currentImageIndex}
+              onIndexChange={setCurrentImageIndex}
+              onOpenLightbox={() => setShowLightbox(true)}
+              propertyTitle={property.title}
+              dict={dict}
+            />
 
             {/* Property Details */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -361,7 +255,7 @@ export default function PropertyDetailPage() {
                     <MapPin className="w-4 h-4 text-gray-400" />
                     <span className="text-gray-500">{locale === "ar" ? property.zones?.name_ar : property.zones?.name_en}</span>
                   </div>
-</div>
+                </div>
                 <Badge variant={statusVariant}>
                   {dict.property.status[property.status as keyof typeof dict.property.status]}
                 </Badge>
@@ -415,25 +309,25 @@ export default function PropertyDetailPage() {
 
               {/* Property Type */}
               {property.property_types && (
-<div className="mt-4 pt-4 border-t border-gray-100">
-                    <span className="text-sm text-gray-500">{dict.property.typeLabel}: </span>
-                   <span className="font-medium text-gray-900">{locale === "ar" ? property.property_types?.name_ar : property.property_types?.name_en}</span>
-                 </div>
-               )}
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <span className="text-sm text-gray-500">{dict.property.typeLabel}: </span>
+                  <span className="font-medium text-gray-900">{locale === "ar" ? property.property_types?.name_ar : property.property_types?.name_en}</span>
+                </div>
+              )}
 
-               {/* Extra details */}
-               {property.floors && (
-                 <div className="mt-2">
-                    <span className="text-sm text-gray-500">{dict.property.floorsLabel}: </span>
-                   <span className="font-medium text-gray-900">{property.floors}</span>
-                 </div>
-               )}
-               {property.street && (
-                 <div className="mt-2">
-                    <span className="text-sm text-gray-500">{dict.property.streetLabel}: </span>
-                   <span className="font-medium text-gray-900">{property.street}</span>
-                 </div>
-               )}
+              {/* Extra details */}
+              {property.floors && (
+                <div className="mt-2">
+                  <span className="text-sm text-gray-500">{dict.property.floorsLabel}: </span>
+                  <span className="font-medium text-gray-900">{property.floors}</span>
+                </div>
+              )}
+              {property.street && (
+                <div className="mt-2">
+                  <span className="text-sm text-gray-500">{dict.property.streetLabel}: </span>
+                  <span className="font-medium text-gray-900">{property.street}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -442,39 +336,28 @@ export default function PropertyDetailPage() {
             {/* Actions */}
             <div className="bg-white rounded-xl p-6 shadow-sm sticky top-20">
               <div className="flex gap-2 mb-4">
-                <Button
-                  className="flex-1"
-                  onClick={handleContact}
-                >
+                <Button className="flex-1" onClick={handleContact}>
                   <MessageCircle className="w-4 h-4 ml-2" />
                   {dict.property.whatsapp}
                 </Button>
-                <Button
-                  className="flex-1"
-                  variant="outline"
-                  onClick={handleContact}
-                >
+                <Button className="flex-1" variant="outline" onClick={handleContact}>
                   <Phone className="w-4 h-4 ml-2" />
                   {dict.property.call}
                 </Button>
               </div>
-<Button
-                 className="w-full"
-                 variant="ghost"
-                 onClick={handleShare}
-               >
-                 <Share2 className="w-4 h-4 ml-2" />
-                 {dict.property.share}
-               </Button>
-<div className="mt-2 flex justify-center items-center gap-4">
-                  <CompareButton
-                    property={property as unknown as PropertyForComparison}
-                    locale={locale}
-          dict={dict}
-                  />
-                  <FavoriteButton propertyId={property.id} userId={userId} locale={locale} dict={dict} />
-                </div>
-             </div>
+              <Button className="w-full" variant="ghost" onClick={handleShare}>
+                <Share2 className="w-4 h-4 ml-2" />
+                {dict.property.share}
+              </Button>
+              <div className="mt-2 flex justify-center items-center gap-4">
+                <CompareButton
+                  property={property as unknown as PropertyForComparison}
+                  locale={locale}
+                  dict={dict}
+                />
+                <FavoriteButton propertyId={property.id} userId={userId} locale={locale} dict={dict} />
+              </div>
+            </div>
 
             {/* Office Info */}
             {property.offices && (
@@ -510,84 +393,14 @@ export default function PropertyDetailPage() {
 
       {/* Lightbox */}
       {showLightbox && images.length > 0 && (
-        <div
-          ref={lightboxRef}
-          onKeyDown={handleLightboxKeyDown}
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
-          role="dialog"
-          aria-modal="true"
-          aria-label={dict.common.imageLightbox}
-          onClick={() => setShowLightbox(false)}
-        >
-          <button
-            onClick={() => setShowLightbox(false)}
-            className="absolute top-6 left-6 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
-            aria-label={dict.common.closeLightbox}
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          <div className="absolute top-6 right-6 text-white text-sm">
-            {currentImageIndex + 1} / {images.length}
-          </div>
-
-          <Image
-            src={images[currentImageIndex].url}
-            alt={property.title}
-            fill
-            className="object-contain"
-            sizes="90vw"
-            onClick={(e) => e.stopPropagation()}
-          />
-
-          {images.length > 1 && (
-            <>
-              <button
-                onClick={(e) => { e.stopPropagation(); navigateImage("prev"); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
-                aria-label={dict.common.previousImage}
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); navigateImage("next"); }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
-                aria-label={dict.common.nextImage}
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-            </>
-          )}
-
-          {/* Thumbnails strip */}
-          {images.length > 1 && (
-            <div
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 max-w-[80vw] overflow-x-auto px-4 pb-2"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {images.map((img, i) => (
-                <button
-                  key={img.id}
-                  onClick={() => setCurrentImageIndex(i)}
-                  className={`relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
-                    i === currentImageIndex
-                      ? "border-white scale-110"
-                      : "border-transparent opacity-60 hover:opacity-100"
-                  }`}
-                  aria-label={`${i + 1} / ${images.length}`}
-                >
-                  <Image
-                    src={img.url}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <PropertyLightbox
+          images={images}
+          currentIndex={currentImageIndex}
+          onClose={() => setShowLightbox(false)}
+          onNavigate={navigateImage}
+          title={property.title}
+          dict={dict}
+        />
       )}
 
       {/* Contact Modal */}

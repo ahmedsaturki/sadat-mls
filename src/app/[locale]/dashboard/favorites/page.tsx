@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { Heart } from "lucide-react";
 import PropertyCard from "@/components/properties/PropertyCard";
 import { SkeletonCard } from "@/components/ui/Skeleton";
@@ -30,8 +29,7 @@ function FavoritesContent({
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const dict = getMessages(locale);
-  const supabase = createClient();
-  const { user, profile } = useAuthUser();
+  const { supabase, user, profile } = useAuthUser();
   const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
 
   const mountedRef = useRef(true);

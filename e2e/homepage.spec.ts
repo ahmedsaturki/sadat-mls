@@ -8,13 +8,15 @@ test.describe("Homepage", () => {
 
   test("should load Arabic homepage", async ({ page }) => {
     await page.goto("/ar");
-    await expect(page).toHaveTitle(/Sadat MLS Cloud/);
+    // Title is in Arabic (fully localized): "الساداتMLS كلاود | منصة العقارات السحابية"
+    await expect(page).toHaveTitle(/MLS|السادات/);
     await expect(page.locator("html")).toHaveAttribute("lang", "ar");
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   });
 
   test("should load English homepage", async ({ page }) => {
     await page.goto("/en");
+    // Title is in English: "Sadat MLS Cloud"
     await expect(page).toHaveTitle(/Sadat MLS Cloud/);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
@@ -66,7 +68,8 @@ test.describe("Security Headers", () => {
 
     expect(headers["x-content-type-options"]).toBe("nosniff");
     expect(headers["x-frame-options"]).toBe("DENY");
-    expect(headers["x-xss-protection"]).toBe("1; mode=block");
+    // X-XSS-Protection intentionally set to "0" — CSP replaces it (per AGENTS.md)
+    expect(headers["x-xss-protection"]).toBe("0");
     expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
     expect(headers["strict-transport-security"]).toContain("max-age=");
   });

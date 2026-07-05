@@ -284,7 +284,7 @@ export default function AdminUsersPage({
                 onClick={() => setRoleModal({ open: true, user: u })}
                 aria-label={dict.admin.changeRole}
               >
-                <Shield className="w-4 h-4" />
+                 <Shield className="w-4 h-4" aria-hidden="true" />
               </Button>
               <Button
                 variant="ghost"
@@ -293,7 +293,7 @@ export default function AdminUsersPage({
                 aria-label={dict.admin.deleteUser}
                 className="text-red-600 hover:text-red-700"
               >
-                <Trash2 className="w-4 h-4" />
+                 <Trash2 className="w-4 h-4" aria-hidden="true" />
               </Button>
             </>
           )}
@@ -309,7 +309,7 @@ export default function AdminUsersPage({
           <div className="flex items-center justify-between">
             <PageHeader title={dict.admin.usersTitle} />
             <Button onClick={() => setCreateModal(true)}>
-              <UserPlus className="w-4 h-4 mr-2" />
+               <UserPlus className="w-4 h-4 mr-2" aria-hidden="true" />
               {dict.admin.addUser}
             </Button>
           </div>

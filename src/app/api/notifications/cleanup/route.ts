@@ -1,15 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
+import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
+import { z } from "zod";
+
+const cleanupSchema = z.object({
+  days: z.coerce.number().int().min(1).max(365).default(90),
+});
 
 // DELETE - Clean up old notifications (super admin only)
 export async function DELETE(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const { allowed } = await checkApiRateLimit(`notifications-cleanup:${ip}`);
-    if (!allowed) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    const rawIp = request.headers.get("x-forwarded-for") || "unknown";
+    const ip = rawIp.split(",")[0].trim();
+    const rate = await checkApiRateLimit(`notifications-cleanup:${ip}`);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } }
+      );
+    }
+
+    // CSRF validation for destructive operation
+    const isValidCsrf = await validateCsrfToken(request);
+    if (!isValidCsrf) {
+      logger.warn("Invalid CSRF token on notifications cleanup DELETE", { ip });
+      return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
     }
 
     const supabase = await createClient();
@@ -30,7 +47,18 @@ export async function DELETE(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const days = parseInt(searchParams.get("days") || "90");
+    const parsed = cleanupSchema.safeParse({
+      days: searchParams.get("days") || "90",
+    });
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid parameters", details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const { days } = parsed.data;
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
 

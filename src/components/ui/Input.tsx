@@ -13,6 +13,7 @@ const Input = forwardRef<HTMLInputElement | null, InputProps>(
     const errorId = error ? `${inputId}-error` : undefined;
     const helperId = helperText && !error ? `${inputId}-helper` : undefined;
 
+    // Ensure the input has proper ARIA support for error states
     return (
       <div className="w-full">
         {label && (
@@ -34,7 +35,7 @@ const Input = forwardRef<HTMLInputElement | null, InputProps>(
           )}
           {...props}
         />
-        {error && <p id={errorId} className="mt-1 text-sm text-red-600" role="alert">{error}</p>}
+        {error && <p id={errorId} className="mt-1 text-sm text-red-600" role="alert" aria-live="polite">{error}</p>}
         {helperText && !error && <p id={helperId} className="mt-1 text-sm text-gray-500">{helperText}</p>}
       </div>
     );

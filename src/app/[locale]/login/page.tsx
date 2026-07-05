@@ -12,6 +12,8 @@ import { usePageLocale } from "@/hooks/usePageLocale";
 import { ROLES } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const MAX_LOGIN_ATTEMPTS = 5;
 
 interface RateLimitResponse {
@@ -68,6 +70,18 @@ export default function LoginPage({
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    // Client-side email validation
+    if (!email.trim()) {
+      setError(dict.auth.emailRequired || dict.auth.loginError);
+      setLoading(false);
+      return;
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      setError(dict.auth.emailInvalid || dict.auth.loginError);
+      setLoading(false);
+      return;
+    }
 
     const rateOk = await checkRateLimit();
     if (!rateOk) {

@@ -116,6 +116,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
             className="relative"
             aria-label={dict.explore.advancedFilters}
             aria-expanded={showAdvanced}
+            aria-controls="advanced-filters-section"
           >
             <SlidersHorizontal className="w-4 h-4" />
             {activeFilterCount > 0 && (
@@ -128,7 +129,14 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
 
         {/* Advanced Filters */}
         {showAdvanced && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/20">
+          <div
+            id="advanced-filters-section"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/20"
+            aria-labelledby="advanced-filters-heading"
+          >
+            <h3 id="advanced-filters-heading" className="sr-only">
+              {dict.explore.advancedFilters}
+            </h3>
             <Select
               label={dict.explore.zone}
               value={filters.zoneId}
@@ -302,10 +310,19 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
 
 function FilterTag({ label, onRemove, removeLabel }: { label: string; onRemove: () => void; removeLabel: string }) {
   return (
-    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C49A2A]/10 text-[#1B2D4F] text-xs font-medium rounded-full border border-[#C49A2A]/20 backdrop-blur-sm hover:bg-[#C49A2A]/20 transition-colors duration-200">
+    <span
+      className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C49A2A]/10 text-[#1B2D4F] text-xs font-medium rounded-full border border-[#C49A2A]/20 backdrop-blur-sm hover:bg-[#C49A2A]/20 transition-colors duration-200"
+      role="chip"
+      aria-label={`${label} filter`}
+    >
       {label}
-      <button onClick={onRemove} aria-label={`${removeLabel} ${label}`} className="hover:text-[#C49A2A] transition-colors">
-        <X className="w-3 h-3" />
+      <button
+        onClick={onRemove}
+        aria-label={`${removeLabel} ${label}`}
+        className="hover:text-[#C49A2A] transition-colors focus:outline-none focus:ring-1 focus:ring-[#C49A2A] rounded"
+        type="button"
+      >
+        <X className="w-3 h-3" aria-hidden="true" />
       </button>
     </span>
   );

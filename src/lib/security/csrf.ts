@@ -59,13 +59,13 @@ export function getCsrfTokenFromRequest(request: Request): string | null {
 /** Validate CSRF token using constant-time comparison */
 export async function validateCsrfToken(request: Request): Promise<boolean> {
   try {
-    const headerToken = request.headers.get("x-csrf-token");
+    const headerToken = request.headers.get(CSRF_HEADER_NAME);
     if (!headerToken) {
       return false;
     }
 
     const cookieStore = await cookies();
-    const cookieToken = cookieStore.get("csrf_token")?.value;
+    const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value;
 
     if (!cookieToken) {
       return false;

@@ -83,7 +83,7 @@ export default function Modal({ isOpen, onClose, title, children, size = "md", c
     };
   }, [isOpen, onClose, getFocusableElements]);
 
-  if (!isOpen) return null;
+if (!isOpen) return null;
 
   const sizes = {
     sm: "max-w-sm",
@@ -98,9 +98,9 @@ export default function Modal({ isOpen, onClose, title, children, size = "md", c
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-role="dialog"
-       aria-modal="true"
-       aria-labelledby={headingId}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={headingId}
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
@@ -114,15 +114,18 @@ role="dialog"
           className
         )}
       >
-{title && (
-           <div className="flex items-center justify-between p-4 border-b border-gray-200">
-             <h2 id={headingId} className="text-lg font-semibold text-gray-900">{title}</h2>
+        {title && (
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <h2 id={headingId} className="text-lg font-semibold text-gray-900">
+              {title}
+            </h2>
             <button
+              type="button"
               onClick={onClose}
               aria-label={dict?.common?.close ?? "Close"}
-              className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-1 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-gray-500" aria-hidden="true" />
             </button>
           </div>
         )}

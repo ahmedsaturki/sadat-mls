@@ -267,13 +267,26 @@ export default function SettingsPage({
     }
 
     try {
+      // Verify current password by attempting to sign in
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: profileData.email,
+        password: passwordData.current_password,
+      });
+
+      if (verifyError) {
+        setPasswordErrors({ current_password: dict.office.wrongPassword || dict.common.error });
+        setChangingPassword(false);
+        return;
+      }
+
+      // Current password verified, now update to new password
       const { error } = await supabase.auth.updateUser({
         password: passwordData.new_password,
       });
 
       if (error) {
         if (error.message.includes("password")) {
-          setPasswordErrors({ current_password: dict.office.wrongPassword || error.message });
+          setPasswordErrors({ new_password: error.message });
         } else {
           showToast(dict.office.passwordError || dict.common.unexpectedError, "error");
         }
@@ -406,7 +419,7 @@ export default function SettingsPage({
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-600">{dict.office.avatar || dict.office.logo}</p>
-                    <p className="text-xs text-gray-400 mb-2">JPG, PNG, max 2MB</p>
+                    <p className="text-xs text-gray-400 mb-2">{dict.office.imageFormat || "JPG, PNG, max 2MB"}</p>
                     {avatarFile && (
                       <Button
                         size="sm"

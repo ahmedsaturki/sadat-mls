@@ -352,7 +352,7 @@ This project is proprietary software. All rights reserved.
 
 ## 📞 Support
 
-For support, email info@sadatmls.com or join our discussion board.
+For support, email ahmedsaeedturki@gmail.com or join our discussion board.
 
 ---
 

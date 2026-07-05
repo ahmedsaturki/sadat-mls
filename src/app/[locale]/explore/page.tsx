@@ -31,8 +31,8 @@ interface PropertyRow {
   zone_id: string | null;
   property_type_id: string | null;
   office_id: string;
-  property_types: { name_ar: string } | null;
-  zones: { name_ar: string } | null;
+  property_types: { name_ar: string; name_en: string | null } | null;
+  zones: { name_ar: string; name_en: string | null } | null;
   offices: { name: string } | null;
 }
 
@@ -42,7 +42,7 @@ type Property = PropertyRow & {
 
 const PAGE_SIZE = 12;
 
-const PROPERTY_COLUMNS = "id, title, description, price, area, bedrooms, bathrooms, status, zone_id, property_type_id, office_id, property_types(name_ar), zones(name_ar), offices(name)";
+const PROPERTY_COLUMNS = "id, title, description, price, area, bedrooms, bathrooms, status, zone_id, property_type_id, office_id, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)";
 
 function ExploreContent({
   params,
@@ -233,6 +233,9 @@ function ExploreContent({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <a href="#explore-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+        {dict.common.skipToContent}
+      </a>
       <Navbar locale={locale} dict={dict} />
       {/* Header */}
       <div className="bg-white border-b border-gray-200 mt-16">
@@ -252,8 +255,10 @@ function ExploreContent({
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
+                <label htmlFor="sort-select" className="sr-only">{dict.property.sortBy}</label>
                 <ArrowUpDown className="w-4 h-4 text-gray-500" aria-hidden="true" />
                 <select
+                  id="sort-select"
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value as typeof sortBy)}
                   aria-label={dict.property.sortNewest}
@@ -280,7 +285,7 @@ function ExploreContent({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6" id="explore-content" tabIndex={-1}>
         {/* Filters */}
         {showFilters && (
           <div className="mb-6">
@@ -328,12 +333,12 @@ function ExploreContent({
                   area={property.area}
                   bedrooms={property.bedrooms}
                   bathrooms={property.bathrooms}
-                  zone={property.zones?.name_ar}
+                  zone={locale === "ar" ? property.zones?.name_ar : (property.zones?.name_en ?? undefined)}
                   imageUrl={property.primaryImage || undefined}
                   status={property.status}
                   officeName={property.offices?.name || ""}
                   locale={locale}
-                  type={property.property_types?.name_ar}
+                  type={locale === "ar" ? property.property_types?.name_ar : (property.property_types?.name_en ?? undefined)}
                   dict={dict}
                 />
               ))}

@@ -47,7 +47,7 @@ test.describe("Accessibility - Skip Links", () => {
   test("should have skip to content link", async ({ page }) => {
     await page.goto("/ar");
     const skipLink = page.locator('a[href="#main-content"]');
-    await expect(skipLink).toBeAttached();
+    await expect(skipLink).toBeVisible();
     await skipLink.focus();
     await page.keyboard.press("Enter");
     const mainContent = page.locator("#main-content");

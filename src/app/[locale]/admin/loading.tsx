@@ -1,6 +1,6 @@
 export default function AdminLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" aria-busy="true" role="status">
       <div className="flex">
         {/* Sidebar skeleton */}
         <div className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-screen">

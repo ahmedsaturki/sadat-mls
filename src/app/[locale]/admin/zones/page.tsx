@@ -96,7 +96,7 @@ const locale = usePageLocale(params);
                 searchKey="name_ar"
                 searchPlaceholder={dict.admin.searchZones}
                 emptyMessage={dict.common.noData}
-                emptyIcon={<MapPin className="w-12 h-12 text-green-300" />}
+                emptyIcon={<MapPin className="w-12 h-12 text-green-300" aria-hidden="true" />} 
                 emptyHint={dict.admin.addZonesHint}
                 columns={[
                   {

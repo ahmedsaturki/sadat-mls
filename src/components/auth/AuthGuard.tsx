@@ -6,6 +6,7 @@ import { useAuthUser } from "@/hooks/useAuthUser";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { ROLES, type UserRole, type Permission } from "@/lib/utils/constants";
 import { hasPermission } from "@/lib/permissions";
+import { logger } from "@/lib/logger";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -31,6 +32,12 @@ export default function AuthGuard({ children, locale: localeProp, requiredRole, 
     }
 
     if (requiredRole && profile?.role !== requiredRole) {
+      logger.warn("AuthGuard: role mismatch, redirecting", {
+        userId: user.id,
+        requiredRole,
+        actualRole: profile?.role,
+        path: typeof window !== "undefined" ? window.location.pathname : "unknown",
+      });
       setRedirecting(true);
       if (profile?.role === ROLES.SUPER_ADMIN) {
         router.push(`/${locale}/admin`);
@@ -41,6 +48,12 @@ export default function AuthGuard({ children, locale: localeProp, requiredRole, 
     }
 
     if (requiredPermission && !hasPermission(profile?.role as UserRole, requiredPermission)) {
+      logger.warn("AuthGuard: permission denied, redirecting", {
+        userId: user.id,
+        role: profile?.role,
+        requiredPermission,
+        path: typeof window !== "undefined" ? window.location.pathname : "unknown",
+      });
       setRedirecting(true);
       if (profile?.role === ROLES.SUPER_ADMIN) {
         router.push(`/${locale}/admin`);

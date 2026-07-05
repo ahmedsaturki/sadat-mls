@@ -49,10 +49,14 @@ export default async function LandingPage({
 
   return (
     <div className="min-h-screen bg-white">
+      <a href="#landing-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+        {dict.common.skipToContent}
+      </a>
       <Navbar locale={typedLocale} dict={dict} />
 
       <LandingHero locale={typedLocale} dict={dict} />
 
+      <main id="landing-content" tabIndex={-1}>
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">
@@ -61,10 +65,10 @@ export default async function LandingPage({
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
             {dict.landing.heroDescription}
           </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8" role="list" aria-label={dict.landing.whySadatMLS}>
             {features.map((feature, i) => (
-              <div key={i} className="text-center p-6 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-colors">
-                <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div key={i} className="text-center p-6 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-colors" role="listitem">
+                <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4" aria-hidden="true">
                   <feature.icon className="w-7 h-7 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
@@ -163,8 +167,9 @@ export default async function LandingPage({
           </Link>
         </div>
       </section>
+      </main>
 
-      <footer className="py-12 bg-gray-900 text-gray-400">
+      <footer className="py-12 bg-gray-900 text-gray-400" role="contentinfo">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>

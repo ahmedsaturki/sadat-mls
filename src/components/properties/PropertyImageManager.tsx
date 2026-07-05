@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import { Trash2, Star, Edit3, Upload, Image as ImageIcon } from "lucide-react";
 import type { Messages } from "@/i18n/getMessages";
 
 interface PropertyImage {
@@ -37,118 +38,200 @@ export default function PropertyImageManager({
   onSetAltText,
   onSetPrimary,
 }: PropertyImageManagerProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [isUploadAreaFocused, setIsUploadAreaFocused] = useState(false);
+
+  const handleFileSelect = useCallback((files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    onUpload(files);
+  }, [onUpload]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, index: number, isNew: boolean) => {
+    if (e.key === "Escape") {
+      setFocusedIndex(null);
+      return;
+    }
+    
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      const total = isNew ? newImages.length : existingImages.length;
+      setFocusedIndex((index + 1) % total);
+    }
+    
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      const total = isNew ? newImages.length : existingImages.length;
+      setFocusedIndex((index - 1 + total) % total);
+    }
+  }, [existingImages.length, newImages.length]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="region" aria-label={dict.office.propertyImages || "Property Images"}>
       <div className="flex items-center gap-3">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => inputRef.current?.click()}
+          onClick={() => fileInputRef.current?.click()}
           aria-label={dict.common.add}
         >
+          <Upload className="w-4 h-4 mr-1" aria-hidden="true" />
           {dict.common.add}
         </Button>
         <input
-          ref={inputRef}
+          ref={fileInputRef}
           type="file"
           accept="image/*"
           multiple
-          className="hidden"
-          onChange={(e) => e.target.files && onUpload(e.target.files)}
+          onChange={(e) => handleFileSelect(e.target.files)}
+          className="sr-only"
+          aria-label={dict.common.addImage || "Add property images"}
         />
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-gray-500" id="max-images-hint">
           {dict.office.maxImages}
         </span>
       </div>
 
       {existingImages.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 overflow-hidden">
-          {existingImages.map((img) => (
-            <div key={img.id} className="relative group min-h-[200px] rounded-lg overflow-hidden border flex flex-col">
+        <fieldset className="grid grid-cols-2 md:grid-cols-4 gap-3 overflow-hidden" aria-labelledby="existing-images-legend">
+          <legend id="existing-images-legend" className="sr-only">
+            {dict.office.currentImages || "Existing Images"}
+          </legend>
+          {existingImages.map((img, index) => (
+            <div
+              key={img.id}
+              className={`relative group min-h-[200px] rounded-lg overflow-hidden border flex flex-col ${
+                focusedIndex === index ? "ring-2 ring-blue-500 ring-offset-2" : ""
+              }`}
+              onKeyDown={(e) => handleKeyDown(e, index, false)}
+              tabIndex={focusedIndex === index ? 0 : -1}
+              onFocus={() => setFocusedIndex(index)}
+              onBlur={() => setFocusedIndex(null)}
+            >
               <div className="relative flex-1">
                 <Image
                   src={img.url}
-                  alt={img.alt_text}
+                  alt={img.alt_text || `${dict.office.propertyImage || "Property image"} ${index + 1}`}
                   fill
                   className="object-cover group-hover:opacity-80 transition-opacity"
                   sizes="(max-width: 768px) 50vw, 25vw"
                 />
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => onSetPrimary(img.id)}
-                  className={`text-xs px-2 py-1 rounded-sm ${img.is_primary ? "bg-yellow-500 text-white" : "bg-white/80 text-gray-800"}`}
-                  aria-label={img.is_primary ? dict.common.primaryImage : dict.common.setAsPrimary}
-                >
-                  ★
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onRemoveExisting(img.id)}
-                  className="text-xs px-2 py-1 rounded-sm bg-red-500 text-white flex items-center justify-center gap-1"
-                  aria-label={dict.common.removeImage}
-                >
-                  ✕
-                </button>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                <div className="flex flex-col gap-2 w-full max-w-xs">
+                  <button
+                    type="button"
+                    onClick={() => onSetPrimary(img.id)}
+                    className={`text-xs px-3 py-1.5 rounded-sm font-medium ${
+                      img.is_primary
+                        ? "bg-yellow-500 text-white"
+                        : "bg-white/90 text-gray-800 hover:bg-white"
+                    } flex items-center justify-center gap-1.5`}
+                    aria-label={img.is_primary
+                      ? dict.common.primaryImage
+                      : dict.common.setAsPrimary}
+                    aria-pressed={img.is_primary}
+                  >
+                    <Star className="w-4 h-4" aria-hidden="true" fill={img.is_primary ? "currentColor" : "none"} strokeWidth={img.is_primary ? 0 : 2} />
+                    <span>{img.is_primary ? dict.common.primary : dict.common.setAsPrimary}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onRemoveExisting(img.id)}
+                    className="text-xs px-3 py-1.5 rounded-sm font-medium bg-red-500 text-white flex items-center justify-center gap-1.5 hover:bg-red-600 transition-colors"
+                    aria-label={`${dict.common.removeImage}: ${img.alt_text || "image"}`}
+                  >
+                    <Trash2 className="w-4 h-4" aria-hidden="true" />
+                    <span>{dict.common.remove}</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
-        </div>
+        </fieldset>
       )}
 
       {newImages.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 overflow-hidden">
+        <fieldset className="grid grid-cols-2 md:grid-cols-4 gap-3 overflow-hidden" aria-labelledby="new-images-legend">
+          <legend id="new-images-legend" className="sr-only">
+            {dict.office.newImages || "New Images"}
+          </legend>
           {newImages.map((img, index) => (
-            <div key={index} className="relative group min-h-[200px] rounded-lg overflow-hidden border flex flex-col">
+            <div
+              key={index}
+              className={`relative group min-h-[200px] rounded-lg overflow-hidden border flex flex-col ${
+                focusedIndex === index ? "ring-2 ring-blue-500 ring-offset-2" : ""
+              }`}
+              onKeyDown={(e) => handleKeyDown(e, index, true)}
+              tabIndex={focusedIndex === index ? 0 : -1}
+              onFocus={() => setFocusedIndex(index)}
+              onBlur={() => setFocusedIndex(null)}
+            >
               <div className="relative flex-1">
                 <Image
                   src={img.preview}
-                  alt={img.alt_text}
+                  alt={img.alt_text || `${dict.office.newImage || "New image"} ${index + 1}`}
                   fill
                   className="object-cover group-hover:opacity-80 transition-opacity"
                   unoptimized
                   sizes="(max-width: 768px) 50vw, 25vw"
                 />
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                <input
-                  type="text"
-                  value={img.alt_text}
-                  onChange={(e) => onSetAltText(index, e.target.value)}
-                  placeholder={dict.common.edit}
-                  aria-label={dict.common.editAltText}
-                  className="absolute bottom-2 left-2 right-2 text-xs px-2 py-1 rounded-sm bg-white/90 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => onRemoveNew(index)}
-                  className="text-xs px-2 py-1 rounded-sm bg-red-500 text-white flex items-center justify-center gap-1"
-                  aria-label={dict.common.removeImage}
-                >
-                  ✕
-                </button>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                <div className="flex flex-col gap-2 w-full max-w-xs">
+                  <label htmlFor={`alt-text-${index}`} className="sr-only">
+                    {dict.common.editAltText}
+                  </label>
+                  <input
+                    id={`alt-text-${index}`}
+                    type="text"
+                    value={img.alt_text}
+                    onChange={(e) => onSetAltText(index, e.target.value)}
+                    placeholder={dict.common.editAltText || "Edit image description"}
+                    aria-label={dict.common.editAltText}
+                    className="w-full text-xs px-2 py-1.5 rounded-sm bg-white/95 text-gray-800 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onRemoveNew(index)}
+                    className="text-xs px-3 py-1.5 rounded-sm font-medium bg-red-500 text-white flex items-center justify-center gap-1.5 hover:bg-red-600 transition-colors w-full"
+                    aria-label={`${dict.common.removeImage}: ${img.alt_text || "image"}`}
+                  >
+                    <Trash2 className="w-4 h-4" aria-hidden="true" />
+                    <span>{dict.common.remove}</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
-        </div>
+        </fieldset>
       )}
 
       {existingImages.length === 0 && newImages.length === 0 && (
         <div
-          className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 transition"
-          onClick={() => inputRef.current?.click()}
+          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition ${
+            isUploadAreaFocused ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-400"
+          }`}
+          onClick={() => fileInputRef.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
+          onFocus={() => setIsUploadAreaFocused(true)}
+          onBlur={() => setIsUploadAreaFocused(false)}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => { 
-            if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
-          }}
           aria-label={dict.common.add}
+          aria-describedby="max-images-hint"
         >
-          <p className="text-sm text-gray-500">{dict.common.add}</p>
+          <div className="flex flex-col items-center justify-center gap-3">
+            <ImageIcon className="w-12 h-12 text-gray-300" aria-hidden="true" />
+            <span className="text-sm text-gray-500 font-medium">{dict.office.uploadImage || "Upload Images"}</span>
+            <span className="text-xs text-gray-400">{dict.office.clickOrDrag || "Click or drag to upload"}</span>
+          </div>
         </div>
       )}
     </div>

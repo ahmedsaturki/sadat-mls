@@ -49,13 +49,13 @@ const ACTION_COLORS: Record<string, string> = {
 
 function formatAction(action: string, dict: Messages): string {
   const actionMap: Record<string, string> = {
-    "property.created": dict.office?.activityPropertyCreated || "Created property",
-    "property.updated": dict.office?.activityPropertyUpdated || "Updated property",
-    "property.deleted": dict.office?.activityPropertyDeleted || "Deleted property",
-    "agent.created": dict.office?.activityAgentCreated || "Created agent",
-    "agent.deleted": dict.office?.activityAgentDeleted || "Deleted agent",
-    "contact_request.updated": dict.office?.activityContactUpdated || "Updated contact request",
-    "office.updated": dict.office?.activityOfficeUpdated || "Updated office settings",
+    "property.created": dict.office?.activityPropertyCreated || "إنشاء عقار",
+    "property.updated": dict.office?.activityPropertyUpdated || "تحديث عقار",
+    "property.deleted": dict.office?.activityPropertyDeleted || "حذف عقار",
+    "agent.created": dict.office?.activityAgentCreated || "إنشاء وكيل",
+    "agent.deleted": dict.office?.activityAgentDeleted || "حذف وكيل",
+    "contact_request.updated": dict.office?.activityContactUpdated || "تحديث طلب اتصال",
+    "office.updated": dict.office?.activityOfficeUpdated || "تحديث إعدادات المكتب",
   };
   return actionMap[action] || action;
 }
@@ -120,7 +120,7 @@ export default function ActivityFeed({ locale, dict }: ActivityFeedProps) {
       <div className="text-center py-8">
         <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
         <p className="text-gray-400 text-sm">
-          {dict.office?.noActivity || "No recent activity"}
+          {dict.office?.noActivity || "لا يوجد نشاط حديث"}
         </p>
       </div>
     );
