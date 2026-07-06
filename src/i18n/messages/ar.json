@@ -634,7 +634,8 @@
     "successMessage": "تم إرسال الطلب بنجاح!",
     "propertyInquiry": "استفسار عن عقار",
     "nameRequired": "الاسم مطلوب",
-    "messageRequired": "الرسالة مطلوبة"
+    "messageRequired": "الرسالة مطلوبة",
+    "newContactRequest": "استفسار جديد من {{name}}"
   },
   "footer": {
     "rights": "جميع الحقوق محفوظة",

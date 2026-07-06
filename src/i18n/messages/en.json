@@ -634,7 +634,8 @@
     "successMessage": "Request sent successfully!",
     "propertyInquiry": "Property Inquiry",
     "nameRequired": "Name is required",
-    "messageRequired": "Message is required"
+    "messageRequired": "Message is required",
+    "newContactRequest": "New inquiry from {{name}}"
   },
   "footer": {
     "rights": "All rights reserved",
