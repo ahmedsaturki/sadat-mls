@@ -69,7 +69,12 @@ npm run icons:generate         # Generate PWA icons from public/icons/icon-512.p
 - Auth checks in `middleware.ts` for `/admin/*` and `/dashboard/*` routes
 - `AuthGuard` component wraps admin/dashboard layouts (role-based redirects)
 - `PropertyStatus` type in `src/lib/utils/constants.ts` — single source of truth
-- `sessionStorage` stores **only** `userId` + timestamp (never role/profile)
+- `sessionStorage`: **never** stores role, profile, or anything that would let an
+  attacker escalate privileges by tampering with browser storage. Allowed keys:
+  - `compare_properties` (property comparison feature: ids + display metadata)
+  - theme/UI preferences (where applicable)
+  - sessionStorage MUST NOT carry `role`, `office_id`, JWT tokens, or any
+    field that would be checked server-side for authorization.
 - CSP managed **solely** by `middleware.ts` (no CSP in `next.config.js`)
 - Logger wraps console with ISO timestamps (`src/lib/logger.ts`) — **never** use `console.error` directly
 - Tests use Vitest + @testing-library/react (setup: `src/__tests__/setup.ts`)
@@ -604,7 +609,7 @@ matcher: ["/((?!api|_next/static|_next/image|favicon.ico|og-image|sw.js|manifest
 - **React State**: Form inputs, modals, local UI state
 - **Context**: Auth (`useAuthUser`), Toast notifications
 - **Server State**: Supabase queries with SWR-like patterns
-- **sessionStorage**: Only `userId` + timestamp (never role/profile)
+- **sessionStorage**: see storage rule in **Code Conventions** — only feature data (e.g. `compare_properties`), never role/profile/tokens
 
 ## Error Handling Strategy
 
