@@ -443,7 +443,7 @@ export function useAuth() {
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
-  }, [state.user]);
+  }, [state.user?.id]);
 
   const clearError = useCallback(() => {
     setState((prev) => ({ ...prev, error: null }));
