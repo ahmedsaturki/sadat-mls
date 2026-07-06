@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
+import { SecurityValidator } from "@/lib/security/enhanced";
 import { logger } from "@/lib/logger";
 
 const contactRequestSchema = z.object({
@@ -58,7 +59,15 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = getAdminClient();
-  const data = parsed.data;
+  // Defence-in-depth: Zod validates shape; SecurityValidator scrubs XSS/SQL-injection
+  // text from untrusted visitor inputs before they reach the database.
+  const raw = parsed.data;
+  const data = {
+    ...raw,
+    visitorName: SecurityValidator.sanitizeString(raw.visitorName, "name"),
+    visitorEmail: raw.visitorEmail ? SecurityValidator.sanitizeString(raw.visitorEmail, "email") : raw.visitorEmail,
+    message: SecurityValidator.sanitizeString(raw.message, "text"),
+  };
 
   try {
     let targetOfficeId = data.officeId || null;
