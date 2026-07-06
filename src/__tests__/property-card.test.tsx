@@ -83,7 +83,7 @@ describe("PropertyCard", () => {
 
     it("renders area with default unit", () => {
       render(<PropertyCard {...baseProps} area={120} />);
-      expect(screen.getByText(/120.*م²/)).toBeInTheDocument();
+      expect(screen.getByText(/120.*m²/)).toBeInTheDocument();
     });
 
     it("renders area with dict unit override", () => {
@@ -158,28 +158,28 @@ describe("PropertyCard", () => {
     it("renders available status badge", () => {
       render(<PropertyCard {...baseProps} status="available" />);
       const badge = screen.getByTestId("badge");
-      expect(badge).toHaveTextContent("متاح");
+      expect(badge).toHaveTextContent("Available");
       expect(badge).toHaveAttribute("data-variant", "success");
     });
 
     it("renders reserved status badge", () => {
       render(<PropertyCard {...baseProps} status="reserved" />);
-      expect(screen.getByTestId("badge")).toHaveTextContent("محجوز");
+      expect(screen.getByTestId("badge")).toHaveTextContent("Reserved");
     });
 
     it("renders rented status badge", () => {
       render(<PropertyCard {...baseProps} status="rented" />);
-      expect(screen.getByTestId("badge")).toHaveTextContent("مؤجر");
+      expect(screen.getByTestId("badge")).toHaveTextContent("Rented");
     });
 
     it("renders sold status badge", () => {
       render(<PropertyCard {...baseProps} status="sold" />);
-      expect(screen.getByTestId("badge")).toHaveTextContent("تم البيع");
+      expect(screen.getByTestId("badge")).toHaveTextContent("Sold");
     });
 
     it("renders pending_review status badge", () => {
       render(<PropertyCard {...baseProps} status="pending_review" />);
-      expect(screen.getByTestId("badge")).toHaveTextContent("قيد المراجعة");
+      expect(screen.getByTestId("badge")).toHaveTextContent("Pending Review");
     });
 
     it("uses dict override for status labels", () => {
@@ -237,7 +237,7 @@ describe("PropertyCard", () => {
 
     it("falls back to default priceUnit without dict", () => {
       render(<PropertyCard {...baseProps} />);
-      expect(screen.getByText(/ج\.م/)).toBeInTheDocument();
+      expect(screen.getByText(/EGP/)).toBeInTheDocument();
     });
   });
 });
