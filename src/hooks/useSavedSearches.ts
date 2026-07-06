@@ -35,7 +35,7 @@ export function useSavedSearches() {
 
   const saveSearch = useCallback((name: string, filters: FilterState) => {
     const newSearch: SavedSearch = {
-      id: Date.now().toString(),
+      id: `search-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
       name,
       filters,
       createdAt: new Date().toISOString(),
