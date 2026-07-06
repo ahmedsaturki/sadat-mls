@@ -137,7 +137,8 @@
     "contactRequest": "Contact Request",
     "propertyInquiry": "Property Inquiry",
     "agentJoined": "Agent Joined",
-    "system": "System"
+    "system": "System",
+    "keywords": ["real estate", "Sadat City", "buy", "rent", "apartment", "villa", "land"]
   },
   "roles": {
     "superAdmin": "Super Admin",
@@ -496,6 +497,7 @@
   },
   "explore": {
     "title": "Explore Properties",
+    "description": "Browse available properties in Sadat City - apartments, villas, and land at the best prices",
     "results": "results",
     "properties": "properties",
     "noResults": "No properties match your search",
