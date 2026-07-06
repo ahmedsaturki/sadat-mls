@@ -76,7 +76,6 @@ describe("useUnsavedChangesWarning", () => {
     renderHook(() => useUnsavedChangesWarning(true));
 
     // Get the registered handler
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handler = addEventListenerSpy.mock.calls.find(
       (call: any[]) => call[0] === "beforeunload"
     )?.[1] as ((e: BeforeUnloadEvent) => void) | undefined;

@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { logger } from "@/lib/logger";
 
@@ -13,7 +12,6 @@ export interface User {
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const cookieStore = await cookies();
     const supabase = await createClient();
     const { data: { session }, error } = await supabase.auth.getSession();
 
@@ -98,7 +96,8 @@ export async function getUserOfficeId(userId: string): Promise<string | null> {
   }
 }
 
-export async function setSession(user: User): Promise<void> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function setSession(_user: User): Promise<void> {
   try {
     const supabase = await createClient();
     // Create server-side session if needed

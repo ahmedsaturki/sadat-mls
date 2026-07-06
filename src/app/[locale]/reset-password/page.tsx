@@ -45,7 +45,6 @@ export default function ResetPasswordPage({
   };
 
   const strength = getPasswordStrength(password);
-  const passwordErrors = getPasswordRuleErrors(password, DEFAULT_PASSWORD_RULES);
 
   useEffect(() => {
     return () => {

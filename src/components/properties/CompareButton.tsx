@@ -18,11 +18,10 @@ interface CompareButtonProps {
 
 const CompareButton = memo(function CompareButton({
    property,
-   locale = "ar",
    dict,
    className,
    size = "md",
- }: CompareButtonProps) {
+  }: CompareButtonProps) {
    const { addProperty, removeProperty, isSelected, count, max } = useCompare();
    const { showToast } = useToast();
 

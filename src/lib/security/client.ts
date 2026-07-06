@@ -34,16 +34,17 @@ export class ClientSecurityManager {
     return window.location.protocol === "https:";
   }
 
-  static async validateLogin(identifier: string, password: string): Promise<{ isValid: boolean; reason?: string }> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async validateLogin(identifier: string, _password: string): Promise<{ isValid: boolean; reason?: string }> {
     const config = this.DEFAULT_CONFIG;
-    
+
     // Check if account is locked out
     const attemptData = ClientSecurityManager.loginAttempts.get(identifier);
     if (attemptData && Date.now() < attemptData.lockUntil) {
       const remainingLockout = Math.ceil((attemptData.lockUntil - Date.now()) / 1000);
-      return { 
-        isValid: false, 
-        reason: `Account temporarily locked. Try again in ${remainingLockout} seconds.` 
+      return {
+        isValid: false,
+        reason: `Account temporarily locked. Try again in ${remainingLockout} seconds.`
       };
     }
 
@@ -52,12 +53,12 @@ export class ClientSecurityManager {
       const rateLimitKey = `login:${identifier}`;
       const rateLimitEntry = ClientSecurityManager.loginAttempts.get(rateLimitKey);
       const now = Date.now();
-      
+
       if (rateLimitEntry && now < rateLimitEntry.lockUntil) {
         const remainingRequests = config.maxLoginAttempts! - rateLimitEntry.count;
-        return { 
-          isValid: false, 
-          reason: `Too many login attempts. ${remainingRequests} attempts remaining.` 
+        return {
+          isValid: false,
+          reason: `Too many login attempts. ${remainingRequests} attempts remaining.`
         };
       }
     }
@@ -94,7 +95,6 @@ export class ClientSecurityManager {
   }
 
   static getSecurityHeaders(): Record<string, string> {
-    const config = this.DEFAULT_CONFIG;
     
     return {
       "X-Content-Type-Options": "nosniff",

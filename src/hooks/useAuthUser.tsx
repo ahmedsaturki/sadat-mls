@@ -25,18 +25,6 @@ interface AuthState {
   error: string | null;
 }
 
-interface LoginResult {
-  success: boolean;
-  error?: string;
-  user?: User;
-}
-
-interface RegisterResult {
-  success: boolean;
-  error?: string;
-  user?: User;
-}
-
 export function useAuthUser() {
   const auth = useAuth();
   const [supabaseClient] = useState(() => createClient());
@@ -455,7 +443,7 @@ export function useAuth() {
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
-  }, [state.user?.id]);
+  }, [state.user]);
 
   const clearError = useCallback(() => {
     setState((prev) => ({ ...prev, error: null }));

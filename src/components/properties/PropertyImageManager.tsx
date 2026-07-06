@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
-import { Trash2, Star, Edit3, Upload, Image as ImageIcon } from "lucide-react";
+import { Trash2, Star, Upload, Image as ImageIcon } from "lucide-react";
 import type { Messages } from "@/i18n/getMessages";
 
 interface PropertyImage {

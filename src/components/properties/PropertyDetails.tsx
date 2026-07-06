@@ -3,7 +3,6 @@
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import type { Messages } from "@/i18n/getMessages";
-import { useToast } from "@/components/ui/Toast";
 import { useState, useEffect, useCallback } from "react";
 
 interface PropertyDetailsProps {
@@ -28,17 +27,12 @@ export default function PropertyDetails({
   statusOptions,
   onChange,
 }: PropertyDetailsProps) {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const toast = useToast();
-
   // Simulate validation with loading states
   const validateField = useCallback(async (field: string) => {
     if (field === "price") {
       // Simple validation for price
       if (formData[field] && Number(formData[field]) < 0) {
-        setIsGenerating(true);
         await new Promise(resolve => setTimeout(resolve, 500));
-        setIsGenerating(false);
       }
     } else {
       // Small delay for other fields to simulate validation
@@ -58,27 +52,14 @@ export default function PropertyDetails({
   const [loadingStates, setLoadingStates] = useState(initializeLoadingStates());
 
   useEffect(() => {
-    const handleFieldChange = async (field: string) => {
-      setLoadingStates(prev => ({ ...prev, [field]: true }));
-      await validateField(field);
-      setLoadingStates(prev => ({ ...prev, [field]: false }));
-    };
-    
     // Monitor formData changes to trigger validation
     // In real implementation, this would be triggered by actual input events
-  }, [formData, loadingStates, validateField]);
+  }, [formData, validateField]);
 
   // Initialize loading states when formData changes
   useEffect(() => {
     setLoadingStates(initializeLoadingStates());
   }, [formData, initializeLoadingStates]);
-
-  // Format number fields appropriately
-  const formatNumber = (value: string, min?: number) => {
-    if (!value) return "";
-    const num = Number(value);
-    return min !== undefined && num < min ? min.toString() : value;
-  };
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 space-y-4">
@@ -97,9 +78,6 @@ export default function PropertyDetails({
         if (field === "bathrooms") fieldLabel = dict.property.bathrooms;
         if (field === "floors") fieldLabel = dict.property.floors;
         if (field === "status") fieldLabel = dict.property.statusLabel;
-        
-        // Special handling for checkbox-like fields
-        const isBooleanField = field === "has_balcony" || field === "has_parking" || field === "has_elevator";
         
         // Numerical validation styling
         const inputClassNames = [

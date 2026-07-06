@@ -1,5 +1,5 @@
 "use client";
-import { getCsrfToken, getCsrfHeaders } from "@/lib/security/csrf-client";
+import { getCsrfHeaders } from "@/lib/security/csrf-client";
 import { ClientSecurityManager } from "@/lib/security/client";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
@@ -11,15 +11,6 @@ export interface AuthUser {
   officeId?: string;
   fullName?: string;
   phone?: string;
-}
-
-interface JwtPayload {
-  sub?: string;
-  userId?: string;
-  email?: string;
-  role?: string;
-  officeId?: string;
-  exp?: number;
 }
 
 export interface LoginResult {
@@ -120,7 +111,6 @@ export class AuthService {
     if (typeof window === "undefined") return null;
     
     try {
-      const supabase = createClient();
       // Note: This is a synchronous check - the actual session is managed by Supabase
       // For real-time auth state, use useAuthUser hook
       return null;
@@ -170,7 +160,8 @@ export class AuthService {
     return user?.role === "super_admin" || user?.role === "office_admin";
   }
 
-  static canAccessResource(resource: string, userId: string): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static canAccessResource(resource: string, _userId: string): boolean {
     const user = this.getCurrentUser();
     if (!user) return false;
     

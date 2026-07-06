@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useFocusTrap, useEscapeKey } from "@/lib/utils/a11y";
@@ -33,7 +32,6 @@ export default function Lightbox({
   dict,
 }: LightboxProps) {
   const { containerRef, handleKeyDown } = useFocusTrap(true);
-  const triggerRef = useRef<HTMLDivElement>(null);
 
   useEscapeKey(onClose, true);
 

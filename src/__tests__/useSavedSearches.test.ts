@@ -1,139 +1,250 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useSavedSearches, type SavedSearch } from "@/hooks/useSavedSearches";
+import { useSavedSearches } from "@/hooks/useSavedSearches";
 import type { FilterState } from "@/components/properties/SearchFilters";
 
 const STORAGE_KEY = "saved_searches";
 
-const sampleFilters: FilterState = {
-  search: "apartment",
-  zoneId: "1",
-  typeId: "2",
-  minPrice: "500000",
-  maxPrice: "2000000",
-  minArea: "100",
-  maxArea: "300",
-  bedrooms: "3",
-  bathrooms: "2",
-  hasBalcony: true,
-  hasParking: false,
-  hasElevator: true,
-};
+function makeFilters(overrides?: Partial<FilterState>): FilterState {
+  return {
+    search: "",
+    zoneId: "",
+    typeId: "",
+    minPrice: "",
+    maxPrice: "",
+    minArea: "",
+    maxArea: "",
+    bedrooms: "",
+    bathrooms: "",
+    hasBalcony: false,
+    hasParking: false,
+    hasElevator: false,
+    ...overrides,
+  };
+}
 
 describe("useSavedSearches", () => {
   beforeEach(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.clear();
-    }
+    localStorage.clear();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("starts with empty state when no storage entry exists", () => {
+  it("initializes with an empty array", () => {
     const { result } = renderHook(() => useSavedSearches());
     expect(result.current.savedSearches).toEqual([]);
+  });
+
+  it("count reflects array length", () => {
+    const { result } = renderHook(() => useSavedSearches());
     expect(result.current.count).toBe(0);
   });
 
-  it("hydrates from localStorage on mount", () => {
-    const stored: SavedSearch[] = [
-      { id: "1", name: "A", filters: sampleFilters, createdAt: "2026-07-01T00:00:00.000Z" },
-    ];
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-
-    const { result } = renderHook(() => useSavedSearches());
-    expect(result.current.savedSearches.length).toBe(1);
-    expect(result.current.savedSearches[0].name).toBe("A");
-  });
-
-  it("ignores malformed localStorage payloads", () => {
-    window.localStorage.setItem(STORAGE_KEY, "{not-valid-json");
-    const { result } = renderHook(() => useSavedSearches());
-    expect(result.current.savedSearches).toEqual([]);
-  });
-
-  it("saveSearch appends to state and persists", () => {
+  it("saveSearch adds a search with id, name, filters, createdAt", async () => {
     const { result } = renderHook(() => useSavedSearches());
 
     act(() => {
-      result.current.saveSearch("Two-bed in zone 1", sampleFilters);
+      result.current.saveSearch("My Search", makeFilters());
     });
 
-    expect(result.current.savedSearches.length).toBe(1);
-    expect(result.current.savedSearches[0].name).toBe("Two-bed in zone 1");
-    expect(result.current.count).toBe(1);
-
-    const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "[]");
-    expect(stored[0].name).toBe("Two-bed in zone 1");
-    expect(stored[0].filters).toEqual(sampleFilters);
+    expect(result.current.savedSearches).toHaveLength(1);
+    const search = result.current.savedSearches[0];
+    expect(search.id).toBeDefined();
+    expect(search.name).toBe("My Search");
+    expect(search.filters).toEqual(makeFilters());
+    expect(search.createdAt).toBeDefined();
   });
 
-  it("removeSavedSearch filters by id and persists", () => {
-    const initial: SavedSearch[] = [
-      { id: "a", name: "A", filters: sampleFilters, createdAt: "2026-07-01T00:00:00.000Z" },
-      { id: "b", name: "B", filters: sampleFilters, createdAt: "2026-07-02T00:00:00.000Z" },
-    ];
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-
+  it("saveSearch persists to localStorage", async () => {
     const { result } = renderHook(() => useSavedSearches());
 
     act(() => {
-      result.current.removeSavedSearch("a");
+      result.current.saveSearch("Persisted", makeFilters());
     });
 
-    expect(result.current.savedSearches.length).toBe(1);
-    expect(result.current.savedSearches[0].id).toBe("b");
-
-    const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "[]");
-    expect(stored.length).toBe(1);
+    const stored = localStorage.getItem(STORAGE_KEY);
+    expect(stored).not.toBeNull();
+    const parsed = JSON.parse(stored!);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].name).toBe("Persisted");
   });
 
-  it("updateLastNotified stamps the matching entry", () => {
-    const initial: SavedSearch[] = [
-      { id: "a", name: "A", filters: sampleFilters, createdAt: "2026-07-01T00:00:00.000Z" },
+  it("loadFromStorage on mount reads existing localStorage data", async () => {
+    const existing = [
+      {
+        id: "pre-existing",
+        name: "Pre-loaded",
+        filters: makeFilters({ search: "villa" }),
+        createdAt: "2025-01-01T00:00:00.000Z",
+      },
     ];
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
 
     const { result } = renderHook(() => useSavedSearches());
 
+    expect(result.current.savedSearches).toHaveLength(1);
+    expect(result.current.savedSearches[0].name).toBe("Pre-loaded");
+  });
+
+  it("removeSavedSearch removes by id", async () => {
+    const { result } = renderHook(() => useSavedSearches());
+
     act(() => {
-      result.current.updateLastNotified("a");
+      result.current.saveSearch("Search A", makeFilters());
+    });
+    act(() => {
+      result.current.saveSearch("Search B", makeFilters());
+    });
+
+    expect(result.current.savedSearches).toHaveLength(2);
+    const idToRemove = result.current.savedSearches[0].id;
+
+    act(() => {
+      result.current.removeSavedSearch(idToRemove);
+    });
+
+    expect(result.current.savedSearches).toHaveLength(1);
+    expect(result.current.savedSearches[0].name).toBe("Search B");
+  });
+
+  it("removeSavedSearch persists to localStorage", async () => {
+    const { result } = renderHook(() => useSavedSearches());
+
+    act(() => {
+      result.current.saveSearch("To Remove", makeFilters());
+    });
+
+    const id = result.current.savedSearches[0].id;
+    act(() => {
+      result.current.removeSavedSearch(id);
+    });
+
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+    expect(stored).toHaveLength(0);
+  });
+
+  it("updateLastNotified sets lastNotified timestamp", async () => {
+    const { result } = renderHook(() => useSavedSearches());
+
+    act(() => {
+      result.current.saveSearch("Notify Me", makeFilters());
+    });
+
+    const id = result.current.savedSearches[0].id;
+    expect(result.current.savedSearches[0].lastNotified).toBeUndefined();
+
+    act(() => {
+      result.current.updateLastNotified(id);
     });
 
     expect(result.current.savedSearches[0].lastNotified).toBeDefined();
-    const iso = result.current.savedSearches[0].lastNotified;
-    expect(iso && !Number.isNaN(new Date(iso).getTime())).toBe(true);
+    expect(new Date(result.current.savedSearches[0].lastNotified!).getTime()).not.toBeNaN();
   });
 
-  it("clearAll empties state and removes the storage key", () => {
-    const initial: SavedSearch[] = [
-      { id: "a", name: "A", filters: sampleFilters, createdAt: "2026-07-01T00:00:00.000Z" },
-    ];
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-
+  it("clearAll empties array and removes localStorage", async () => {
     const { result } = renderHook(() => useSavedSearches());
-    expect(result.current.savedSearches.length).toBe(1);
+
+    act(() => {
+      result.current.saveSearch("A", makeFilters());
+    });
+    act(() => {
+      result.current.saveSearch("B", makeFilters());
+    });
+
+    expect(result.current.savedSearches).toHaveLength(2);
 
     act(() => {
       result.current.clearAll();
     });
 
     expect(result.current.savedSearches).toEqual([]);
-    expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull();
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
-  it("multiple saves produce stable, unique ids", () => {
+  it("count reflects correct length after operations", async () => {
     const { result } = renderHook(() => useSavedSearches());
+
+    expect(result.current.count).toBe(0);
+
     act(() => {
-      result.current.saveSearch("first", sampleFilters);
+      result.current.saveSearch("A", makeFilters());
     });
+    expect(result.current.count).toBe(1);
+
     act(() => {
-      result.current.saveSearch("second", sampleFilters);
+      result.current.saveSearch("B", makeFilters());
     });
-    const ids = result.current.savedSearches.map(s => s.id);
-    expect(new Set(ids).size).toBe(ids.length);
     expect(result.current.count).toBe(2);
+
+    act(() => {
+      result.current.clearAll();
+    });
+    expect(result.current.count).toBe(0);
+  });
+
+  it("multiple saves accumulate", async () => {
+    const { result } = renderHook(() => useSavedSearches());
+
+    act(() => {
+      result.current.saveSearch("First", makeFilters());
+    });
+    act(() => {
+      result.current.saveSearch("Second", makeFilters());
+    });
+    act(() => {
+      result.current.saveSearch("Third", makeFilters());
+    });
+
+    expect(result.current.savedSearches).toHaveLength(3);
+    expect(result.current.savedSearches.map((s) => s.name)).toEqual([
+      "First",
+      "Second",
+      "Third",
+    ]);
+  });
+
+  it("saveSearch with empty (default) filters works", async () => {
+    const { result } = renderHook(() => useSavedSearches());
+
+    act(() => {
+      result.current.saveSearch("Empty", makeFilters());
+    });
+
+    const filters = result.current.savedSearches[0].filters;
+    expect(filters.search).toBe("");
+    expect(filters.hasBalcony).toBe(false);
+  });
+
+  it("ignores malformed localStorage payloads", async () => {
+    localStorage.setItem(STORAGE_KEY, "{not-valid-json");
+
+    const { result } = renderHook(() => useSavedSearches());
+    expect(result.current.savedSearches).toEqual([]);
+  });
+
+  it("removeSavedSearch with non-existent id does nothing", async () => {
+    const { result } = renderHook(() => useSavedSearches());
+
+    act(() => {
+      result.current.saveSearch("Only", makeFilters());
+    });
+
+    act(() => {
+      result.current.removeSavedSearch("non-existent-id");
+    });
+
+    expect(result.current.savedSearches).toHaveLength(1);
+  });
+
+  it("saveSearch generates createdAt as ISO string", async () => {
+    const { result } = renderHook(() => useSavedSearches());
+
+    act(() => {
+      result.current.saveSearch("Timestamp", makeFilters());
+    });
+
+    const iso = result.current.savedSearches[0].createdAt;
+    expect(iso).toBeDefined();
+    expect(new Date(iso).getTime()).not.toBeNaN();
+    // Should be a full ISO string
+    expect(iso).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 });

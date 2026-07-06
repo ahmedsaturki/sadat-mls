@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 let lastObserver: { cb: (entries: Array<{ isIntersecting: boolean }>) => void } | null = null;

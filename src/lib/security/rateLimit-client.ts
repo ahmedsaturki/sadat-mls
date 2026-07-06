@@ -21,7 +21,6 @@ export class RateLimitClient {
     config?: Partial<RateLimitInfo>
   ): Promise<RateLimitInfo> {
     const url = new URL(endpoint, window.location.origin);
-    const searchParams = new URLSearchParams(url.search);
     
     try {
       const response = await fetch(url.toString(), {
@@ -69,7 +68,6 @@ export class RateLimitClient {
     
     const err = error as { status?: number; headers?: { get(name: string): string | null } };
     if (err.status === 429) {
-      const retryAfter = err.headers?.get("Retry-After");
       return true;
     }
     

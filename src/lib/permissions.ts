@@ -1,4 +1,4 @@
-import { ROLES, type UserRole, type Permission, ROLE_PERMISSIONS } from "@/lib/utils/constants";
+import { type UserRole, type Permission, ROLE_PERMISSIONS } from "@/lib/utils/constants";
 
 export function hasPermission(role: UserRole | null | undefined, permission: Permission): boolean {
   if (!role) return false;

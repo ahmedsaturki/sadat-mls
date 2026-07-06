@@ -108,9 +108,6 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     status: "available",
   });
 
-  const [validationDelay, setValidationDelay] = useState<NodeJS.Timeout | null>(null);
-  const [fieldValidation, setFieldValidation] = useState<Record<string, string>>({});
-
   const handleGenerateDescription = useCallback(async (): Promise<string | null> => {
     if (!formData.title) {
       showToast(dict.office.propertyTitleMin, "error");

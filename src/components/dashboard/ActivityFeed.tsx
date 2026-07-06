@@ -22,7 +22,7 @@ interface Activity {
 }
 
 interface ActivityFeedProps {
-  locale: string;
+  locale?: string;
   dict: Messages;
   officeId?: string;
 }
@@ -78,7 +78,7 @@ function timeAgo(dateStr: string, dict: Messages): string {
   return (dict.common?.timeAgo?.daysAgo || "منذ {{count}} يوم").replace("{{count}}", String(days));
 }
 
-export default function ActivityFeed({ locale, dict }: ActivityFeedProps) {
+export default function ActivityFeed({ dict }: ActivityFeedProps) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 

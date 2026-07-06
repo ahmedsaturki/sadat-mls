@@ -4,7 +4,6 @@ import "server-only";
  * Includes middleware, risk-based configs, and IP-based tracking.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
 
 // Rate limiting storage with automatic cleanup
@@ -165,7 +164,6 @@ function getRequestKey(request: NextRequest): string {
  */
 export function createSecureRateLimitMiddleware(
   riskLevel: RateLimitRiskLevel = RateLimitRiskLevel.MEDIUM,
-  _requestPath?: string
 ) {
   const config = RateLimitRiskConfigs[riskLevel];
 

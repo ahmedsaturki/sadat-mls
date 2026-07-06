@@ -54,14 +54,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     timersRef.current.set(id, timer);
   }, []);
 
-  const removeToast = (id: string) => {
+  const removeToast = useCallback((id: string) => {
     const timer = timersRef.current.get(id);
     if (timer) {
       clearTimeout(timer);
       timersRef.current.delete(id);
     }
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+  }, []);
 
   const icons = {
     success: CheckCircle,
