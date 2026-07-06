@@ -57,19 +57,19 @@ export default async function AdminDashboard({
     supabase.from("contact_requests").select("id", { count: "exact", head: true }),
   ]);
 
-  // Get recent offices
-  const { data: recentOffices } = await supabase
-    .from("offices")
-    .select("id, name, slug, email, is_active, created_at")
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  // Get recent contact requests
-  const { data: recentContacts } = await supabase
-    .from("contact_requests")
-    .select("id, property_id, visitor_name, contact_type, status, created_at, properties(title)")
-    .order("created_at", { ascending: false })
-    .limit(5);
+  // Get recent offices and contact requests in parallel
+  const [{ data: recentOffices }, { data: recentContacts }] = await Promise.all([
+    supabase
+      .from("offices")
+      .select("id, name, slug, email, is_active, created_at")
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("contact_requests")
+      .select("id, property_id, visitor_name, contact_type, status, created_at, properties(title)")
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
 
   const stats = [
     {

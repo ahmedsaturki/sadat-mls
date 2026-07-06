@@ -19,7 +19,7 @@ export default function VerifyEmailPage({
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const { user, refresh } = useAuthUser();
+  const { user, refresh, supabase } = useAuthUser();
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -29,7 +29,8 @@ export default function VerifyEmailPage({
   useEffect(() => {
     const checkVerification = async () => {
       try {
-        if (user?.emailConfirmedAt) {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser?.email_confirmed_at) {
           setStatus("success");
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         } else if (user) {
@@ -51,7 +52,7 @@ export default function VerifyEmailPage({
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     };
-  }, [user]);
+  }, [user, supabase]);
 
   // Resend cooldown timer
   useEffect(() => {

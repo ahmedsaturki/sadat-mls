@@ -3,6 +3,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { UserRole } from "@/lib/utils/constants";
+import { logger } from "@/lib/logger";
 
 export interface AuthUser {
   user: { id: string } | null;
@@ -40,7 +41,7 @@ export async function getServerAuth(): Promise<AuthUser> {
             // Expected in Server Components (cookies immutable after response).
             // Log in non-SC contexts for debugging token refresh failures.
             if (process.env.NODE_ENV === "development") {
-              console.debug("[server-auth] cookie write skipped (expected in SC)");
+              logger.debug("[server-auth] cookie write skipped (expected in SC)");
             }
           }
         },

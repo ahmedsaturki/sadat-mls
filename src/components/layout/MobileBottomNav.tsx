@@ -51,7 +51,7 @@ export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavP
                   : "text-gray-500 hover:text-gray-700"
               )}
             >
-              <link.icon className={cn("w-5 h-5", isActive && "text-blue-600")} />
+              <link.icon className={cn("w-5 h-5", isActive && "text-blue-600")} aria-hidden="true" />
               <span className="truncate max-w-[64px]">{link.label}</span>
             </Link>
           );

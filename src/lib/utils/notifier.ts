@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface CreateNotificationParams {
   userId: string;
@@ -9,15 +10,17 @@ interface CreateNotificationParams {
   message: string;
   entityType?: string | null;
   entityId?: string | null;
+  supabase?: SupabaseClient;
 }
 
 /**
  * Create a notification for a user.
  * Call this from API routes or server actions.
+ * Pass `supabase` when calling from API routes to avoid cookie access issues.
  */
 export async function createNotification(params: CreateNotificationParams): Promise<void> {
   try {
-    const supabase = await createClient();
+    const supabase = params.supabase || await createClient();
     const { error } = await supabase
       .from("notifications")
       .insert({
@@ -43,13 +46,14 @@ export async function createNotification(params: CreateNotificationParams): Prom
  */
 export async function notifyOffice(
   officeId: string,
-  notification: Omit<CreateNotificationParams, "userId" | "officeId">
+  notification: Omit<CreateNotificationParams, "userId" | "officeId">,
+  supabase?: SupabaseClient
 ): Promise<void> {
   try {
-    const supabase = await createClient();
+    const client = supabase || await createClient();
 
     // Get all users in the office
-    const { data: members, error: queryError } = await supabase
+    const { data: members, error: queryError } = await client
       .from("users")
       .select("id")
       .eq("office_id", officeId);
@@ -70,7 +74,7 @@ export async function notifyOffice(
       entity_id: notification.entityId || null,
     }));
 
-    const { error } = await supabase
+    const { error } = await client
       .from("notifications")
       .insert(notifications);
 

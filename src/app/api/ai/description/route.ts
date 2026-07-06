@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
+import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 
@@ -13,6 +14,12 @@ const descriptionSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const csrfValid = await validateCsrfToken(request);
+  if (!csrfValid) {
+    logger.warn("CSRF validation failed on AI description");
+    return NextResponse.json({ error: "Invalid request" }, { status: 403 });
+  }
+
   const rawIp = request.headers.get("x-forwarded-for") || "unknown";
   const ip = rawIp.split(",")[0].trim();
 

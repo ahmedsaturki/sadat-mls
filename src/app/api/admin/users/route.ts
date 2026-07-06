@@ -155,19 +155,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { email, password, full_name, role, office_id } = body;
+  const createUserSchema = z.object({
+    email: z.string().email("Invalid email format").max(255),
+    password: z.string().min(1),
+    full_name: z.string().min(1, "Name is required").max(100),
+    role: z.enum(Object.values(ROLES) as [string, ...string[]]),
+    office_id: z.string().uuid("Invalid office ID").or(z.literal("")).optional(),
+  });
 
-  if (!email || !password) {
-    return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+  const parsed = createUserSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
+
+  const { email, password, full_name, role, office_id } = parsed.data;
 
   const passwordValidation = PasswordService.validate(password);
   if (!passwordValidation.isValid) {
     return NextResponse.json({ error: passwordValidation.errors.join(", ") }, { status: 400 });
-  }
-
-  if (!role || !Object.values(ROLES).includes(role)) {
-    return NextResponse.json({ error: "Invalid role" }, { status: 400 });
   }
 
   const supabase = getAdminClient();

@@ -40,6 +40,12 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <a
+        href="#dashboard-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-blue-600 focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        {dict.common.skipToContent || "Skip to content"}
+      </a>
       <Navbar locale={locale} dict={dict} userRole={role} />
       <div className="flex relative">
         {/* Mobile FAB */}
@@ -48,7 +54,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
           className="lg:hidden fixed bottom-20 left-6 z-40 w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-all active:scale-95"
           aria-label={sidebarOpen ? dict.common.close : dict.common.open}
         >
-          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          {sidebarOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
         </button>
 
         {/* Sidebar */}
@@ -62,7 +68,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
         </div>
 
         {/* Main content */}
-        <main className={`flex-1 transition-all duration-300 ease-in-out ${sidebarOpen ? "lg:ml-64" : "ml-0"}`}>
+        <main id="dashboard-content" className={`flex-1 transition-all duration-300 ease-in-out ${sidebarOpen ? "lg:ml-64" : "ml-0"}`}>
           <div className="p-4 lg:p-6">
             {children}
           </div>

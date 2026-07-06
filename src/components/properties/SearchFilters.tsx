@@ -312,7 +312,7 @@ function FilterTag({ label, onRemove, removeLabel }: { label: string; onRemove: 
   return (
     <span
       className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C49A2A]/10 text-[#1B2D4F] text-xs font-medium rounded-full border border-[#C49A2A]/20 backdrop-blur-sm hover:bg-[#C49A2A]/20 transition-colors duration-200"
-      role="chip"
+      role="status"
       aria-label={`${label} filter`}
     >
       {label}

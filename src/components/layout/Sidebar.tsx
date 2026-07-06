@@ -53,8 +53,8 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
     { href: `/${locale}/dashboard/agents`, label: dict.nav.agents, icon: Users },
     { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
     { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
-    { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || "البحث المحفوظ", icon: Bookmark },
-    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || "مقارنة العقارات", icon: GitCompare },
+    { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || dict.dashboard?.savedSearches, icon: Bookmark },
+    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || dict.dashboard?.compareProperties, icon: GitCompare },
     { href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings },
     { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
   ];
@@ -65,8 +65,8 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
     { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
     { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
     { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
-    { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || "البحث المحفوظ", icon: Bookmark },
-    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || "مقارنة العقارات", icon: GitCompare },
+    { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || dict.dashboard?.savedSearches, icon: Bookmark },
+    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || dict.dashboard?.compareProperties, icon: GitCompare },
     { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
   ];
 
@@ -115,7 +115,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
-                <link.icon className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400")} />
+                <link.icon className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400")} aria-hidden="true" />
                 {link.label}
               </Link>
             );

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 
-export const revalidate = 300; // ISR: 5 minutes
+export const dynamic = "force-dynamic";
 
 /**
  * Get active office IDs - cached at edge/network level.
@@ -21,12 +21,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabaseAdmin = createClient(
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const { data: offices, error } = await supabaseAdmin
+    const { data: offices, error } = await supabase
       .from("offices")
       .select("id")
       .eq("is_active", true);

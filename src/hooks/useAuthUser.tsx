@@ -15,7 +15,6 @@ interface User {
   phone?: string;
   isActive?: boolean;
   createdAt?: string;
-  emailConfirmedAt?: string;
 }
 
 interface AuthState {
@@ -81,7 +80,7 @@ export function useAuth() {
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
           .from("users")
-          .select("id, email, full_name, phone, role, office_id, avatar_url, is_active, created_at, email_confirmed_at")
+          .select("id, email, full_name, phone, role, office_id, avatar_url, is_active, created_at")
           .eq("id", session.user.id)
           .single();
 
@@ -101,7 +100,6 @@ export function useAuth() {
           avatarUrl: profile.avatar_url,
           isActive: profile.is_active,
           createdAt: profile.created_at,
-          emailConfirmedAt: profile.email_confirmed_at,
         };
 
         setState({
@@ -127,7 +125,7 @@ export function useAuth() {
               // Fetch profile for signed-in user
               const { data: profile } = await supabase
                 .from("users")
-                .select("id, email, full_name, phone, role, office_id, avatar_url, is_active, created_at, email_confirmed_at")
+                .select("id, email, full_name, phone, role, office_id, avatar_url, is_active, created_at")
                 .eq("id", session.user.id)
                 .single();
 
@@ -144,7 +142,6 @@ export function useAuth() {
                   avatarUrl: profile.avatar_url,
                   isActive: profile.is_active,
                   createdAt: profile.created_at,
-                  emailConfirmedAt: profile.email_confirmed_at,
                 };
 
                 setState((prev) => ({
@@ -282,7 +279,7 @@ export function useAuth() {
             role: "office_agent",
             office_id: result.data.officeId,
           },
-          emailRedirectTo: `${window.location.origin}/ar/verify-email?registered=true`,
+          emailRedirectTo: `${window.location.origin}/${window.location.pathname.split("/")[1]}/verify-email?registered=true`,
         },
       });
 
@@ -370,7 +367,7 @@ export function useAuth() {
       }
 
       const { error } = await supabase.auth.resetPasswordForEmail(result.data.email, {
-        redirectTo: `${window.location.origin}/ar/reset-password`,
+        redirectTo: `${window.location.origin}/${window.location.pathname.split("/")[1]}/reset-password`,
       });
 
       if (error) {
