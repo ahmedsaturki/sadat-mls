@@ -20,9 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       template: `%s | ${dict.common.appName}`,
     },
     description: dict.landing?.heroDescription ?? "",
-    keywords: validLocale === "ar"
-      ? ["عقارات", "مدينة السادات", "بيع", "تأجير", "شقة", "فيلا", "أرض"]
-      : ["real estate", "Sadat City", "buy", "rent", "apartment", "villa", "land"],
+    keywords: (dict.common as Record<string, unknown>)?.keywords as string[] ?? ["real estate", "Sadat City", "buy", "rent", "apartment", "villa", "land"],
     authors: [{ name: dict.common.appName }],
     alternates: {
       canonical: `${baseUrl}/${locale}`,

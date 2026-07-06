@@ -49,13 +49,13 @@ const ACTION_COLORS: Record<string, string> = {
 
 function formatAction(action: string, dict: Messages): string {
   const actionMap: Record<string, string> = {
-    "property.created": dict.office?.activityPropertyCreated || "إنشاء عقار",
-    "property.updated": dict.office?.activityPropertyUpdated || "تحديث عقار",
-    "property.deleted": dict.office?.activityPropertyDeleted || "حذف عقار",
-    "agent.created": dict.office?.activityAgentCreated || "إنشاء وكيل",
-    "agent.deleted": dict.office?.activityAgentDeleted || "حذف وكيل",
-    "contact_request.updated": dict.office?.activityContactUpdated || "تحديث طلب اتصال",
-    "office.updated": dict.office?.activityOfficeUpdated || "تحديث إعدادات المكتب",
+    "property.created": dict.office?.activityPropertyCreated || "Created a property",
+    "property.updated": dict.office?.activityPropertyUpdated || "Updated a property",
+    "property.deleted": dict.office?.activityPropertyDeleted || "Deleted a property",
+    "agent.created": dict.office?.activityAgentCreated || "Added a team member",
+    "agent.deleted": dict.office?.activityAgentDeleted || "Removed a team member",
+    "contact_request.updated": dict.office?.activityContactUpdated || "Updated a contact request",
+    "office.updated": dict.office?.activityOfficeUpdated || "Updated office settings",
   };
   return actionMap[action] || action;
 }
@@ -65,17 +65,17 @@ function timeAgo(dateStr: string, dict: Messages): string {
   const date = new Date(dateStr);
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (seconds < 60) return dict.common?.timeAgo?.justNow || "الآن";
+  if (seconds < 60) return dict.common?.timeAgo?.justNow || "Just now";
   if (seconds < 3600) {
     const mins = Math.floor(seconds / 60);
-    return (dict.common?.timeAgo?.minutesAgo || "منذ {{count}} دقيقة").replace("{{count}}", String(mins));
+    return (dict.common?.timeAgo?.minutesAgo || "{{count}} min ago").replace("{{count}}", String(mins));
   }
   if (seconds < 86400) {
     const hours = Math.floor(seconds / 3600);
-    return (dict.common?.timeAgo?.hoursAgo || "منذ {{count}} ساعة").replace("{{count}}", String(hours));
+    return (dict.common?.timeAgo?.hoursAgo || "{{count}} hours ago").replace("{{count}}", String(hours));
   }
   const days = Math.floor(seconds / 86400);
-  return (dict.common?.timeAgo?.daysAgo || "منذ {{count}} يوم").replace("{{count}}", String(days));
+  return (dict.common?.timeAgo?.daysAgo || "{{count}} days ago").replace("{{count}}", String(days));
 }
 
 export default function ActivityFeed({ dict }: ActivityFeedProps) {
@@ -120,7 +120,7 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
       <div className="text-center py-8">
         <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
         <p className="text-gray-400 text-sm">
-          {dict.office?.noActivity || "لا يوجد نشاط حديث"}
+          {dict.office?.noActivity || "No recent activity"}
         </p>
       </div>
     );
@@ -131,7 +131,7 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
       {activities.map((activity) => {
         const Icon = ACTION_ICONS[activity.action] || Eye;
         const colorClass = ACTION_COLORS[activity.action] || "bg-gray-100 text-gray-600";
-        const userName = activity.users?.full_name || activity.users?.email || (dict.common?.unknown || "غير معروف");
+        const userName = activity.users?.full_name || activity.users?.email || (dict.common?.unknown || "Unknown");
 
         return (
           <div
@@ -139,7 +139,7 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
             className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${colorClass}`}>
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4" aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-gray-900">

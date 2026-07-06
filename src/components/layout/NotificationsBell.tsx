@@ -169,36 +169,29 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
     const diffDays = Math.floor(diffMs / 86400000);
     const timeAgo = dict.notifications.timeAgo ?? {};
 
-    if (diffMins < 1) return timeAgo.justNow ?? (locale === "ar" ? "الآن" : "Just now");
+    if (diffMins < 1) return timeAgo.justNow ?? "Just now";
     const minutesAgoTemplate = timeAgo.minutesAgo;
     if (minutesAgoTemplate) {
       return minutesAgoTemplate.replace("{{count}}", String(diffMins));
     }
     if (diffMins < 60) {
-      return locale === "ar"
-        ? `منذ ${diffMins} دقيقة`
-        : `${diffMins}m ago`;
+      return `${diffMins}m ago`;
     }
     const hoursAgoTemplate = timeAgo.hoursAgo;
     if (hoursAgoTemplate) {
       return hoursAgoTemplate.replace("{{count}}", String(diffHours));
     }
     if (diffHours < 24) {
-      return locale === "ar"
-        ? `منذ ${diffHours} ساعة`
-        : `${diffHours}h ago`;
+      return `${diffHours}h ago`;
     }
     const daysAgoTemplate = timeAgo.daysAgo;
     if (daysAgoTemplate) {
       return daysAgoTemplate.replace("{{count}}", String(diffDays));
     }
     if (diffDays < 7) {
-      return locale === "ar"
-        ? `منذ ${diffDays} يوم`
-        : `${diffDays}d ago`;
+      return `${diffDays}d ago`;
     }
     return new Date(dateStr).toLocaleDateString(locale);
-    return date.toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US");
   };
 
   return (
@@ -216,7 +209,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="w-5 h-5" aria-hidden="true" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -246,7 +239,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
                 onClick={markAllAsRead}
                 className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors"
               >
-                <CheckCheck className="w-3 h-3" />
+                <CheckCheck className="w-3 h-3" aria-hidden="true" />
                 {dict.notifications.markAllRead}
               </button>
             )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Plus, LayoutDashboard, Settings } from "lucide-react";
@@ -17,22 +18,26 @@ interface MobileBottomNavProps {
 export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavProps) {
   const pathname = usePathname();
 
-  const links = role === ROLES.SUPER_ADMIN
-    ? [
+  const links = useMemo(() => {
+    if (role === ROLES.SUPER_ADMIN) {
+      return [
         { href: `/${locale}/admin`, label: dict.nav.dashboard, icon: LayoutDashboard },
         { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
-      ]
-    : role === ROLES.OFFICE_ADMIN
-    ? [
+      ];
+    }
+    if (role === ROLES.OFFICE_ADMIN) {
+      return [
         { href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard },
         { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
         { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
         { href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings },
-      ]
-    : [
-        { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
-        { href: `/${locale}/dashboard/properties`, label: dict.nav.myProperties, icon: Home },
       ];
+    }
+    return [
+      { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
+      { href: `/${locale}/dashboard/properties`, label: dict.nav.myProperties, icon: Home },
+    ];
+  }, [locale, dict, role]);
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 safe-area-bottom" role="navigation" aria-label={dict.common.mobileNavigation}>
@@ -51,7 +56,7 @@ export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavP
                   : "text-gray-500 hover:text-gray-700"
               )}
             >
-              <link.icon className={cn("w-5 h-5", isActive && "text-blue-600")} />
+              <link.icon className={cn("w-5 h-5", isActive && "text-blue-600")} aria-hidden="true" />
               <span className="truncate max-w-[64px]">{link.label}</span>
             </Link>
           );

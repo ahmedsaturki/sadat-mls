@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import {
   Building2,
@@ -36,41 +37,43 @@ interface SidebarProps {
 export default function Sidebar({ locale, dict, role, onNavigate, profile }: SidebarProps) {
   const pathname = usePathname();
 
-  const superAdminLinks = [
-    { href: `/${locale}/admin`, label: dict.nav.dashboard, icon: LayoutDashboard },
-    { href: `/${locale}/admin/analytics`, label: dict.admin.analytics, icon: BarChart3 },
-    { href: `/${locale}/admin/offices`, label: dict.nav.offices, icon: Building2 },
-    { href: `/${locale}/admin/users`, label: dict.admin.users, icon: UserCog },
-    { href: `/${locale}/admin/zones`, label: dict.nav.zones, icon: MapPin },
-    { href: `/${locale}/admin/property-types`, label: dict.nav.propertyTypes, icon: Tags },
-    { href: `/${locale}/admin/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
-  ];
-
-  const officeAdminLinks = [
-    { href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard },
-    { href: `/${locale}/dashboard/properties`, label: dict.nav.myProperties, icon: Home },
-    { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
-    { href: `/${locale}/dashboard/agents`, label: dict.nav.agents, icon: Users },
-    { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
-    { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
-    { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || "البحث المحفوظ", icon: Bookmark },
-    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || "مقارنة العقارات", icon: GitCompare },
-    { href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings },
-    { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
-  ];
-
-  const officeAgentLinks = [
-    { href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard },
-    { href: `/${locale}/dashboard/properties`, label: dict.nav.myProperties, icon: Home },
-    { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
-    { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
-    { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
-    { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || "البحث المحفوظ", icon: Bookmark },
-    { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || "مقارنة العقارات", icon: GitCompare },
-    { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
-  ];
-
-  const links = role === ROLES.SUPER_ADMIN ? superAdminLinks : role === ROLES.OFFICE_ADMIN ? officeAdminLinks : officeAgentLinks;
+  const links = useMemo(() => {
+    if (role === ROLES.SUPER_ADMIN) {
+      return [
+        { href: `/${locale}/admin`, label: dict.nav.dashboard, icon: LayoutDashboard },
+        { href: `/${locale}/admin/analytics`, label: dict.admin.analytics, icon: BarChart3 },
+        { href: `/${locale}/admin/offices`, label: dict.nav.offices, icon: Building2 },
+        { href: `/${locale}/admin/users`, label: dict.admin.users, icon: UserCog },
+        { href: `/${locale}/admin/zones`, label: dict.nav.zones, icon: MapPin },
+        { href: `/${locale}/admin/property-types`, label: dict.nav.propertyTypes, icon: Tags },
+        { href: `/${locale}/admin/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
+      ];
+    }
+    if (role === ROLES.OFFICE_ADMIN) {
+      return [
+        { href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard },
+        { href: `/${locale}/dashboard/properties`, label: dict.nav.myProperties, icon: Home },
+        { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
+        { href: `/${locale}/dashboard/agents`, label: dict.nav.agents, icon: Users },
+        { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
+        { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
+        { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || dict.dashboard?.savedSearches, icon: Bookmark },
+        { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || dict.dashboard?.compareProperties, icon: GitCompare },
+        { href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings },
+        { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
+      ];
+    }
+    return [
+      { href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard },
+      { href: `/${locale}/dashboard/properties`, label: dict.nav.myProperties, icon: Home },
+      { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
+      { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
+      { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
+      { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || dict.dashboard?.savedSearches, icon: Bookmark },
+      { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || dict.dashboard?.compareProperties, icon: GitCompare },
+      { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
+    ];
+  }, [locale, dict, role]);
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
@@ -115,7 +118,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
-                <link.icon className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400")} />
+                <link.icon className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400")} aria-hidden="true" />
                 {link.label}
               </Link>
             );

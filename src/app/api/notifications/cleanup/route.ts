@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
+import { ROLES } from "@/lib/utils/constants";
 import { z } from "zod";
 
 const cleanupSchema = z.object({
@@ -42,7 +43,7 @@ export async function DELETE(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile?.role !== "super_admin") {
+    if (profile?.role !== ROLES.SUPER_ADMIN) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

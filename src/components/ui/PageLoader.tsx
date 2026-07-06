@@ -38,7 +38,7 @@ export function PageLoader({ variant = "luxury", text, fullScreen = false, loadi
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full p-8 min-h-[400px]">
+    <div className="flex flex-col items-center justify-center w-full p-8 min-h-[400px]" role="status" aria-busy="true">
       <div className="animate-pulse-scale w-16 h-16 rounded-full bg-[#1B2D4F]/10 flex items-center justify-center mb-6 relative">
         <div className="animate-spin-slow absolute inset-0 rounded-full border-t-2 border-r-2 border-[#C49A2A] opacity-70" />
         <Sparkles className="w-6 h-6 text-[#1B2D4F]" />

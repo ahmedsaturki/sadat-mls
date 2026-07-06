@@ -11,7 +11,7 @@ export default function LoadingSpinner({
     lg: "w-12 h-12",
   };
 
-  const loadingText = text || "";
+  const loadingText = text || "Loading";
 
   return (
     <div className="flex items-center justify-center" role="status" aria-label={loadingText}>

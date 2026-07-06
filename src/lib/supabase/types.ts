@@ -13,6 +13,7 @@ export interface Database {
           email: string | null;
           phone: string | null;
           address: string | null;
+          description: string | null;
           logo_url: string | null;
           is_active: boolean;
           created_at: string;
@@ -25,6 +26,7 @@ export interface Database {
           email?: string | null;
           phone?: string | null;
           address?: string | null;
+          description?: string | null;
           logo_url?: string | null;
           is_active?: boolean;
           created_at?: string;
@@ -37,6 +39,7 @@ export interface Database {
           email?: string | null;
           phone?: string | null;
           address?: string | null;
+          description?: string | null;
           logo_url?: string | null;
           is_active?: boolean;
           created_at?: string;
@@ -253,36 +256,42 @@ export interface Database {
       contact_requests: {
         Row: {
           id: string;
-          property_id: string;
+          property_id: string | null;
           office_id: string;
           contact_type: "whatsapp" | "phone" | "email";
           visitor_name: string | null;
           visitor_phone: string | null;
           visitor_email: string | null;
           message: string | null;
+          status: "pending" | "read" | "resolved";
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
-          property_id: string;
+          property_id?: string | null;
           office_id: string;
           contact_type: "whatsapp" | "phone" | "email";
           visitor_name?: string | null;
           visitor_phone?: string | null;
           visitor_email?: string | null;
           message?: string | null;
+          status?: "pending" | "read" | "resolved";
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
-          property_id?: string;
+          property_id?: string | null;
           office_id?: string;
           contact_type?: "whatsapp" | "phone" | "email";
           visitor_name?: string | null;
           visitor_phone?: string | null;
           visitor_email?: string | null;
           message?: string | null;
+          status?: "pending" | "read" | "resolved";
           created_at?: string;
+          updated_at?: string;
         };
       };
       property_favorites: {
@@ -301,6 +310,82 @@ export interface Database {
         Update: {
           user_id?: string;
           property_id?: string;
+          created_at?: string;
+        };
+      };
+      activity_log: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          office_id: string | null;
+          action: string;
+          entity_type: string;
+          entity_id: string | null;
+          entity_title: string | null;
+          metadata: Record<string, unknown>;
+          ip_address: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          office_id?: string | null;
+          action: string;
+          entity_type: string;
+          entity_id?: string | null;
+          entity_title?: string | null;
+          metadata?: Record<string, unknown>;
+          ip_address?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          office_id?: string | null;
+          action?: string;
+          entity_type?: string;
+          entity_id?: string | null;
+          entity_title?: string | null;
+          metadata?: Record<string, unknown>;
+          ip_address?: string | null;
+          created_at?: string;
+        };
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          office_id: string | null;
+          type: string;
+          title: string;
+          message: string;
+          entity_type: string | null;
+          entity_id: string | null;
+          is_read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          office_id?: string | null;
+          type: string;
+          title: string;
+          message: string;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          office_id?: string | null;
+          type?: string;
+          title?: string;
+          message?: string;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          is_read?: boolean;
           created_at?: string;
         };
       };

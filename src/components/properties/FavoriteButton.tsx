@@ -133,8 +133,8 @@ const FavoriteButton = memo(function FavoriteButton({
         className
       )}
       aria-label={isFavorited
-        ? (dict?.common?.removeFavorite || "إزالة من المفضلة")
-        : (dict?.common?.addFavorite || "إضافة للمفضلة")}
+        ? (dict?.common?.removeFavorite || "Remove from favorites")
+        : (dict?.common?.addFavorite || "Add to favorites")}
       aria-pressed={isFavorited}
     >
       <Heart

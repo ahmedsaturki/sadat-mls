@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface LogActivityParams {
   userId: string;
@@ -10,15 +11,17 @@ interface LogActivityParams {
   entityTitle?: string | null;
   metadata?: Record<string, unknown>;
   ipAddress?: string | null;
+  supabase?: SupabaseClient;
 }
 
 /**
  * Log an activity to the activity_log table.
  * Call this from API routes or server actions after a CRUD operation.
+ * Pass `supabase` when calling from API routes to avoid cookie access issues.
  */
 export async function logActivity(params: LogActivityParams): Promise<void> {
   try {
-    const supabase = await createClient();
+    const supabase = params.supabase || await createClient();
     const { error } = await supabase
       .from("activity_log")
       .insert({

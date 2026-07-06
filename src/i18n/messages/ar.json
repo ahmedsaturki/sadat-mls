@@ -137,7 +137,8 @@
     "contactRequest": "طلب تواصل",
     "propertyInquiry": "استفسار عقاري",
     "agentJoined": "انضمام مندوب",
-    "system": "نظام"
+    "system": "نظام",
+    "keywords": ["عقارات", "مدينة السادات", "بيع", "تأجير", "شقة", "فيلا", "أرض"]
   },
   "roles": {
     "superAdmin": "المسؤول العام",
@@ -496,6 +497,7 @@
   },
   "explore": {
     "title": "استكشاف العقارات",
+    "description": "تصفح العقارات المتاحة في مدينة السادات - شقق، فلل، أراضي بأفضل الأسعار",
     "results": "نتائج",
     "properties": "عقارات",
     "noResults": "لا توجد عقارات تطابق بحثك",
@@ -634,7 +636,8 @@
     "successMessage": "تم إرسال الطلب بنجاح!",
     "propertyInquiry": "استفسار عن عقار",
     "nameRequired": "الاسم مطلوب",
-    "messageRequired": "الرسالة مطلوبة"
+    "messageRequired": "الرسالة مطلوبة",
+    "newContactRequest": "استفسار جديد من {{name}}"
   },
   "footer": {
     "rights": "جميع الحقوق محفوظة",

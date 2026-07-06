@@ -151,7 +151,7 @@ export default function ContactModal({
           body: JSON.stringify({
             office_id: officeId,
             type: "contact_request",
-            title: `New inquiry from ${trimmedName}`,
+            title: dict.contact.newContactRequest?.replace("{{name}}", trimmedName) || `New inquiry from ${trimmedName}`,
             message: trimmedMessage.substring(0, 200),
             entity_type: "contact_request",
           }),
@@ -191,7 +191,7 @@ export default function ContactModal({
                   aria-label={dict.contact.whatsapp}
                 >
                   <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                    <MessageCircle className="w-5 h-5 text-white" />
+                     <MessageCircle className="w-5 h-5 text-white" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{dict.contact.whatsapp}</p>
@@ -207,7 +207,7 @@ export default function ContactModal({
                   aria-label={dict.contact.call}
                 >
                   <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                    <Phone className="w-5 h-5 text-white" />
+                     <Phone className="w-5 h-5 text-white" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{dict.contact.call}</p>
@@ -223,7 +223,7 @@ export default function ContactModal({
                   aria-label={dict.contact.emailSend}
                 >
                   <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-white" />
+                     <Mail className="w-5 h-5 text-white" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{dict.contact.emailSend}</p>

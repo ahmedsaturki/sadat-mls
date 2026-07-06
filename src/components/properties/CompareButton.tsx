@@ -43,14 +43,14 @@ const CompareButton = memo(function CompareButton({
 
 if (isSelected(property.id)) {
         removeProperty(property.id);
-        showToast(getLabel("removeFromComparison", "تمت الإزالة من المقارنة"), "success");
+        showToast(getLabel("removeFromComparison", "Removed from comparison"), "success");
       } else {
         const added = addProperty(property);
         if (added) {
-          showToast(getLabel("addToComparison", "تمت الإضافة للمقارنة"), "success");
+          showToast(getLabel("addToComparison", "Added to comparison"), "success");
        } else {
           logger.warn("Cannot add more properties to compare", { currentCount: count, max });
-          const maxCompareMsg = getLabel("maxCompare", `الحد الأقصى ${max} عقارات`);
+          const maxCompareMsg = getLabel("maxCompare", `Maximum ${max} properties`);
           showToast(maxCompareMsg.replace("{{max}}", String(max)), "warning");
        }
      }
@@ -67,9 +67,9 @@ if (isSelected(property.id)) {
           : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600",
         className
       )}
-      aria-label={isSelected(property.id) ? 
-        getLabel("removeFromComparison", "إزالة من المقارنة") : 
-        getLabel("addToComparison", "إضافة للمقارنة")}
+      aria-label={isSelected(property.id) ?
+        getLabel("removeFromComparison", "Remove from comparison") :
+        getLabel("addToComparison", "Add to comparison")}
       aria-pressed={isSelected(property.id)}
     >
       <GitCompare className={cn(size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5")} />

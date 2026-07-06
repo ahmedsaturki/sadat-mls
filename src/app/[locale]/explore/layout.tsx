@@ -13,10 +13,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dict = getMessages(validLocale);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  const title = validLocale === "ar" ? "استكشاف العقارات" : "Explore Properties";
-  const description = validLocale === "ar"
-    ? "تصفح العقارات المتاحة في مدينة السادات - شقق، فلل، أراضي بأفضل الأسعار"
-    : "Browse available properties in Sadat City - apartments, villas, and land at the best prices";
+  const title = dict.explore?.title ?? "Explore Properties";
+  const description = dict.explore?.description ?? "Browse available properties in Sadat City - apartments, villas, and land at the best prices";
 
   return {
     metadataBase: new URL(baseUrl),

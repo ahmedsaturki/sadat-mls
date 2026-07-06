@@ -78,7 +78,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
-                <link.icon className="w-4 h-4" />
+                <link.icon className="w-4 h-4" aria-hidden="true" />
                 {link.label}
               </Link>
             ))}
@@ -92,7 +92,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
               aria-label={dict.nav?.switchLanguage || `Switch to ${switchLocale === "ar" ? "Arabic" : "English"}`}
             >
-              <Globe className="w-4 h-4" />
+              <Globe className="w-4 h-4" aria-hidden="true" />
               {dict.nav?.switchLanguage || (switchLocale === "ar" ? "عربي" : "EN")}
             </Link>
 
@@ -137,7 +137,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
                 className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                 aria-label={dict.common.logout}
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden sm:inline">{dict.common.logout}</span>
               </Link>
             </div>
@@ -159,7 +159,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               aria-label={mobileMenuOpen ? dict.common.close : dict.common.open}
               aria-controls="mobile-menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -191,7 +191,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
                   : "text-gray-600 hover:bg-gray-50"
               )}
             >
-              <link.icon className="w-4 h-4" />
+              <link.icon className="w-4 h-4" aria-hidden="true" />
               {link.label}
             </Link>
           ))}
