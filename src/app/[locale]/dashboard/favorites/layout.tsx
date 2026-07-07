@@ -14,7 +14,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   return {
-    metadataBase: new URL(baseUrl),
     title: dict.dashboard.favorites,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/dashboard/favorites`,

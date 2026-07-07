@@ -38,7 +38,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const imageUrl = primaryImage ? new URL(primaryImage, baseUrl).toString() : undefined;
 
   return {
-    metadataBase: new URL(baseUrl),
     title: property.title,
     description: property.description || (dict.landing?.heroDescription ?? ""),
     alternates: {
