@@ -8,8 +8,9 @@
  *   node scripts/adapt-all.js --manifest scripts/component-manifest.json
  *   node scripts/adapt-all.js --dry-run
  *   node scripts/adapt-all.js --dry-run --manifest /path/to/manifest.json
+ *   node scripts/adapt-all.js --retry 5 --dry-run
  *
- * Reads a JSON manifest of { id, name, description } entries and runs
+ * Reads a JSON manifest of { id, name, description, version } entries and runs
  * scripts/adapt-component.js for each, continuing on individual failures
  * and reporting a summary at the end.
  *
@@ -28,6 +29,8 @@ const args = process.argv.slice(2);
 const manifestArgIdx = args.indexOf('--manifest');
 const manifestArg = manifestArgIdx !== -1 ? args[manifestArgIdx + 1] : 'scripts/component-manifest.json';
 const dryRun = args.includes('--dry-run');
+const retryArg = args.indexOf('--retry');
+const RETRY_COUNT = retryArg !== -1 ? parseInt(process.argv[retryArg + 1]) || 3 : 3;
 
 const manifestPath = path.resolve(ROOT, manifestArg);
 if (!fs.existsSync(manifestPath)) {
@@ -43,7 +46,7 @@ if (!entries.length) {
 }
 
 const apiKey = process.env.API_KEY_21ST;
-if (!apiKey && !dryRun) {
+if (!apiKey && !DRY_RUN) {
   console.error('❌ API_KEY_21ST is not set. Add it to .env (copy from .env.example).');
   process.exit(1);
 }
@@ -58,27 +61,29 @@ const fail = (msg) => console.log(`\x1b[31m${msg}\x1b[0m`);
 const info = (msg) => console.log(`\x1b[36m${msg}\x1b[0m`);
 
 for (const entry of entries) {
-  const { id, name, description } = entry;
-  console.log('\n➡️  Adapting', name, '(id', id + ')', description);
-  try {
-    if (dryRun) {
-      // In dry-run mode, just show what would be executed
-      const apiKeyPart = apiKey ? ` --api-key ${apiKey}` : '';
-      const cmd = `node scripts/adapt-component.js ${id} ${name}${apiKeyPart}`;
-      info(`DRY-RUN: Would execute: ${cmd}`);
-    } else {
-      // Execute the actual adaptation
-      execSync(`node scripts/adapt-component.js ${id} ${name} ${apiKey ? `--api-key ${apiKey}` : ''}`, {
+  const { id, name, description, version } = entry;
+  console.log('\n➡️  Adapting', name, '(id', id, 'version', version, ')');
+  
+  if (dryRun) {
+    // In dry-run mode, show what would be executed
+    const apiKeyPart = apiKey ? ` --api-key ${apiKey}` : '';
+    const cmd = `node scripts/adapt-component.js ${id} ${name} ${apiKeyPart} --retry ${RETRY_COUNT}`;
+    info(`DRY-RUN: Would execute: ${cmd}`);
+    success++;
+  } else {
+    // Execute the actual adaptation
+    try {
+      execSync(`node scripts/adapt-component.js ${id} ${name} ${apiKey ? `--api-key ${apiKey}` : ''} --retry ${RETRY_COUNT}`, {
         cwd: ROOT,
         stdio: 'inherit',
         timeout: 120000,
       });
       success++;
+    } catch (err) {
+      failed++;
+      failures.push({ name, id, version, error: err.message });
+      warn(`⚠️  Failed to adapt`, name, '(id', id, 'version', version, '):', err.message);
     }
-  } catch (err) {
-    failed++;
-    failures.push({ name, id, error: err.message });
-    warn(`⚠️  Failed to adapt`, name, '-', err.message);
   }
 }
 
@@ -87,6 +92,6 @@ info(`  ✅ Success: ${success}`);
 info(`  ❌ Failed : ${failed}`);
 if (failures.length) {
   fail('📋 Failures:');
-  failures.forEach((f) => warn(` - ${f.name} (id ${f.id}): ${f.error}`));
+  failures.forEach((f) => warn(` - ${f.name} (id ${f.id}, version ${f.version}): ${f.error}`));
 }
 process.exit(failed ? 1 : 0);
