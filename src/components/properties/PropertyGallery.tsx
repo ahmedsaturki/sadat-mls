@@ -87,14 +87,14 @@ export default function PropertyGallery({
               className="absolute top-1/2 end-4 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
               aria-label={dict.common.previousImage}
             >
-              <ChevronRight className="w-5 h-5" aria-hidden="true" />
+              <ChevronRight className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); navigateImage("next"); }}
               className="absolute top-1/2 start-4 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
               aria-label={dict.common.nextImage}
             >
-              <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+              <ChevronLeft className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
             </button>
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
               {images.map((_, i) => (

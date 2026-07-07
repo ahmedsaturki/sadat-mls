@@ -73,14 +73,14 @@ export default function Lightbox({
             className="absolute end-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
             aria-label={dict.common.previousImage}
           >
-            <ChevronRight className="w-6 h-6" aria-hidden="true" />
+            <ChevronRight className="w-6 h-6 rtl:rotate-180" aria-hidden="true" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onNavigate("next"); }}
             className="absolute start-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
             aria-label={dict.common.nextImage}
           >
-            <ChevronLeft className="w-6 h-6" aria-hidden="true" />
+            <ChevronLeft className="w-6 h-6 rtl:rotate-180" aria-hidden="true" />
           </button>
         </>
       )}
