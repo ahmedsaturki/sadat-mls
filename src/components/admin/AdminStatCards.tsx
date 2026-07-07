@@ -4,23 +4,27 @@ import Link from "next/link";
 import { Building2, Users, Home, MessageCircle } from "lucide-react";
 import LuxuryStatCard from "@/components/ui/LuxuryStatCard";
 
-const iconMap: Record<string, React.ElementType> = {
+type StatColor = "blue" | "green" | "purple" | "orange";
+
+const iconMap = {
   Building2,
   Users,
   Home,
   MessageCircle,
-};
+} as const;
 
-interface StatItem {
-  iconKey: string;
+export type AdminStatIconKey = keyof typeof iconMap;
+
+export interface AdminStatItem {
+  iconKey: AdminStatIconKey;
   label: string;
   value: number;
-  color: string;
+  color: StatColor;
   href: string;
 }
 
 interface AdminStatCardsProps {
-  stats: StatItem[];
+  stats: AdminStatItem[];
 }
 
 export default function AdminStatCards({ stats }: AdminStatCardsProps) {
@@ -29,12 +33,12 @@ export default function AdminStatCards({ stats }: AdminStatCardsProps) {
       {stats.map((stat, i) => {
         const Icon = iconMap[stat.iconKey];
         return (
-           <Link key={i} href={stat.href} aria-label={`${stat.label}: ${stat.value}`}>
+          <Link key={i} href={stat.href} aria-label={`${stat.label}: ${stat.value}`}>
             <LuxuryStatCard
               icon={Icon}
               label={stat.label}
               value={stat.value}
-              color={stat.color as "blue" | "green" | "purple" | "orange"}
+              color={stat.color}
             />
           </Link>
         );

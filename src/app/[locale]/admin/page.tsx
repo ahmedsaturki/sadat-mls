@@ -4,7 +4,7 @@ import { isValidLocale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card, { CardTitle } from "@/components/ui/Card";
-import AdminStatCards from "@/components/admin/AdminStatCards";
+import AdminStatCards, { type AdminStatItem } from "@/components/admin/AdminStatCards";
 import { Building2, MapPin, Plus, Home, ArrowLeft } from "lucide-react";
 import { ROLES } from "@/lib/utils/constants";
 import { getServerAuth } from "@/lib/supabase/server-auth";
@@ -71,7 +71,7 @@ export default async function AdminDashboard({
       .limit(5),
   ]);
 
-  const stats = [
+  const stats: AdminStatItem[] = [
     {
       iconKey: "Building2",
       label: dict.admin.totalOffices,

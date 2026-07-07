@@ -57,8 +57,8 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
         { href: `/${locale}/dashboard/agents`, label: dict.nav.agents, icon: Users },
         { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
         { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
-        { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || dict.dashboard?.savedSearches, icon: Bookmark },
-        { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || dict.dashboard?.compareProperties, icon: GitCompare },
+        { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard.savedSearches, icon: Bookmark },
+        { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
         { href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings },
         { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
       ];
@@ -69,8 +69,8 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
       { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
       { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
       { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
-      { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard?.savedSearches || dict.dashboard?.savedSearches, icon: Bookmark },
-      { href: `/${locale}/dashboard/compare`, label: dict.dashboard?.compareProperties || dict.dashboard?.compareProperties, icon: GitCompare },
+      { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard.savedSearches, icon: Bookmark },
+      { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
       { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
     ];
   }, [locale, dict, role]);
