@@ -13,7 +13,7 @@ interface HealthCheckResult {
   };
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse<HealthCheckResult>> {
+export async function GET(request: NextRequest): Promise<NextResponse<HealthCheckResult | { error: string }>> {
   if (request.method !== "GET") {
     return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
   }
@@ -51,9 +51,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
       checks.supabase = "error";
       logger.warn("Health check: Supabase credentials not configured");
     }
-  } catch (err) {
+  } catch (error: unknown) {
     checks.supabase = "error";
-    logger.error("Health check failed", err);
+    logger.error("Health check failed", error instanceof Error ? { message: error.message, stack: error.stack } : { error: String(error) });
   }
 
   const result: HealthCheckResult = {
