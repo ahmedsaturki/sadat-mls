@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { PROPERTY_STATUSES } from "@/lib/utils/constants";
 
+// Shared password validation regex (uppercase, lowercase, number, special character, min 8 chars)
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 export const agentSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address",
@@ -9,7 +12,7 @@ export const agentSchema = z.object({
     message: "Password must be at least 8 characters",
   }).max(128, {
     message: "Password cannot exceed 128 characters",
-  }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+  }).regex(PASSWORD_REGEX, {
     message: "Password must include uppercase, lowercase, number, and special character",
   }),
   fullName: z.string().min(2, {
@@ -163,7 +166,7 @@ export const authSchemas = {
       message: "Password must be at least 8 characters",
     }).max(128, {
       message: "Password cannot exceed 128 characters",
-    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    }).regex(PASSWORD_REGEX, {
       message: "Password must include uppercase, lowercase, number, and special character",
     }),
     officeId: z.string().uuid().optional(),
@@ -186,7 +189,7 @@ export const authSchemas = {
       message: "New password must be at least 8 characters",
     }).max(128, {
       message: "Password cannot exceed 128 characters",
-    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    }).regex(PASSWORD_REGEX, {
       message: "Password must include uppercase, lowercase, number, and special character",
     }),
     confirmPassword: z.string(),
@@ -209,7 +212,7 @@ export const authSchemas = {
       message: "New password must be at least 8 characters",
     }).max(128, {
       message: "Password cannot exceed 128 characters",
-    }).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    }).regex(PASSWORD_REGEX, {
       message: "Password must include uppercase, lowercase, number, and special character",
     }),
     confirmPassword: z.string(),

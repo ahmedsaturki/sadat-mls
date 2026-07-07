@@ -665,8 +665,8 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => router.back()} aria-label={dict.common.goBack} className="p-2 rounded-lg hover:bg-gray-100">
-            <ArrowRight className="w-5 h-5" />
+          <button onClick={() => router.back()} aria-label={dict.common.goBack} className="p-2 rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none">
+            <ArrowRight className="w-5 h-5" aria-hidden="true" />
           </button>
           <h1 className="text-2xl font-bold text-gray-900">
             {mode === "create" ? dict.office.addProperty : dict.office.editProperty}
@@ -728,7 +728,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
             <div className="border-t border-gray-200 pt-4">
               <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4" aria-hidden="true" />
                 {dict.office.propertyOwner}
               </h3>
               <PropertyOwnerInfo
@@ -763,7 +763,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
 
           <div className="flex gap-3 justify-end mt-6">
             <span className="flex items-center gap-1 text-xs text-gray-400 mr-auto">
-              <Keyboard className="w-3 h-3" />
+              <Keyboard className="w-3 h-3" aria-hidden="true" />
               {dict.common.saveShortcut}
             </span>
             <Button type="button" variant="ghost" onClick={() => router.back()}>

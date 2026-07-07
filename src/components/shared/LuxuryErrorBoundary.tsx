@@ -35,7 +35,7 @@ export function LuxuryErrorBoundary({
           <div
             className="animate-fade-up w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm"
           >
-            <AlertTriangle className="w-8 h-8 text-[#C49A2A]" />
+            <AlertTriangle className="w-8 h-8 text-[#C49A2A]" aria-hidden="true" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">
             {dict.common.oops}
@@ -48,7 +48,7 @@ export function LuxuryErrorBoundary({
             onClick={reset}
             className="group flex items-center justify-center gap-2 w-full bg-[#C49A2A] text-[#1B2D4F] px-6 py-3 rounded-xl font-semibold hover:bg-[#C49A2A]/90 transition-all duration-300 focus:ring-2 focus:ring-[#C49A2A]/50 focus:outline-none shadow-lg shadow-[#C49A2A]/20 hover:shadow-xl hover:shadow-[#C49A2A]/30"
           >
-            <RefreshCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
+            <RefreshCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
             {dict.common.retry}
            </button>
         </div>

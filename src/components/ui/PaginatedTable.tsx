@@ -86,7 +86,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase ${col.className || ""}`}
+                  className={`px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase ${col.className || ""}`}
                 >
                   {col.header}
                 </th>
@@ -125,7 +125,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
               className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label={dir === "rtl" ? nextPageLabel : previousPageLabel}
             >
-              {dir === "rtl" ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              {dir === "rtl" ? <ChevronRight className="w-4 h-4" aria-hidden="true" /> : <ChevronLeft className="w-4 h-4" aria-hidden="true" />}
             </button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
               let pageNum: number;
@@ -160,7 +160,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
               className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label={dir === "rtl" ? previousPageLabel : nextPageLabel}
             >
-              {dir === "rtl" ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              {dir === "rtl" ? <ChevronLeft className="w-4 h-4" aria-hidden="true" /> : <ChevronRight className="w-4 h-4" aria-hidden="true" />}
             </button>
           </div>
         </div>

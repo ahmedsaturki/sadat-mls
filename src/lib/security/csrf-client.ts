@@ -120,7 +120,7 @@ export class CSRFClient {
 
       const isValid = result === 0;
       if (!isValid) {
-        logger.warn("CSRF validation failed: token mismatch", { token: token.substring(0, 8) + "..." });
+        logger.warn("CSRF validation failed: token mismatch");
       }
       return isValid;
     } catch (error) {

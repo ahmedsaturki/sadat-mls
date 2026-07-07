@@ -79,7 +79,7 @@ const handleWebShare = async () => {
           className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
           aria-label={explore?.share}
         >
-          <Share2 className="w-4 h-4" />
+          <Share2 className="w-4 h-4" aria-hidden="true" />
         </button>
 
         <Modal isOpen={open} onClose={() => setOpen(false)} title={explore?.share ?? ""}>
@@ -88,12 +88,12 @@ const handleWebShare = async () => {
 
             <button
               onClick={handleCopy}
-              className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
+              className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-start"
               aria-label={copied ? explore?.copied : explore?.copyLink}
             >
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                 {copied ? (
-                  <Check className="w-5 h-5 text-green-600" />
+                   <Check className="w-5 h-5 text-green-600" aria-hidden="true" />
                 ) : (
                   <LinkIcon className="w-5 h-5 text-gray-600" />
                 )}
@@ -110,7 +110,7 @@ const handleWebShare = async () => {
 
             <button
               onClick={handleWhatsApp}
-              className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
+              className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-start"
               aria-label={explore?.shareVia}
             >
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">

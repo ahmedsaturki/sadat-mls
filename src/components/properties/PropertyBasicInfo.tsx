@@ -88,7 +88,7 @@ export default function PropertyBasicInfo({
               disabled={isGenerating || !formData.title}
               className="text-xs"
             >
-              <Sparkles className="w-3 h-3 mr-1" />
+              <Sparkles className="w-3 h-3 me-1" />
               {isGenerating ? dict.office.generatingDescription : dict.office.generateDescription}
             </Button>
           )}

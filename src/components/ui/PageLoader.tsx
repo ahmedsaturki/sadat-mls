@@ -24,7 +24,7 @@ export function PageLoader({ variant = "luxury", text, fullScreen = false, loadi
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm" aria-busy={ariaBusy === "true"} role={role}>
         <div className="animate-pulse-scale w-16 h-16 rounded-full bg-[#1B2D4F]/10 flex items-center justify-center mb-6 relative">
           <div className="animate-spin-slow absolute inset-0 rounded-full border-t-2 border-r-2 border-[#C49A2A] opacity-70" />
-          <Sparkles className="w-6 h-6 text-[#1B2D4F]" />
+          <Sparkles className="w-6 h-6 text-[#1B2D4F]" aria-hidden="true" />
         </div>
 
         <div className="flex flex-col items-center gap-2">
@@ -41,7 +41,7 @@ export function PageLoader({ variant = "luxury", text, fullScreen = false, loadi
     <div className="flex flex-col items-center justify-center w-full p-8 min-h-[400px]" role="status" aria-busy="true">
       <div className="animate-pulse-scale w-16 h-16 rounded-full bg-[#1B2D4F]/10 flex items-center justify-center mb-6 relative">
         <div className="animate-spin-slow absolute inset-0 rounded-full border-t-2 border-r-2 border-[#C49A2A] opacity-70" />
-        <Sparkles className="w-6 h-6 text-[#1B2D4F]" />
+        <Sparkles className="w-6 h-6 text-[#1B2D4F]" aria-hidden="true" />
       </div>
 
       <div className="flex flex-col items-center gap-2">

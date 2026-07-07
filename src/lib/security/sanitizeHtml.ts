@@ -13,7 +13,7 @@
 /* -------------------------------------------------------------------------- */
 
 /** Escape HTML entities in a string. */
-function escapeHtmlEntities(str: string): string {
+export function escapeHtmlEntities(str: string): string {
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

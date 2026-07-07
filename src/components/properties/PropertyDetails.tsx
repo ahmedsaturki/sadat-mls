@@ -142,7 +142,7 @@ export default function PropertyDetails({
           className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         {errors.status && (
-          <p className="text-red-500 text-xs mt-1" id={`status-error-${errors.status}`}>
+          <p className="text-red-500 text-xs mt-1" id="status-error">
             {errors.status}
           </p>
         )}

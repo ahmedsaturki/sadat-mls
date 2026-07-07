@@ -31,7 +31,7 @@ export function LuxuryCard({ title, description, imageUrl, price, location, href
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
           
           {badge && (
-            <div className="absolute top-4 right-4 bg-[#C49A2A] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+            <div className="absolute top-4 end-4 bg-[#C49A2A] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
               {badge}
             </div>
           )}

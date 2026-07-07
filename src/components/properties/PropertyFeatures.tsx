@@ -68,7 +68,7 @@ export default function PropertyFeatures({
                 {featureLabels[feature]}
                 
                 {description && (
-                  <span className="ml-2 text-xs text-gray-500" 
+                  <span className="ms-2 text-xs text-gray-500" 
                         id={`${feature}-description`}>
                     {description}
                   </span>
@@ -76,7 +76,7 @@ export default function PropertyFeatures({
               </span>
               
               {/* Visual indicator for selected state */}
-              <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium">
+              <span className="ms-2 px-2 py-1 rounded-full text-xs font-medium">
                 {isChecked ? (dict.propertyFeatures?.featureEnabled ?? "Enabled") : (dict.propertyFeatures?.featureDisabled ?? "Disabled")}
               </span>
             </label>

@@ -47,13 +47,13 @@ export default function Lightbox({
     >
       <button
         onClick={onClose}
-        className="absolute top-6 left-6 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
+        className="absolute top-6 start-6 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
         aria-label={dict.common.closeLightbox}
       >
-        <X className="w-5 h-5" />
+        <X className="w-5 h-5" aria-hidden="true" />
       </button>
 
-      <div className="absolute top-6 right-6 text-white text-sm">
+      <div className="absolute top-6 end-6 text-white text-sm">
         {currentIndex + 1} / {images.length}
       </div>
 
@@ -70,17 +70,17 @@ export default function Lightbox({
         <>
           <button
             onClick={(e) => { e.stopPropagation(); onNavigate("prev"); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
+            className="absolute end-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
             aria-label={dict.common.previousImage}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-6 h-6" aria-hidden="true" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onNavigate("next"); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
+            className="absolute start-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
             aria-label={dict.common.nextImage}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6" aria-hidden="true" />
           </button>
         </>
       )}
