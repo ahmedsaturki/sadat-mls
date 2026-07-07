@@ -3,22 +3,26 @@
     {
       "id": "1323",
       "name": "Button",
-      "description": "Shadcn button baseline"
+      "description": "Shadcn button baseline",
+      "version": "1.0.0"
     },
     {
       "id": "64",
       "name": "ParticleButton",
-      "description": "Kokonutd particle button"
+      "description": "Kokonutd particle button",
+      "version": "1.0.0"
     },
     {
       "id": "143",
       "name": "OriginButton",
-      "description": "Originui button"
+      "description": "Originui button",
+      "version": "1.0.0"
     },
     {
       "id": "3824",
       "name": "SugarButton",
-      "description": "Shugar button"
+      "description": "Shugar button",
+      "version": "1.0.0"
     }
   ]
 }
