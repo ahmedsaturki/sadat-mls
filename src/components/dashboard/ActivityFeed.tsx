@@ -118,7 +118,7 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
   if (activities.length === 0) {
     return (
       <div className="text-center py-8">
-        <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+        <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" aria-hidden="true" />
         <p className="text-gray-400 text-sm">
           {dict.office?.noActivity || "No recent activity"}
         </p>

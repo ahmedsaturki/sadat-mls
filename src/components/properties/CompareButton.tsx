@@ -72,7 +72,7 @@ if (isSelected(property.id)) {
         getLabel("addToComparison", "Add to comparison")}
       aria-pressed={isSelected(property.id)}
     >
-      <GitCompare className={cn(size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5")} />
+      <GitCompare className={cn(size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5")} aria-hidden="true" />
     </button>
   );
 });

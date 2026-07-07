@@ -7,6 +7,11 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
+import {
+  getContactAttempts,
+  recordContactAttempt,
+  clearContactAttempts,
+} from "@/lib/utils/contact-rate-limit";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -22,40 +27,14 @@ interface ContactModalProps {
   };
 }
 
-const CONTACT_RATE_LIMIT_KEY = "sadat_contact_modal_attempts";
-const MAX_CONTACT_ATTEMPTS = 5;
-const CONTACT_LOCKOUT_MS = 60 * 60 * 1000;
+const CONTACT_RATE_LIMIT_CONFIG = {
+  storageKey: "sadat_contact_modal_attempts",
+  maxAttempts: 5,
+  lockoutMs: 60 * 60 * 1000,
+};
 const MAX_NAME_LENGTH = 100;
 const MAX_PHONE_LENGTH = 50;
 const MAX_MESSAGE_LENGTH = 1000;
-
-function getContactAttempts(): { count: number; firstAttemptAt: number } {
-  if (typeof window === "undefined") return { count: 0, firstAttemptAt: 0 };
-  try {
-    const data = localStorage.getItem(CONTACT_RATE_LIMIT_KEY);
-    if (!data) return { count: 0, firstAttemptAt: 0 };
-    const parsed = JSON.parse(data);
-    if (Date.now() - parsed.firstAttemptAt > CONTACT_LOCKOUT_MS) {
-      localStorage.removeItem(CONTACT_RATE_LIMIT_KEY);
-      return { count: 0, firstAttemptAt: 0 };
-    }
-    return parsed;
-  } catch {
-    return { count: 0, firstAttemptAt: 0 };
-  }
-}
-
-function recordContactAttempt(): { count: number; locked: boolean } {
-  const current = getContactAttempts();
-  const newCount = current.count + 1;
-  const firstAttemptAt = current.count === 0 ? Date.now() : current.firstAttemptAt;
-  localStorage.setItem(CONTACT_RATE_LIMIT_KEY, JSON.stringify({ count: newCount, firstAttemptAt }));
-  return { count: newCount, locked: newCount >= MAX_CONTACT_ATTEMPTS };
-}
-
-function clearContactAttempts() {
-  localStorage.removeItem(CONTACT_RATE_LIMIT_KEY);
-}
 
 export default function ContactModal({
   isOpen,
@@ -108,7 +87,7 @@ export default function ContactModal({
       return;
     }
 
-    const { locked } = recordContactAttempt();
+    const { locked } = recordContactAttempt(CONTACT_RATE_LIMIT_CONFIG);
     if (locked) {
       setError(dict.contact.error);
       return;
@@ -141,7 +120,7 @@ export default function ContactModal({
       setSaving(false);
       setSuccess(true);
       setFormData({ visitor_name: "", visitor_phone: "", visitor_email: "", message: "" });
-      clearContactAttempts();
+      clearContactAttempts(CONTACT_RATE_LIMIT_CONFIG);
 
       // Create notification for office members (fire-and-forget)
       if (officeId) {
@@ -187,7 +166,7 @@ export default function ContactModal({
               {whatsappUrl && (
                 <button
                   onClick={() => handleSelectType("whatsapp")}
-                  className="w-full flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-start"
                   aria-label={dict.contact.whatsapp}
                 >
                   <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
@@ -203,7 +182,7 @@ export default function ContactModal({
               {officePhone && (
                 <button
                   onClick={() => handleSelectType("phone")}
-                  className="w-full flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-start"
                   aria-label={dict.contact.call}
                 >
                   <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
@@ -219,7 +198,7 @@ export default function ContactModal({
               {officeEmail && (
                 <button
                   onClick={() => handleSelectType("email")}
-                  className="w-full flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-start"
                   aria-label={dict.contact.emailSend}
                 >
                   <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">

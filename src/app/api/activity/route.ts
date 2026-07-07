@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
+import { z } from "zod";
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,8 +20,10 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limitParam = searchParams.get("limit") || "20";
+    const offsetParam = searchParams.get("offset") || "0";
+    const limit = Math.min(Math.max(parseInt(limitParam) || 10, 1), 100);
+    const offset = Math.max(parseInt(offsetParam) || 0, 0);
 
     const { data: activities, error } = await supabase
       .from("activity_log")
@@ -69,11 +72,21 @@ export async function POST(request: NextRequest) {
       .single();
 
     const body = await request.json();
-    const { action, entity_type, entity_id, entity_title, metadata } = body;
 
-    if (!action || !entity_type) {
-      return NextResponse.json({ error: "action and entity_type are required" }, { status: 400 });
+    const activitySchema = z.object({
+      action: z.string().min(1).max(100),
+      entity_type: z.string().min(1).max(50),
+      entity_id: z.string().uuid().optional(),
+      entity_title: z.string().max(255).optional(),
+      metadata: z.record(z.unknown()).optional(),
+    });
+
+    const parsed = activitySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten().fieldErrors }, { status: 400 });
     }
+
+    const { action, entity_type, entity_id, entity_title, metadata } = parsed.data;
 
     const { error } = await supabase
       .from("activity_log")

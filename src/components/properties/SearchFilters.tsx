@@ -118,7 +118,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
             aria-expanded={showAdvanced}
             aria-controls="advanced-filters-section"
           >
-            <SlidersHorizontal className="w-4 h-4" />
+            <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
             {activeFilterCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[10px] rounded-full flex items-center justify-center">
                 {activeFilterCount}
@@ -218,7 +218,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                     onChange={(e) => updateFilter("hasBalcony", e.target.checked)}
                     className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                   />
-                  <DoorOpen className="w-4 h-4 text-gray-500" />
+                  <DoorOpen className="w-4 h-4 text-gray-500" aria-hidden="true" />
                   <span className="text-sm text-gray-700">{dict.explore.balcony}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -228,7 +228,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                     onChange={(e) => updateFilter("hasParking", e.target.checked)}
                     className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                   />
-                  <ParkingCircle className="w-4 h-4 text-gray-500" />
+                  <ParkingCircle className="w-4 h-4 text-gray-500" aria-hidden="true" />
                   <span className="text-sm text-gray-700">{dict.explore.parking}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -238,7 +238,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                     onChange={(e) => updateFilter("hasElevator", e.target.checked)}
                     className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                   />
-                  <Accessibility className="w-4 h-4 text-gray-500" />
+                  <Accessibility className="w-4 h-4 text-gray-500" aria-hidden="true" />
                   <span className="text-sm text-gray-700">{dict.explore.elevator}</span>
                 </label>
               </div>

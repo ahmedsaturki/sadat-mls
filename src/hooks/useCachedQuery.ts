@@ -50,7 +50,7 @@ export function useCachedQuery<T>(key: string, queryFn: () => Promise<T>) {
         key,
         error: error instanceof Error ? error.message : String(error),
       });
-      return undefined as T;
+      return null;
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export function useDebouncedQuery<T>(
       clearTimeout(timeoutRef.current);
     }
 
-    return new Promise<T>((resolve) => {
+    return new Promise<T | null>((resolve) => {
       timeoutRef.current = setTimeout(async () => {
         const cache = cacheRef.current;
         const cached = cache.get(key);
@@ -109,7 +109,7 @@ export function useDebouncedQuery<T>(
           resolve(result);
         } catch (error) {
           logger.error("Debounced query failed", { error: error instanceof Error ? error.message : String(error) });
-          resolve(undefined as T);
+          resolve(null);
         } finally {
           setLoading(false);
         }

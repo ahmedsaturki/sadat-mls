@@ -4,50 +4,28 @@ import { useState } from "react";
 import { Send } from "lucide-react";
 import { logger } from "@/lib/logger";
 import { isValidEmail } from "@/lib/security/sanitize";
+import {
+  getContactAttempts,
+  recordContactAttempt,
+  clearContactAttempts,
+} from "@/lib/utils/contact-rate-limit";
 import type { Messages } from "@/i18n/getMessages";
 
 interface ContactFormProps {
   dict: Messages;
 }
 
-const CONTACT_RATE_LIMIT_KEY = "sadat_contact_attempts";
-const MAX_CONTACT_ATTEMPTS = 3;
-const CONTACT_LOCKOUT_MS = 60 * 60 * 1000; // 1 hour
+const CONTACT_RATE_LIMIT_CONFIG = {
+  storageKey: "sadat_contact_attempts",
+  maxAttempts: 3,
+  lockoutMs: 60 * 60 * 1000, // 1 hour
+};
 
 // Maxlength constants for security (module-level to avoid re-creation on each render)
 const MAX_NAME_LENGTH = 100;
 const MAX_EMAIL_LENGTH = 255;
 const MAX_PHONE_LENGTH = 50;
 const MAX_MESSAGE_LENGTH = 1000;
-
-function getContactAttempts(): { count: number; firstAttemptAt: number } {
-  if (typeof window === "undefined") return { count: 0, firstAttemptAt: 0 };
-  try {
-    const data = localStorage.getItem(CONTACT_RATE_LIMIT_KEY);
-    if (!data) return { count: 0, firstAttemptAt: 0 };
-    const parsed = JSON.parse(data);
-    if (Date.now() - parsed.firstAttemptAt > CONTACT_LOCKOUT_MS) {
-      localStorage.removeItem(CONTACT_RATE_LIMIT_KEY);
-      return { count: 0, firstAttemptAt: 0 };
-    }
-    return parsed;
-  } catch (err) {
-    logger.error("Failed to parse contact rate limit data", { error: err instanceof Error ? err.message : String(err) });
-    return { count: 0, firstAttemptAt: 0 };
-  }
-}
-
-function recordContactAttempt(): { count: number; locked: boolean } {
-  const current = getContactAttempts();
-  const newCount = current.count + 1;
-  const firstAttemptAt = current.count === 0 ? Date.now() : current.firstAttemptAt;
-  localStorage.setItem(CONTACT_RATE_LIMIT_KEY, JSON.stringify({ count: newCount, firstAttemptAt }));
-  return { count: newCount, locked: newCount >= MAX_CONTACT_ATTEMPTS };
-}
-
-function clearContactAttempts() {
-  localStorage.removeItem(CONTACT_RATE_LIMIT_KEY);
-}
 
 export default function ContactForm({ dict }: ContactFormProps) {
   const [contactLoading, setContactLoading] = useState(false);
@@ -58,15 +36,17 @@ export default function ContactForm({ dict }: ContactFormProps) {
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
 
   const checkRateLimit = (): boolean => {
-    const { count } = getContactAttempts();
-    if (count >= MAX_CONTACT_ATTEMPTS) {
-      const { firstAttemptAt } = getContactAttempts();
-      const timeLeft = Math.ceil((CONTACT_LOCKOUT_MS - (Date.now() - firstAttemptAt)) / 60000);
+    const { count } = getContactAttempts(CONTACT_RATE_LIMIT_CONFIG);
+    if (count >= CONTACT_RATE_LIMIT_CONFIG.maxAttempts) {
+      const { firstAttemptAt } = getContactAttempts(CONTACT_RATE_LIMIT_CONFIG);
+      const timeLeft = Math.ceil(
+        (CONTACT_RATE_LIMIT_CONFIG.lockoutMs - (Date.now() - firstAttemptAt)) / 60000
+      );
       setContactError(dict.common.rateLimitExceeded.replace("{{minutes}}", String(timeLeft)));
       setAttemptsRemaining(0);
       return false;
     }
-    setAttemptsRemaining(MAX_CONTACT_ATTEMPTS - count);
+    setAttemptsRemaining(CONTACT_RATE_LIMIT_CONFIG.maxAttempts - count);
     return true;
   };
 
@@ -126,7 +106,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
 
       setContactSent(true);
       setContactForm({ name: "", email: "", phone: "", message: "" });
-      clearContactAttempts();
+      clearContactAttempts(CONTACT_RATE_LIMIT_CONFIG);
 
     } catch (err) {
       logger.warn("Contact form submission failed", { error: err instanceof Error ? err.message : String(err) });
@@ -134,13 +114,13 @@ export default function ContactForm({ dict }: ContactFormProps) {
         err.message === "No active office available" || err.message.includes("500") || err.message.includes("server")
       );
       if (!isServerError) {
-        const { count, locked } = recordContactAttempt();
+        const { count, locked } = recordContactAttempt(CONTACT_RATE_LIMIT_CONFIG);
         if (locked) {
           setContactError(dict.common.rateLimitLockedHour);
           setAttemptsRemaining(0);
         } else {
           setContactError(dict.landing.contactForm.error);
-          setAttemptsRemaining(MAX_CONTACT_ATTEMPTS - count);
+          setAttemptsRemaining(CONTACT_RATE_LIMIT_CONFIG.maxAttempts - count);
         }
       } else {
         setContactError(dict.landing.contactForm.error);
@@ -164,7 +144,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
           {contactSent ? (
             <div className="text-center py-12 bg-white rounded-2xl shadow-sm">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Send className="w-8 h-8 text-green-600" />
+                <Send className="w-8 h-8 text-green-600" aria-hidden="true" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{dict.landing.contactForm.success}</h3>
               <button
@@ -249,7 +229,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                   </>
                 ) : (
                   <>
-                    <Send className="w-5 h-5" />
+                    <Send className="w-5 h-5" aria-hidden="true" />
                     {dict.landing.contactForm.send}
                   </>
                 )}

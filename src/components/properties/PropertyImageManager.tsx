@@ -76,7 +76,7 @@ export default function PropertyImageManager({
           onClick={() => fileInputRef.current?.click()}
           aria-label={dict.common.add}
         >
-          <Upload className="w-4 h-4 mr-1" aria-hidden="true" />
+          <Upload className="w-4 h-4 me-1" aria-hidden="true" />
           {dict.common.add}
         </Button>
         <input

@@ -51,7 +51,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       const texts = getBilingualText();
       return (
         <div className="flex flex-col items-center justify-center p-8 bg-red-50 border border-red-200 rounded-xl">
-          <AlertTriangle className="w-10 h-10 text-red-500 mb-3" />
+          <AlertTriangle className="w-10 h-10 text-red-500 mb-3" aria-hidden="true" />
           <h3 className="text-lg font-semibold text-red-800 mb-1">
             {this.props.fallbackTitle || texts.title}
           </h3>

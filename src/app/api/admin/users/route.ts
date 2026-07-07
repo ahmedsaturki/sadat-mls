@@ -262,23 +262,27 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { userId, role, is_active } = body;
+  const patchUserSchema = z.object({
+    userId: z.string().uuid(),
+    role: z.enum(['super_admin', 'office_admin', 'office_agent']).optional(),
+    is_active: z.boolean().optional(),
+    fullName: z.string().min(1).max(255).optional(),
+    email: z.string().email().optional(),
+  });
 
-  if (!userId) {
-    return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+  const parsed = patchUserSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(userId)) {
-    return NextResponse.json({ error: "Invalid user ID format" }, { status: 400 });
-  }
+  const { userId, role, is_active } = parsed.data;
 
   if (userId === user.id) {
     return NextResponse.json({ error: "Cannot modify your own account" }, { status: 400 });
   }
 
   const updates: Record<string, unknown> = {};
-  if (role && Object.values(ROLES).includes(role)) {
+  if (role) {
     updates.role = role;
   }
   if (typeof is_active === "boolean") {

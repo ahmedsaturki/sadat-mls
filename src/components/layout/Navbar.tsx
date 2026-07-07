@@ -58,7 +58,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center gap-2" prefetch aria-label={dict.common.home}>
-            <Building2 className="w-8 h-8 text-blue-600" />
+            <Building2 className="w-8 h-8 text-blue-600" aria-hidden="true" />
             <span className="text-xl font-bold text-gray-900">{dict.common.appName}</span>
           </Link>
 

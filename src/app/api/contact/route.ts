@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
-import { SecurityValidator } from "@/lib/security/enhanced";
+import { escapeHtmlEntities } from "@/lib/security/sanitizeHtml";
 import { logger } from "@/lib/logger";
 
 const contactRequestSchema = z.object({
@@ -64,9 +64,9 @@ export async function POST(request: NextRequest) {
   const raw = parsed.data;
   const data = {
     ...raw,
-    visitorName: SecurityValidator.sanitizeString(raw.visitorName, "name"),
-    visitorEmail: raw.visitorEmail ? SecurityValidator.sanitizeString(raw.visitorEmail, "email") : raw.visitorEmail,
-    message: SecurityValidator.sanitizeString(raw.message, "text"),
+    visitorName: escapeHtmlEntities(raw.visitorName),
+    visitorEmail: raw.visitorEmail ? escapeHtmlEntities(raw.visitorEmail) : raw.visitorEmail,
+    message: escapeHtmlEntities(raw.message),
   };
 
   try {
