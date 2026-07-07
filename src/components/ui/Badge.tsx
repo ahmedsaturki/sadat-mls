@@ -27,7 +27,7 @@ export default function Badge({ children, variant = "default", size = "sm", clas
       role="status"
       aria-label={ariaLabel}
       className={cn(
-        "inline-flex items-center font-medium rounded-full",
+        "inline-flex items-center font-medium rounded-full min-h-6 min-w-6",
         variants[variant],
         sizes[size],
         className

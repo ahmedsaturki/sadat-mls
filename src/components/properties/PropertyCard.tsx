@@ -78,11 +78,11 @@ const PropertyCard = memo(function PropertyCard({
   };
 
   const statusConfig = {
-    available: { label: getLabel("available", "Available"), variant: "success" as const },
-    reserved: { label: getLabel("reserved", "Reserved"), variant: "warning" as const },
-    rented: { label: getLabel("rented", "Rented"), variant: "warning" as const },
-    sold: { label: getLabel("sold", "Sold"), variant: "danger" as const },
-    pending_review: { label: getLabel("pending_review", "Pending Review"), variant: "info" as const },
+    available: { label: getLabel("available", ""), variant: "success" as const },
+    reserved: { label: getLabel("reserved", ""), variant: "warning" as const },
+    rented: { label: getLabel("rented", ""), variant: "warning" as const },
+    sold: { label: getLabel("sold", ""), variant: "danger" as const },
+    pending_review: { label: getLabel("pending_review", ""), variant: "info" as const },
   };
 
   return (
@@ -101,8 +101,8 @@ const PropertyCard = memo(function PropertyCard({
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="flex items-center justify-center h-full bg-gradient-to-br from-blue-50 to-blue-100">
-              <Home className="w-12 h-12 text-blue-300" aria-hidden="true" />
+            <div className="flex items-center justify-center h-full bg-gradient-to-br from-[#1B2D4F]/5 to-[#1B2D4F]/10">
+              <Home className="w-12 h-12 text-[#1B2D4F]/20" aria-hidden="true" />
             </div>
           )}
           <div className="absolute top-2 flex gap-1 end-2">
@@ -137,7 +137,7 @@ const PropertyCard = memo(function PropertyCard({
             )}
             <span className="flex items-center gap-1">
               <Maximize className="w-4 h-4" aria-hidden="true" />
-              {area} {dict?.property?.areaUnit || "m²"}
+              {area} {dict?.property?.areaUnit}
             </span>
           </div>
 
@@ -150,7 +150,7 @@ const PropertyCard = memo(function PropertyCard({
 
           <div className="flex items-center justify-between pt-3 border-t border-gray-100">
             <span className="text-lg font-bold text-blue-600">
-              {formatPrice(price, locale)} {dict?.property?.priceUnit || "EGP"}
+              {formatPrice(price, locale)} {dict?.property?.priceUnit}
             </span>
             <div className="flex items-center gap-1">
               <ShareButton title={title} dict={dict} />

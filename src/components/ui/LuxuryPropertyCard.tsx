@@ -61,16 +61,16 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
   };
 
   const statusConfig = {
-    available: { label: getLabel("available", "Available"), variant: "success" as const },
-    reserved: { label: getLabel("reserved", "Reserved"), variant: "warning" as const },
-    rented: { label: getLabel("rented", "Rented"), variant: "warning" as const },
-    sold: { label: getLabel("sold", "Sold"), variant: "danger" as const },
-    pending_review: { label: getLabel("pending_review", "Pending Review"), variant: "info" as const },
+    available: { label: getLabel("available", ""), variant: "success" as const },
+    reserved: {label: getLabel("reserved", ""), variant: "warning" as const },
+    rented: { label: getLabel("rented", ""), variant: "warning" as const },
+    sold: { label: getLabel("sold", ""), variant: "danger" as const },
+    pending_review: { label: getLabel("pending_review", ""), variant: "info" as const },
   };
 
   return (
     <div
-      className="animate-fade-up group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl hover:shadow-[#C49A2A]/20 transition-all duration-300 border border-gray-100"
+      className="animate-fade-up group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl hover:shadow-[#C49A2A]/20 transition-transform duration-200 border border-gray-100"
     >
       <Link href={`/${locale}/explore/${id}`} className="block w-full" aria-label={`${title} - ${statusConfig[status].label}`}>
         {/* Image Container with Zoom Effect */}
@@ -107,7 +107,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
           {/* Bottom Price & Location Overlay */}
            <div className="absolute bottom-4 start-4 end-4 text-white z-10">
             <p className="text-2xl font-bold font-serif text-[#C49A2A] drop-shadow-md">
-               {formatPrice(price, locale)} <span className="text-sm text-gray-200 font-sans">{dict?.property?.priceUnit || "EGP"}</span>
+               {formatPrice(price, locale)} <span className="text-sm text-gray-200 font-sans">{dict?.property?.priceUnit}</span>
             </p>
             {zone && (
               <p className="text-sm text-gray-200 mt-1 flex items-center gap-1.5">
@@ -144,7 +144,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
             <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-gray-50/50">
               <Maximize className="w-4 h-4 text-[#C49A2A] mb-1" aria-hidden="true" />
               <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                 {area} <span className="text-[10px] text-gray-500">{(dict?.property?.areaUnit as string) || "m²"}</span>
+                 {area} <span className="text-[10px] text-gray-500">{(dict?.property?.areaUnit as string)}</span>
               </span>
             </div>
           </div>

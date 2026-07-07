@@ -253,7 +253,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
           {/* Recent Activity */}
           <Card>
             <div className="flex items-center justify-between mb-4">
-              <CardTitle>{dict.office?.recentActivity || "Recent Activity"}</CardTitle>
+              <CardTitle>{dict.office?.recentActivity}</CardTitle>
             </div>
             <ActivityFeed locale={locale} dict={dict} officeId={profile.office_id} />
           </Card>

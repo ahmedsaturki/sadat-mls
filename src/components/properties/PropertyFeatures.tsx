@@ -54,7 +54,7 @@ export default function PropertyFeatures({
             className="rounded-lg border border-gray-200 p-4 hover:bg-gray-50 transition"
           >
             <label
-              className="flex items-center gap-3 cursor-pointer"
+              className="flex items-center gap-3 cursor-pointer min-h-[44px]"
               aria-describedby={describedBy}
             >
               <input

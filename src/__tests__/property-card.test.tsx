@@ -64,6 +64,21 @@ const baseProps = {
   locale: "ar" as const,
 };
 
+const dictEn = {
+  property: {
+    priceUnit: "EGP",
+    areaUnit: "m²",
+    status: {
+      available: "Available",
+      reserved: "Reserved",
+      rented: "Rented",
+      sold: "Sold",
+      pending_review: "Pending Review",
+    },
+  },
+  explore: {},
+} as never;
+
 describe("PropertyCard", () => {
   describe("rendering content", () => {
     it("renders property title", () => {
@@ -81,8 +96,8 @@ describe("PropertyCard", () => {
       expect(screen.getByText(/1,500,000/)).toBeInTheDocument();
     });
 
-    it("renders area with default unit", () => {
-      render(<PropertyCard {...baseProps} area={120} />);
+    it("renders area with dict unit", () => {
+      render(<PropertyCard {...baseProps} area={120} dict={dictEn} />);
       expect(screen.getByText(/120.*m²/)).toBeInTheDocument();
     });
 
@@ -156,29 +171,29 @@ describe("PropertyCard", () => {
 
   describe("status badge", () => {
     it("renders available status badge", () => {
-      render(<PropertyCard {...baseProps} status="available" />);
+      render(<PropertyCard {...baseProps} status="available" dict={dictEn} />);
       const badge = screen.getByTestId("badge");
       expect(badge).toHaveTextContent("Available");
       expect(badge).toHaveAttribute("data-variant", "success");
     });
 
     it("renders reserved status badge", () => {
-      render(<PropertyCard {...baseProps} status="reserved" />);
+      render(<PropertyCard {...baseProps} status="reserved" dict={dictEn} />);
       expect(screen.getByTestId("badge")).toHaveTextContent("Reserved");
     });
 
     it("renders rented status badge", () => {
-      render(<PropertyCard {...baseProps} status="rented" />);
+      render(<PropertyCard {...baseProps} status="rented" dict={dictEn} />);
       expect(screen.getByTestId("badge")).toHaveTextContent("Rented");
     });
 
     it("renders sold status badge", () => {
-      render(<PropertyCard {...baseProps} status="sold" />);
+      render(<PropertyCard {...baseProps} status="sold" dict={dictEn} />);
       expect(screen.getByTestId("badge")).toHaveTextContent("Sold");
     });
 
     it("renders pending_review status badge", () => {
-      render(<PropertyCard {...baseProps} status="pending_review" />);
+      render(<PropertyCard {...baseProps} status="pending_review" dict={dictEn} />);
       expect(screen.getByTestId("badge")).toHaveTextContent("Pending Review");
     });
 
@@ -235,8 +250,8 @@ describe("PropertyCard", () => {
       expect(screen.getByText(/EGP/)).toBeInTheDocument();
     });
 
-    it("falls back to default priceUnit without dict", () => {
-      render(<PropertyCard {...baseProps} />);
+    it("shows priceUnit from dict", () => {
+      render(<PropertyCard {...baseProps} dict={dictEn} />);
       expect(screen.getByText(/EGP/)).toBeInTheDocument();
     });
   });

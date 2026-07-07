@@ -142,7 +142,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
           </p>
 
           {contactSent ? (
-            <div className="text-center py-12 bg-white rounded-2xl shadow-sm">
+            <div className="text-center py-12 bg-white rounded-2xl shadow">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Send className="w-8 h-8 text-green-600" aria-hidden="true" />
               </div>
@@ -155,7 +155,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
               </button>
             </div>
           ) : (
-<form onSubmit={handleContactSubmit} className="bg-white rounded-2xl shadow-sm p-8 space-y-5">
+<form onSubmit={handleContactSubmit} className="bg-white rounded-2xl shadow p-8 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">{dict.landing.contactForm.name}</label>
