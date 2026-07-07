@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getMessages } from "@/i18n/getMessages";
 import { isValidLocale, type Locale } from "@/i18n/config";
+import Footer from "@/components/layout/Footer";
 
 interface PageProps {
   params: Promise<{ locale: string }>;

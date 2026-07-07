@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Ignore installed agent skills (third-party code)
     ".agents/**",
+    // Ignore scripts folder (uses require syntax and standalone JS)
+    "scripts/**",
   ]),
   {
     rules: {
