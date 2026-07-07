@@ -99,10 +99,15 @@ export default async function LocaleLayout({
 }) {
   const resolvedParams = await params;
   const locale = resolvedParams?.locale || "ar";
+  const dir = locale === "en" ? "ltr" : "rtl";
 
   if (!isValidLocale(locale)) {
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <html lang={locale} dir={dir} className="font-sans antialiased">
+      <body className="min-h-screen bg-gray-50">{children}</body>
+    </html>
+  );
 }
