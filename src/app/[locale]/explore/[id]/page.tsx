@@ -27,6 +27,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import FavoriteButton from "@/components/properties/FavoriteButton";
 import CompareButton from "@/components/properties/CompareButton";
@@ -390,6 +391,8 @@ export default function PropertyDetailPage() {
           </div>
         </div>
       </div>
+
+      <Footer locale={locale} dict={dict} />
 
       {/* Lightbox */}
       {showLightbox && images.length > 0 && (

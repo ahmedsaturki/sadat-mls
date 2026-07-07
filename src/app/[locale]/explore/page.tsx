@@ -15,6 +15,7 @@ import { SkeletonCard } from "@/components/ui/Skeleton";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import type { PropertyStatus } from "@/lib/utils/constants";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
 const SearchFilters = lazy(() => import("@/components/properties/SearchFilters"));
@@ -373,6 +374,8 @@ function ExploreContent({
           </div>
         )}
       </div>
+
+      <Footer locale={locale} dict={dict} />
     </div>
   );
 }

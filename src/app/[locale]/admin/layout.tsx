@@ -3,6 +3,7 @@ import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import AuthGuard from "@/components/auth/AuthGuard";
 import ErrorBoundaryWrapper from "@/components/ui/ErrorBoundaryWrapper";
+import Footer from "@/components/layout/Footer";
 import { ROLES } from "@/lib/utils/constants";
 
 interface PageProps {
@@ -48,6 +49,7 @@ export default async function AdminLayout({
       >
         {children}
       </ErrorBoundaryWrapper>
+      <Footer locale={validLocale} dict={dict} />
     </AuthGuard>
   );
 }
