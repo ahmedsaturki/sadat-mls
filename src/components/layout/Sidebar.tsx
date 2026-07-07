@@ -76,7 +76,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
   }, [locale, dict, role]);
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
+    <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-white border-e border-gray-200 min-h-[calc(100vh-4rem)]">
       <div className="flex-1 py-4">
         {/* User Profile Section */}
         {profile && (

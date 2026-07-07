@@ -55,6 +55,7 @@ export default function PropertyDetails({
               <>
                 <Input
                   type="checkbox"
+                  name={field}
                   label={fieldLabel}
                   value={value === "true" ? "true" : "false"}
                   onChange={(e) => onChange(field, e.target.checked ? "true" : "false")}
@@ -65,6 +66,7 @@ export default function PropertyDetails({
             ) : (
               <Input
                 label={fieldLabel}
+                name={field}
                 type={inputType}
                 value={value}
                 onChange={(e) => {
@@ -92,11 +94,11 @@ export default function PropertyDetails({
       
       {/* Status selection with enhanced styling */}
       <div>
-        <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="status-select" className="block text-sm font-medium text-gray-700 mb-1">
           {dict.property.statusLabel}
         </label>
         <Select
-          id="status"
+          id="status-select"
           label={dict.property.statusLabel}
           value={formData.status}
           onChange={(e) => onChange("status", e.target.value)}

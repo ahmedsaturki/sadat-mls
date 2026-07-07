@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Building2, Shield, Users, TrendingUp, Home, MapPin, Mail, ArrowLeft } from "lucide-react";
+import { Building2, Shield, Users, TrendingUp, Home, MapPin, ArrowLeft } from "lucide-react";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import PropertyCard from "@/components/properties/PropertyCard";
 import LandingHero from "@/components/landing/LandingHero";
 import ContactForm from "@/components/landing/ContactForm";
@@ -87,7 +88,7 @@ export default async function LandingPage({
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-bold text-gray-900">{dict.landing.featuredProperties}</h2>
               <Link href={`/${typedLocale}/explore`} className="text-blue-600 hover:text-blue-700 font-medium">
-                {dict.landing.viewAll} →
+                {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
               </Link>
             </div>
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -163,49 +164,13 @@ export default async function LandingPage({
             className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-3.5 rounded-xl font-semibold hover:bg-blue-50 transition-colors shadow-lg"
           >
             {dict.common.login}
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 rtl:rotate-180" />
           </Link>
         </div>
       </section>
       </main>
 
-      <footer className="py-12 bg-gray-900 text-gray-400" role="contentinfo">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Building2 className="w-6 h-6 text-blue-500" />
-                <span className="text-lg font-semibold text-white">{dict.common.appName}</span>
-              </div>
-              <p className="text-sm leading-relaxed">{dict.footer.description}</p>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">{dict.footer.quickLinks}</h3>
-              <ul className="space-y-2 text-sm">
-                <li><Link href={`/${typedLocale}`} className="hover:text-white transition-colors">{dict.common.home}</Link></li>
-                <li><Link href={`/${typedLocale}/explore`} className="hover:text-white transition-colors">{dict.nav.explore}</Link></li>
-                <li><Link href={`/${typedLocale}/login`} className="hover:text-white transition-colors">{dict.common.login}</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">{dict.footer.contactUs}</h3>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-500" />
-                  {dict.footer.location}
-                </li>
-                <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-blue-500" />
-                  {dict.footer.email}
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-6 text-center text-sm">
-            © {new Date().getFullYear()} {dict.footer.sadatMLS}. {dict.footer.rights}.
-          </div>
-        </div>
-      </footer>
+      <Footer locale={typedLocale} dict={dict} />
     </div>
   );
 }

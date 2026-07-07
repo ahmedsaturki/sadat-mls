@@ -148,7 +148,7 @@ export default function PropertyDetailPage() {
             href={`/${locale}/explore`}
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
           >
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
             {dict.property.backToExplore}
           </Link>
         </div>
@@ -206,7 +206,7 @@ export default function PropertyDetailPage() {
   ].filter((f) => f.show);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" role="main">
       <a href="#property-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
         {dict.common.skipToContent}
       </a>
@@ -223,11 +223,11 @@ export default function PropertyDetailPage() {
             <Link href={`/${locale}`} className="hover:text-gray-900 transition-colors">
               {dict.common.home}
             </Link>
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
             <Link href={`/${locale}/explore`} className="hover:text-gray-900 transition-colors">
               {dict.nav.explore}
             </Link>
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
             <span className="text-gray-900 font-medium truncate max-w-[200px]">{property.title}</span>
           </nav>
         </div>
@@ -284,7 +284,7 @@ export default function PropertyDetailPage() {
               {/* Features */}
               {features.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">{dict.property.features}</h3>
+                  <h2 className="font-semibold text-gray-900 mb-3">{dict.property.features}</h2>
                   <div className="flex flex-wrap gap-2">
                     {features.map((feat, i) => (
                       <div
@@ -302,7 +302,7 @@ export default function PropertyDetailPage() {
               {/* Description */}
               {property.description && (
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{dict.property.description}</h3>
+                  <h2 className="font-semibold text-gray-900 mb-2">{dict.property.description}</h2>
                   <p className="text-gray-600 whitespace-pre-line leading-relaxed">{property.description}</p>
                 </div>
               )}
@@ -362,7 +362,7 @@ export default function PropertyDetailPage() {
             {/* Office Info */}
             {property.offices && (
               <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-3">{dict.property.officeLabel}</h3>
+                <h2 className="font-semibold text-gray-900 mb-3">{dict.property.officeLabel}</h2>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                     <Building2 className="w-6 h-6 text-blue-600" />

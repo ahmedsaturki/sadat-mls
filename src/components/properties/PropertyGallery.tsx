@@ -102,7 +102,7 @@ export default function PropertyGallery({
                   key={i}
                   onClick={(e) => { e.stopPropagation(); onIndexChange(i); }}
                   aria-label={`Image ${i + 1} of ${images.length}`}
-                  className={`w-2 h-2 rounded-full transition-colors ${
+                  className={`w-2 h-2 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                     i === currentIndex ? "bg-white" : "bg-white/50"
                   }`}
                 />

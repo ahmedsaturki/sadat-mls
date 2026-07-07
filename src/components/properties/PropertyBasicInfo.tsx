@@ -95,6 +95,7 @@ export default function PropertyBasicInfo({
         </div>
         <textarea
           id="description"
+          name="description"
           className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={4}
           value={formData.description}

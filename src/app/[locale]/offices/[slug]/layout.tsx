@@ -30,7 +30,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const imageUrl = office.logo_url ? new URL(office.logo_url, baseUrl).toString() : undefined;
 
   return {
-    metadataBase: new URL(baseUrl),
     title: office.name,
     description: office.description || (dict.landing?.heroDescription ?? ""),
     alternates: {

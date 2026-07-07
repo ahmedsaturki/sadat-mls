@@ -17,27 +17,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   return {
-    metadataBase: new URL(baseUrl),
     title: dict.admin.dashboard,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/admin`,
       languages: {
-        "ar": `${baseUrl}/ar/admin`,
-        "en": `${baseUrl}/en/admin`,
+        ar: `${baseUrl}/ar/admin`,
+        en: `${baseUrl}/en/admin`,
       },
     },
   };
 }
 
-export default async function AdminLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
+export default async function AdminLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   const resolvedParams = await params;
   const locale = resolvedParams?.locale || "ar";
   const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
   const dict = getMessages(validLocale);
 
   return (
-    <AuthGuard requiredRole={ROLES.SUPER_ADMIN}>
-      <ErrorBoundaryWrapper fallbackTitle={dict.admin.errorTitle} fallbackMessage={dict.admin.errorMessage}>
+    <AuthGuard locale={validLocale} requiredRole={ROLES.SUPER_ADMIN}>
+      <ErrorBoundaryWrapper
+        fallbackTitle={dict.admin.errorTitle}
+        fallbackMessage={dict.admin.errorMessage}
+      >
         {children}
       </ErrorBoundaryWrapper>
     </AuthGuard>

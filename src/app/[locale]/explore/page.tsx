@@ -232,7 +232,7 @@ function ExploreContent({
     filters.hasBalcony || filters.hasParking || filters.hasElevator;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" role="main">
       <a href="#explore-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
         {dict.common.skipToContent}
       </a>
@@ -310,7 +310,7 @@ function ExploreContent({
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <X className="w-8 h-8 text-red-500" aria-hidden="true" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{error}</h3>
+            <h2 className="text-lg font-medium text-gray-900 mb-2">{error}</h2>
             <button
               onClick={() => loadProperties()}
               className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
@@ -368,7 +368,7 @@ function ExploreContent({
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Home className="w-8 h-8 text-gray-400" aria-hidden="true" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{dict.explore.noResults || dict.explore.noProperties}</h3>
+            <h2 className="text-lg font-medium text-gray-900 mb-2">{dict.explore.noResults || dict.explore.noProperties}</h2>
             <p className="text-sm text-gray-500">{dict.explore.tryDifferentSearch}</p>
           </div>
         )}

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card, { CardTitle } from "@/components/ui/Card";
 import PropertyCard from "@/components/properties/PropertyCard";
-import { Home, Plus, Users, Mail } from "lucide-react";
+import { Home, Plus, Users, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { ROLES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
@@ -216,7 +216,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
             <div className="flex items-center justify-between mb-4">
               <CardTitle>{dict.contactRequests.title}</CardTitle>
               <Link href={`/${locale}/dashboard/contact-requests`} className="text-sm text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded">
-                {dict.landing.viewAll} →
+                {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
               </Link>
             </div>
             <div>
@@ -264,7 +264,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">{dict.office.myProperties}</h2>
             <Link href={`/${locale}/dashboard/properties`} className="text-sm text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded">
-              {dict.landing.viewAll} →
+              {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
             </Link>
           </div>
 {propertiesWithImages && propertiesWithImages.length > 0 ? (

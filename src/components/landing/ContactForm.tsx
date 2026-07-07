@@ -161,7 +161,10 @@ export default function ContactForm({ dict }: ContactFormProps) {
                   <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">{dict.landing.contactForm.name}</label>
                   <input
                     id="contact-name"
+                    name="name"
                     type="text"
+                    inputMode="text"
+                    autoComplete="name"
                     required
                     aria-required="true"
                     maxLength={MAX_NAME_LENGTH}
@@ -175,7 +178,10 @@ export default function ContactForm({ dict }: ContactFormProps) {
                   <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">{dict.landing.contactForm.email}</label>
                   <input
                     id="contact-email"
+                    name="email"
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
                     maxLength={MAX_EMAIL_LENGTH}
                     value={contactForm.email}
                     onChange={(e) => setContactForm({ ...contactForm, email: e.target.value.slice(0, MAX_EMAIL_LENGTH) })}
@@ -188,7 +194,10 @@ export default function ContactForm({ dict }: ContactFormProps) {
                 <label htmlFor="contact-phone" className="block text-sm font-medium text-gray-700 mb-1.5">{dict.landing.contactForm.phone}</label>
                 <input
                   id="contact-phone"
+                  name="phone"
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   maxLength={MAX_PHONE_LENGTH}
                   value={contactForm.phone}
                   onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value.slice(0, MAX_PHONE_LENGTH) })}
@@ -200,6 +209,8 @@ export default function ContactForm({ dict }: ContactFormProps) {
                 <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">{dict.landing.contactForm.message}</label>
                 <textarea
                   id="contact-message"
+                  name="message"
+                  autoComplete="off"
                   required
                   aria-required="true"
                   maxLength={MAX_MESSAGE_LENGTH}
@@ -222,7 +233,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                 type="submit"
                 disabled={contactLoading}
                 aria-busy={contactLoading}
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
                 {contactLoading ? (
                   <>

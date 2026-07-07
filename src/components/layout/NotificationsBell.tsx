@@ -211,7 +211,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
       >
         <Bell className="w-5 h-5" aria-hidden="true" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+          <span className="absolute -top-0.5 -end-0.5 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -222,7 +222,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
         <div
           ref={dropdownRef}
           className={cn(
-            `absolute mt-2 w-80 max-h-96 overflow-hidden ${locale === "en" ? "right-0" : "left-0"}`,
+            "absolute mt-2 w-80 max-h-96 overflow-hidden end-0",
             "bg-white rounded-xl shadow-lg border border-gray-200",
             "z-50"
           )}

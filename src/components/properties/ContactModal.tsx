@@ -255,6 +255,9 @@ export default function ContactModal({
             )}
             <Input
               label={dict.contact.name}
+              name="visitor_name"
+              inputMode="text"
+              autoComplete="name"
               value={formData.visitor_name}
               onChange={(e) => setFormData({ ...formData, visitor_name: e.target.value.slice(0, MAX_NAME_LENGTH) })}
               placeholder={dict.contact.yourName}
@@ -263,7 +266,10 @@ export default function ContactModal({
             />
             <Input
               label={dict.contact.phone}
+              name="visitor_phone"
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={formData.visitor_phone}
               onChange={(e) => setFormData({ ...formData, visitor_phone: e.target.value.slice(0, MAX_PHONE_LENGTH) })}
               placeholder={dict.contact.yourPhone}
@@ -271,6 +277,8 @@ export default function ContactModal({
             />
             <Input
               label={dict.contact.message}
+              name="message"
+              autoComplete="off"
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value.slice(0, MAX_MESSAGE_LENGTH) })}
               placeholder={dict.contact.yourMessage}

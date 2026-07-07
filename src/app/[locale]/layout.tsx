@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { getMessages } from "@/i18n/getMessages";
 import { isValidLocale, type Locale } from "@/i18n/config";
+import Providers from "@/components/Providers";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -13,20 +14,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dict = getMessages(validLocale);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
+  const title = dict.landing?.hero ?? dict.common.appName;
+  const description =
+    dict.landing?.heroDescription ?? "Cloud real estate platform for Sadat City";
+
+  const keywordsSource = (dict.nav as Record<string, unknown> | undefined)
+    ?.keywords;
+  const keywords = Array.isArray(keywordsSource)
+    ? (keywordsSource as string[])
+    : (["real estate", "Sadat City", "buy", "rent", "apartment", "villa", "land"] as string[]);
+
   return {
-    metadataBase: new URL(baseUrl),
     title: {
-      default: `${dict.common.appName} | ${dict.landing?.hero ?? ""}`,
+      default: `${dict.common.appName} | ${title}`,
       template: `%s | ${dict.common.appName}`,
     },
-    description: dict.landing?.heroDescription ?? "",
-    keywords: (dict.common as Record<string, unknown>)?.keywords as string[] ?? ["real estate", "Sadat City", "buy", "rent", "apartment", "villa", "land"],
+    description,
+    keywords,
     authors: [{ name: dict.common.appName }],
     alternates: {
-      canonical: `${baseUrl}/${locale}`,
+      canonical: `${baseUrl}/${validLocale}`,
       languages: {
-        "ar": `${baseUrl}/ar`,
-        "en": `${baseUrl}/en`,
+        ar: `${baseUrl}/ar`,
+        en: `${baseUrl}/en`,
       },
     },
     openGraph: {
@@ -34,12 +44,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: validLocale === "ar" ? "ar_EG" : "en_US",
       alternateLocale: validLocale === "ar" ? "en_US" : "ar_EG",
       siteName: dict.common.appName,
-      title: `${dict.common.appName} | ${dict.landing?.hero ?? ""}`,
-      description: dict.landing?.heroDescription ?? "",
+      title: `${dict.common.appName} | ${title}`,
+      description,
       url: `${baseUrl}/${validLocale}`,
       images: [
         {
-          url: `/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(dict.landing?.heroDescription ?? "")}&locale=${validLocale}`,
+          url: `/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(description)}&locale=${validLocale}`,
           width: 1200,
           height: 630,
           alt: dict.common.appName,
@@ -49,8 +59,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: dict.common.appName,
-      description: dict.landing?.heroDescription ?? "",
-      images: [`/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(dict.landing?.heroDescription ?? "")}&locale=${validLocale}`],
+      description,
+      images: [
+        `/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(description)}&locale=${validLocale}`,
+      ],
     },
     robots: {
       index: true,
@@ -71,7 +83,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#2563eb",
+  themeColor: "#1B2D4F",
 };
 
 export function generateStaticParams() {

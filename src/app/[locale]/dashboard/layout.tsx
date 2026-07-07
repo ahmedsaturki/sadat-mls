@@ -16,25 +16,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   return {
-    metadataBase: new URL(baseUrl),
     title: dict.office.dashboard,
     alternates: {
       canonical: `${baseUrl}/${validLocale}/dashboard`,
       languages: {
-        "ar": `${baseUrl}/ar/dashboard`,
-        "en": `${baseUrl}/en/dashboard`,
+        ar: `${baseUrl}/ar/dashboard`,
+        en: `${baseUrl}/en/dashboard`,
       },
     },
   };
 }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // Use Arabic as default since layout doesn't receive params in Client Component
-  // AuthGuard and ErrorBoundaryWrapper will handle locale-appropriate content
-  const dict = getMessages("ar");
+export default async function DashboardLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale || "ar";
+  const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
+
+  const dict = getMessages(validLocale);
 
   return (
-    <AuthGuard>
+    <AuthGuard locale={validLocale}>
       <ErrorBoundaryWrapper
         fallbackTitle={dict.auth.dashboardError}
         fallbackMessage={dict.auth.dashboardErrorMessage}

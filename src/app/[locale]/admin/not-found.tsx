@@ -25,7 +25,7 @@ export default function AdminNotFound({ params }: PageProps) {
           href={`/${validLocale}/admin`}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
         >
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 rtl:rotate-180" />
           {dict.admin.backToAdmin}
         </Link>
       </div>

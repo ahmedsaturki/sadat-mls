@@ -80,9 +80,9 @@ export default async function AdminAnalyticsPage({
   }
 
   const officeAgentMap = new Map<string, number>();
-  for (const user of allUsers) {
-    if (user.role === ROLES.OFFICE_AGENT) {
-      officeAgentMap.set(user.office_id, (officeAgentMap.get(user.office_id) || 0) + 1);
+  for (const u of allUsers) {
+    if (u.role === ROLES.OFFICE_AGENT && u.office_id) {
+      officeAgentMap.set(u.office_id, (officeAgentMap.get(u.office_id) || 0) + 1);
     }
   }
 
@@ -184,7 +184,7 @@ export default async function AdminAnalyticsPage({
             </div>
             <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
               {dict.landing.viewAll}
-              <ArrowRight className="w-4 h-4 rotate-180" />
+              <ArrowRight className="w-4 h-4 rtl:rotate-180" />
             </Link>
           </div>
 {officeStats.length > 0 ? (

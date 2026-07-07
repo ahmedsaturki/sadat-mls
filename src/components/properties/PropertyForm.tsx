@@ -713,7 +713,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
             </div>
 
             <div className="border-t border-gray-200 pt-4">
-              <h3 className="font-medium text-gray-900 mb-3">{dict.office.features}</h3>
+              <h2 className="font-medium text-gray-900 mb-3">{dict.office.features}</h2>
               <PropertyFeatures
                 dict={dict}
                 formData={{
@@ -728,10 +728,10 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
             </div>
 
             <div className="border-t border-gray-200 pt-4">
-              <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+              <h2 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                 <User className="w-4 h-4" aria-hidden="true" />
                 {dict.office.propertyOwner}
-              </h3>
+              </h2>
               <PropertyOwnerInfo
                 dict={dict}
                 locale={locale}
@@ -753,9 +753,9 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
             </div>
 
             <div className="border-t border-gray-200 pt-4">
-              <h3 className="font-medium text-gray-900 mb-3">
+              <h2 className="font-medium text-gray-900 mb-3">
                 {mode === "edit" ? dict.office.currentImages : dict.office.newImages}
-              </h3>
+              </h2>
               <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse" />}>
                 <PropertyImageManager dict={dict} {...imageProps} />
               </Suspense>

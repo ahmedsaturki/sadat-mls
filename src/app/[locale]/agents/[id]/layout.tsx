@@ -52,7 +52,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const imageUrl = agent.avatar_url ? new URL(agent.avatar_url, baseUrl).toString() : undefined;
 
   return {
-    metadataBase: new URL(baseUrl),
     title: agent.full_name,
     description: `${agent.full_name} - ${officeName} | ${dict.common.appName}`,
     alternates: {

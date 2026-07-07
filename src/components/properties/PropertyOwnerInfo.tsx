@@ -58,6 +58,10 @@ export default function PropertyOwnerInfo({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1">
               <input
+                name="owner_name"
+                type="text"
+                inputMode="text"
+                autoComplete="name"
                 placeholder={`${dict.office.ownerName} *`}
                 aria-label={dict.office.ownerName}
                 aria-invalid={!!errors?.[`owner_name_${index}`]}
@@ -74,6 +78,10 @@ export default function PropertyOwnerInfo({
             </div>
             <div className="space-y-1">
               <input
+                name="owner_phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 placeholder={`${dict.office.ownerPhone} *`}
                 aria-label={dict.office.ownerPhone}
                 aria-invalid={!!errors?.[`owner_phone_${index}`]}
@@ -90,6 +98,10 @@ export default function PropertyOwnerInfo({
             </div>
             <div className="space-y-1">
               <input
+                name="owner_email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
                 placeholder={dict.office.ownerEmail}
                 aria-label={dict.office.ownerEmail}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -99,6 +111,9 @@ export default function PropertyOwnerInfo({
             </div>
             <div className="space-y-1">
               <input
+                name="notes"
+                type="text"
+                autoComplete="off"
                 placeholder={dict.office.ownerNotes}
                 aria-label={dict.office.ownerNotes}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

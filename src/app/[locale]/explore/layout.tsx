@@ -17,7 +17,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = dict.explore?.description ?? "Browse available properties in Sadat City - apartments, villas, and land at the best prices";
 
   return {
-    metadataBase: new URL(baseUrl),
     title,
     description,
     alternates: {

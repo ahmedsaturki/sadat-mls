@@ -5,7 +5,7 @@ import { getMessages } from "@/i18n/getMessages";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card, { CardTitle } from "@/components/ui/Card";
 import AdminStatCards from "@/components/admin/AdminStatCards";
-import { Building2, MapPin, Plus, Home } from "lucide-react";
+import { Building2, MapPin, Plus, Home, ArrowLeft } from "lucide-react";
 import { ROLES } from "@/lib/utils/constants";
 import { getServerAuth } from "@/lib/supabase/server-auth";
 
@@ -121,7 +121,7 @@ export default async function AdminDashboard({
             <div className="flex items-center justify-between mb-4">
               <CardTitle>{dict.admin.recentOffices}</CardTitle>
               <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
-                {dict.landing.viewAll} →
+                {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
               </Link>
             </div>
             <div>
@@ -155,7 +155,7 @@ export default async function AdminDashboard({
             <div className="flex items-center justify-between mb-4">
               <CardTitle>{dict.contactRequests.title}</CardTitle>
               <Link href={`/${locale}/admin/contact-requests`} className="text-sm text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
-                {dict.landing.viewAll} →
+                {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
               </Link>
             </div>
             <div>

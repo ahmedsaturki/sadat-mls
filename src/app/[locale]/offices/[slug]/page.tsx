@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getMessages } from "@/i18n/getMessages";
 import { usePageLocale } from "@/hooks/usePageLocale";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import PropertyCard from "@/components/properties/PropertyCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
@@ -238,11 +239,7 @@ function PublicOfficePage({
       </main>
 
       {/* Footer */}
-      <footer className="py-8 bg-gray-900 text-gray-400 mt-12" role="contentinfo">
-        <div className="max-w-6xl mx-auto px-4 text-center text-sm">
-          © {new Date().getFullYear()} {dict.footer.sadatMLS}. {dict.footer.rights}.
-        </div>
-      </footer>
+      <Footer locale={locale} dict={dict} />
     </div>
   );
 }

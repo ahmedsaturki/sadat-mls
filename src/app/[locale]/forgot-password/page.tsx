@@ -90,7 +90,7 @@ export default function ForgotPasswordPage({
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/5 rounded-full" />
@@ -101,7 +101,7 @@ export default function ForgotPasswordPage({
           href={`/${locale}/login`}
           className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-8 transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-600 rounded"
         >
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 rtl:rotate-180" />
           {dict.auth.backToLogin}
         </Link>
 
@@ -164,6 +164,6 @@ export default function ForgotPasswordPage({
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

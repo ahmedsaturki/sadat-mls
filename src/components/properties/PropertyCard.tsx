@@ -8,12 +8,12 @@ import Badge from "@/components/ui/Badge";
 import ShareButton from "@/components/properties/ShareButton";
 import FavoriteButton from "@/components/properties/FavoriteButton";
 import CompareButton from "@/components/properties/CompareButton";
-import { formatPrice } from "@/lib/utils/cn";
+import { cn, formatPrice } from "@/lib/utils/cn";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
 import type { PropertyStatus } from "@/lib/utils/constants";
 
-interface PropertyCardProps {
+export interface PropertyCardProps {
   id: string;
   title: string;
   price: number;
@@ -28,6 +28,7 @@ interface PropertyCardProps {
   type?: string;
   dict?: Messages;
   userId?: string | null;
+  compact?: boolean;
 }
 
 function arePropsEqual(
@@ -48,48 +49,101 @@ function arePropsEqual(
     prev.locale === next.locale &&
     prev.type === next.type &&
     prev.dict === next.dict &&
-    prev.userId === next.userId
+    prev.userId === next.userId &&
+    prev.compact === next.compact
   );
 }
 
-const PropertyCard = memo(function PropertyCard({
-   id,
-   title,
-   price,
-   area,
-   bedrooms,
-   bathrooms,
-   zone,
-   imageUrl,
-   status,
-   officeName,
-   locale,
-   type,
-   dict,
-   userId,
-  }: PropertyCardProps) {
-  const getLabel = (key: string, fallback: string): string => {
-    if (!dict) return fallback;
-    const d = dict as Record<string, unknown>;
-    const property = d.property as Record<string, unknown> | undefined;
-    const explore = d.explore as Record<string, string> | undefined;
-    const status = property?.status as Record<string, string> | undefined;
-    return (status?.[key] as string) || (property?.[key] as string) || explore?.[key] || fallback;
-  };
+const PROPERTY_BLUR =
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAyACgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAFRABAQAAAAAAAAAAAAAAAAAAAAf/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8ApsC/9k=";
 
-  const statusConfig = {
-    available: { label: getLabel("available", ""), variant: "success" as const },
-    reserved: { label: getLabel("reserved", ""), variant: "warning" as const },
-    rented: { label: getLabel("rented", ""), variant: "warning" as const },
-    sold: { label: getLabel("sold", ""), variant: "danger" as const },
-    pending_review: { label: getLabel("pending_review", ""), variant: "info" as const },
+function getStatusLabel(dict: Messages | undefined, key: string): string {
+  if (!dict) return key;
+  const property = dict.property as Record<string, unknown> | undefined;
+  const status = property?.status as Record<string, string> | undefined;
+  if (status && typeof status[key] === "string") return status[key] as string;
+  if (property && typeof property[key] === "string") return property[key] as string;
+  return key;
+}
+
+function getStatusVariant(
+  status: PropertyStatus
+): "success" | "warning" | "danger" | "info" {
+  switch (status) {
+    case "available":
+      return "success";
+    case "sold":
+      return "danger";
+    case "pending_review":
+      return "info";
+    case "rented":
+    case "reserved":
+    default:
+      return "warning";
+  }
+}
+
+const PropertyCard = memo(function PropertyCard(props: PropertyCardProps) {
+  const {
+    id,
+    title,
+    price,
+    area,
+    bedrooms,
+    bathrooms,
+    zone,
+    imageUrl,
+    status,
+    officeName,
+    locale,
+    type,
+    dict,
+    userId,
+    compact,
+  } = props;
+
+  const statusLabel = getStatusLabel(dict, status);
+  const variant = getStatusVariant(status);
+  const ariaLabel = `${title} - ${statusLabel}`;
+
+  const priceUnit = (dict?.property as Record<string, unknown> | undefined)
+    ?.priceUnit as string | undefined;
+  const areaUnit = (dict?.property as Record<string, unknown> | undefined)
+    ?.areaUnit as string | undefined;
+
+  const compareProp = {
+    id,
+    title,
+    price,
+    area,
+    bedrooms: bedrooms ?? 0,
+    bathrooms: bathrooms ?? 0,
+    zone: zone ?? null,
+    type: type ?? null,
+    officeName,
+    status,
+    primaryImage: null,
+    description: null,
   };
 
   return (
-    <Link href={`/${locale}/explore/${id}`} className="group" aria-label={`${title} - ${statusConfig[status].label}`}>
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-        {/* Image */}
-        <div className="relative h-48 bg-gray-100">
+    <Link
+      href={`/${locale}/explore/${id}`}
+      className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-xl"
+      aria-label={ariaLabel}
+    >
+      <article
+        className={cn(
+          "bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col",
+          compact && "text-sm"
+        )}
+      >
+        <div
+          className={cn(
+            "relative bg-gray-100 overflow-hidden",
+            compact ? "h-36" : "h-44 sm:h-48"
+          )}
+        >
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -97,32 +151,67 @@ const PropertyCard = memo(function PropertyCard({
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAyACgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAFRABAQAAAAAAAAAAAAAAAAAAAAf/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8ApsC/9k="
+              blurDataURL={PROPERTY_BLUR}
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="flex items-center justify-center h-full bg-gradient-to-br from-[#1B2D4F]/5 to-[#1B2D4F]/10">
-              <Home className="w-12 h-12 text-[#1B2D4F]/20" aria-hidden="true" />
+            <div
+              className="flex items-center justify-center h-full bg-gradient-to-br from-gray-100 to-gray-200"
+              aria-hidden="true"
+            >
+              <Home className={cn("text-gray-300", compact ? "w-10 h-10" : "w-12 h-12")} />
             </div>
           )}
-          <div className="absolute top-2 flex gap-1 end-2">
-            <CompareButton property={{ id, title, price, area, bedrooms: bedrooms || 0, bathrooms: bathrooms || 0, zone: zone ?? null, type: type ?? null, officeName: officeName ?? null, status: status ?? null, primaryImage: null, description: null }} locale={locale} dict={dict} size="sm" />
-            <FavoriteButton propertyId={id} userId={userId} locale={locale} dict={dict} size="sm" />
-            <Badge variant={statusConfig[status].variant} aria-label={statusConfig[status].label}>{statusConfig[status].label}</Badge>
+
+          {imageUrl && (
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-hidden="true"
+            />
+          )}
+
+          <div className="absolute top-2 end-2 flex gap-1 items-center">
+            <Badge variant={variant} aria-label={statusLabel}>
+              {statusLabel}
+            </Badge>
+          </div>
+
+          <div
+            className="absolute bottom-2 end-2 flex gap-1"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <CompareButton
+              property={compareProp}
+              locale={locale}
+              dict={dict}
+              size="sm"
+            />
+            <FavoriteButton
+              propertyId={id}
+              userId={userId ?? null}
+              locale={locale}
+              dict={dict}
+              size="sm"
+            />
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
+        <div className={cn("flex flex-col flex-1", compact ? "p-3" : "p-4")}>
+          <h3
+            className={cn(
+              "font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors",
+              compact ? "text-sm" : "text-base"
+            )}
+          >
             {title}
           </h3>
 
-          {type && (
-            <p className="text-xs text-gray-500 mb-2">{type}</p>
-          )}
+          {type && <p className="text-xs text-gray-500 mb-2 line-clamp-1">{type}</p>}
 
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+          <div className="flex items-center gap-3 sm:gap-4 text-sm text-gray-500 mb-3 flex-wrap">
             {bedrooms !== undefined && (
               <span className="flex items-center gap-1">
                 <Bed className="w-4 h-4" aria-hidden="true" />
@@ -137,28 +226,41 @@ const PropertyCard = memo(function PropertyCard({
             )}
             <span className="flex items-center gap-1">
               <Maximize className="w-4 h-4" aria-hidden="true" />
-              {area} {dict?.property?.areaUnit}
+              {area} {areaUnit ?? "m²"}
             </span>
           </div>
 
           {zone && (
-            <div className="flex items-center gap-1 text-xs text-gray-500 mb-3">
-              <MapPin className="w-3 h-3" aria-hidden="true" />
-              {zone}
+            <div className="flex items-center gap-1 text-xs text-gray-500 mb-3 line-clamp-1">
+              <MapPin className="w-3 h-3 shrink-0" aria-hidden="true" />
+              <span className="truncate">{zone}</span>
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <span className="text-lg font-bold text-blue-600">
-              {formatPrice(price, locale)} {dict?.property?.priceUnit}
+          <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto">
+            <span className={cn("font-bold text-blue-600", compact ? "text-sm" : "text-lg")}>
+              {formatPrice(price, locale)}{" "}
+              <span className="text-xs text-gray-500 font-normal">{priceUnit ?? ""}</span>
             </span>
             <div className="flex items-center gap-1">
-              <ShareButton title={title} dict={dict} />
-              <span className="text-xs text-gray-500">{officeName}</span>
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <ShareButton title={title} dict={dict} />
+              </div>
+              <span
+                className="text-xs text-gray-500 truncate max-w-[120px]"
+                title={officeName}
+              >
+                {officeName}
+              </span>
             </div>
           </div>
         </div>
-      </div>
+      </article>
     </Link>
   );
 }, arePropsEqual);
