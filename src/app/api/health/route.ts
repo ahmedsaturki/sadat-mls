@@ -5,7 +5,15 @@ import { checkApiRateLimit } from "@/lib/security/rateLimit";
 
 export const runtime = "nodejs";
 
-export async function GET(request: NextRequest) {
+interface HealthCheckResult {
+  status: "ok" | "error";
+  timestamp: string;
+  checks: {
+    supabase: "ok" | "error";
+  };
+}
+
+export async function GET(request: NextRequest): Promise<NextResponse<HealthCheckResult>> {
   if (request.method !== "GET") {
     return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
   }
@@ -15,31 +23,44 @@ export async function GET(request: NextRequest) {
   const ip = rawIp.split(",")[0].trim();
   const rate = await checkApiRateLimit(`health:${ip}`);
   if (!rate.allowed) {
-    return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } });
+    return NextResponse.json(
+      { error: "Too many requests", status: "error", timestamp: new Date().toISOString(), checks: { supabase: "error" } },
+      { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } }
+    );
   }
 
-  // Simple connectivity check — no infrastructure details leaked
+  // Perform health checks
+  const checks: HealthCheckResult["checks"] = { supabase: "error" };
   let healthy = false;
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
     if (supabaseUrl && supabaseKey) {
       const supabase = createSupabaseClient(supabaseUrl, supabaseKey);
-      const { error } = await supabase.from("offices").select("id", { count: "exact", head: true }).limit(1);
+      const { error } = await supabase
+        .from("offices")
+        .select("id", { count: "exact", head: true })
+        .limit(1)
+        .abortSignal(AbortSignal.timeout(3000)); // 3-second timeout
+      
+      checks.supabase = error ? "error" : "ok";
       healthy = !error;
+    } else {
+      checks.supabase = "error";
+      logger.warn("Health check: Supabase credentials not configured");
     }
-  } catch {
-    healthy = false;
+  } catch (err) {
+    checks.supabase = "error";
+    logger.error("Health check failed", err);
   }
 
-  if (!healthy) {
-    logger.error("Health check failed");
-  }
+  const result: HealthCheckResult = {
+    status: healthy ? "ok" : "error",
+    timestamp: new Date().toISOString(),
+    checks,
+  };
 
-  // Minimal response — no version, no response time, no detailed checks
-  return NextResponse.json(
-    { status: healthy ? "ok" : "error" },
-    { status: healthy ? 200 : 503 }
-  );
+  return NextResponse.json(result, { status: healthy ? 200 : 503 });
 }
