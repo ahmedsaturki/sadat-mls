@@ -68,7 +68,7 @@ export default function PropertyImageManager({
   }, [existingImages.length, newImages.length]);
 
   return (
-    <div className="space-y-4" role="region" aria-label={dict.office.propertyImages || "Property Images"}>
+    <div className="space-y-4" role="region" aria-label={dict.office.propertyImages}>
       <div className="flex items-center gap-3">
         <Button
           type="button"
@@ -87,7 +87,7 @@ export default function PropertyImageManager({
           multiple
           onChange={(e) => handleFileSelect(e.target.files)}
           className="sr-only"
-          aria-label={dict.common.addImage || "Add property images"}
+          aria-label={dict.common.addImage}
         />
         <span className="text-xs text-gray-500" id="max-images-hint">
           {dict.office.maxImages}
@@ -97,7 +97,7 @@ export default function PropertyImageManager({
       {existingImages.length > 0 && (
         <fieldset className="grid grid-cols-2 md:grid-cols-4 gap-3 overflow-hidden" aria-labelledby="existing-images-legend">
           <legend id="existing-images-legend" className="sr-only">
-            {dict.office.currentImages || "Existing Images"}
+            {dict.office.currentImages}
           </legend>
           {existingImages.map((img, index) => (
             <div
@@ -113,7 +113,7 @@ export default function PropertyImageManager({
               <div className="relative flex-1">
                 <Image
                   src={img.url}
-                  alt={img.alt_text || `${dict.office.propertyImage || "Property image"} ${index + 1}`}
+                  alt={img.alt_text || `${dict.office.propertyImage} ${index + 1}`}
                   fill
                   className="object-cover group-hover:opacity-80 transition-opacity"
                   sizes="(max-width: 768px) 50vw, 25vw"
@@ -156,7 +156,7 @@ export default function PropertyImageManager({
       {newImages.length > 0 && (
         <fieldset className="grid grid-cols-2 md:grid-cols-4 gap-3 overflow-hidden" aria-labelledby="new-images-legend">
           <legend id="new-images-legend" className="sr-only">
-            {dict.office.newImages || "New Images"}
+            {dict.office.newImages}
           </legend>
           {newImages.map((img, index) => (
             <div
@@ -172,7 +172,7 @@ export default function PropertyImageManager({
               <div className="relative flex-1">
                 <Image
                   src={img.preview}
-                  alt={img.alt_text || `${dict.office.newImage || "New image"} ${index + 1}`}
+                  alt={img.alt_text || `${dict.office.newImage} ${index + 1}`}
                   fill
                   className="object-cover group-hover:opacity-80 transition-opacity"
                   unoptimized
@@ -230,8 +230,8 @@ export default function PropertyImageManager({
         >
           <div className="flex flex-col items-center justify-center gap-3">
             <ImageIcon className="w-12 h-12 text-gray-300" aria-hidden="true" />
-            <span className="text-sm text-gray-500 font-medium">{dict.office.uploadImage || "Upload Images"}</span>
-            <span className="text-xs text-gray-400">{dict.office.clickOrDrag || "Click or drag to upload"}</span>
+            <span className="text-sm text-gray-500 font-medium">{dict.office.uploadImage}</span>
+            <span className="text-xs text-gray-400">{dict.office.clickOrDrag}</span>
           </div>
         </div>
       )}

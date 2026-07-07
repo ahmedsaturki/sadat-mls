@@ -102,13 +102,13 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
                 locale={locale}
                 dict={{
                   notifications: {
-                    title: dict.nav?.notifications || "Notifications",
-                    markAllRead: dict.nav?.markAllRead || "Mark all read",
-                    noNotifications: dict.nav?.noNotifications || "No notifications",
-                    contactRequest: dict.nav?.contactRequest || "Contact Request",
-                    propertyInquiry: dict.nav?.propertyInquiry || "Property Inquiry",
-                    agentJoined: dict.nav?.agentJoined || "Agent Joined",
-                    system: dict.nav?.system || "System",
+                    title: dict.nav?.notifications,
+                    markAllRead: dict.nav?.markAllRead,
+                    noNotifications: dict.nav?.noNotifications,
+                    contactRequest: dict.nav?.contactRequest,
+                    propertyInquiry: dict.nav?.propertyInquiry,
+                    agentJoined: dict.nav?.agentJoined,
+                    system: dict.nav?.system,
                     timeAgo: dict.common?.timeAgo,
                   },
                 }}
