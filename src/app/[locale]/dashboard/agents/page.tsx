@@ -196,7 +196,7 @@ export default function AgentsPage({
             title={dict.office.manageAgents}
             action={
               <Button onClick={() => setShowModal(true)}>
-                <Plus className="w-4 h-4 ml-2" />
+                <Plus className="w-4 h-4 ms-2" />
                 {dict.office.addAgent}
               </Button>
             }

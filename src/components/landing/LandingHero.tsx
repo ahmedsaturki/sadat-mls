@@ -93,7 +93,7 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
               className="inline-flex items-center justify-center gap-2 bg-white text-[#1B2D4F] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
             >
               {dict.common.login}
-              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+              <ArrowLeft className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
             </Link>
           </div>
         </div>

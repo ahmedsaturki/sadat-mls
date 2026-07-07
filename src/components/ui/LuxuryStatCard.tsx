@@ -47,6 +47,7 @@ const LuxuryStatCard = memo(function LuxuryStatCard({
   return (
     <div
       className={`animate-fade-up group relative overflow-hidden rounded-2xl bg-gradient-to-br ${config.bg} border ${config.border} p-6 transition-all duration-300 ${config.glow}`}
+      aria-label={`${label}: ${value.toLocaleString()}`}
     >
       {/* Background decoration */}
       <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/40 transition-colors duration-500" />

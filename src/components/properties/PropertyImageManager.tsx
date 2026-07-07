@@ -53,13 +53,14 @@ export default function PropertyImageManager({
       return;
     }
     
-    if (e.key === "ArrowRight") {
+    // ArrowLeft = next in RTL, ArrowRight = next in LTR
+    if (e.key === "ArrowLeft") {
       e.preventDefault();
       const total = isNew ? newImages.length : existingImages.length;
       setFocusedIndex((index + 1) % total);
     }
-    
-    if (e.key === "ArrowLeft") {
+
+    if (e.key === "ArrowRight") {
       e.preventDefault();
       const total = isNew ? newImages.length : existingImages.length;
       setFocusedIndex((index - 1 + total) % total);

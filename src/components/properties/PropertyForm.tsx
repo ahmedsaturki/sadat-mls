@@ -304,7 +304,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     }
   }, [mode, propertyId, loadProperty]);
 
-  const validateForm = (): boolean => {
+  const validateForm = (): { valid: boolean; errors: Record<string, string> } => {
     const result = propertySchema.safeParse(formData);
     const ownerResult = ownerSchema.safeParse(ownerData);
     const newErrors: Record<string, string> = {};
@@ -349,16 +349,17 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return { valid: Object.keys(newErrors).length === 0, errors: newErrors };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    const { valid, errors: validationErrors } = validateForm();
+    if (!valid) {
       showToast(dict.office.formErrors, "error");
       // Focus on first error field
-      const firstErrorKey = Object.keys(errors)[0];
+      const firstErrorKey = Object.keys(validationErrors)[0];
       if (firstErrorKey) {
         const inputElement = document.querySelector(`[name="${firstErrorKey}"]`) as HTMLInputElement;
         inputElement?.focus();
@@ -666,7 +667,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => router.back()} aria-label={dict.common.goBack} className="p-2 rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none">
-            <ArrowRight className="w-5 h-5" aria-hidden="true" />
+            <ArrowRight className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
           </button>
           <h1 className="text-2xl font-bold text-gray-900">
             {mode === "create" ? dict.office.addProperty : dict.office.editProperty}
@@ -741,13 +742,13 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
                 onRemove={() => {}}
               />
               {errors.owner_owner_name && (
-                <p className="text-red-500 text-xs mt-1">{errors.owner_owner_name}</p>
+                <p className="text-red-500 text-xs mt-1" role="alert">{errors.owner_owner_name}</p>
               )}
               {errors.owner_owner_phone && (
-                <p className="text-red-500 text-xs mt-1">{errors.owner_owner_phone}</p>
+                <p className="text-red-500 text-xs mt-1" role="alert">{errors.owner_owner_phone}</p>
               )}
               {errors.owner_owner_email && (
-                <p className="text-red-500 text-xs mt-1">{errors.owner_owner_email}</p>
+                <p className="text-red-500 text-xs mt-1" role="alert">{errors.owner_owner_email}</p>
               )}
             </div>
 
@@ -762,7 +763,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
           </Card>
 
           <div className="flex gap-3 justify-end mt-6">
-            <span className="flex items-center gap-1 text-xs text-gray-400 mr-auto">
+            <span className="flex items-center gap-1 text-xs text-gray-400 me-auto">
               <Keyboard className="w-3 h-3" aria-hidden="true" />
               {dict.common.saveShortcut}
             </span>

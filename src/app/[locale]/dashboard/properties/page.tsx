@@ -229,7 +229,7 @@ export default function PropertiesPage({
           {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
             <Link href={`/${locale}/dashboard/properties/new`}>
               <Button>
-                <Plus className="w-4 h-4 ml-2" />
+                <Plus className="w-4 h-4 ms-2" />
                 {dict.office.addProperty}
               </Button>
             </Link>
@@ -292,7 +292,7 @@ export default function PropertiesPage({
                   userId={user?.id || null}
                 />
           {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
-                  <div className="absolute top-2 left-2 flex items-center gap-1">
+                  <div className="absolute top-2 start-2 flex items-center gap-1">
                     {/* Status dropdown */}
                     <select
                        value={property.status}

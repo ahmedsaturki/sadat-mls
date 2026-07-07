@@ -3,7 +3,7 @@ export default function AdminLoading() {
     <div className="min-h-screen bg-gray-50" aria-busy="true" role="status">
       <div className="flex">
         {/* Sidebar skeleton */}
-        <div className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-screen">
+        <div className="hidden lg:block w-64 bg-white border-e border-gray-200 min-h-screen">
           <div className="p-4 space-y-4">
             <div className="h-8 bg-gray-200 rounded animate-pulse" />
             {Array.from({ length: 5 }).map((_, i) => (

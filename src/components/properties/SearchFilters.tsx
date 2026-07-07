@@ -88,22 +88,20 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
     return v !== "";
   }).length;
 
-  const isRtl = locale !== "en";
-
   return (
     <div className="glass-luxury rounded-2xl p-5 shadow-lg shadow-[#1B2D4F]/5">
       <form onSubmit={handleSubmit}>
         {/* Main Search */}
         <div className="flex gap-3 mb-4">
           <div className="flex-1 relative">
-            <Search className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 text-[#C49A2A] ${isRtl ? "left-3" : "right-3"}`} />
+            <Search className="absolute top-1/2 -translate-y-1/2 w-5 h-5 text-[#C49A2A] start-3" />
             <input
               type="text"
               value={filters.search}
               onChange={(e) => updateFilter("search", e.target.value)}
               placeholder={dict.explore.searchPlaceholder}
               aria-label={dict.explore.searchPlaceholder}
-              className={`w-full py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#C49A2A]/50 focus:border-[#C49A2A] transition-all duration-300 placeholder:text-gray-400 ${isRtl ? "pr-4 pl-10" : "pl-4 pr-10"}`}
+              className="w-full py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#C49A2A]/50 focus:border-[#C49A2A] transition-all duration-300 placeholder:text-gray-400 ps-10 pe-4"
             />
           </div>
           <Button type="submit" className="bg-gradient-to-r from-[#1B2D4F] to-[#1B2D4F]/90 hover:from-[#1B2D4F]/90 hover:to-[#1B2D4F] text-white px-6 rounded-xl shadow-md shadow-[#1B2D4F]/20 hover:shadow-lg hover:shadow-[#1B2D4F]/30 transition-all duration-300">
@@ -120,7 +118,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
           >
             <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[10px] rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -end-1 w-4 h-4 bg-blue-600 text-white text-[10px] rounded-full flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}
@@ -297,7 +295,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
             <button
               type="button"
               onClick={clearFilters}
-              className="text-sm text-red-600 hover:text-red-700 mr-auto"
+              className="text-sm text-red-600 hover:text-red-700 me-auto"
             >
               {dict.explore.clearAll}
             </button>

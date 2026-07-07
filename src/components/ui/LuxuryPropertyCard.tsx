@@ -94,7 +94,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
           
           {/* Top Actions & Badges */}
-          <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
+           <div className="absolute top-3 start-3 end-3 flex justify-between items-start z-10">
             <Badge variant={statusConfig[status].variant} aria-label={statusConfig[status].label} className="shadow-lg backdrop-blur-md bg-white/90">
               {statusConfig[status].label}
             </Badge>
@@ -105,7 +105,7 @@ const LuxuryPropertyCard = memo(function LuxuryPropertyCard({
           </div>
           
           {/* Bottom Price & Location Overlay */}
-          <div className="absolute bottom-4 left-4 right-4 text-white z-10">
+           <div className="absolute bottom-4 start-4 end-4 text-white z-10">
             <p className="text-2xl font-bold font-serif text-[#C49A2A] drop-shadow-md">
                {formatPrice(price, locale)} <span className="text-sm text-gray-200 font-sans">{dict?.property?.priceUnit || "EGP"}</span>
             </p>

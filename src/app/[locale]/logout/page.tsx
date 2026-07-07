@@ -32,7 +32,11 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
         return;
       }
       document.cookie = "csrf_token=; path=/; max-age=0";
-      sessionStorage.clear();
+      try {
+        sessionStorage.removeItem('compare_properties');
+      } catch {
+        // sessionStorage not available
+      }
       setStatus("success");
       timerRef.current = setTimeout(() => {
         router.push(`/${locale}`);

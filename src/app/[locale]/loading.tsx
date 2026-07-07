@@ -10,7 +10,6 @@ export default function Loading() {
           <Globe className="w-8 h-8 text-blue-600" />
         </div>
         <p className="text-gray-500 font-medium">{dict.common.loading}</p>
-        <p className="text-sm text-gray-400 mt-1">{dict.common.loading}</p>
       </div>
     </div>
   );

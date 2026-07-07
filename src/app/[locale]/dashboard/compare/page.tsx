@@ -59,7 +59,7 @@ function CompareContent({
           <table className="w-full bg-white rounded-xl shadow-sm">
             <thead>
     <tr className="border-b">
-      <th className="p-4 text-left w-40" role="rowheader">
+      <th className="p-4 text-start w-40" role="rowheader">
         <p className="text-sm font-medium text-gray-600">
           {dict.common.feature}
         </p>
@@ -68,7 +68,7 @@ function CompareContent({
         <th key={p.id} className="p-4 text-center min-w-[200px] relative" role="columnheader">
           <button
             onClick={() => removeProperty(p.id)}
-            className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+            className="absolute top-2 end-2 p-1 text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
             aria-label={`${dict.common.delete} ${p.title}`}
           >
             <X className="w-4 h-4" />

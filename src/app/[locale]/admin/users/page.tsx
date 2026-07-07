@@ -309,7 +309,7 @@ export default function AdminUsersPage({
           <div className="flex items-center justify-between">
             <PageHeader title={dict.admin.usersTitle} />
             <Button onClick={() => setCreateModal(true)}>
-               <UserPlus className="w-4 h-4 mr-2" aria-hidden="true" />
+               <UserPlus className="w-4 h-4 me-2" aria-hidden="true" />
               {dict.admin.addUser}
             </Button>
           </div>
@@ -419,7 +419,7 @@ export default function AdminUsersPage({
                     key={opt.value}
                     onClick={() => handleRoleChange(opt.value)}
                     disabled={isSelected || updating}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                       isSelected
                         ? "border-blue-300 bg-blue-50 text-blue-700"
                         : "border-gray-200 hover:bg-gray-50 text-gray-700"
@@ -430,7 +430,7 @@ export default function AdminUsersPage({
                       <p className="font-medium">{getRoleLabel(opt.value)}</p>
                     </div>
                     {isSelected && (
-                      <span className="ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                      <span className="me-auto text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
                         {dict.common.current}
                       </span>
                     )}

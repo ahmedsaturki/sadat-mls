@@ -289,7 +289,7 @@ const locale = usePageLocale(params);
             title={dict.nav.offices}
             action={
               <Button onClick={() => setShowModal(true)}>
-                <Plus className="w-4 h-4 ml-2" />
+                <Plus className="w-4 h-4 ms-2" />
                 {dict.admin.addOffice}
               </Button>
             }

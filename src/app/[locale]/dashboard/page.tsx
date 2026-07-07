@@ -148,7 +148,7 @@ const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.proper
           </div>
           <Link href={`/${locale}/dashboard/properties/new`}>
             <Button>
-              <Plus className="w-4 h-4 ml-2" />
+              <Plus className="w-4 h-4 ms-2" />
               {dict.office.addProperty}
             </Button>
           </Link>

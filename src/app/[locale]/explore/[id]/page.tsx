@@ -337,16 +337,16 @@ export default function PropertyDetailPage() {
             <div className="bg-white rounded-xl p-6 shadow-sm sticky top-20">
               <div className="flex gap-2 mb-4">
                 <Button className="flex-1" onClick={handleContact}>
-                  <MessageCircle className="w-4 h-4 ml-2" />
+                  <MessageCircle className="w-4 h-4 ms-2" />
                   {dict.property.whatsapp}
                 </Button>
                 <Button className="flex-1" variant="outline" onClick={handleContact}>
-                  <Phone className="w-4 h-4 ml-2" />
+                  <Phone className="w-4 h-4 ms-2" />
                   {dict.property.call}
                 </Button>
               </div>
               <Button className="w-full" variant="ghost" onClick={handleShare}>
-                <Share2 className="w-4 h-4 ml-2" />
+                <Share2 className="w-4 h-4 ms-2" />
                 {dict.property.share}
               </Button>
               <div className="mt-2 flex justify-center items-center gap-4">

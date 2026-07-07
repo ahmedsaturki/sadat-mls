@@ -37,7 +37,7 @@ export function LuxuryCard({ title, description, imageUrl, price, location, href
           )}
           
           {price && (
-            <div className="absolute bottom-4 left-4 right-4 text-white">
+            <div className="absolute bottom-4 start-4 end-4 text-white">
               <p className="text-2xl font-bold font-serif text-[#C49A2A] drop-shadow-md">{price}</p>
               {location && <p className="text-sm text-gray-200 mt-1 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-white/50" /> {location}</p>}
             </div>

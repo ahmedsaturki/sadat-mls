@@ -105,7 +105,7 @@ const PropertyCard = memo(function PropertyCard({
               <Home className="w-12 h-12 text-blue-300" aria-hidden="true" />
             </div>
           )}
-          <div className={`absolute top-2 flex gap-1 ${locale === "en" ? "right-2" : "left-2"}`}>
+          <div className="absolute top-2 flex gap-1 end-2">
             <CompareButton property={{ id, title, price, area, bedrooms: bedrooms || 0, bathrooms: bathrooms || 0, zone: zone ?? null, type: type ?? null, officeName: officeName ?? null, status: status ?? null, primaryImage: null, description: null }} locale={locale} dict={dict} size="sm" />
             <FavoriteButton propertyId={id} userId={userId} locale={locale} dict={dict} size="sm" />
             <Badge variant={statusConfig[status].variant} aria-label={statusConfig[status].label}>{statusConfig[status].label}</Badge>

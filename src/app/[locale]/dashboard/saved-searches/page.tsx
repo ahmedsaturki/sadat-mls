@@ -100,7 +100,7 @@ function SavedSearchesContent({
 <p className="text-xs text-gray-400">
                        {dict.dashboard.created} {formatDate(search.createdAt)}
                        {search.lastNotified && (
-                         <span className="ml-2">• {dict.dashboard.lastChecked} {formatDate(search.lastNotified)}</span>
+                         <span className="ms-2">• {dict.dashboard.lastChecked} {formatDate(search.lastNotified)}</span>
                        )}
                      </p>
                   </div>

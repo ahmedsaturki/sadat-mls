@@ -202,7 +202,7 @@ export default function LoginPage({
               required
             />
 
-            <div className="text-right">
+            <div className="text-end">
               <Link
                 href={`/${locale}/forgot-password`}
                 className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"

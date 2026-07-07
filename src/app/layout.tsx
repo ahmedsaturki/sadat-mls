@@ -91,7 +91,7 @@ export default async function RootLayout({
       <body className="min-h-screen bg-gray-50 font-sans antialiased">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[100] bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 z-[100] bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg"
         >
           {dict.common.skipToContent}
         </a>

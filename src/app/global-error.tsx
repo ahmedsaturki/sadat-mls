@@ -10,7 +10,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html>
+    <html lang="ar" dir="rtl">
       <body>
         <LuxuryErrorBoundary error={error} reset={reset} />
       </body>

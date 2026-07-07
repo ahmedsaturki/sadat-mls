@@ -89,6 +89,8 @@ export default function Lightbox({
       {images.length > 1 && (
         <div
           className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 max-w-[80vw] overflow-x-auto px-4 pb-2"
+          role="group"
+          aria-label="Image thumbnails"
           onClick={(e) => e.stopPropagation()}
         >
           {images.map((img, i) => (

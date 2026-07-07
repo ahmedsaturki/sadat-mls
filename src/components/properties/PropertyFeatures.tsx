@@ -51,7 +51,7 @@ export default function PropertyFeatures({
         return (
           <div
             key={feature}
-            className="rounded-lg border border-gray-200 p-4 cursor-pointer hover:bg-gray-50 transition"
+            className="rounded-lg border border-gray-200 p-4 hover:bg-gray-50 transition"
           >
             <label
               className="flex items-center gap-3 cursor-pointer"

@@ -101,7 +101,7 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
 
   if (loading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" role="status" aria-busy="true">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="flex items-center gap-3 animate-pulse">
             <div className="w-8 h-8 bg-gray-200 rounded-full" />

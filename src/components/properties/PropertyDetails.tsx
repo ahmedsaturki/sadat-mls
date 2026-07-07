@@ -3,7 +3,6 @@
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import type { Messages } from "@/i18n/getMessages";
-import { useState, useEffect, useCallback } from "react";
 
 interface PropertyDetailsProps {
   dict: Messages;
@@ -27,45 +26,10 @@ export default function PropertyDetails({
   statusOptions,
   onChange,
 }: PropertyDetailsProps) {
-  // Simulate validation with loading states
-  const validateField = useCallback(async (field: string) => {
-    if (field === "price") {
-      // Simple validation for price
-      if (formData[field] && Number(formData[field]) < 0) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    } else {
-      // Small delay for other fields to simulate validation
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
-  }, [formData]);
-
-  // Initialize loading states for all fields
-  const initializeLoadingStates = useCallback(() => {
-    const newLoadingStates: Record<string, boolean> = {};
-    Object.keys(formData).forEach(field => {
-      newLoadingStates[field] = false;
-    });
-    return newLoadingStates;
-  }, [formData]);
-
-  const [loadingStates, setLoadingStates] = useState(initializeLoadingStates());
-
-  useEffect(() => {
-    // Monitor formData changes to trigger validation
-    // In real implementation, this would be triggered by actual input events
-  }, [formData, validateField]);
-
-  // Initialize loading states when formData changes
-  useEffect(() => {
-    setLoadingStates(initializeLoadingStates());
-  }, [formData, initializeLoadingStates]);
-
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 space-y-4">
       {Object.entries(formData).map(([field, value]) => {
         const fieldError = errors[field];
-        const isLoading = loadingStates?.[field] || false;
         const isNumeric = ["price", "area", "bedrooms", "bathrooms", "floors"].includes(field);
         const inputType = isNumeric ? "number" : "text";
         const isNumericField = isNumeric;
@@ -82,7 +46,6 @@ export default function PropertyDetails({
         // Numerical validation styling
         const inputClassNames = [
           "w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
-          isLoading ? "opacity-70 cursor-wait" : "",
           fieldError ? "border-red-500" : "border-gray-300",
         ].join(" ");
 
@@ -108,7 +71,6 @@ export default function PropertyDetails({
                   const newValue = isNumericField ? e.target.value : value.replace(/[^0-9]/g, '');
                   onChange(field, newValue);
                 }}
-                disabled={isLoading}
                 className={inputClassNames}
                 aria-invalid={!!fieldError}
                 aria-describedby={fieldError ? `${field}-error` : undefined}

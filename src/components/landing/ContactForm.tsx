@@ -163,6 +163,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                     id="contact-name"
                     type="text"
                     required
+                    aria-required="true"
                     maxLength={MAX_NAME_LENGTH}
                     value={contactForm.name}
                     onChange={(e) => setContactForm({ ...contactForm, name: e.target.value.slice(0, MAX_NAME_LENGTH) })}
@@ -200,6 +201,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                 <textarea
                   id="contact-message"
                   required
+                  aria-required="true"
                   maxLength={MAX_MESSAGE_LENGTH}
                   rows={4}
                   value={contactForm.message}
