@@ -5,6 +5,7 @@ import { Cairo } from "next/font/google";
 import { getMessages } from "@/i18n/getMessages";
 import { type Locale } from "@/i18n/config";
 import Providers from "@/components/Providers";
+import HtmlAttributes from "@/components/HtmlAttributes";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -176,6 +177,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-gray-50">
+        <HtmlAttributes />
         <Providers>{children}</Providers>
       </body>
     </html>
