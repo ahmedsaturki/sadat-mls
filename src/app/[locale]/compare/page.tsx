@@ -47,7 +47,7 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
         <div className="flex items-center justify-between mb-4">
           <Link
             href={`/${locale}/explore`}
-            className="text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+            className="text-navy-600 hover:text-navy-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
           >
             {dict.common.backToExplore || "Back to Explore"}
           </Link>
@@ -78,7 +78,7 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
                 >
                   <Link
                     href={`/${locale}/explore/${property.id}`}
-                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
                     aria-label={property.title}
                   >
                     <div className="relative w-full h-48 bg-gray-50">
@@ -157,7 +157,7 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
             <div className="mt-4">
               <Link
                 href={`/${locale}/explore`}
-                className="inline-block text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+                className="inline-block text-navy-600 hover:text-navy-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
               >
                 {dict.common.backToExplore || "Back to Explore"}
               </Link>

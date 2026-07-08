@@ -234,7 +234,7 @@ function ExploreContent({
 
   return (
     <div className="min-h-screen bg-gray-50" role="main">
-      <a href="#explore-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+      <a href="#explore-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-navy-600 focus:ring-2 focus:ring-navy-500">
         {dict.common.skipToContent}
       </a>
       <Navbar locale={locale} dict={dict} />
@@ -247,7 +247,7 @@ function ExploreContent({
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 bg-gray-100 px-3 py-1.5 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 bg-gray-100 px-3 py-1.5 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
                   {dict.explore.clearFilters}
@@ -263,7 +263,7 @@ function ExploreContent({
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value as typeof sortBy)}
                   aria-label={dict.property.sortNewest}
-                  className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 bg-white"
+                  className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 bg-white"
                 >
                   <option value="newest">{dict.property.sortNewest}</option>
                   <option value="price_low">{dict.property.sortPriceLow}</option>
@@ -273,8 +273,8 @@ function ExploreContent({
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`p-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-                  showFilters ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"
+                className={`p-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                  showFilters ? "bg-navy-100 text-navy-600" : "bg-gray-100 text-gray-600"
                 }`}
                 aria-label={dict.common.filters}
                 aria-expanded={showFilters}
@@ -314,7 +314,7 @@ function ExploreContent({
             <h2 className="text-lg font-medium text-gray-900 mb-2">{error}</h2>
             <button
               onClick={() => loadProperties()}
-              className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+              className="text-navy-600 hover:text-navy-700 font-medium text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
             >
               {dict.common.retry}
             </button>
@@ -389,7 +389,7 @@ export default function ExplorePage({
     <ErrorBoundary>
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-navy-200 border-t-navy-600 rounded-full animate-spin" />
         </div>
       }>
         <ExploreContent params={params} />

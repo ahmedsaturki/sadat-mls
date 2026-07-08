@@ -11,9 +11,9 @@ interface LuxuryStatCardProps {
 
 const colorConfig = {
   blue: {
-    bg: "from-blue-500/10 to-blue-500/5",
-    border: "border-blue-500/20 group-hover:border-blue-500/50",
-    iconBg: "bg-blue-500/10 text-blue-600",
+    bg: "from-navy-500/10 to-navy-500/5",
+    border: "border-navy-500/20 group-hover:border-navy-500/50",
+    iconBg: "bg-navy-500/10 text-navy-600",
     glow: "group-hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]",
   },
   green: {

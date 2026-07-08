@@ -45,7 +45,7 @@ export default function PropertyDetails({
         
         // Numerical validation styling
         const inputClassNames = [
-          "w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          "w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-navy-500",
           fieldError ? "border-red-500" : "border-gray-300",
         ].join(" ");
 
@@ -59,7 +59,7 @@ export default function PropertyDetails({
                   label={fieldLabel}
                   value={value === "true" ? "true" : "false"}
                   onChange={(e) => onChange(field, e.target.checked ? "true" : "false")}
-                  className="w-4 h-4 rounded focus:ring-2 focus:ring-blue-500"
+                  className="w-4 h-4 rounded focus:ring-2 focus:ring-navy-500"
                 />
                 <p className="text-sm text-gray-600">{fieldError ? ` ${fieldError}` : ''}</p>
               </>
@@ -103,7 +103,7 @@ export default function PropertyDetails({
           value={formData.status}
           onChange={(e) => onChange("status", e.target.value)}
           options={statusOptions ?? []}
-          className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
         />
         {errors.status && (
           <p className="text-red-500 text-xs mt-1" id="status-error">

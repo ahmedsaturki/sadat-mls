@@ -39,7 +39,7 @@ const ACTION_ICONS: Record<string, typeof Home> = {
 
 const ACTION_COLORS: Record<string, string> = {
   "property.created": "bg-green-100 text-green-600",
-  "property.updated": "bg-blue-100 text-blue-600",
+  "property.updated": "bg-navy-100 text-navy-600",
   "property.deleted": "bg-red-100 text-red-600",
   "agent.created": "bg-purple-100 text-purple-600",
   "agent.deleted": "bg-red-100 text-red-600",

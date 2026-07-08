@@ -91,7 +91,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
                   className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm ring-2 ring-gray-100">
+                <div className="w-10 h-10 rounded-full bg-navy-100 flex items-center justify-center text-navy-600 font-semibold text-sm ring-2 ring-gray-100">
                   {profile.fullName ? profile.fullName.charAt(0).toUpperCase() : (profile.email || "").charAt(0).toUpperCase()}
                 </div>
               )}
@@ -112,13 +112,13 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
                 onClick={onNavigate}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2",
                   isActive
-                    ? "bg-blue-50 text-blue-600"
+                    ? "bg-navy-50 text-navy-600"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
-                <link.icon className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400")} aria-hidden="true" />
+                <link.icon className={cn("w-5 h-5", isActive ? "text-navy-600" : "text-gray-400")} aria-hidden="true" />
                 {link.label}
               </Link>
             );

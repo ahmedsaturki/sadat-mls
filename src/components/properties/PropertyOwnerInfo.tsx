@@ -66,7 +66,7 @@ export default function PropertyOwnerInfo({
                 aria-label={dict.office.ownerName}
                 aria-invalid={!!errors?.[`owner_name_${index}`]}
                 aria-describedby={errors?.[`owner_name_${index}`] ? `owner_name_${index}-error` : undefined}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500"
                 value={owner.owner_name}
                 onChange={(e) => onChange(index, "owner_name", e.target.value)}
               />
@@ -86,7 +86,7 @@ export default function PropertyOwnerInfo({
                 aria-label={dict.office.ownerPhone}
                 aria-invalid={!!errors?.[`owner_phone_${index}`]}
                 aria-describedby={errors?.[`owner_phone_${index}`] ? `owner_phone_${index}-error` : undefined}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500"
                 value={owner.owner_phone}
                 onChange={(e) => onChange(index, "owner_phone", e.target.value)}
               />
@@ -104,7 +104,7 @@ export default function PropertyOwnerInfo({
                 autoComplete="email"
                 placeholder={dict.office.ownerEmail}
                 aria-label={dict.office.ownerEmail}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500"
                 value={owner.owner_email || ""}
                 onChange={(e) => onChange(index, "owner_email", e.target.value)}
               />
@@ -116,7 +116,7 @@ export default function PropertyOwnerInfo({
                 autoComplete="off"
                 placeholder={dict.office.ownerNotes}
                 aria-label={dict.office.ownerNotes}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500"
                 value={owner.notes || ""}
                 onChange={(e) => onChange(index, "notes", e.target.value)}
               />

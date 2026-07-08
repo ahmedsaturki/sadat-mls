@@ -122,7 +122,7 @@ export default function PropertyGallery({
               aria-label={`${dict.property.imageAlt} ${i + 1}`}
               aria-current={i === currentIndex ? "true" : undefined}
               className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors ${
-                i === currentIndex ? "border-blue-500" : "border-transparent"
+                i === currentIndex ? "border-navy-500" : "border-transparent"
               }`}
             >
               <Image

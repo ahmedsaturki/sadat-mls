@@ -63,7 +63,7 @@ if (isSelected(property.id)) {
         "flex items-center justify-center rounded-full transition-all active:scale-90",
         sizeClasses[size],
         isSelected(property.id)
-          ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
+          ? "bg-navy-50 text-navy-600 hover:bg-navy-100"
           : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600",
         className
       )}

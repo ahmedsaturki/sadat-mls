@@ -147,7 +147,7 @@ export default function PropertyDetailPage() {
           <p className="text-gray-500 mb-4">{dict.property.notFoundDesc}</p>
           <Link
             href={`/${locale}/explore`}
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+            className="inline-flex items-center gap-2 text-navy-600 hover:text-navy-700 font-medium"
           >
             <ArrowRight className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
             {dict.property.backToExplore}
@@ -208,7 +208,7 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" role="main">
-      <a href="#property-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+      <a href="#property-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-navy-600 focus:ring-2 focus:ring-navy-500">
         {dict.common.skipToContent}
       </a>
       <script
@@ -262,7 +262,7 @@ export default function PropertyDetailPage() {
                 </Badge>
               </div>
 
-              <p className="text-3xl font-bold text-blue-600 mb-6">
+              <p className="text-3xl font-bold text-navy-600 mb-6">
                 {formatPrice(property.price)}
               </p>
 
@@ -365,8 +365,8 @@ export default function PropertyDetailPage() {
               <div className="bg-white rounded-xl p-6 shadow-sm">
                 <h2 className="font-semibold text-gray-900 mb-3">{dict.property.officeLabel}</h2>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-blue-600" aria-hidden="true" />
+                  <div className="w-12 h-12 bg-navy-100 rounded-full flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-navy-600" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{property.offices.name}</p>

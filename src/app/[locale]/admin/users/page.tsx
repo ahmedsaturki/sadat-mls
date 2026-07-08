@@ -43,7 +43,7 @@ const ROLE_OPTIONS = [
 
 const ROLE_BADGE_COLORS: Record<string, string> = {
   super_admin: "bg-red-100 text-red-700",
-  office_admin: "bg-blue-100 text-blue-700",
+  office_admin: "bg-navy-100 text-navy-700",
   office_agent: "bg-green-100 text-green-700",
 };
 
@@ -230,7 +230,7 @@ export default function AdminUsersPage({
       header: dict.admin.columnName,
       render: (u: UserRecord) => (
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-sm font-semibold text-blue-600">
+          <div className="w-9 h-9 bg-navy-100 rounded-full flex items-center justify-center text-sm font-semibold text-navy-600">
             {(u.full_name || u.email).charAt(0).toUpperCase()}
           </div>
           <div>
@@ -329,7 +329,7 @@ export default function AdminUsersPage({
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-navy-500 focus:border-navy-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
                   aria-label={dict.admin.columnRole}
                 >
                   <option value="">{dict.common.all}</option>
@@ -419,9 +419,9 @@ export default function AdminUsersPage({
                     key={opt.value}
                     onClick={() => handleRoleChange(opt.value)}
                     disabled={isSelected || updating}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
                       isSelected
-                        ? "border-blue-300 bg-blue-50 text-blue-700"
+                        ? "border-navy-300 bg-navy-50 text-navy-700"
                         : "border-gray-200 hover:bg-gray-50 text-gray-700"
                     }`}
                   >
@@ -430,7 +430,7 @@ export default function AdminUsersPage({
                       <p className="font-medium">{getRoleLabel(opt.value)}</p>
                     </div>
                     {isSelected && (
-                      <span className="me-auto text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                      <span className="me-auto text-xs bg-navy-100 text-navy-700 px-2 py-1 rounded-full">
                         {dict.common.current}
                       </span>
                     )}
@@ -484,7 +484,7 @@ export default function AdminUsersPage({
               <select
                 value={createForm.role}
                 onChange={(e) => setCreateForm({ ...createForm, role: e.target.value as UserRole })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-navy-500 focus:border-navy-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
               >
                 {ROLE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{getRoleLabel(opt.value)}</option>

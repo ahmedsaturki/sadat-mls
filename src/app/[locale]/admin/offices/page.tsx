@@ -305,7 +305,7 @@ const locale = usePageLocale(params);
                   searchKey="name"
                   searchPlaceholder={dict.admin.searchOffices}
                   emptyMessage={dict.common.noData}
-                  emptyIcon={<Building className="w-12 h-12 text-blue-300" />}
+                  emptyIcon={<Building className="w-12 h-12 text-navy-300" />}
                   emptyHint={dict.admin.noOfficesHint}
                   columns={[
                     {
@@ -313,8 +313,8 @@ const locale = usePageLocale(params);
                       header: dict.admin.columnOffice,
                       render: (office) => (
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-blue-600" />
+                          <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-navy-600" />
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">{office.name}</p>
@@ -338,7 +338,7 @@ const locale = usePageLocale(params);
                       header: dict.admin.columnUsers,
                       className: "text-center",
                       render: (office) => (
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-navy-100 text-navy-700 rounded-full text-sm font-medium">
                           {office.usersCount}
                         </span>
                       ),
@@ -379,7 +379,7 @@ const locale = usePageLocale(params);
                           <button
                             onClick={() => toggleOfficeStatus(office.id, office.is_active)}
                             disabled={togglingId === office.id}
-                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
                             title={office.is_active ? dict.admin.deactivate : dict.admin.activate}
                             aria-label={office.is_active ? dict.admin.deactivate : dict.admin.activate}
                           >

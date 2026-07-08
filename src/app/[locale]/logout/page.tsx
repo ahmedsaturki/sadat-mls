@@ -102,7 +102,7 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
             <p className="text-red-600 font-medium mb-4">{dict.auth.logoutError}</p>
             <button
               onClick={() => router.push(`/${locale}`)}
-              className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+              className="text-navy-600 hover:text-navy-700 font-medium text-sm"
             >
               {dict.auth.goHome}
             </button>

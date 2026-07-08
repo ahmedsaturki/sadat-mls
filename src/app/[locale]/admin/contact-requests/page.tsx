@@ -127,7 +127,7 @@ export default function AdminContactRequestsPage({
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "whatsapp": return <MessageSquare className="w-4 h-4 text-green-600" />;
-      case "phone": return <Phone className="w-4 h-4 text-blue-600" />;
+      case "phone": return <Phone className="w-4 h-4 text-navy-600" />;
       case "email": return <Mail className="w-4 h-4 text-purple-600" />;
       default: return null;
     }
@@ -191,9 +191,9 @@ export default function AdminContactRequestsPage({
               key={type}
               onClick={() => setFilter(type)}
               aria-pressed={filter === type}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
                 filter === type
-                  ? "bg-blue-100 text-blue-700"
+                  ? "bg-navy-100 text-navy-700"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -212,7 +212,7 @@ export default function AdminContactRequestsPage({
                 value={officeFilter}
                 onChange={(e) => setOfficeFilter(e.target.value)}
                 aria-label={dict.contactRequests.allOffices}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:border-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 focus-visible:border-navy-500"
             >
               <option value="all">{dict.contactRequests.allOffices}</option>
               {offices.map(([id, name]) => (
@@ -267,7 +267,7 @@ export default function AdminContactRequestsPage({
                         href={request.contact_type === "whatsapp" ? `https://wa.me/${request.visitor_phone}` : `tel:${request.visitor_phone}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors"
+                        className="flex items-center gap-1 text-sm text-navy-600 hover:text-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded transition-colors"
                       >
                          <ExternalLink className="w-4 h-4" aria-hidden="true" />
                         {dict.contactRequests.view}

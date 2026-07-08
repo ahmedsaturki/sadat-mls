@@ -99,7 +99,7 @@ export default function VerifyEmailPage({
   }, [user, resendCooldown, refresh]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-navy-600 via-navy-700 to-navy-900 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full" aria-hidden="true" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/5 rounded-full" aria-hidden="true" />
@@ -108,7 +108,7 @@ export default function VerifyEmailPage({
       <div className="w-full max-w-md relative">
         <Link
           href={`/${locale}`}
-          className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-8 transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-600 rounded"
+          className="inline-flex items-center gap-2 text-navy-200 hover:text-white mb-8 transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-600 rounded"
         >
           <ArrowRight className="w-4 h-4 rtl:rotate-180" />
           {dict.auth.backToHome}
@@ -116,7 +116,7 @@ export default function VerifyEmailPage({
 
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-4">
-            <Building2 className="w-8 h-8 text-blue-600" />
+            <Building2 className="w-8 h-8 text-navy-600" />
           </div>
           <h1 className="text-2xl font-bold text-white">{dict.common.appName}</h1>
         </div>
@@ -124,7 +124,7 @@ export default function VerifyEmailPage({
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {status === "loading" && (
             <div className="text-center">
-              <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+              <div className="animate-spin w-8 h-8 border-2 border-navy-600 border-t-transparent rounded-full mx-auto mb-4" />
               <p className="text-gray-500">{dict.common.loading}</p>
             </div>
           )}
@@ -137,7 +137,7 @@ export default function VerifyEmailPage({
               </h2>
               <Link
                 href={`/${locale}/login`}
-                className="inline-block mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+                className="inline-block mt-4 text-sm text-navy-600 hover:text-navy-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
               >
                 {dict.auth.backToLogin}
               </Link>
@@ -146,7 +146,7 @@ export default function VerifyEmailPage({
 
           {status === "pending" && (
             <div className="text-center space-y-4">
-              <Mail className="w-12 h-12 text-blue-600 mx-auto" />
+              <Mail className="w-12 h-12 text-navy-600 mx-auto" />
               <h2 className="text-xl font-semibold text-gray-900">
                 {dict.auth.verifyEmailTitle}
               </h2>
@@ -182,7 +182,7 @@ export default function VerifyEmailPage({
               </h2>
               <Link
                 href={`/${locale}/login`}
-                className="inline-block mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+                className="inline-block mt-4 text-sm text-navy-600 hover:text-navy-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
               >
                 {dict.auth.backToLogin}
               </Link>

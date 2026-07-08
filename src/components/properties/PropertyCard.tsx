@@ -129,7 +129,7 @@ const PropertyCard = memo(function PropertyCard(props: PropertyCardProps) {
   return (
     <Link
       href={`/${locale}/explore/${id}`}
-      className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-xl"
+      className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded-xl"
       aria-label={ariaLabel}
     >
       <article
@@ -202,7 +202,7 @@ const PropertyCard = memo(function PropertyCard(props: PropertyCardProps) {
         <div className={cn("flex flex-col flex-1", compact ? "p-3" : "p-4")}>
           <h3
             className={cn(
-              "font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors",
+              "font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:text-navy-600 transition-colors",
               compact ? "text-sm" : "text-base"
             )}
           >
@@ -238,7 +238,7 @@ const PropertyCard = memo(function PropertyCard(props: PropertyCardProps) {
           )}
 
           <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto">
-            <span className={cn("font-bold text-blue-600", compact ? "text-sm" : "text-lg")}>
+            <span className={cn("font-bold text-navy-600", compact ? "text-sm" : "text-lg")}>
               {formatPrice(price, locale)}{" "}
               <span className="text-xs text-gray-500 font-normal">{priceUnit ?? ""}</span>
             </span>

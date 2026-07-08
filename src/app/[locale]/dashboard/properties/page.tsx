@@ -244,7 +244,7 @@ export default function PropertiesPage({
             { label: dict.property.status.rented, value: stats.rented, color: "blue" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl p-4 shadow-sm text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-default">
-              <p className={`text-2xl font-bold ${s.color === "green" ? "text-green-600" : s.color === "red" ? "text-red-600" : "text-blue-600"}`}>{s.value}</p>
+              <p className={`text-2xl font-bold ${s.color === "green" ? "text-green-600" : s.color === "red" ? "text-red-600" : "text-navy-600"}`}>{s.value}</p>
               <p className="text-sm text-gray-500 mt-1">{s.label}</p>
             </div>
           ))}
@@ -261,9 +261,9 @@ export default function PropertiesPage({
             <button
               key={f.key}
               onClick={() => { setStatusFilter(f.key); setPage(1); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
                 statusFilter === f.key
-                  ? "bg-blue-100 text-blue-700"
+                  ? "bg-navy-100 text-navy-700"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -300,14 +300,14 @@ export default function PropertiesPage({
                        disabled={updatingStatus === property.id}
                        onClick={(e) => e.stopPropagation()}
                         aria-label={dict.common.changePropertyStatus}
-                       className={`text-xs font-medium px-2 py-1 rounded-lg border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer ${
+                       className={`text-xs font-medium px-2 py-1 rounded-lg border-0 focus:ring-2 focus:ring-navy-500 cursor-pointer ${
                          property.status === "available"
                            ? "bg-green-100 text-green-700"
                            : property.status === "sold"
                            ? "bg-red-100 text-red-700"
                            : property.status === "reserved"
                            ? "bg-amber-100 text-amber-700"
-                           : "bg-blue-100 text-blue-700"
+                           : "bg-navy-100 text-navy-700"
                        }`}
                      >
                        <option value="available">{dict.property.status.available}</option>
@@ -320,14 +320,14 @@ export default function PropertiesPage({
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                       <Link
                         href={`/${locale}/dashboard/properties/${property.id}/edit`}
-                        className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                        className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-1"
                         aria-label={dict.office.editProperty}
                       >
                         <Edit className="w-4 h-4 text-gray-600" />
                       </Link>
                       <button
                         onClick={() => handleDeleteClick(property.id)}
-                        className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                        className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-1"
                         aria-label={dict.common.delete}
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
@@ -340,8 +340,8 @@ export default function PropertiesPage({
           </div>
         ) : (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-5 ring-1 ring-blue-200/60">
-              <Home className="w-10 h-10 text-blue-400" />
+            <div className="w-20 h-20 bg-gradient-to-br from-navy-50 to-navy-100 rounded-full flex items-center justify-center mx-auto mb-5 ring-1 ring-navy-200/60">
+              <Home className="w-10 h-10 text-navy-400" />
             </div>
             <p className="text-lg font-semibold text-gray-700 mb-1.5">
               {dict.office.noPropertiesYet}
@@ -363,7 +363,7 @@ export default function PropertiesPage({
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {dict.common.previous}
             </button>
@@ -373,9 +373,9 @@ export default function PropertiesPage({
                 onClick={() => setPage(p)}
                 aria-label={`${p}`}
                 aria-current={page === p ? "page" : undefined}
-                className={`px-3 py-2 text-sm font-medium rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                className={`px-3 py-2 text-sm font-medium rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
                   page === p
-                    ? "bg-blue-600 text-white"
+                    ? "bg-navy-600 text-white"
                     : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
                 }`}
               >
@@ -385,7 +385,7 @@ export default function PropertiesPage({
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {dict.common.next}
             </button>

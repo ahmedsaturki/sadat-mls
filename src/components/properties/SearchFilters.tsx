@@ -214,7 +214,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                     type="checkbox"
                     checked={filters.hasBalcony}
                     onChange={(e) => updateFilter("hasBalcony", e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-navy-600 rounded focus:ring-navy-500"
                   />
                   <DoorOpen className="w-4 h-4 text-gray-500" aria-hidden="true" />
                   <span className="text-sm text-gray-700">{dict.explore.balcony}</span>
@@ -224,7 +224,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                     type="checkbox"
                     checked={filters.hasParking}
                     onChange={(e) => updateFilter("hasParking", e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-navy-600 rounded focus:ring-navy-500"
                   />
                   <ParkingCircle className="w-4 h-4 text-gray-500" aria-hidden="true" />
                   <span className="text-sm text-gray-700">{dict.explore.parking}</span>
@@ -234,7 +234,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                     type="checkbox"
                     checked={filters.hasElevator}
                     onChange={(e) => updateFilter("hasElevator", e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-navy-600 rounded focus:ring-navy-500"
                   />
                   <Accessibility className="w-4 h-4 text-gray-500" aria-hidden="true" />
                   <span className="text-sm text-gray-700">{dict.explore.elevator}</span>

@@ -58,7 +58,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center gap-2" prefetch aria-label={dict.common.home}>
-            <Building2 className="w-8 h-8 text-blue-600" aria-hidden="true" />
+            <Building2 className="w-8 h-8 text-navy-600" aria-hidden="true" />
             <span className="text-xl font-bold text-gray-900">{dict.common.appName}</span>
           </Link>
 
@@ -74,7 +74,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   pathname === link.href
-                    ? "bg-blue-50 text-blue-600"
+                    ? "bg-navy-50 text-navy-600"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
@@ -154,7 +154,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? dict.common.close : dict.common.open}
               aria-controls="mobile-menu"
@@ -185,9 +185,9 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               aria-current={pathname === link.href ? "page" : undefined}
               tabIndex={mobileMenuOpen ? 0 : -1}
               className={cn(
-                "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
+                "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-1",
                 pathname === link.href
-                  ? "bg-blue-50 text-blue-600"
+                  ? "bg-navy-50 text-navy-600"
                   : "text-gray-600 hover:bg-gray-50"
               )}
             >

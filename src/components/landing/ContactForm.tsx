@@ -149,7 +149,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{dict.landing.contactForm.success}</h3>
               <button
                 onClick={() => setContactSent(false)}
-                className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
+                className="mt-4 text-navy-600 hover:text-navy-700 font-medium"
               >
                 {dict.common.close}
               </button>
@@ -171,7 +171,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                     value={contactForm.name}
                     onChange={(e) => setContactForm({ ...contactForm, name: e.target.value.slice(0, MAX_NAME_LENGTH) })}
                     placeholder={dict.landing.contactForm.namePlaceholder}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -186,7 +186,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                     value={contactForm.email}
                     onChange={(e) => setContactForm({ ...contactForm, email: e.target.value.slice(0, MAX_EMAIL_LENGTH) })}
                     placeholder={dict.landing.contactForm.emailPlaceholder}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                   value={contactForm.phone}
                   onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value.slice(0, MAX_PHONE_LENGTH) })}
                   placeholder={dict.landing.contactForm.phonePlaceholder}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -218,7 +218,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                   value={contactForm.message}
                   onChange={(e) => setContactForm({ ...contactForm, message: e.target.value.slice(0, MAX_MESSAGE_LENGTH) })}
                   placeholder={dict.landing.contactForm.messagePlaceholder}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent resize-none"
                 />
               </div>
               {contactError && (

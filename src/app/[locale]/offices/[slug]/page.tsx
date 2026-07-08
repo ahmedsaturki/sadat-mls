@@ -139,7 +139,7 @@ function PublicOfficePage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <a href="#office-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+      <a href="#office-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-navy-600 focus:ring-2 focus:ring-navy-500">
         {dict.common.skipToContent}
       </a>
       <Navbar locale={locale} dict={dict} />
@@ -159,8 +159,8 @@ function PublicOfficePage({
                 />
               </div>
             ) : (
-              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center">
-                <Building2 className="w-10 h-10 text-blue-600" />
+              <div className="w-20 h-20 bg-navy-100 rounded-2xl flex items-center justify-center">
+                <Building2 className="w-10 h-10 text-navy-600" />
               </div>
             )}
             <div>

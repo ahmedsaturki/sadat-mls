@@ -21,8 +21,8 @@ export default async function LocaleNotFound({
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
-        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Building2 className="w-10 h-10 text-blue-600" />
+        <div className="w-20 h-20 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Building2 className="w-10 h-10 text-navy-600" />
         </div>
         <h1 className="text-6xl font-bold text-gray-300 mb-2">404</h1>
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -31,7 +31,7 @@ export default async function LocaleNotFound({
         <p className="text-gray-500 mb-6">{notFoundDesc}</p>
         <Link
           href={`/${locale}`}
-          className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-2 bg-navy-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-navy-700 transition-colors"
         >
           {isRtl ? (
             <ArrowLeft className="w-5 h-5" />

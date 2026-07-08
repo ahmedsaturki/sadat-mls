@@ -22,7 +22,7 @@ export default function Footer({ locale, dict }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Building2 className="w-6 h-6 text-blue-500" aria-hidden="true" />
+              <Building2 className="w-6 h-6 text-navy-500" aria-hidden="true" />
               <span className="text-lg font-semibold text-white">
                 {dict.common.appName}
               </span>
@@ -38,7 +38,7 @@ export default function Footer({ locale, dict }: FooterProps) {
               <li>
                 <Link
                   href={`/${locale}`}
-                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 rounded"
                 >
                   {dict.common.home}
                 </Link>
@@ -46,7 +46,7 @@ export default function Footer({ locale, dict }: FooterProps) {
               <li>
                 <Link
                   href={`/${locale}/explore`}
-                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 rounded"
                 >
                   {dict.nav.explore}
                 </Link>
@@ -54,7 +54,7 @@ export default function Footer({ locale, dict }: FooterProps) {
               <li>
                 <Link
                   href={`/${locale}/login`}
-                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 rounded"
                 >
                   {dict.common.login}
                 </Link>
@@ -66,20 +66,20 @@ export default function Footer({ locale, dict }: FooterProps) {
             <h3 className="text-white font-semibold mb-4">{footer.contactUs}</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-blue-500 shrink-0" aria-hidden="true" />
+                <MapPin className="w-4 h-4 text-navy-500 shrink-0" aria-hidden="true" />
                 <span>{footer.location}</span>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-blue-500 shrink-0" aria-hidden="true" />
+                <Mail className="w-4 h-4 text-navy-500 shrink-0" aria-hidden="true" />
                 <a
                   href={`mailto:${footer.email}`}
-                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 rounded"
                 >
                   {footer.email}
                 </a>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-blue-500 shrink-0" aria-hidden="true" />
+                <Phone className="w-4 h-4 text-navy-500 shrink-0" aria-hidden="true" />
                 <span>{footer.callUs}</span>
               </li>
             </ul>

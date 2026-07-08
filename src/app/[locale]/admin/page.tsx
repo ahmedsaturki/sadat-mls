@@ -120,7 +120,7 @@ export default async function AdminDashboard({
           <Card>
             <div className="flex items-center justify-between mb-4">
               <CardTitle>{dict.admin.recentOffices}</CardTitle>
-              <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
+              <Link href={`/${locale}/admin/offices`} className="text-sm text-navy-600 hover:text-navy-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded transition-colors">
                 {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
               </Link>
             </div>
@@ -130,8 +130,8 @@ export default async function AdminDashboard({
                   {recentOffices.map((office: RecentOffice) => (
                     <div key={office.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Building2 className="w-5 h-5 text-blue-600" />
+                        <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center">
+                          <Building2 className="w-5 h-5 text-navy-600" />
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">{office.name}</p>
@@ -154,7 +154,7 @@ export default async function AdminDashboard({
           <Card>
             <div className="flex items-center justify-between mb-4">
               <CardTitle>{dict.contactRequests.title}</CardTitle>
-              <Link href={`/${locale}/admin/contact-requests`} className="text-sm text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
+              <Link href={`/${locale}/admin/contact-requests`} className="text-sm text-navy-600 hover:text-navy-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded transition-colors">
                 {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
               </Link>
             </div>
@@ -190,10 +190,10 @@ export default async function AdminDashboard({
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Link
               href={`/${locale}/admin/offices`}
-              className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              className="flex items-center gap-3 p-4 bg-navy-50 rounded-xl hover:bg-navy-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
             >
-              <Plus className="w-5 h-5 text-blue-600" aria-hidden="true" />
-              <span className="font-medium text-blue-900">{dict.admin.addOffice}</span>
+              <Plus className="w-5 h-5 text-navy-600" aria-hidden="true" />
+              <span className="font-medium text-navy-900">{dict.admin.addOffice}</span>
             </Link>
             <Link
               href={`/${locale}/admin/zones`}

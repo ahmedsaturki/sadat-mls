@@ -103,7 +103,7 @@ export default function PropertyImageManager({
             <div
               key={img.id}
               className={`relative group min-h-[200px] rounded-lg overflow-hidden border flex flex-col ${
-                focusedIndex === index ? "ring-2 ring-blue-500 ring-offset-2" : ""
+                focusedIndex === index ? "ring-2 ring-navy-500 ring-offset-2" : ""
               }`}
               onKeyDown={(e) => handleKeyDown(e, index, false)}
               tabIndex={focusedIndex === index ? 0 : -1}
@@ -162,7 +162,7 @@ export default function PropertyImageManager({
             <div
               key={index}
               className={`relative group min-h-[200px] rounded-lg overflow-hidden border flex flex-col ${
-                focusedIndex === index ? "ring-2 ring-blue-500 ring-offset-2" : ""
+                focusedIndex === index ? "ring-2 ring-navy-500 ring-offset-2" : ""
               }`}
               onKeyDown={(e) => handleKeyDown(e, index, true)}
               tabIndex={focusedIndex === index ? 0 : -1}
@@ -191,7 +191,7 @@ export default function PropertyImageManager({
                     onChange={(e) => onSetAltText(index, e.target.value)}
                     placeholder={dict.common.editAltText || "Edit image description"}
                     aria-label={dict.common.editAltText}
-                    className="w-full text-xs px-2 py-1.5 rounded-sm bg-white/95 text-gray-800 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full text-xs px-2 py-1.5 rounded-sm bg-white/95 text-gray-800 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                   />
                   <button
                     type="button"
@@ -212,7 +212,7 @@ export default function PropertyImageManager({
       {existingImages.length === 0 && newImages.length === 0 && (
         <div
           className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition ${
-            isUploadAreaFocused ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-400"
+            isUploadAreaFocused ? "border-navy-500 bg-navy-50" : "border-gray-300 hover:border-navy-400"
           }`}
           onClick={() => fileInputRef.current?.click()}
           onKeyDown={(e) => {

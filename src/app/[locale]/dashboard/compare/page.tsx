@@ -31,7 +31,7 @@ function CompareContent({
           </p>
           <Link
             href={`/${locale}/explore`}
-            className="inline-block mt-4 text-blue-600 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+            className="inline-block mt-4 text-navy-600 hover:text-navy-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
           >
             {dict.common.backToExplore || dict.common.back}
           </Link>
@@ -49,7 +49,7 @@ function CompareContent({
           </h1>
           <button
             onClick={clearAll}
-            className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+            className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
           >
             {dict.dashboard.clearAll}
           </button>
@@ -69,7 +69,7 @@ function CompareContent({
         <th key={p.id} className="p-4 text-center min-w-[200px] relative" role="columnheader">
           <button
             onClick={() => removeProperty(p.id)}
-            className="absolute top-2 end-2 p-1 text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+            className="absolute top-2 end-2 p-1 text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
             aria-label={`${dict.common.delete} ${p.title}`}
           >
             <X className="w-4 h-4" />

@@ -147,7 +147,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
   const getTypeColor = (type: string): string => {
     switch (type) {
       case "contact_request":
-        return "bg-blue-100 text-blue-800";
+        return "bg-navy-100 text-navy-800";
       case "property_inquiry":
         return "bg-green-100 text-green-800";
       case "agent_joined":
@@ -203,7 +203,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
         className={cn(
           "relative p-2 rounded-lg transition-colors",
           "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
         )}
         aria-label={`${dict.notifications.title} (${unreadCount} unread)`}
         aria-expanded={isOpen}
@@ -237,7 +237,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                className="flex items-center gap-1 text-xs text-navy-600 hover:text-navy-800 transition-colors"
               >
                 <CheckCheck className="w-3 h-3" aria-hidden="true" />
                 {dict.notifications.markAllRead}
@@ -249,7 +249,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
           <div className="overflow-y-auto max-h-72">
             {loading && notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-gray-500">
-                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                <div className="w-5 h-5 border-2 border-navy-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
               </div>
             ) : notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-gray-500">
@@ -262,7 +262,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
                   className={cn(
                     "px-4 py-3 border-b border-gray-50 last:border-0",
                     "hover:bg-gray-50 transition-colors cursor-pointer",
-                    !notification.is_read && "bg-blue-50/50"
+                    !notification.is_read && "bg-navy-50/50"
                   )}
                   onClick={() => {
                     if (!notification.is_read) {

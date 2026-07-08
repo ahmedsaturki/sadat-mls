@@ -59,7 +59,7 @@ export default function PropertyFeatures({
             >
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 shadow-sm"
+                className="h-4 w-4 rounded border-gray-300 text-navy-600 focus:ring-navy-500 shadow-sm"
                 checked={isChecked}
                 onChange={(e) => onChange(feature, e.target.checked)}
                 aria-label={featureAriaLabels[feature]}

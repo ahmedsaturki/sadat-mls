@@ -58,13 +58,13 @@ function SavedSearchesContent({
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Bookmark className="w-6 h-6 text-blue-500" />
+            <Bookmark className="w-6 h-6 text-navy-500" />
             {dict.dashboard.savedSearches}
           </h1>
           {count > 0 && (
             <button
               onClick={clearAll}
-              className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+              className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
             >
               <Trash2 className="w-4 h-4" />
               {dict.explore.clearAll}
@@ -107,13 +107,13 @@ function SavedSearchesContent({
                   <div className="flex items-center gap-2">
                     <Link
                       href={handleRunSearch(search.filters)}
-                      className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="px-4 py-2 text-sm font-medium text-navy-600 bg-navy-50 rounded-lg hover:bg-navy-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
                     >
                       {dict.dashboard.runSearch || dict.common.search}
                     </Link>
                     <button
                       onClick={() => removeSavedSearch(search.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
                       aria-label={dict.common.delete}
                     >
                       <Trash2 className="w-4 h-4" />

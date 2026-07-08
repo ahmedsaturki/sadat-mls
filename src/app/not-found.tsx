@@ -13,10 +13,10 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir={locale === "ar" ? "rtl" : "ltr"}>
       <div className="text-center max-w-md mx-auto px-4">
-        <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Building2 className="w-12 h-12 text-blue-600" />
+        <div className="w-24 h-24 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Building2 className="w-12 h-12 text-navy-600" />
         </div>
-        <h1 className="text-6xl font-bold text-blue-600 mb-2">404</h1>
+        <h1 className="text-6xl font-bold text-navy-600 mb-2">404</h1>
         <h2 className="text-2xl font-bold text-gray-900 mb-4">{dict.common.notFound}</h2>
         <p className="text-gray-500 mb-8 leading-relaxed">
           {dict.common.notFoundDesc}

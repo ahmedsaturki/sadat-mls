@@ -388,8 +388,8 @@ export default function SettingsPage({
               {/* Avatar & Profile Settings */}
               <Card>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <User className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-navy-100 rounded-xl flex items-center justify-center">
+                    <User className="w-5 h-5 text-navy-600" />
                   </div>
                   <CardTitle>{dict.office.profileSettings}</CardTitle>
                 </div>
@@ -402,7 +402,7 @@ export default function SettingsPage({
                         <Image src={displayAvatar} alt={dict.office.avatar || ""} fill className="object-cover" sizes="80px" unoptimized />
                       </div>
                     ) : (
-                      <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-2xl font-bold text-blue-600">
+                      <div className="w-20 h-20 bg-navy-100 rounded-full flex items-center justify-center text-2xl font-bold text-navy-600">
                         {(profileData.full_name || profileData.email).charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -520,7 +520,7 @@ export default function SettingsPage({
                           </div>
                         )}
                         <label className="cursor-pointer">
-                          <span className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                          <span className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>

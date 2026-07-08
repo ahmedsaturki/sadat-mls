@@ -50,7 +50,7 @@ export default async function LandingPage({
 
   return (
     <div className="min-h-screen bg-white">
-      <a href="#landing-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600 focus:ring-2 focus:ring-blue-500">
+      <a href="#landing-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-navy-600 focus:ring-2 focus:ring-navy-500">
         {dict.common.skipToContent}
       </a>
       <Navbar locale={typedLocale} dict={dict} />
@@ -68,9 +68,9 @@ export default async function LandingPage({
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8" role="list" aria-label={dict.landing.whySadatMLS}>
             {features.map((feature, i) => (
-              <div key={i} className="text-center p-6 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-colors" role="listitem">
-                <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4" aria-hidden="true">
-                  <feature.icon className="w-7 h-7 text-blue-600" />
+              <div key={i} className="text-center p-6 rounded-2xl bg-gray-50 hover:bg-navy-50 transition-colors" role="listitem">
+                <div className="w-14 h-14 bg-navy-100 rounded-xl flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+                  <feature.icon className="w-7 h-7 text-navy-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
                 <p className="text-sm text-gray-600">{feature.desc}</p>
@@ -87,7 +87,7 @@ export default async function LandingPage({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-bold text-gray-900">{dict.landing.featuredProperties}</h2>
-              <Link href={`/${typedLocale}/explore`} className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link href={`/${typedLocale}/explore`} className="text-navy-600 hover:text-navy-700 font-medium">
                 {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
               </Link>
             </div>
@@ -119,11 +119,11 @@ export default async function LandingPage({
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="p-6 rounded-2xl bg-blue-50">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Building2 className="w-6 h-6 text-blue-600" aria-hidden="true" />
+            <div className="p-6 rounded-2xl bg-navy-50">
+              <div className="w-12 h-12 bg-navy-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <Building2 className="w-6 h-6 text-navy-600" aria-hidden="true" />
               </div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">{data.officesCount}+</div>
+              <div className="text-4xl font-bold text-navy-600 mb-2">{data.officesCount}+</div>
               <div className="text-gray-600">{dict.landing.officesCount}</div>
             </div>
             <div className="p-6 rounded-2xl bg-green-50">
@@ -151,17 +151,17 @@ export default async function LandingPage({
         </div>
       </section>
 
-      <section className="py-20 bg-blue-600">
+      <section className="py-20 bg-navy-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             {dict.landing.ctaTitle}
           </h2>
-          <p className="text-blue-100 mb-8 text-lg">
+          <p className="text-navy-100 mb-8 text-lg">
             {dict.landing.ctaDescription}
           </p>
           <Link
             href={`/${typedLocale}/login`}
-            className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-3.5 rounded-xl font-semibold hover:bg-blue-50 transition-colors shadow-lg"
+            className="inline-flex items-center gap-2 bg-white text-navy-600 px-8 py-3.5 rounded-xl font-semibold hover:bg-navy-50 transition-colors shadow-lg"
           >
             {dict.common.login}
             <ArrowLeft className="w-5 h-5 rtl:rotate-180" />

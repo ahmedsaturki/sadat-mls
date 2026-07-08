@@ -33,7 +33,7 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
         aria-hidden="true"
       />
       <div
-        className="animate-blob absolute bottom-0 left-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-blue-400/5 rounded-full blur-[100px] pointer-events-none"
+        className="animate-blob absolute bottom-0 left-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-navy-400/5 rounded-full blur-[100px] pointer-events-none"
         style={{ animationDelay: "0.2s" }}
         aria-hidden="true"
       />

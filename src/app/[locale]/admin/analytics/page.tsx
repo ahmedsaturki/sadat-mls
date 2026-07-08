@@ -113,7 +113,7 @@ export default async function AdminAnalyticsPage({
   ];
 
   const colorMap: Record<string, string> = {
-    blue: "bg-blue-100 text-blue-600",
+    blue: "bg-navy-100 text-navy-600",
     purple: "bg-purple-100 text-purple-600",
     green: "bg-green-100 text-green-600",
     orange: "bg-orange-100 text-orange-600",
@@ -182,7 +182,7 @@ export default async function AdminAnalyticsPage({
               <Building2 className="w-5 h-5 text-gray-500" aria-hidden="true" />
               <CardTitle>{dict.admin.officesSummary}</CardTitle>
             </div>
-            <Link href={`/${locale}/admin/offices`} className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded transition-colors">
+            <Link href={`/${locale}/admin/offices`} className="text-sm text-navy-600 hover:text-navy-700 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded transition-colors">
               {dict.landing.viewAll}
               <ArrowRight className="w-4 h-4 rtl:rotate-180" />
             </Link>
@@ -193,8 +193,8 @@ export default async function AdminAnalyticsPage({
                 <div key={office.id} className="p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                         <Building2 className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                      <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center">
+                         <Building2 className="w-5 h-5 text-navy-600" aria-hidden="true" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{office.name}</p>
