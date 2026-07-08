@@ -295,7 +295,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
                     </div>
                     {!notification.is_read && (
                       <div className="flex-shrink-0">
-                        <span className="w-2 h-2 bg-blue-600 rounded-full" />
+                        <span className="w-2 h-2 bg-navy-600 rounded-full" />
                       </div>
                     )}
                   </div>

@@ -1,10 +1,38 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
+import { headers } from "next/headers";
+import { Cairo } from "next/font/google";
 import { getMessages } from "@/i18n/getMessages";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import Providers from "@/components/Providers";
 
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-cairo",
+  display: "swap",
+});
+
 interface PageProps {
   params: Promise<{ locale: string }>;
+}
+
+function sanitizeJsonLd(obj: Record<string, unknown>): string {
+  return JSON.stringify(obj, (_key, value) => {
+    if (typeof value === "string") {
+      return value.replace(/[<>&"']/g, (c) => {
+        const map: Record<string, string> = {
+          "<": "\\u003c",
+          ">": "\\u003e",
+          "&": "\\u0026",
+          '"': "\\u0022",
+          "'": "\\u0027",
+        };
+        return map[c] || c;
+      });
+    }
+    return value;
+  });
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -12,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const locale = resolvedParams?.locale || "ar";
   const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
   const dict = getMessages(validLocale);
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
 
   const title = dict.landing?.hero ?? dict.common.appName;
   const description =
@@ -37,6 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       languages: {
         ar: `${baseUrl}/ar`,
         en: `${baseUrl}/en`,
+        "x-default": `${baseUrl}/ar`,
       },
     },
     openGraph: {
@@ -90,6 +119,21 @@ export function generateStaticParams() {
   return [{ locale: "ar" }, { locale: "en" }];
 }
 
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  name: process.env.NEXT_PUBLIC_SITE_NAME || "Sadat MLS Cloud",
+  description:
+    process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
+    "Cloud real estate platform for Sadat City",
+  url: (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, ""),
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Sadat City",
+    addressCountry: "EG",
+  },
+};
+
 export default async function LocaleLayout({
   children,
   params,
@@ -105,9 +149,34 @@ export default async function LocaleLayout({
     return null;
   }
 
+  const headersList = await headers();
+  const nonce = headersList.get("x-nonce") || "";
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
+
   return (
-    <html lang={locale} dir={dir} className="font-sans antialiased">
-      <body className="min-h-screen bg-gray-50">{children}</body>
+    <html lang={locale} dir={dir} className={`${cairo.variable} font-sans antialiased`} nonce={nonce}>
+      <head>
+        <Script
+          id="sw-registration"
+          strategy="afterInteractive"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").then(r=>r.update()).catch(()=>{})});}`,
+          }}
+        />
+        <Script
+          id="org-json-ld"
+          type="application/ld+json"
+          strategy="afterInteractive"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: sanitizeJsonLd(orgJsonLd),
+          }}
+        />
+      </head>
+      <body className="min-h-screen bg-gray-50">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

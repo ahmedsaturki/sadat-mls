@@ -113,7 +113,8 @@
       "daysAgo": "منذ {{count}} يوم"
     },
     "unknown": "غير معروف",
-    "unread": "غير مقروء"
+    "unread": "غير مقروء",
+    "imageThumbnails": "مصغرات الصور"
   },
   "nav": {
     "explore": "استكشاف العقارات",
@@ -131,6 +132,7 @@
     "settings": "الإعدادات",
     "contactRequests": "طلبات التواصل",
     "switchLanguage": "English",
+    "switchLanguageLabel": "التبديل إلى الإنجليزية",
     "notifications": "الإشعارات",
     "markAllRead": "تحديد الكل كمقروء",
     "noNotifications": "لا توجد إشعارات",
@@ -640,6 +642,7 @@
     "newContactRequest": "استفسار جديد من {{name}}"
   },
   "footer": {
+    "title": "تذييل الموقع",
     "rights": "جميع الحقوق محفوظة",
     "poweredBy": "مبني بواسطة",
     "sadatMLS": "الساداتMLS كلاود",

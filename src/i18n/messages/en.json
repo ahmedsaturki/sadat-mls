@@ -113,7 +113,8 @@
       "daysAgo": "{{count}}d ago"
     },
     "unknown": "Unknown",
-    "unread": "unread"
+    "unread": "Unread",
+    "imageThumbnails": "Image thumbnails"
   },
   "nav": {
     "explore": "Explore Properties",
@@ -131,6 +132,7 @@
     "settings": "Settings",
     "contactRequests": "Contact Requests",
     "switchLanguage": "العربية",
+    "switchLanguageLabel": "Switch to Arabic",
     "notifications": "Notifications",
     "markAllRead": "Mark all read",
     "noNotifications": "No notifications",
@@ -640,6 +642,7 @@
     "newContactRequest": "New inquiry from {{name}}"
   },
   "footer": {
+    "title": "Site footer",
     "rights": "All rights reserved",
     "poweredBy": "Powered by",
     "sadatMLS": "Sadat MLS Cloud",

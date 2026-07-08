@@ -144,9 +144,9 @@ export default function PaginatedTable<T extends { id?: string | number }>({
                   onClick={() => setPage(pageNum)}
                   aria-label={`${pageLabel} ${pageNum}`}
                   aria-current={page === pageNum ? "page" : undefined}
-                  className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                  className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 ${
                     page === pageNum
-                      ? "bg-blue-600 text-white"
+                      ? "bg-navy-600 text-white"
                       : "text-gray-600 hover:bg-gray-100"
                   }`}
                 >

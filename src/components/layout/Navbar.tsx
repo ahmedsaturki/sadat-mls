@@ -90,7 +90,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
             <Link
               href={switchPath}
               className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-              aria-label={dict.nav?.switchLanguage || `Switch to ${switchLocale === "ar" ? "Arabic" : "English"}`}
+              aria-label={dict.nav?.switchLanguageLabel || `Switch to ${switchLocale === "ar" ? "Arabic" : "English"}`}
             >
               <Globe className="w-4 h-4" aria-hidden="true" />
               {dict.nav?.switchLanguage || (switchLocale === "ar" ? "عربي" : "EN")}
@@ -128,7 +128,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center border border-gray-200 text-sm font-medium">
+                <div className="w-8 h-8 rounded-full bg-navy-600 text-white flex items-center justify-center border border-gray-200 text-sm font-medium">
                   {profile?.fullName?.charAt(0)?.toUpperCase() || "?"}
                 </div>
               )}
@@ -144,7 +144,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
           ) : (
               <Link
                 href={`/${locale}/login`}
-                className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium bg-navy-600 text-white hover:bg-navy-700 transition-colors"
                 prefetch
               >
                 {dict.common.login}
