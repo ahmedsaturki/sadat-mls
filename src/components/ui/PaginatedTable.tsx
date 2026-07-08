@@ -31,7 +31,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
   data,
   columns,
   pageSize = 10,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = "",
   searchKey,
   emptyMessage = "No data",
   emptyIcon,

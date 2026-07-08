@@ -11,12 +11,12 @@ export default function LoadingSpinner({
     lg: "w-12 h-12",
   };
 
-  const loadingText = text || "Loading";
+  const loadingText = text || "";
 
   return (
     <div className="flex items-center justify-center" role="status" aria-label={loadingText}>
       <div
-        className={`${sizes[size]} border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin`}
+        className={`${sizes[size]} border-4 border-gray-200 border-t-navy-600 rounded-full animate-spin`}
       />
       <span className="sr-only">{loadingText}</span>
     </div>

@@ -95,7 +95,7 @@ const handleWebShare = async () => {
                 {copied ? (
                    <Check className="w-5 h-5 text-green-600" aria-hidden="true" />
                 ) : (
-                  <LinkIcon className="w-5 h-5 text-gray-600" />
+                   <LinkIcon className="w-5 h-5 text-gray-600" aria-hidden="true" />
                 )}
               </div>
               <div>
@@ -114,7 +114,7 @@ const handleWebShare = async () => {
               aria-label={explore?.shareVia}
             >
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-green-600" />
+                <MessageCircle className="w-5 h-5 text-green-600" aria-hidden="true" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-900">WhatsApp</p>

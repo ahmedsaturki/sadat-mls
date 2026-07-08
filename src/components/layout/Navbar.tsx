@@ -154,7 +154,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? dict.common.close : dict.common.open}
               aria-controls="mobile-menu"
@@ -185,7 +185,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               aria-current={pathname === link.href ? "page" : undefined}
               tabIndex={mobileMenuOpen ? 0 : -1}
               className={cn(
-                "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
+                "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
                 pathname === link.href
                   ? "bg-blue-50 text-blue-600"
                   : "text-gray-600 hover:bg-gray-50"

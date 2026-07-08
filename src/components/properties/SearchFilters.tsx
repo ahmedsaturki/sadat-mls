@@ -118,7 +118,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
           >
             <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -end-1 w-4 h-4 bg-blue-600 text-white text-[10px] rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -end-1 w-4 h-4 bg-navy-600 text-white text-[10px] rounded-full flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}

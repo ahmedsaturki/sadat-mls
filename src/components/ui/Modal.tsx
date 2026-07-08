@@ -122,8 +122,8 @@ if (!isOpen) return null;
             <button
               type="button"
               onClick={onClose}
-              aria-label={dict?.common?.close ?? "Close"}
-              className="p-1 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              aria-label={dict?.common?.close ?? ""}
+              className="p-1 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
             >
               <X className="w-5 h-5 text-gray-500" aria-hidden="true" />
             </button>

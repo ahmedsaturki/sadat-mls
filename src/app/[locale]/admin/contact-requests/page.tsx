@@ -7,6 +7,7 @@ import { getMessages } from "@/i18n/getMessages";
 import { usePageLocale } from "@/hooks/usePageLocale";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Badge from "@/components/ui/Badge";
 import Modal from "@/components/ui/Modal";
@@ -303,19 +304,20 @@ export default function AdminContactRequestsPage({
       >
         <p className="text-gray-600 mb-4">{dict.contactRequests.confirmDeleteRequest}</p>
         <div className="flex gap-2 justify-end">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => setDeleteId(null)}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             {dict.common.cancel}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="danger"
             onClick={handleDelete}
             disabled={deleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+            isLoading={deleting}
           >
-            {deleting ? dict.common.loading : dict.common.delete}
-          </button>
+            {dict.common.delete}
+          </Button>
         </div>
       </Modal>
     </DashboardLayout>

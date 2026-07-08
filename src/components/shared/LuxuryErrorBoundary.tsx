@@ -27,7 +27,7 @@ export function LuxuryErrorBoundary({
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center p-4">
+    <div className="min-h-[60vh] flex items-center justify-center p-4" role="alert">
       <div
         className="animate-scale-up max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden"
       >
@@ -46,7 +46,7 @@ export function LuxuryErrorBoundary({
           
           <button
             onClick={reset}
-            className="group flex items-center justify-center gap-2 w-full bg-[#C49A2A] text-[#1B2D4F] px-6 py-3 rounded-xl font-semibold hover:bg-[#C49A2A]/90 transition-all duration-300 focus:ring-2 focus:ring-[#C49A2A]/50 focus:outline-none shadow-lg shadow-[#C49A2A]/20 hover:shadow-xl hover:shadow-[#C49A2A]/30"
+            className="group flex items-center justify-center gap-2 w-full bg-[#C49A2A] text-[#1B2D4F] px-6 py-3 rounded-xl font-semibold hover:bg-[#C49A2A]/90 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[#C49A2A]/50 focus:outline-none shadow-lg shadow-[#C49A2A]/20 hover:shadow-xl hover:shadow-[#C49A2A]/30"
           >
             <RefreshCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
             {dict.common.retry}

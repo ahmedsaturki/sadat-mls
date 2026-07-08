@@ -233,7 +233,7 @@ export default function ContactForm({ dict }: ContactFormProps) {
                 type="submit"
                 disabled={contactLoading}
                 aria-busy={contactLoading}
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                className="w-full bg-navy-600 text-white py-3 rounded-xl font-semibold hover:bg-navy-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
               >
                 {contactLoading ? (
                   <>

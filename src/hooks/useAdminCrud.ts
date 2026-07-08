@@ -68,6 +68,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
     {
       onMutate: (current, optimistic) => [...current, optimistic],
       onError: () => {
+        // TODO: caller should supply a localized error message via errorMessage option
         showToast(errorMessage ?? "Error", "error");
       },
     }
@@ -80,6 +81,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
         .select("id, name_ar, name_en, created_at")
         .order("name_ar");
       if (error) {
+        // TODO: caller should supply a localized error message via errorMessage option
         showToast(errorMessage ?? "Error", "error");
       } else {
         if (!mountedRef.current) return;
@@ -89,6 +91,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
       logger.error(`Failed to fetch ${tableName}`, {
         error: err instanceof Error ? err.message : String(err),
       });
+      // TODO: caller should supply a localized error message via errorMessage option
       showToast(errorMessage ?? "Error", "error");
     } finally {
       if (mountedRef.current) setLoading(false);
@@ -101,6 +104,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
     return () => { mountedRef.current = false; };
   }, [loadItems]);
 
+  // TODO: Zod validation messages need i18n — caller should supply localized schema or use zodI18nMap
   const nameSchema = z.object({
     nameAr: z.string().min(1, "Arabic name is required").max(200),
     nameEn: z.string().max(200).optional().or(z.literal("")),
@@ -111,6 +115,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
 
     const parsed = nameSchema.safeParse({ nameAr, nameEn });
     if (!parsed.success) {
+      // TODO: "Invalid input" should be localized — caller should supply via options or zodI18nMap
       showToast(parsed.error.flatten().fieldErrors.nameAr?.[0] ?? "Invalid input", "error");
       return;
     }
@@ -155,6 +160,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
       logger.error(`Failed to save ${tableName}`, {
         error: err instanceof Error ? err.message : String(err),
       });
+      // TODO: caller should supply a localized error message via errorMessage option
       showToast(errorMessage ?? "Error", "error");
     } finally {
       setSaving(false);
@@ -198,6 +204,7 @@ export function useAdminCrud<T extends AdminCrudItem>({
       logger.error(`Failed to delete from ${tableName}`, {
         error: err instanceof Error ? err.message : String(err),
       });
+      // TODO: caller should supply a localized error message via errorMessage option
       showToast(errorMessage ?? "Error", "error");
     } finally {
       setSaving(false);

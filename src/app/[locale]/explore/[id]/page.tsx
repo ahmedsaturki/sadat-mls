@@ -141,7 +141,7 @@ export default function PropertyDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-gray-400" />
+            <Building2 className="w-8 h-8 text-gray-400" aria-hidden="true" />
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{dict.property.notFound}</h2>
           <p className="text-gray-500 mb-4">{dict.property.notFoundDesc}</p>
@@ -149,7 +149,7 @@ export default function PropertyDetailPage() {
             href={`/${locale}/explore`}
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
           >
-            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+            <ArrowRight className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
             {dict.property.backToExplore}
           </Link>
         </div>
@@ -224,11 +224,11 @@ export default function PropertyDetailPage() {
             <Link href={`/${locale}`} className="hover:text-gray-900 transition-colors">
               {dict.common.home}
             </Link>
-            <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
+            <ChevronLeft className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
             <Link href={`/${locale}/explore`} className="hover:text-gray-900 transition-colors">
               {dict.nav.explore}
             </Link>
-            <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
+            <ChevronLeft className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
             <span className="text-gray-900 font-medium truncate max-w-[200px]">{property.title}</span>
           </nav>
         </div>
@@ -253,7 +253,7 @@ export default function PropertyDetailPage() {
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{property.title}</h1>
                   <div className="flex items-center gap-2 mt-2">
-                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <MapPin className="w-4 h-4 text-gray-400" aria-hidden="true" />
                     <span className="text-gray-500">{locale === "ar" ? property.zones?.name_ar : property.zones?.name_en}</span>
                   </div>
                 </div>
@@ -269,15 +269,15 @@ export default function PropertyDetailPage() {
               {/* Quick Stats */}
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Maximize className="w-5 h-5 text-gray-400 mx-auto mb-1" />
+                  <Maximize className="w-5 h-5 text-gray-400 mx-auto mb-1" aria-hidden="true" />
                   <p className="font-semibold text-gray-900">{property.area} {dict.property.areaUnit}</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Bed className="w-5 h-5 text-gray-400 mx-auto mb-1" />
+                  <Bed className="w-5 h-5 text-gray-400 mx-auto mb-1" aria-hidden="true" />
                   <p className="font-semibold text-gray-900">{property.bedrooms} {dict.property.bedroom}</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Bath className="w-5 h-5 text-gray-400 mx-auto mb-1" />
+                  <Bath className="w-5 h-5 text-gray-400 mx-auto mb-1" aria-hidden="true" />
                   <p className="font-semibold text-gray-900">{property.bathrooms} {dict.property.bathroom}</p>
                 </div>
               </div>
@@ -292,7 +292,7 @@ export default function PropertyDetailPage() {
                         key={i}
                         className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm"
                       >
-                        <feat.icon className="w-4 h-4" />
+                        <feat.icon className="w-4 h-4" aria-hidden="true" />
                         {feat.label}
                       </div>
                     ))}
@@ -366,7 +366,7 @@ export default function PropertyDetailPage() {
                 <h2 className="font-semibold text-gray-900 mb-3">{dict.property.officeLabel}</h2>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-blue-600" />
+                    <Building2 className="w-6 h-6 text-blue-600" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{property.offices.name}</p>
@@ -375,13 +375,13 @@ export default function PropertyDetailPage() {
                 <div className="space-y-2 text-sm">
                   {property.offices.phone && (
                     <div className="flex items-center gap-2 text-gray-600">
-                      <Phone className="w-4 h-4" />
+                      <Phone className="w-4 h-4" aria-hidden="true" />
                       <span>{property.offices.phone}</span>
                     </div>
                   )}
                   {property.offices.email && (
                     <div className="flex items-center gap-2 text-gray-600">
-                      <Mail className="w-4 h-4" />
+                      <Mail className="w-4 h-4" aria-hidden="true" />
                       <span>{property.offices.email}</span>
                     </div>
                   )}

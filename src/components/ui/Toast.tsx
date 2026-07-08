@@ -127,7 +127,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 onClick={() => removeToast(toast.id)}
-                className="shrink-0 p-1 rounded-full hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                className="shrink-0 p-1 rounded-full hover:bg-black/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
                 aria-label={dismissLabel}
               >
                 <X className="w-4 h-4" aria-hidden="true" />

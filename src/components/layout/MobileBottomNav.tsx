@@ -50,13 +50,13 @@ export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavP
               href={link.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors min-w-[60px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+                "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors min-w-[60px] focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2",
                 isActive
-                  ? "text-blue-600"
+                  ? "text-navy-600"
                   : "text-gray-500 hover:text-gray-700"
               )}
             >
-              <link.icon className={cn("w-5 h-5", isActive && "text-blue-600")} aria-hidden="true" />
+              <link.icon className={cn("w-5 h-5", isActive && "text-navy-600")} aria-hidden="true" />
               <span className="truncate max-w-[64px]">{link.label}</span>
             </Link>
           );

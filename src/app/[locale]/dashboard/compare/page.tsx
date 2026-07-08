@@ -57,6 +57,7 @@ function CompareContent({
 
         <div className="overflow-x-auto">
           <table className="w-full bg-white rounded-xl shadow-sm">
+            <caption className="sr-only">{dict.dashboard.compareProperties}</caption>
             <thead>
     <tr className="border-b">
       <th className="p-4 text-start w-40" role="rowheader">

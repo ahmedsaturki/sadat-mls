@@ -121,28 +121,28 @@ export default async function LandingPage({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="p-6 rounded-2xl bg-blue-50">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Building2 className="w-6 h-6 text-blue-600" />
+                <Building2 className="w-6 h-6 text-blue-600" aria-hidden="true" />
               </div>
               <div className="text-4xl font-bold text-blue-600 mb-2">{data.officesCount}+</div>
               <div className="text-gray-600">{dict.landing.officesCount}</div>
             </div>
             <div className="p-6 rounded-2xl bg-green-50">
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Home className="w-6 h-6 text-green-600" />
+                <Home className="w-6 h-6 text-green-600" aria-hidden="true" />
               </div>
               <div className="text-4xl font-bold text-green-600 mb-2">{data.propertiesCount}+</div>
               <div className="text-gray-600">{dict.landing.propertiesCount}</div>
             </div>
             <div className="p-6 rounded-2xl bg-purple-50">
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <MapPin className="w-6 h-6 text-purple-600" />
+                <MapPin className="w-6 h-6 text-purple-600" aria-hidden="true" />
               </div>
               <div className="text-4xl font-bold text-purple-600 mb-2">{data.zonesCount}</div>
               <div className="text-gray-600">{dict.landing.zonesCount}</div>
             </div>
             <div className="p-6 rounded-2xl bg-orange-50">
               <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <TrendingUp className="w-6 h-6 text-orange-600" />
+                <TrendingUp className="w-6 h-6 text-orange-600" aria-hidden="true" />
               </div>
               <div className="text-4xl font-bold text-orange-600 mb-2">24/7</div>
               <div className="text-gray-600">{dict.landing.alwaysAvailable}</div>

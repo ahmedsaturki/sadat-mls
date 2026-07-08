@@ -42,7 +42,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
     <div className="min-h-screen bg-gray-50">
       <a
         href="#dashboard-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-blue-600 focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-navy-600 focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
       >
         {dict.common.skipToContent || "Skip to content"}
       </a>
@@ -51,7 +51,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
         {/* Mobile FAB */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed bottom-20 start-6 z-40 w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          className="lg:hidden fixed bottom-20 start-6 z-40 w-12 h-12 bg-navy-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-navy-700 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
           aria-label={sidebarOpen ? dict.common.close : dict.common.open}
         >
           {sidebarOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}

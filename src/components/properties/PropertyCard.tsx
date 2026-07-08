@@ -226,7 +226,7 @@ const PropertyCard = memo(function PropertyCard(props: PropertyCardProps) {
             )}
             <span className="flex items-center gap-1">
               <Maximize className="w-4 h-4" aria-hidden="true" />
-              {area} {areaUnit ?? "m²"}
+              {area} {areaUnit ?? ""}
             </span>
           </div>
 

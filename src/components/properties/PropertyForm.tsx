@@ -78,9 +78,9 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
           // Provide visual feedback that shortcut is working
           const submitButton = document.querySelector("button[type=\"submit\"]") as HTMLButtonElement;
           if (submitButton) {
-            submitButton.classList.add("ring-2", "ring-blue-500", "ring-offset-2");
+            submitButton.classList.add("ring-2", "ring-navy-500", "ring-offset-2");
             setTimeout(() => {
-              submitButton.classList.remove("ring-2", "ring-blue-500", "ring-offset-2");
+              submitButton.classList.remove("ring-2", "ring-navy-500", "ring-offset-2");
             }, 200);
           }
           document.querySelector("form")?.requestSubmit();
@@ -666,7 +666,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => router.back()} aria-label={dict.common.goBack} className="p-2 rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none">
+          <button onClick={() => router.back()} aria-label={dict.common.goBack} className="p-2 rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:outline-none">
             <ArrowRight className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
           </button>
           <h1 className="text-2xl font-bold text-gray-900">
