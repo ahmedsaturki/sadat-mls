@@ -5,6 +5,7 @@ import { Cairo } from "next/font/google";
 import { getMessages } from "@/i18n/getMessages";
 import { type Locale } from "@/i18n/config";
 import Providers from "@/components/Providers";
+import HtmlAttributes from "@/components/HtmlAttributes";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -48,13 +49,8 @@ function sanitizeJsonLd(obj: Record<string, unknown>): string {
   });
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale?: string }>;
-}): Promise<Metadata> {
-  const { locale: urlLocale } = await params;
-  const locale: Locale = urlLocale === "en" ? "en" : (urlLocale === "ar" ? "ar" : await detectLocale());
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await detectLocale();
   const dict = getMessages(locale);
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
 
@@ -152,14 +148,10 @@ const orgJsonLd = {
 
 export default async function RootLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale?: string }>;
 }) {
-  const { locale: urlLocale } = await params;
-  // Use URL segment locale when available, otherwise detect from headers
-  const locale: Locale = urlLocale === "en" ? "en" : (urlLocale === "ar" ? "ar" : await detectLocale());
+  const locale = await detectLocale();
   const dir = locale === "en" ? "ltr" : "rtl";
   const h = await getHeaders();
   const nonce = h.get("x-nonce") || "";
@@ -186,6 +178,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-gray-50">
+        <HtmlAttributes />
         <Providers>{children}</Providers>
       </body>
     </html>
