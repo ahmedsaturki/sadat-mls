@@ -49,13 +49,13 @@ const ACTION_COLORS: Record<string, string> = {
 
 function formatAction(action: string, dict: Messages): string {
   const actionMap: Record<string, string> = {
-    "property.created": dict.office?.activityPropertyCreated || "Created a property",
-    "property.updated": dict.office?.activityPropertyUpdated || "Updated a property",
-    "property.deleted": dict.office?.activityPropertyDeleted || "Deleted a property",
-    "agent.created": dict.office?.activityAgentCreated || "Added a team member",
-    "agent.deleted": dict.office?.activityAgentDeleted || "Removed a team member",
-    "contact_request.updated": dict.office?.activityContactUpdated || "Updated a contact request",
-    "office.updated": dict.office?.activityOfficeUpdated || "Updated office settings",
+    "property.created": dict.office?.activityPropertyCreated ?? "",
+    "property.updated": dict.office?.activityPropertyUpdated ?? "",
+    "property.deleted": dict.office?.activityPropertyDeleted ?? "",
+    "agent.created": dict.office?.activityAgentCreated ?? "",
+    "agent.deleted": dict.office?.activityAgentDeleted ?? "",
+    "contact_request.updated": dict.office?.activityContactUpdated ?? "",
+    "office.updated": dict.office?.activityOfficeUpdated ?? "",
   };
   return actionMap[action] || action;
 }
@@ -65,17 +65,17 @@ function timeAgo(dateStr: string, dict: Messages): string {
   const date = new Date(dateStr);
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (seconds < 60) return dict.common?.timeAgo?.justNow || "Just now";
+  if (seconds < 60) return dict.common?.timeAgo?.justNow ?? "";
   if (seconds < 3600) {
     const mins = Math.floor(seconds / 60);
-    return (dict.common?.timeAgo?.minutesAgo || "{{count}} min ago").replace("{{count}}", String(mins));
+    return (dict.common?.timeAgo?.minutesAgo ?? "").replace("{{count}}", String(mins));
   }
   if (seconds < 86400) {
     const hours = Math.floor(seconds / 3600);
-    return (dict.common?.timeAgo?.hoursAgo || "{{count}} hours ago").replace("{{count}}", String(hours));
+    return (dict.common?.timeAgo?.hoursAgo ?? "").replace("{{count}}", String(hours));
   }
   const days = Math.floor(seconds / 86400);
-  return (dict.common?.timeAgo?.daysAgo || "{{count}} days ago").replace("{{count}}", String(days));
+  return (dict.common?.timeAgo?.daysAgo ?? "").replace("{{count}}", String(days));
 }
 
 export default function ActivityFeed({ dict }: ActivityFeedProps) {
@@ -120,18 +120,18 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
       <div className="text-center py-8">
         <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" aria-hidden="true" />
         <p className="text-gray-400 text-sm">
-          {dict.office?.noActivity || "No recent activity"}
+          {dict.office?.noActivity}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-1" role="log" aria-label={dict.office?.recentActivity || "Recent activity"}>
+    <div className="space-y-1" role="log" aria-label={dict.office?.recentActivity}>
       {activities.map((activity) => {
         const Icon = ACTION_ICONS[activity.action] || Eye;
         const colorClass = ACTION_COLORS[activity.action] || "bg-gray-100 text-gray-600";
-        const userName = activity.users?.full_name || activity.users?.email || (dict.common?.unknown || "Unknown");
+        const userName = activity.users?.full_name || activity.users?.email || dict.common?.unknown;
 
         return (
           <div

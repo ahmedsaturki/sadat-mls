@@ -8,8 +8,8 @@ export default function Favicon() {
     >
       <defs>
         <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#2563eb" />
-          <stop offset="100%" stopColor="#1d4ed8" />
+          <stop offset="0%" stopColor="#1B2D4F" />
+          <stop offset="100%" stopColor="#162540" />
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="6" fill="url(#bg)" />

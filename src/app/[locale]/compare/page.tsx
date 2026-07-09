@@ -49,13 +49,13 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
             href={`/${locale}/explore`}
             className="text-navy-600 hover:text-navy-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
           >
-            {dict.common.backToExplore || "Back to Explore"}
+            {dict.common.backToExplore}
           </Link>
         </div>
 
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-bold text-gray-900">
-            {dict.compare?.title || "Compare Properties"}
+            {dict.compare?.title}
           </h1>
         </div>
 
@@ -99,35 +99,35 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
                       )}
                       <div className="mt-4 pt-2 border-t border-gray-200">
                         <p className="text-gray-600 text-sm">
-                          {dict.property?.price || "Price"}:{" "}
+                          {dict.property?.price}:{" "}
                           {property.price != null
                             ? property.price.toLocaleString(locale === "ar" ? "ar-EG" : "en-US")
                             : "—"}{" "}
                           {dict.property?.priceUnit || ""}
                         </p>
                         <p className="text-gray-600 text-sm">
-                          {dict.property?.area || "Area"}:{" "}
+                          {dict.property?.area}:{" "}
                           {property.area != null ? property.area : "—"}{" "}
                           {dict.property?.areaUnit || ""}
                         </p>
                         {property.bedrooms != null && (
                           <p className="text-gray-600 text-sm">
-                            {dict.property?.bedrooms || "Bedrooms"}: {property.bedrooms}
+                            {dict.property?.bedrooms}: {property.bedrooms}
                           </p>
                         )}
                         {property.bathrooms != null && (
                           <p className="text-gray-600 text-sm">
-                            {dict.property?.bathrooms || "Bathrooms"}: {property.bathrooms}
+                            {dict.property?.bathrooms}: {property.bathrooms}
                           </p>
                         )}
                         {property.zone && (
                           <p className="text-gray-600 text-sm">
-                            {dict.property?.zone || "Zone"}: {property.zone}
+                            {dict.property?.zone}: {property.zone}
                           </p>
                         )}
                         {property.type && (
                           <p className="text-gray-600 text-sm">
-                            {dict.property?.type || "Type"}: {property.type}
+                            {dict.property?.type}: {property.type}
                           </p>
                         )}
                       </div>
@@ -143,7 +143,7 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
                   `${properties.length} properties selected`}
               </p>
               <p className="text-sm text-gray-500">
-                {dict.compare?.recommendedAction || "Compare up to 4 properties to find the best fit"}
+                {dict.compare?.recommendedAction}
               </p>
             </div>
           </>
@@ -151,15 +151,15 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
           <div className="text-center py-16">
             <p className="text-lg text-gray-600">
               {!enoughSelected
-                ? dict.compare?.needMoreProperties || "Select at least 2 properties to compare"
-                : dict.compare?.noPropertiesForComparison || "No properties selected for comparison"}
+                ? dict.compare?.needMoreProperties
+                : dict.compare?.noPropertiesForComparison}
             </p>
             <div className="mt-4">
               <Link
                 href={`/${locale}/explore`}
                 className="inline-block text-navy-600 hover:text-navy-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
               >
-                {dict.common.backToExplore || "Back to Explore"}
+                {dict.common.backToExplore}
               </Link>
             </div>
           </div>

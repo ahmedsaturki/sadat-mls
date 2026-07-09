@@ -217,6 +217,14 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(redirectResponse);
   }
 
+  // Extract locale from URL path and set as header for root layout
+  const urlLocale = locales.find(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
+  );
+  if (urlLocale) {
+    response.headers.set("x-locale", urlLocale);
+  }
+
   return applySecurityHeaders(response);
 }
 

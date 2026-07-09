@@ -419,7 +419,7 @@ export default function SettingsPage({
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-600">{dict.office.avatar || dict.office.logo}</p>
-                    <p className="text-xs text-gray-400 mb-2">{dict.office.imageFormat || "JPG, PNG, max 2MB"}</p>
+                    <p className="text-xs text-gray-400 mb-2">{dict.office.imageFormat}</p>
                     {avatarFile && (
                       <Button
                         size="sm"

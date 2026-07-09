@@ -189,7 +189,7 @@ export default function PropertyImageManager({
                     type="text"
                     value={img.alt_text}
                     onChange={(e) => onSetAltText(index, e.target.value)}
-                    placeholder={dict.common.editAltText || "Edit image description"}
+                    placeholder={dict.common.editAltText}
                     aria-label={dict.common.editAltText}
                     className="w-full text-xs px-2 py-1.5 rounded-sm bg-white/95 text-gray-800 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                   />

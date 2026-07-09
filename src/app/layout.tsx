@@ -16,15 +16,18 @@ const cairo = Cairo({
 });
 
 /**
- * Detect locale from the accept-language header.
+ * Detect locale from the x-locale header set by middleware,
+ * or from the accept-language header as fallback.
  * Falls back to Arabic during static generation when headers() is unavailable.
- * Also used as fallback for routes without a [locale] segment.
  */
 async function detectLocale(): Promise<Locale> {
   try {
     const h = await getHeaders();
-    const header = h.get("accept-language");
-    if (header?.includes("en")) return "en";
+    const localeHeader = h.get("x-locale");
+    if (localeHeader === "en" || localeHeader === "ar") return localeHeader;
+    // Fallback: check accept-language
+    const acceptLanguage = h.get("accept-language");
+    if (acceptLanguage?.includes("en")) return "en";
   } catch {
     // headers() not available during static generation
   }

@@ -44,7 +44,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
         href="#dashboard-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-navy-600 focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-navy-500"
       >
-        {dict.common.skipToContent || "Skip to content"}
+        {dict.common.skipToContent}
       </a>
       <Navbar locale={locale} dict={dict} userRole={role} />
       <div className="flex relative">

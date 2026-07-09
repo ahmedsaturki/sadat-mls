@@ -16,7 +16,7 @@ export default function Footer({ locale, dict }: FooterProps) {
     <footer
       className="py-12 bg-gray-900 text-gray-400"
       role="contentinfo"
-      aria-label={dict.footer?.title || "Footer"}
+      aria-label={dict.footer?.title}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">

@@ -39,9 +39,9 @@ export default function ResetPasswordPage({
     const passed = totalRules - errors.length;
     const score = Math.max(0, Math.min(totalRules, passed));
 
-    if (score <= 2) return { score, label: dict.auth?.weak || "Weak", color: "bg-red-500", width: "w-1/5" };
-    if (score <= 4) return { score, label: dict.auth?.fair || "Fair", color: "bg-yellow-500", width: "w-3/5" };
-    return { score, label: dict.auth?.strong || "Strong", color: "bg-green-500", width: "w-full" };
+    if (score <= 2) return { score, label: dict.auth?.weak ?? "", color: "bg-red-500", width: "w-1/5" };
+    if (score <= 4) return { score, label: dict.auth?.fair ?? "", color: "bg-yellow-500", width: "w-3/5" };
+    return { score, label: dict.auth?.strong ?? "", color: "bg-green-500", width: "w-full" };
   };
 
   const strength = getPasswordStrength(password);
@@ -191,19 +191,19 @@ export default function ResetPasswordPage({
                   />
 
                   {password.length > 0 && (
-                    <div className="mt-1" role="group" aria-label={dict.auth.passwordStrength || "Password strength"}>
+                    <div className="mt-1" role="group" aria-label={dict.auth.passwordStrength}>
                       <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div className={`h-full rounded-full transition-all duration-300 ${strength.color} ${strength.width}`} />
                       </div>
                       <p className={`text-xs mt-1 ${strength.color.replace("bg-", "text-")}`}>{strength.label}</p>
-                      <ul className="mt-2 space-y-0.5" aria-label={dict.auth.passwordRequirements || "Password requirements"}>
+                      <ul className="mt-2 space-y-0.5" aria-label={dict.auth.passwordRequirements}>
                         {[
-                          { test: password.length >= 8, label: dict.auth.ruleMinLength || "At least 8 characters" },
-                          { test: password.length <= 128, label: dict.auth.ruleMaxLength || "Max 128 characters" },
-                          { test: /[A-Z]/.test(password), label: dict.auth.ruleUppercase || "One uppercase letter" },
-                          { test: /[a-z]/.test(password), label: dict.auth.ruleLowercase || "One lowercase letter" },
-                          { test: /\d/.test(password), label: dict.auth.ruleNumber || "One number" },
-                          { test: /[!@#$%^&*()_+\-=[\]{};:'",.<>?/\\|`~]/.test(password), label: dict.auth.ruleSpecial || "One special character" },
+                          { test: password.length >= 8, label: dict.auth.ruleMinLength },
+                          { test: password.length <= 128, label: dict.auth.ruleMaxLength },
+                          { test: /[A-Z]/.test(password), label: dict.auth.ruleUppercase },
+                          { test: /[a-z]/.test(password), label: dict.auth.ruleLowercase },
+                          { test: /\d/.test(password), label: dict.auth.ruleNumber },
+                          { test: /[!@#$%^&*()_+\-=[\]{};:'",.<>?/\\|`~]/.test(password), label: dict.auth.ruleSpecial },
                         ].map((rule) => (
                           <li key={rule.label} className="flex items-center gap-1.5 text-xs">
                             <span className={rule.test ? "text-green-500" : "text-gray-400"} aria-hidden="true">
