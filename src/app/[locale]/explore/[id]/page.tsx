@@ -207,7 +207,7 @@ export default function PropertyDetailPage() {
   ].filter((f) => f.show);
 
   return (
-    <div className="min-h-screen bg-gray-50" role="main">
+    <main className="min-h-screen bg-gray-50" id="property-content">
       <a href="#property-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-navy-600 focus:ring-2 focus:ring-navy-500">
         {dict.common.skipToContent}
       </a>
@@ -419,6 +419,6 @@ export default function PropertyDetailPage() {
           dict={dict as unknown as { contact: Record<string, string>; common: Record<string, string> }}
         />
       </Suspense>
-    </div>
+    </main>
   );
 }

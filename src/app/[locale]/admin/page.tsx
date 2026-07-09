@@ -113,7 +113,7 @@ export default async function AdminDashboard({
         </div>
 
         {/* Stats */}
-        <AdminStatCards stats={stats} />
+        <AdminStatCards stats={stats} locale={locale} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Offices */}

@@ -231,7 +231,7 @@ export default function PropertyImageManager({
           <div className="flex flex-col items-center justify-center gap-3">
             <ImageIcon className="w-12 h-12 text-gray-300" aria-hidden="true" />
             <span className="text-sm text-gray-500 font-medium">{dict.office.uploadImage}</span>
-            <span className="text-xs text-gray-400">{dict.office.clickOrDrag}</span>
+            <span className="text-xs text-gray-500">{dict.office.clickOrDrag}</span>
           </div>
         </div>
       )}

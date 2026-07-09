@@ -130,7 +130,7 @@ export default function ContactModal({
           body: JSON.stringify({
             office_id: officeId,
             type: "contact_request",
-            title: dict.contact.newContactRequest?.replace("{{name}}", trimmedName) || `New inquiry from ${trimmedName}`,
+            title: dict.contact.newContactRequest?.replace("{{name}}", trimmedName) || trimmedName,
             message: trimmedMessage.substring(0, 200),
             entity_type: "contact_request",
           }),

@@ -77,9 +77,9 @@ function SavedSearchesContent({
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Bookmark className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h2 className="text-lg font-medium text-gray-900 mb-2">
               {dict.dashboard.noSavedSearchesFull}
-            </h3>
+            </h2>
             <p className="text-sm text-gray-500">
               {dict.dashboard.saveSearchHint}
             </p>
@@ -93,7 +93,7 @@ function SavedSearchesContent({
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-2">{search.name}</h3>
+                    <h2 className="font-semibold text-gray-900 mb-2">{search.name}</h2>
                     <p className="text-sm text-gray-500 mb-3">
                       {getActiveFiltersSummary(search.filters)}
                     </p>

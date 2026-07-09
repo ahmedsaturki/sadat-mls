@@ -7,6 +7,7 @@ interface LuxuryStatCardProps {
   label: string;
   value: number;
   color: "blue" | "green" | "purple" | "orange";
+  locale?: string;
 }
 
 const colorConfig = {
@@ -41,13 +42,16 @@ const LuxuryStatCard = memo(function LuxuryStatCard({
   label,
   value,
   color,
+  locale = "ar",
 }: LuxuryStatCardProps) {
   const config = colorConfig[color];
+  const localeCode = locale === "ar" ? "ar-EG" : "en-US";
+  const formattedValue = value.toLocaleString(localeCode);
 
   return (
     <div
       className={`animate-fade-up group relative overflow-hidden rounded-2xl bg-gradient-to-br ${config.bg} border ${config.border} p-6 transition-all duration-300 ${config.glow}`}
-      aria-label={`${label}: ${value.toLocaleString()}`}
+      aria-label={`${label}: ${formattedValue}`}
     >
       {/* Background decoration */}
       <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/40 transition-colors duration-500" />
@@ -56,7 +60,7 @@ const LuxuryStatCard = memo(function LuxuryStatCard({
         <div>
           <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
           <p className="text-3xl font-bold font-serif text-[#1B2D4F] drop-shadow-sm">
-            {value.toLocaleString()}
+            {formattedValue}
           </p>
         </div>
         
