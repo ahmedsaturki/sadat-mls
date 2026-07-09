@@ -191,7 +191,7 @@ export function useAuth() {
       // Validate input
       const result = authSchemas.login.safeParse({ email, password, rememberMe });
       if (!result.success) {
-        const errorMessage = result.error.issues[0]?.message || "Invalid input";
+        const errorMessage = result.error.issues[0]?.message || "";
         setState((prev) => ({ ...prev, error: errorMessage }));
         return { success: false, error: errorMessage };
       }
@@ -202,7 +202,7 @@ export function useAuth() {
       });
 
       if (error) {
-        const errorMessage = error.message || "Login failed";
+        const errorMessage = error.message || "";
         logger.error("Login error:", { error: error instanceof Error ? error.message : String(error) });
 
         setState((prev) => ({ ...prev, error: errorMessage }));
@@ -210,7 +210,7 @@ export function useAuth() {
       }
 
       if (!data.session || !data.user) {
-        const errorMessage = "Invalid credentials";
+        const errorMessage = "";
         setState((prev) => ({ ...prev, error: errorMessage }));
         return { success: false, error: errorMessage };
       }
@@ -224,7 +224,7 @@ export function useAuth() {
 
       if (profileError) {
         logger.error("Error fetching user profile:", profileError);
-        setState((prev) => ({ ...prev, error: "Login successful but failed to fetch user data" }));
+        setState((prev) => ({ ...prev, error: "" }));
       }
 
       const user: User = {
@@ -247,7 +247,7 @@ export function useAuth() {
 
       return { success: true, user };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Login failed";
+      const errorMessage = error instanceof Error ? error.message : "";
       logger.error("Login exception:", { error: errorMessage });
 
       setState((prev) => ({ ...prev, error: errorMessage }));
@@ -265,7 +265,7 @@ export function useAuth() {
       // Validate input
       const result = authSchemas.register.safeParse(userData);
       if (!result.success) {
-        const errorMessage = result.error.issues[0]?.message || "Invalid input";
+        const errorMessage = result.error.issues[0]?.message || "";
         setState((prev) => ({ ...prev, error: errorMessage }));
         return { success: false, error: errorMessage };
       }
@@ -284,7 +284,7 @@ export function useAuth() {
       });
 
       if (error) {
-        const errorMessage = error.message || "Registration failed";
+        const errorMessage = error.message || "";
         logger.error("Register error:", { error: error instanceof Error ? error.message : String(error) });
 
         setState((prev) => ({ ...prev, error: errorMessage }));
@@ -292,7 +292,7 @@ export function useAuth() {
       }
 
       if (!data.user) {
-        const errorMessage = "Registration successful but user was not created";
+        const errorMessage = "";
         setState((prev) => ({ ...prev, error: errorMessage }));
         return { success: false, error: errorMessage };
       }
@@ -316,7 +316,7 @@ export function useAuth() {
         },
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Registration failed";
+      const errorMessage = error instanceof Error ? error.message : "";
       logger.error("Register exception:", { error: error instanceof Error ? error.message : String(error) });
 
       setState((prev) => ({ ...prev, error: errorMessage }));
@@ -344,7 +344,7 @@ export function useAuth() {
         error: null,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Logout failed";
+      const errorMessage = error instanceof Error ? error.message : "";
       logger.error("Logout exception:", { error: error instanceof Error ? error.message : String(error) });
 
       setState((prev) => ({
@@ -361,7 +361,7 @@ export function useAuth() {
 
       const result = authSchemas.forgotPassword.safeParse({ email });
       if (!result.success) {
-        const errorMessage = result.error.issues[0]?.message || "Invalid email";
+        const errorMessage = result.error.issues[0]?.message || "";
         setState((prev) => ({ ...prev, error: errorMessage }));
         return { success: false, error: errorMessage };
       }
@@ -371,7 +371,7 @@ export function useAuth() {
       });
 
       if (error) {
-        const errorMessage = error.message || "Password reset request failed";
+        const errorMessage = error.message || "";
         logger.error("Reset password error:", { error: error instanceof Error ? error.message : String(error) });
 
         setState((prev) => ({ ...prev, error: errorMessage }));
@@ -381,7 +381,7 @@ export function useAuth() {
       setState((prev) => ({ ...prev, isLoading: false }));
       return { success: true };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Password reset request failed";
+      const errorMessage = error instanceof Error ? error.message : "";
       logger.error("Reset password exception:", { error: error instanceof Error ? error.message : String(error) });
 
       setState((prev) => ({ ...prev, error: errorMessage }));
@@ -393,7 +393,7 @@ export function useAuth() {
 
   const updateProfile = useCallback(async (updates: Partial<User>) => {
     if (!state.user?.id) {
-      return { success: false, error: "No user found" };
+      return { success: false, error: "" };
     }
 
     try {
@@ -411,7 +411,7 @@ export function useAuth() {
         .single();
 
       if (error) {
-        const errorMessage = error.message || "Profile update failed";
+        const errorMessage = error.message || "";
         logger.error("Profile update error:", { error: error instanceof Error ? error.message : String(error) });
 
         setState((prev) => ({ ...prev, error: errorMessage }));
@@ -432,7 +432,7 @@ export function useAuth() {
 
       return { success: true, user: updatedUser };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Profile update failed";
+      const errorMessage = error instanceof Error ? error.message : "";
       logger.error("Profile update exception:", { error: error instanceof Error ? error.message : String(error) });
 
       setState((prev) => ({ ...prev, error: errorMessage }));

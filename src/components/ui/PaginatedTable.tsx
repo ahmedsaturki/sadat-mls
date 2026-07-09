@@ -33,14 +33,14 @@ export default function PaginatedTable<T extends { id?: string | number }>({
   pageSize = 10,
   searchPlaceholder = "",
   searchKey,
-  emptyMessage = "No data",
+  emptyMessage = "",
   emptyIcon,
   emptyHint,
-  resultsLabel = "results",
+  resultsLabel = "",
   dir = "rtl",
-  nextPageLabel = "Next",
-  previousPageLabel = "Previous",
-  pageLabel = "Page",
+  nextPageLabel = "",
+  previousPageLabel = "",
+  pageLabel = "",
 }: PaginatedTableProps<T>) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");

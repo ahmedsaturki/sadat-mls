@@ -77,6 +77,8 @@ export async function DELETE(request: NextRequest) {
     logger.info("Notifications cleaned up", { days, deletedBy: user.id });
     return NextResponse.json({
       success: true,
+      i18nKey: "deletedOldNotifications",
+      i18nParams: { days },
       message: `Deleted notifications older than ${days} days`,
     });
   } catch (err) {

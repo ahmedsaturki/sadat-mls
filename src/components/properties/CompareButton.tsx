@@ -31,10 +31,10 @@ const CompareButton = memo(function CompareButton({
      lg: "w-12 h-12",
    };
 
-  const getLabel = useCallback((key: string, fallback: string): string => {
-    if (!dict) return fallback;
+  const getLabel = useCallback((key: string): string => {
+    if (!dict) return "";
     const commonVal = dict.common as unknown as Record<string, string> | undefined;
-    return commonVal?.[key] || fallback;
+    return commonVal?.[key] || "";
   }, [dict]);
 
    const handleToggle = useCallback((e: React.MouseEvent) => {
@@ -43,14 +43,14 @@ const CompareButton = memo(function CompareButton({
 
 if (isSelected(property.id)) {
         removeProperty(property.id);
-        showToast(getLabel("removeFromComparison", "Removed from comparison"), "success");
+        showToast(getLabel("removeFromComparison"), "success");
       } else {
         const added = addProperty(property);
         if (added) {
-          showToast(getLabel("addToComparison", "Added to comparison"), "success");
+          showToast(getLabel("addToComparison"), "success");
        } else {
           logger.warn("Cannot add more properties to compare", { currentCount: count, max });
-          const maxCompareMsg = getLabel("maxCompare", `Maximum ${max} properties`);
+          const maxCompareMsg = getLabel("maxCompare");
           showToast(maxCompareMsg.replace("{{max}}", String(max)), "warning");
        }
      }
@@ -68,8 +68,8 @@ if (isSelected(property.id)) {
         className
       )}
       aria-label={isSelected(property.id) ?
-        getLabel("removeFromComparison", "Remove from comparison") :
-        getLabel("addToComparison", "Add to comparison")}
+        getLabel("removeFromComparison") :
+        getLabel("addToComparison")}
       aria-pressed={isSelected(property.id)}
     >
       <GitCompare className={cn(size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5")} aria-hidden="true" />

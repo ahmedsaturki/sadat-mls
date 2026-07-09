@@ -8,6 +8,8 @@ interface CreateNotificationParams {
   type: string;
   title: string;
   message: string;
+  title_params?: Record<string, string | number>;
+  message_params?: Record<string, string | number>;
   entityType?: string | null;
   entityId?: string | null;
   supabase?: SupabaseClient;
@@ -29,6 +31,8 @@ export async function createNotification(params: CreateNotificationParams): Prom
         type: params.type,
         title: params.title,
         message: params.message,
+        title_params: params.title_params ? JSON.stringify(params.title_params) : null,
+        message_params: params.message_params ? JSON.stringify(params.message_params) : null,
         entity_type: params.entityType || null,
         entity_id: params.entityId || null,
       });
@@ -70,6 +74,8 @@ export async function notifyOffice(
       type: notification.type,
       title: notification.title,
       message: notification.message,
+      title_params: notification.title_params ? JSON.stringify(notification.title_params) : null,
+      message_params: notification.message_params ? JSON.stringify(notification.message_params) : null,
       entity_type: notification.entityType || null,
       entity_id: notification.entityId || null,
     }));

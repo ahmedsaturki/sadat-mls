@@ -90,10 +90,10 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
             <Link
               href={switchPath}
               className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-              aria-label={dict.nav?.switchLanguageLabel || `Switch to ${switchLocale === "ar" ? "Arabic" : "English"}`}
+              aria-label={dict.nav.switchLanguageLabel}
             >
               <Globe className="w-4 h-4" aria-hidden="true" />
-              {dict.nav?.switchLanguage || (switchLocale === "ar" ? "عربي" : "EN")}
+              {dict.nav.switchLanguage}
             </Link>
 
             {/* Notifications Bell (only for logged-in users) */}

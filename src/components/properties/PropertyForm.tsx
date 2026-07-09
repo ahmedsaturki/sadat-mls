@@ -14,6 +14,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { ArrowRight, User, Keyboard } from "lucide-react";
 import { propertySchema, ownerSchema } from "@/lib/validation";
 import { ROLES, PROPERTY_STATUSES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
+import { getValidationMessage } from "@/lib/utils/validationMessages";
 import PropertyBasicInfo from "./PropertyBasicInfo";
 const PropertyDetails = lazy(() => import("./PropertyDetails"));
 import PropertyFeatures from "./PropertyFeatures";
@@ -310,41 +311,18 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     const newErrors: Record<string, string> = {};
 
     if (!result.success) {
+      const validationDict = dict.validation as Record<string, string>;
       result.error.issues.forEach((issue) => {
         const key = issue.path.join(".");
-        // Map validation errors to i18n keys
-        if (issue.code === "too_small") {
-          const actual = String((issue as unknown as Record<string, unknown>).input ?? "").length;
-          const min = issue.minimum as number;
-          if (min === 2 && actual < 2) {
-            newErrors[key] = dict.office.propertyNameMin;
-          } else if (min === 1 && actual < 1) {
-            newErrors[key] = dict.office.propertyTitleMin;
-          } else {
-            newErrors[key] = issue.message;
-          }
-        } else if (issue.code === "too_big") {
-          newErrors[key] = dict.office.propertyTitleMax;
-        } else {
-          newErrors[key] = issue.message;
-        }
+        newErrors[key] = getValidationMessage(issue, validationDict);
       });
     }
 
     if (!ownerResult.success) {
+      const validationDict = dict.validation as Record<string, string>;
       ownerResult.error.issues.forEach((issue) => {
         const key = `owner_${issue.path.join(".")}`;
-        if (issue.code === "custom") {
-          if (issue.path.join(".") === "owner_phone") {
-            newErrors[key] = dict.office.ownerPhoneInvalid;
-          } else if (issue.path.join(".") === "owner_email") {
-            newErrors[key] = dict.office.ownerEmailInvalid;
-          } else {
-            newErrors[key] = issue.message;
-          }
-        } else {
-          newErrors[key] = issue.message;
-        }
+        newErrors[key] = getValidationMessage(issue, validationDict);
       });
     }
 

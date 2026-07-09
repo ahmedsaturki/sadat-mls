@@ -11,6 +11,7 @@ const descriptionSchema = z.object({
   area: z.number().optional(),
   bedrooms: z.number().optional(),
   bathrooms: z.number().optional(),
+  locale: z.enum(["ar", "en"]).optional().default("en"),
 });
 
 export async function POST(request: NextRequest) {
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   }
 
-  const { title, property_type, zone, area, bedrooms, bathrooms } = result.data;
+  const { title, property_type, zone, area, bedrooms, bathrooms, locale } = result.data;
 
   // Mock AI-generated description - in production, this would call an LLM API
   // For now, we generate a template-based description
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
     area,
     bedrooms,
     bathrooms,
+    locale,
   });
 
   logger.info("AI description generated", { title, ip });
@@ -69,41 +71,63 @@ interface DescriptionParams {
   area?: number;
   bedrooms?: number;
   bathrooms?: number;
+  locale?: string;
 }
 
+const TYPE_MAP_AR: Record<string, string> = {
+  apartment: "شقة",
+  villa: "فيلا",
+  office: "مكتب إداري",
+  shop: "محل تجاري",
+  land: "أرض",
+};
+
+const TYPE_MAP_EN: Record<string, string> = {
+  apartment: "apartment",
+  villa: "villa",
+  office: "office space",
+  shop: "commercial shop",
+  land: "land plot",
+};
+
 function generatePropertyDescription(params: DescriptionParams): string {
-  const { title, property_type, zone, area, bedrooms, bathrooms } = params;
-  
-  const typeText = property_type ? getTypeText(property_type) : "property";
-  const locationText = zone ? ` in ${zone}` : "";
-  const areaText = area ? ` with an area of ${area} m²` : "";
-  const bedroomText = bedrooms ? `${bedrooms} bedroom${bedrooms > 1 ? 's' : ''}` : "";
-  const bathroomText = bathrooms ? `${bathrooms} bathroom${bathrooms > 1 ? 's' : ''}` : "";
-  
-  let description = `${title}: Excellent ${typeText} available${locationText}.`;
-  
+  const { title, property_type, zone, area, bedrooms, bathrooms, locale = "en" } = params;
+  const isAr = locale === "ar";
+
+  const typeMap = isAr ? TYPE_MAP_AR : TYPE_MAP_EN;
+  const typeText = property_type ? (typeMap[property_type] || (isAr ? "عقار" : "property")) : (isAr ? "عقار" : "property");
+  const locationText = zone ? (isAr ? ` في ${zone}` : ` in ${zone}`) : "";
+  const areaText = area ? (isAr ? ` بمساحة ${area} م²` : ` with an area of ${area} m²`) : "";
+  const bedroomText = bedrooms
+    ? isAr
+      ? `${bedrooms} غرفة نوم${bedrooms > 1 ? "" : ""}`
+      : `${bedrooms} bedroom${bedrooms > 1 ? "s" : ""}`
+    : "";
+  const bathroomText = bathrooms
+    ? isAr
+      ? `${bathrooms} حمام${bathrooms > 1 ? "" : ""}`
+      : `${bathrooms} bathroom${bathrooms > 1 ? "s" : ""}`
+    : "";
+
+  let description = isAr
+    ? `${title}: ${typeText} ممتاز متاح${locationText}.`
+    : `${title}: Excellent ${typeText} available${locationText}.`;
+
   if (bedroomText || bathroomText) {
-    const features = [bedroomText, bathroomText].filter(Boolean).join(", ");
-    description += ` This ${typeText} features ${features}.`;
+    const features = [bedroomText, bathroomText].filter(Boolean).join(isAr ? " و" : ", ");
+    description += isAr
+      ? ` يتميز هذا ${typeText} بـ${features}.`
+      : ` This ${typeText} features ${features}.`;
   }
-  
+
   if (areaText) {
     description += areaText + ".";
   }
-  
-  description += " Perfect for families and investors looking for quality real estate in Sadat City.";
-  
+
+  description += isAr
+    ? " مثالي للعائلات والمستثمرين الباحثين عن عقارات عالية الجودة في مدينة السادات."
+    : " Perfect for families and investors looking for quality real estate in Sadat City.";
+
   return description;
 }
 
-function getTypeText(typeId: string): string {
-  // These would match the property type names from the database
-  const typeMap: Record<string, string> = {
-    apartment: "apartment",
-    villa: "villa",
-    office: "office space",
-    shop: "commercial shop",
-    land: "land plot",
-  };
-  return typeMap[typeId] || "property";
-}

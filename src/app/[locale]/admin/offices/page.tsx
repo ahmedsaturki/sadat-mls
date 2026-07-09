@@ -19,6 +19,7 @@ import { usePageLocale } from "@/hooks/usePageLocale";
 import { officeSchema } from "@/lib/validation";
 import { ROLES } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
+import { getValidationMessage } from "@/lib/utils/validationMessages";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { getCsrfHeaders } from "@/lib/security/csrf-client";
 import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
@@ -158,8 +159,9 @@ const locale = usePageLocale(params);
 
     const newErrors: Record<string, string> = {};
     if (!result.success) {
+      const validationDict = dict.validation as Record<string, string>;
       result.error.issues.forEach((issue) => {
-        newErrors[issue.path.join(".")] = issue.message;
+        newErrors[issue.path.join(".")] = getValidationMessage(issue, validationDict);
       });
     }
 

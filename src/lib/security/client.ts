@@ -35,7 +35,7 @@ export class ClientSecurityManager {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static async validateLogin(identifier: string, _password: string): Promise<{ isValid: boolean; reason?: string }> {
+  static async validateLogin(identifier: string, _password: string): Promise<{ isValid: boolean; reason?: string; i18nKey?: string; i18nParams?: Record<string, string | number> }> {
     const config = this.DEFAULT_CONFIG;
 
     // Check if account is locked out
@@ -44,7 +44,9 @@ export class ClientSecurityManager {
       const remainingLockout = Math.ceil((attemptData.lockUntil - Date.now()) / 1000);
       return {
         isValid: false,
-        reason: `Account temporarily locked. Try again in ${remainingLockout} seconds.`
+        reason: `Account temporarily locked. Try again in ${remainingLockout} seconds.`,
+        i18nKey: "errors.accountLocked",
+        i18nParams: { seconds: remainingLockout },
       };
     }
 
@@ -58,7 +60,9 @@ export class ClientSecurityManager {
         const remainingRequests = config.maxLoginAttempts! - rateLimitEntry.count;
         return {
           isValid: false,
-          reason: `Too many login attempts. ${remainingRequests} attempts remaining.`
+          reason: `Too many login attempts. ${remainingRequests} attempts remaining.`,
+          i18nKey: "errors.tooManyAttempts",
+          i18nParams: { count: remainingRequests },
         };
       }
     }

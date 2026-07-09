@@ -11,6 +11,8 @@ interface Notification {
   type: string;
   title: string;
   message: string;
+  title_params?: string | Record<string, string | number> | null;
+  message_params?: string | Record<string, string | number> | null;
   entity_type: string | null;
   entity_id: string | null;
   is_read: boolean;
@@ -28,6 +30,10 @@ interface NotificationsBellProps {
       propertyInquiry: string;
       agentJoined: string;
       system: string;
+      newAgentJoined?: string;
+      newAgentJoinedMessage?: string;
+      newContactRequest?: string;
+      deletedOldNotifications?: string;
       timeAgo?: {
         justNow?: string;
         minutesAgo?: string;
@@ -125,6 +131,28 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
     } catch (err) {
       logger.error("Failed to mark all notifications as read", { error: err instanceof Error ? err.message : String(err) });
     }
+  };
+
+  // Resolve notification i18n key with params
+  const resolveText = (key: string, rawParams?: string | Record<string, string | number> | null): string => {
+    const dictNotifications = dict.notifications;
+    const template =
+      (dictNotifications as Record<string, unknown>)[key] as string | undefined;
+    if (!template || typeof template !== "string") return key;
+    // Parse JSON string params from database
+    let params: Record<string, string | number> | undefined;
+    if (rawParams) {
+      if (typeof rawParams === "string") {
+        try { params = JSON.parse(rawParams); } catch { params = undefined; }
+      } else {
+        params = rawParams;
+      }
+    }
+    if (!params) return template;
+    return Object.entries(params).reduce(
+      (str, [k, v]) => str.replace(`{{${k}}}`, String(v)),
+      template,
+    );
   };
 
   // Get notification type label
@@ -284,10 +312,10 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {notification.title}
+                        {resolveText(notification.title, notification.title_params)}
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
-                        {notification.message}
+                        {resolveText(notification.message, notification.message_params)}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
                         {formatTimeAgo(notification.created_at)}
