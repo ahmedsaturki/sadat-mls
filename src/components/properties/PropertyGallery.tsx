@@ -23,6 +23,7 @@ interface PropertyGalleryProps {
     common: {
       previousImage: string;
       nextImage: string;
+      galleryImage: string;
     };
   };
 }
@@ -96,12 +97,12 @@ export default function PropertyGallery({
             >
               <ChevronLeft className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
             </button>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
+            <div className="absolute bottom-4 start-1/2 -translate-x-1/2 flex gap-1">
               {images.map((_, i) => (
                 <button
                   key={i}
                   onClick={(e) => { e.stopPropagation(); onIndexChange(i); }}
-                  aria-label={`Image ${i + 1} of ${images.length}`}
+                  aria-label={dict.common.galleryImage.replace("{{current}}", String(i + 1)).replace("{{total}}", String(images.length))}
                   className={`w-2 h-2 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
                     i === currentIndex ? "bg-white" : "bg-white/50"
                   }`}

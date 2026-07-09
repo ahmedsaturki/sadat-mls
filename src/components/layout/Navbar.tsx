@@ -50,6 +50,20 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
     return links;
   }, [locale, dict, userRole, profile?.role]);
 
+  const notificationsDict = useMemo(() => ({
+    notifications: {
+      title: dict.nav?.notifications,
+      markAllRead: dict.nav?.markAllRead,
+      noNotifications: dict.nav?.noNotifications,
+      contactRequest: dict.nav?.contactRequest,
+      propertyInquiry: dict.nav?.propertyInquiry,
+      agentJoined: dict.nav?.agentJoined,
+      system: dict.nav?.system,
+      unread: dict.common?.unread,
+      timeAgo: dict.common?.timeAgo,
+    },
+  }), [dict]);
+
   const isLoggedIn = !!(userRole ?? profile);
 
   return (
@@ -100,18 +114,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
             {isLoggedIn && (
               <NotificationsBell
                 locale={locale}
-                dict={{
-                  notifications: {
-                    title: dict.nav?.notifications,
-                    markAllRead: dict.nav?.markAllRead,
-                    noNotifications: dict.nav?.noNotifications,
-                    contactRequest: dict.nav?.contactRequest,
-                    propertyInquiry: dict.nav?.propertyInquiry,
-                    agentJoined: dict.nav?.agentJoined,
-                    system: dict.nav?.system,
-                    timeAgo: dict.common?.timeAgo,
-                  },
-                }}
+                dict={notificationsDict}
               />
             )}
 

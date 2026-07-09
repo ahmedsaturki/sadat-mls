@@ -101,8 +101,8 @@ export default function VerifyEmailPage({
   return (
     <main className="min-h-screen bg-gradient-to-br from-navy-600 via-navy-700 to-navy-900 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full" aria-hidden="true" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/5 rounded-full" aria-hidden="true" />
+        <div className="absolute -top-40 -end-40 w-80 h-80 bg-white/5 rounded-full" aria-hidden="true" />
+        <div className="absolute -bottom-40 -start-40 w-80 h-80 bg-white/5 rounded-full" aria-hidden="true" />
       </div>
 
       <div className="w-full max-w-md relative">

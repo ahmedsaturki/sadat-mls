@@ -11,6 +11,7 @@ const SAMPLE_DICT = {
     propertyInquiry: "Property Inquiry",
     agentJoined: "Agent Joined",
     system: "System",
+    unread: "unread",
     timeAgo: {
       justNow: "Just now",
       minutesAgo: "{{count}}m ago",

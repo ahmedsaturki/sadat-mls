@@ -31,11 +31,11 @@ export function LuxuryErrorBoundary({
       <div
         className="animate-scale-up max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden"
       >
-        <div className="bg-gradient-to-br from-[#1B2D4F] to-[#1B2D4F]/80 p-8 flex flex-col items-center text-center">
+        <div className="bg-gradient-to-br from-navy-800 to-navy-800/80 p-8 flex flex-col items-center text-center">
           <div
             className="animate-fade-up w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm"
           >
-            <AlertTriangle className="w-8 h-8 text-[#C49A2A]" aria-hidden="true" />
+            <AlertTriangle className="w-8 h-8 text-gold-500" aria-hidden="true" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">
             {dict.common.oops}
@@ -46,7 +46,7 @@ export function LuxuryErrorBoundary({
           
           <button
             onClick={reset}
-            className="group flex items-center justify-center gap-2 w-full bg-[#C49A2A] text-[#1B2D4F] px-6 py-3 rounded-xl font-semibold hover:bg-[#C49A2A]/90 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[#C49A2A]/50 focus:outline-none shadow-lg shadow-[#C49A2A]/20 hover:shadow-xl hover:shadow-[#C49A2A]/30"
+            className="group flex items-center justify-center gap-2 w-full bg-gold-500 text-navy-800 px-6 py-3 rounded-xl font-semibold hover:bg-gold-600 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-gold-500/50 focus:outline-none shadow-lg shadow-gold-500/20 hover:shadow-xl hover:shadow-gold-500/30"
           >
             <RefreshCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
             {dict.common.retry}
@@ -55,7 +55,7 @@ export function LuxuryErrorBoundary({
         
 {process.env.NODE_ENV === "development" && (
            <div className="p-4 bg-gray-50 border-t border-gray-100 overflow-auto max-h-48 text-xs text-gray-700 font-mono">
-             <p className="font-semibold text-[#1B2D4F] mb-1">{dict.common.developerErrorInfo}</p>
+             <p className="font-semibold text-navy-800 mb-1">{dict.common.developerErrorInfo}</p>
              {error.message}
            </div>
          )}

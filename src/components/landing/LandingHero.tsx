@@ -29,11 +29,11 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
 
       {/* Golden Accents - responsive sizing to prevent mobile overflow */}
       <div
-        className="animate-blob absolute top-0 right-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-[#C49A2A]/10 rounded-full blur-[100px] pointer-events-none"
+        className="animate-blob absolute top-0 end-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-[#C49A2A]/10 rounded-full blur-[100px] pointer-events-none"
         aria-hidden="true"
       />
       <div
-        className="animate-blob absolute bottom-0 left-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-navy-400/5 rounded-full blur-[100px] pointer-events-none"
+        className="animate-blob absolute bottom-0 start-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-navy-400/5 rounded-full blur-[100px] pointer-events-none"
         style={{ animationDelay: "0.2s" }}
         aria-hidden="true"
       />
@@ -53,7 +53,7 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
             {dict.landing.heroSubtitle}
           </p>
 
-          <p className="animate-fade-up text-lg text-gray-400 mb-12 max-w-2xl mx-auto">
+          <p className="animate-fade-up text-lg text-gray-300 mb-12 max-w-2xl mx-auto">
             {dict.landing.heroDescription}
           </p>
 
