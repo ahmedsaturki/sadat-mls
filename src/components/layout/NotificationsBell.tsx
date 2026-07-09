@@ -257,10 +257,10 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
               </div>
             ) : (
               notifications.map((notification) => (
-                <div
+                <button
                   key={notification.id}
                   className={cn(
-                    "px-4 py-3 border-b border-gray-50 last:border-0",
+                    "w-full text-start px-4 py-3 border-b border-gray-50 last:border-0",
                     "hover:bg-gray-50 transition-colors cursor-pointer",
                     !notification.is_read && "bg-navy-50/50"
                   )}
@@ -299,7 +299,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>

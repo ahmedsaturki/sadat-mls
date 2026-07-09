@@ -60,13 +60,13 @@ function CompareContent({
             <caption className="sr-only">{dict.dashboard.compareProperties}</caption>
             <thead>
     <tr className="border-b">
-      <th className="p-4 text-start w-40" role="rowheader">
+      <th className="p-4 text-start w-40" scope="col">
         <p className="text-sm font-medium text-gray-600">
           {dict.common.feature}
         </p>
       </th>
       {properties.map((p) => (
-        <th key={p.id} className="p-4 text-center min-w-[200px] relative" role="columnheader">
+        <th key={p.id} className="p-4 text-center min-w-[200px] relative" scope="col">
           <button
             onClick={() => removeProperty(p.id)}
             className="absolute top-2 end-2 p-1 text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
@@ -76,7 +76,7 @@ function CompareContent({
           </button>
           {p.primaryImage && (
             <div className="relative w-full h-32 mb-2 bg-gray-50 rounded">
-              <Image src={p.primaryImage} alt={p.title} fill className="object-cover rounded-lg" />
+              <Image src={p.primaryImage} alt={p.title} fill className="object-cover rounded-lg" sizes="(max-width: 768px) 100vw, 25vw" />
             </div>
           )}
           <p className="font-semibold">{p.title}</p>
@@ -87,61 +87,61 @@ function CompareContent({
   </thead>
   <tbody>
     <tr className="border-b">
-      <td className="p-4 font-medium" scope="row">
+      <th scope="row" className="p-4 font-medium text-start">
         {dict.property.price}
-      </td>
+      </th>
       {properties.map((p) => (
-        <td key={p.id} className="p-4 text-center" role="cell" scope="col">
-          {p.price?.toLocaleString()} {dict.property.priceUnit}
+        <td key={p.id} className="p-4 text-center">
+          {p.price?.toLocaleString(locale === "ar" ? "ar-EG" : "en-US")} {dict.property.priceUnit}
         </td>
       ))}
     </tr>
     <tr className="border-b">
-      <td className="p-4 font-medium" scope="row">
+      <th scope="row" className="p-4 font-medium text-start">
         {dict.property.area}
-      </td>
+      </th>
       {properties.map((p) => (
-        <td key={p.id} className="p-4 text-center" role="cell" scope="col">
+        <td key={p.id} className="p-4 text-center">
           {p.area} {dict.property.areaUnit}
         </td>
       ))}
     </tr>
     <tr className="border-b">
-      <td className="p-4 font-medium" scope="row">
+      <th scope="row" className="p-4 font-medium text-start">
         {dict.property.bedrooms}
-      </td>
+      </th>
       {properties.map((p) => (
-        <td key={p.id} className="p-4 text-center" role="cell" scope="col">
+        <td key={p.id} className="p-4 text-center">
           {p.bedrooms}
         </td>
       ))}
     </tr>
     <tr className="border-b">
-      <td className="p-4 font-medium" scope="row">
+      <th scope="row" className="p-4 font-medium text-start">
         {dict.property.bathrooms}
-      </td>
+      </th>
       {properties.map((p) => (
-        <td key={p.id} className="p-4 text-center" role="cell" scope="col">
+        <td key={p.id} className="p-4 text-center">
           {p.bathrooms}
         </td>
       ))}
     </tr>
     <tr className="border-b">
-      <td className="p-4 font-medium" scope="row">
+      <th scope="row" className="p-4 font-medium text-start">
         {dict.property.type}
-      </td>
+      </th>
       {properties.map((p) => (
-        <td key={p.id} className="p-4 text-center" role="cell" scope="col">
+        <td key={p.id} className="p-4 text-center">
           {p.type}
         </td>
       ))}
     </tr>
     <tr className="border-b">
-      <td className="p-4 font-medium" scope="row">
+      <th scope="row" className="p-4 font-medium text-start">
         {dict.property.zone}
-      </td>
+      </th>
       {properties.map((p) => (
-        <td key={p.id} className="p-4 text-center" role="cell" scope="col">
+        <td key={p.id} className="p-4 text-center">
           {p.zone}
         </td>
       ))}

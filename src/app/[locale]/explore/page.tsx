@@ -233,7 +233,7 @@ function ExploreContent({
     filters.hasBalcony || filters.hasParking || filters.hasElevator;
 
   return (
-    <div className="min-h-screen bg-gray-50" role="main">
+    <main className="min-h-screen bg-gray-50">
       <a href="#explore-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-navy-600 focus:ring-2 focus:ring-navy-500">
         {dict.common.skipToContent}
       </a>
@@ -376,7 +376,7 @@ function ExploreContent({
       </div>
 
       <Footer locale={locale} dict={dict} />
-    </div>
+    </main>
   );
 }
 

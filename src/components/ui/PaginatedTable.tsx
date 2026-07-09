@@ -86,6 +86,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
               {columns.map((col) => (
                 <th
                   key={col.key}
+                  scope="col"
                   className={`px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase ${col.className || ""}`}
                 >
                   {col.header}

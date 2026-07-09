@@ -25,9 +25,10 @@ export interface AdminStatItem {
 
 interface AdminStatCardsProps {
   stats: AdminStatItem[];
+  locale?: string;
 }
 
-export default function AdminStatCards({ stats }: AdminStatCardsProps) {
+export default function AdminStatCards({ stats, locale = "ar" }: AdminStatCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, i) => {
@@ -39,6 +40,7 @@ export default function AdminStatCards({ stats }: AdminStatCardsProps) {
               label={stat.label}
               value={stat.value}
               color={stat.color}
+              locale={locale}
             />
           </Link>
         );
