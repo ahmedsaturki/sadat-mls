@@ -155,6 +155,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const locale = await detectLocale();
+  const dict = getMessages(locale);
   const dir = locale === "en" ? "ltr" : "rtl";
   const h = await getHeaders();
   const nonce = h.get("x-nonce") || "";
@@ -181,8 +182,18 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-gray-50">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-[9999]"
+        >
+          {dict.common.skipToContent}
+        </a>
         <HtmlAttributes />
-        <Providers>{children}</Providers>
+        <Providers>
+          <main id="main-content" tabIndex={-1} className="focus:outline-none">
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   );

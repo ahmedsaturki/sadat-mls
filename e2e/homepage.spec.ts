@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Homepage", () => {
   test("should redirect to Arabic locale by default", async ({ page }) => {
     await page.goto("/");
+    await page.waitForURL(/\/ar/, { timeout: 10000 });
     await expect(page).toHaveURL(/\/ar/);
   });
 
