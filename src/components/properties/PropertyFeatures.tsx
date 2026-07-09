@@ -19,9 +19,9 @@ export default function PropertyFeatures({
 }: PropertyFeaturesProps) {
   // Add descriptive tooltips for features using dict
   const featureDescriptions: Record<keyof typeof formData, string> = {
-    balcony: dict.propertyFeatures?.balconyDescription ?? "Private balcony or terrace",
-    parking: dict.propertyFeatures?.parkingDescription ?? "Covered or open parking space",
-    elevator: dict.propertyFeatures?.elevatorDescription ?? "Passenger elevator in building",
+    balcony: dict.propertyFeatures?.balconyDescription ?? "",
+    parking: dict.propertyFeatures?.parkingDescription ?? "",
+    elevator: dict.propertyFeatures?.elevatorDescription ?? "",
   };
 
   // Feature label mapping
@@ -77,7 +77,7 @@ export default function PropertyFeatures({
               
               {/* Visual indicator for selected state */}
               <span className="ms-2 px-2 py-1 rounded-full text-xs font-medium">
-                {isChecked ? (dict.propertyFeatures?.featureEnabled ?? "Enabled") : (dict.propertyFeatures?.featureDisabled ?? "Disabled")}
+                {isChecked ? (dict.propertyFeatures?.featureEnabled ?? "") : (dict.propertyFeatures?.featureDisabled ?? "")}
               </span>
             </label>
           </div>

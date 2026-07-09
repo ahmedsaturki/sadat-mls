@@ -23,7 +23,7 @@ export function PageLoader({ variant = "luxury", text, fullScreen = false, loadi
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm" aria-busy={ariaBusy === "true"} role={role || "status"} aria-live="polite">
         <div className="animate-pulse-scale w-16 h-16 rounded-full bg-navy-800/10 flex items-center justify-center mb-6 relative">
-          <div className="animate-spin-slow absolute inset-0 rounded-full border-t-2 border-r-2 border-gold-500 opacity-70" />
+          <div className="animate-spin-slow absolute inset-0 rounded-full border-t-2 border-e-2 border-gold-500 opacity-70" />
           <Sparkles className="w-6 h-6 text-navy-800" aria-hidden="true" />
         </div>
 

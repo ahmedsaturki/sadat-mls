@@ -254,6 +254,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                   label={filters.search}
                   onRemove={() => updateFilter("search", "")}
                   removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
                 />
               )}
               {filters.zoneId && (
@@ -261,6 +262,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                   label={zones.find((z) => z.id === filters.zoneId)?.name || ""}
                   onRemove={() => updateFilter("zoneId", "")}
                   removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
                 />
               )}
               {filters.typeId && (
@@ -268,6 +270,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                   label={types.find((t) => t.id === filters.typeId)?.name || ""}
                   onRemove={() => updateFilter("typeId", "")}
                   removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
                 />
               )}
               {filters.hasBalcony && (
@@ -275,6 +278,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                   label={dict.explore.balcony}
                   onRemove={() => updateFilter("hasBalcony", false)}
                   removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
                 />
               )}
               {filters.hasParking && (
@@ -282,6 +286,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                   label={dict.explore.parking}
                   onRemove={() => updateFilter("hasParking", false)}
                   removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
                 />
               )}
               {filters.hasElevator && (
@@ -289,6 +294,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                   label={dict.explore.elevator}
                   onRemove={() => updateFilter("hasElevator", false)}
                   removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
                 />
               )}
             </div>
@@ -306,12 +312,12 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
   );
 }
 
-function FilterTag({ label, onRemove, removeLabel }: { label: string; onRemove: () => void; removeLabel: string }) {
+function FilterTag({ label, onRemove, removeLabel, filterLabel }: { label: string; onRemove: () => void; removeLabel: string; filterLabel: string }) {
   return (
     <span
       className="inline-flex items-center gap-1 px-3 py-1.5 bg-gold-500/10 text-navy-800 text-xs font-medium rounded-full border border-gold-500/20 backdrop-blur-sm hover:bg-gold-500/20 transition-colors duration-200"
       role="status"
-      aria-label={`${label} filter`}
+      aria-label={`${label} ${filterLabel}`}
     >
       {label}
       <button

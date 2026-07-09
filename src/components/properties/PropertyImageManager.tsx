@@ -141,7 +141,7 @@ export default function PropertyImageManager({
                     type="button"
                     onClick={() => onRemoveExisting(img.id)}
                     className="text-xs px-3 py-1.5 rounded-sm font-medium bg-red-500 text-white flex items-center justify-center gap-1.5 hover:bg-red-600 transition-colors"
-                    aria-label={`${dict.common.removeImage}: ${img.alt_text || "image"}`}
+                    aria-label={`${dict.common.removeImage}: ${img.alt_text || ""}`}
                   >
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
                     <span>{dict.common.remove}</span>
@@ -197,7 +197,7 @@ export default function PropertyImageManager({
                     type="button"
                     onClick={() => onRemoveNew(index)}
                     className="text-xs px-3 py-1.5 rounded-sm font-medium bg-red-500 text-white flex items-center justify-center gap-1.5 hover:bg-red-600 transition-colors w-full"
-                    aria-label={`${dict.common.removeImage}: ${img.alt_text || "image"}`}
+                    aria-label={`${dict.common.removeImage}: ${img.alt_text || ""}`}
                   >
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
                     <span>{dict.common.remove}</span>

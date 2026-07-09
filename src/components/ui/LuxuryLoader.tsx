@@ -12,7 +12,7 @@ export function LuxuryLoader({ fullScreen = false, text, locale = "ar" }: Luxury
   return (
     <div role="status" className={`flex flex-col items-center justify-center w-full p-8 ${fullScreen ? "min-h-screen bg-gray-50" : "min-h-[400px]"}`}>
       <div className="animate-pulse-scale w-16 h-16 rounded-full bg-navy-800/10 flex items-center justify-center mb-6 relative">
-        <div className="animate-spin-slow absolute inset-0 rounded-full border-t-2 border-r-2 border-gold-500 opacity-70" />
+        <div className="animate-spin-slow absolute inset-0 rounded-full border-t-2 border-e-2 border-gold-500 opacity-70" />
         <Sparkles className="w-6 h-6 text-navy-800" aria-hidden="true" />
       </div>
 
