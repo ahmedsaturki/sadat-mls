@@ -89,22 +89,22 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
   }).length;
 
   return (
-    <div className="glass-luxury rounded-2xl p-5 shadow-lg shadow-[#1B2D4F]/5">
+    <div className="glass-luxury rounded-2xl p-5 shadow-lg shadow-navy-800/5">
       <form onSubmit={handleSubmit}>
         {/* Main Search */}
         <div className="flex gap-3 mb-4">
           <div className="flex-1 relative">
-            <Search className="absolute top-1/2 -translate-y-1/2 w-5 h-5 text-[#C49A2A] start-3" />
+            <Search className="absolute top-1/2 -translate-y-1/2 w-5 h-5 text-gold-500 start-3" />
             <input
               type="text"
               value={filters.search}
               onChange={(e) => updateFilter("search", e.target.value)}
               placeholder={dict.explore.searchPlaceholder}
               aria-label={dict.explore.searchPlaceholder}
-              className="w-full py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#C49A2A]/50 focus:border-[#C49A2A] transition-all duration-300 placeholder:text-gray-400 ps-10 pe-4"
+              className="w-full py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all duration-300 placeholder:text-gray-400 ps-10 pe-4"
             />
           </div>
-          <Button type="submit" className="bg-gradient-to-r from-[#1B2D4F] to-[#1B2D4F]/90 hover:from-[#1B2D4F]/90 hover:to-[#1B2D4F] text-white px-6 rounded-xl shadow-md shadow-[#1B2D4F]/20 hover:shadow-lg hover:shadow-[#1B2D4F]/30 transition-all duration-300">
+          <Button type="submit" className="bg-gradient-to-r from-navy-800 to-navy-800/90 hover:from-navy-800/90 hover:to-navy-800 text-white px-6 rounded-xl shadow-md shadow-navy-800/20 hover:shadow-lg hover:shadow-navy-800/30 transition-all duration-300">
             {dict.common.search}
           </Button>
           <Button
@@ -309,7 +309,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
 function FilterTag({ label, onRemove, removeLabel }: { label: string; onRemove: () => void; removeLabel: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C49A2A]/10 text-[#1B2D4F] text-xs font-medium rounded-full border border-[#C49A2A]/20 backdrop-blur-sm hover:bg-[#C49A2A]/20 transition-colors duration-200"
+      className="inline-flex items-center gap-1 px-3 py-1.5 bg-gold-500/10 text-navy-800 text-xs font-medium rounded-full border border-gold-500/20 backdrop-blur-sm hover:bg-gold-500/20 transition-colors duration-200"
       role="status"
       aria-label={`${label} filter`}
     >
@@ -317,7 +317,7 @@ function FilterTag({ label, onRemove, removeLabel }: { label: string; onRemove: 
       <button
         onClick={onRemove}
         aria-label={`${removeLabel} ${label}`}
-        className="hover:text-[#C49A2A] transition-colors focus:outline-none focus:ring-1 focus:ring-[#C49A2A] rounded"
+        className="hover:text-gold-500 transition-colors focus:outline-none focus:ring-1 focus:ring-gold-500 rounded"
         type="button"
       >
         <X className="w-3 h-3" aria-hidden="true" />

@@ -82,6 +82,7 @@
     "breadcrumb": "Breadcrumb",
     "previousImage": "Previous image",
     "nextImage": "Next image",
+    "galleryImage": "Image {{current}} of {{total}}",
     "imageLightbox": "Image lightbox",
     "closeLightbox": "Close lightbox",
     "changePropertyStatus": "Change property status",

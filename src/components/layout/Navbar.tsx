@@ -109,6 +109,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
                     propertyInquiry: dict.nav?.propertyInquiry,
                     agentJoined: dict.nav?.agentJoined,
                     system: dict.nav?.system,
+                    unread: dict.common?.unread,
                     timeAgo: dict.common?.timeAgo,
                   },
                 }}

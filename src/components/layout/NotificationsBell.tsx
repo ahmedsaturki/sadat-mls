@@ -34,6 +34,7 @@ interface NotificationsBellProps {
       newAgentJoinedMessage?: string;
       newContactRequest?: string;
       deletedOldNotifications?: string;
+      unread?: string;
       timeAgo?: {
         justNow?: string;
         minutesAgo?: string;
@@ -197,27 +198,27 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
     const diffDays = Math.floor(diffMs / 86400000);
     const timeAgo = dict.notifications.timeAgo ?? {};
 
-    if (diffMins < 1) return timeAgo.justNow ?? "Just now";
+    if (diffMins < 1) return timeAgo.justNow ?? "";
     const minutesAgoTemplate = timeAgo.minutesAgo;
     if (minutesAgoTemplate) {
       return minutesAgoTemplate.replace("{{count}}", String(diffMins));
     }
     if (diffMins < 60) {
-      return `${diffMins}m ago`;
+      return timeAgo.minutesAgo?.replace("{{count}}", String(diffMins)) ?? "";
     }
     const hoursAgoTemplate = timeAgo.hoursAgo;
     if (hoursAgoTemplate) {
       return hoursAgoTemplate.replace("{{count}}", String(diffHours));
     }
     if (diffHours < 24) {
-      return `${diffHours}h ago`;
+      return timeAgo.hoursAgo?.replace("{{count}}", String(diffHours)) ?? "";
     }
     const daysAgoTemplate = timeAgo.daysAgo;
     if (daysAgoTemplate) {
       return daysAgoTemplate.replace("{{count}}", String(diffDays));
     }
     if (diffDays < 7) {
-      return `${diffDays}d ago`;
+      return timeAgo.daysAgo?.replace("{{count}}", String(diffDays)) ?? "";
     }
     return new Date(dateStr).toLocaleDateString(locale);
   };
@@ -233,7 +234,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
           "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
         )}
-        aria-label={`${dict.notifications.title} (${unreadCount} unread)`}
+        aria-label={`${dict.notifications.title} (${unreadCount} ${dict.notifications.unread})`}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >

@@ -82,6 +82,7 @@
     "breadcrumb": "مسار التنقل",
     "previousImage": "الصورة السابقة",
     "nextImage": "الصورة التالية",
+    "galleryImage": "صورة {{current}} من {{total}}",
     "imageLightbox": "عرض الصورة",
     "closeLightbox": "إغلاق العرض",
     "changePropertyStatus": "تغيير حالة العقار",
