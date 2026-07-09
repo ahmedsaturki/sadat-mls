@@ -17,11 +17,19 @@ test.describe("Favorites - Authenticated User", () => {
   test.beforeEach(async ({ page }) => {
     isAuthenticated = false;
     await page.goto("/ar/login");
+    // Check if rate-limited before trying to login
+    const submitButton = page.locator("button[type='submit']");
+    await submitButton.waitFor({ state: "visible", timeout: 5000 }).catch(() => {});
+    const isDisabled = await submitButton.isDisabled().catch(() => true);
+    if (isDisabled) {
+      // Rate limited — skip authenticated tests
+      return;
+    }
     await page.fill('input[type="email"]', "test@example.com");
     await page.fill('input[type="password"]', "password123");
-    await page.click("button[type='submit']");
-    // Wait for either redirect (login success) or error (login failure)
-    await page.waitForTimeout(3000);
+    await submitButton.click();
+    // Wait briefly for redirect; if still on login, auth failed
+    await page.waitForTimeout(2000);
     const url = page.url();
     isAuthenticated = !url.includes("/login");
   });

@@ -165,10 +165,12 @@ test.describe("Admin Navigation @admin", () => {
 
 test.describe("Admin 404 Page", () => {
   test("should show 404 for non-existent admin page", async ({ page }) => {
-    const response = await page.goto("/ar/admin/nonexistent-page");
-    // Authenticated: page returns 404. Unauthenticated: middleware redirects (302) to login.
-    const status = response?.status() ?? 0;
-    expect(status === 404 || (status >= 300 && status < 400)).toBeTruthy();
+    await page.goto("/ar/admin/nonexistent-page");
+    // Unauthenticated: middleware redirects to login. Authenticated: 404 page.
+    const url = page.url();
+    const redirectedToLogin = url.includes("/login");
+    const has404Text = (await page.locator("text=404").count()) > 0;
+    expect(redirectedToLogin || has404Text).toBeTruthy();
   });
 
   test("should show 404 with admin branding", async ({ page }) => {
