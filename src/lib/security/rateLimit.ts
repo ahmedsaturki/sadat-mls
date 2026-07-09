@@ -122,7 +122,7 @@ export async function rateLimitMiddleware(
       }
 
       return NextResponse.json(
-        { error: "Too many requests", message: errorMessage },
+        { error: "Too many requests", message: errorMessage, i18nKey: "rateLimited", i18nParams: { seconds: retryAfterSeconds } },
         {
           status: 429,
           headers,

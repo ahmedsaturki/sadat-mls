@@ -140,6 +140,10 @@
     "propertyInquiry": "استفسار عقاري",
     "agentJoined": "انضمام مندوب",
     "system": "نظام",
+    "newAgentJoined": "انضمام مندوب جديد: {{name}}",
+    "newAgentJoinedMessage": "انضم {{name}} ({{email}}) إلى مكتبك كـ {{role}}",
+    "newContactRequest": "استفسار جديد من {{name}}",
+    "deletedOldNotifications": "تم حذف الإشعارات الأقدم من {{days}} يوم",
     "keywords": ["عقارات", "مدينة السادات", "بيع", "تأجير", "شقة", "فيلا", "أرض"]
   },
   "roles": {
@@ -713,5 +717,48 @@
       "parking": "موقف سيارات",
       "elevator": "مصعد"
     }
+  },
+  "validation": {
+    "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "passwordMinLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+    "passwordMaxLength": "كلمة المرور يجب ألا تتجاوز 128 حرف",
+    "passwordPattern": "كلمة المرور يجب أن تحتوي على حرف كبير وحرف صغير ورقم ورمز خاص",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين",
+    "nameMinLength": "الاسم يجب أن يكون حرفين على الأقل",
+    "nameMaxLength": "الاسم يجب ألا يتجاوز 100 حرف",
+    "titleRequired": "العنوان مطلوب",
+    "titleMaxLength": "العنوان يجب ألا يتجاوز 200 حرف",
+    "pricePositive": "السعر يجب أن يكون أكبر من صفر",
+    "areaPositive": "المساحة يجب أن تكون أكبر من صفر",
+    "invalidUuid": "صيغة المعرف غير صحيحة",
+    "invalidUrl": "صيغة الرابط غير صحيحة",
+    "invalidStatus": "الحالة غير صحيحة",
+    "slugPattern": "الرابط يجب أن يحتوي على أحرف صغيرة وأرقام وشرطات فقط",
+    "bedroomsMin": "غرف النوم يجب أن تكون 0 على الأقل",
+    "bathroomsMin": "الحمامات يجب أن تكون 0 على الأقل",
+    "floorsMin": "الأدوار يجب أن تكون 0 على الأقل",
+    "phoneLength": "رقم الهاتف يجب أن يكون بين 10 و 20 حرف",
+    "termsRequired": "يجب قبول الشروط والأحكام",
+    "tokenRequired": "الرمز مطلوب",
+    "currentPasswordRequired": "كلمة المرور الحالية مطلوبة",
+    "invalidInput": "إدخال غير صحيح",
+    "required": "هذا الحقل مطلوب"
+  },
+  "errors": {
+    "unknown": "حدث خطأ غير معروف",
+    "duplicateEntry": "هذا السجل موجود بالفعل",
+    "foreignKeyViolation": "السجل المرجعي غير موجود",
+    "requiredField": "الحقل المطلوب مفقود",
+    "insufficientPrivilege": "ليس لديك صلاحية لتنفيذ هذا الإجراء",
+    "notFound": "السجل غير موجود",
+    "rateLimited": "طلبات كثيرة جداً. يرجى المحاولة مرة أخرى لاحقاً.",
+    "sessionExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "databaseError": "حدث خطأ في قاعدة البيانات",
+    "networkFailed": "فشل الاتصال بالشبكة. يرجى التحقق من اتصالك بالإنترنت.",
+    "networkError": "حدث خطأ في الشبكة. يرجى المحاولة مرة أخرى.",
+    "unexpected": "حدث خطأ غير متوقع",
+    "accountLocked": "الحساب مقفل مؤقتاً. حاول مرة أخرى بعد {{seconds}} ثانية.",
+    "tooManyAttempts": "محاولات دخول كثيرة جداً. متبقي {{count}} محاولات."
   }
 }

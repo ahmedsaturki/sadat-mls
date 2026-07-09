@@ -167,8 +167,10 @@ export async function POST(request: NextRequest) {
   if (targetOfficeId) {
     notifyOffice(targetOfficeId, {
       type: "agent_joined",
-      title: `New agent joined: ${sanitizedName}`,
-      message: `${sanitizedName} (${sanitizedEmail}) has joined your office as ${role === ROLES.OFFICE_ADMIN ? "Office Admin" : "Office Agent"}`,
+      title: "newAgentJoined",
+      title_params: { name: sanitizedName },
+      message: "newAgentJoinedMessage",
+      message_params: { name: sanitizedName, email: sanitizedEmail, role: role === ROLES.OFFICE_ADMIN ? "Office Admin" : "Office Agent" },
       entityType: "agent",
       entityId: authData.user?.id,
     }).catch(() => {});

@@ -12,7 +12,7 @@ interface PageLoaderProps {
   role?: string;
 }
 
-export function PageLoader({ variant = "luxury", text, fullScreen = false, loadingText = "Loading...", ariaBusy, role }: PageLoaderProps) {
+export function PageLoader({ variant = "luxury", text, fullScreen = false, loadingText = "", ariaBusy, role }: PageLoaderProps) {
   if (variant === "spinner") {
     return (
       <LoadingSpinner size="lg" text={text} />
