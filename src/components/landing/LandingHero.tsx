@@ -22,14 +22,14 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
   };
 
   return (
-    <section className="relative bg-[#1B2D4F] text-white overflow-hidden min-h-[90vh] flex items-center">
+    <section className="relative bg-brand-navy text-white overflow-hidden min-h-[90vh] flex items-center">
       {/* Luxury Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1B2D4F] via-[#152340] to-[#0D1526]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-br from-navy-800 via-navy-900 to-navy-800" aria-hidden="true" />
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" aria-hidden="true" />
 
       {/* Golden Accents - responsive sizing to prevent mobile overflow */}
       <div
-        className="animate-blob absolute top-0 end-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-[#C49A2A]/10 rounded-full blur-[100px] pointer-events-none"
+        className="animate-blob absolute top-0 end-0 w-48 sm:w-64 md:w-80 lg:w-[40rem] h-48 sm:h-64 md:h-80 lg:h-[40rem] bg-gold-400/10 rounded-full blur-[100px] pointer-events-none"
         aria-hidden="true"
       />
       <div
@@ -40,7 +40,7 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 relative z-10 w-full">
         <div className="stagger text-center max-w-4xl mx-auto">
-          <div className="animate-fade-up inline-flex items-center gap-2 bg-[#C49A2A]/10 text-[#C49A2A] px-5 py-2.5 rounded-full text-sm font-semibold mb-8 border border-[#C49A2A]/20 shadow-[0_0_15px_rgba(196,154,42,0.15)]">
+          <div className="animate-fade-up inline-flex items-center gap-2 bg-gold-400/10 text-gold-500 px-5 py-2.5 rounded-full text-sm font-semibold mb-8 border border-gold-400/20 shadow-[0_0_15px_rgba(196,154,42,0.15)]">
             <Sparkles className="w-4 h-4" aria-hidden="true" />
             {dict.landing.heroBadge}
           </div>
@@ -67,13 +67,13 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={dict.landing.searchPlaceholder}
                   aria-label={dict.landing.searchPlaceholder}
-                  className="w-full ps-14 pe-4 py-4 md:py-5 rounded-xl bg-white/5 text-white text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A2A]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B2D4F] transition-all placeholder:text-gray-500"
+                  className="w-full ps-14 pe-4 py-4 md:py-5 rounded-xl bg-white/5 text-white text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-navy-800 transition-all placeholder:text-gray-500"
                 />
               </div>
               <button
                 type="submit"
                 aria-label={dict.common.search}
-                className="bg-[#C49A2A] text-white px-8 py-4 md:py-5 rounded-xl font-semibold hover:bg-[#b08924] transition-all shadow-lg hover:shadow-xl hover:shadow-[#C49A2A]/20 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#C49A2A]"
+                className="bg-gold-500 text-white px-8 py-4 md:py-5 rounded-xl font-semibold hover:bg-gold-600 transition-all shadow-lg hover:shadow-xl hover:shadow-gold-400/20 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gold-500"
               >
                 <Search className="w-6 h-6" aria-hidden="true" />
               </button>
@@ -83,14 +83,14 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
           <div className="animate-fade-up flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href={`/${locale}/explore`}
-              className="inline-flex items-center justify-center gap-2 glass-luxury text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-colors border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B2D4F]"
+              className="inline-flex items-center justify-center gap-2 glass-luxury text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-colors border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-800"
             >
               <Home className="w-5 h-5" aria-hidden="true" />
               {dict.landing.viewAll}
             </Link>
             <Link
               href={`/${locale}/login`}
-              className="inline-flex items-center justify-center gap-2 bg-white text-[#1B2D4F] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center gap-2 bg-white text-navy-800 px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
             >
               {dict.common.login}
               <ArrowLeft className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />

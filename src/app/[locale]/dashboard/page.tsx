@@ -144,7 +144,7 @@ export default async function OfficeDashboard({
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{dict.office.dashboard}</h1>
             <p className="text-gray-500 mt-1">
-              {dict.common.welcome} {profile?.full_name || office?.name} 👋
+              {dict.common.welcome} {profile?.full_name || office?.name} {dict.common.welcomeEmoji}
             </p>
           </div>
           <Link href={`/${locale}/dashboard/properties/new`}>

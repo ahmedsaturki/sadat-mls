@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%)",
+          background: "linear-gradient(135deg, #1B2D4F 0%, #233148 50%, #111c31 100%)",
           padding: "40px",
           direction: isRTL ? "rtl" : "ltr",
         }}
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
             boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
           }}
         >
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C49A2A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
             <polyline points="9 22 9 12 15 12 15 22" />
           </svg>

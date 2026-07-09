@@ -152,7 +152,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, #C49A2A, transparent 50%, #1B2D4F);
+  background: linear-gradient(135deg, var(--color-gold-500), transparent 50%, var(--color-navy-800));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -161,7 +161,7 @@ body {
 
 /* Premium text gradient */
 .text-gradient-gold {
-  background: linear-gradient(135deg, #C49A2A, #e8c866);
+  background: linear-gradient(135deg, var(--color-gold-500), var(--color-gold-300));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -173,15 +173,15 @@ body {
   100% { background-position: 200% 0; }
 }
 .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(196,154,42,0.08) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, var(--color-gold-100) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
 
 /* Glow pulse for interactive elements */
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 5px rgba(196,154,42,0.2); }
-  50% { box-shadow: 0 0 20px rgba(196,154,42,0.4); }
+  0%, 100% { box-shadow: 0 0 5px var(--color-gold-400); }
+  50% { box-shadow: 0 0 20px var(--color-gold-400); }
 }
 .glow-pulse {
   animation: glow-pulse 3s ease-in-out infinite;

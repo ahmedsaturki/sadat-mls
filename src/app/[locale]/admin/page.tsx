@@ -108,7 +108,7 @@ export default async function AdminDashboard({
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{dict.admin.dashboard}</h1>
           {profile?.full_name && (
-            <p className="text-gray-500 mt-1">{dict.common.welcome} {profile.full_name} 👋</p>
+            <p className="text-gray-500 mt-1">{dict.common.welcome} {profile.full_name} {dict.common.welcomeEmoji}</p>
           )}
         </div>
 

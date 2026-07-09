@@ -93,7 +93,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: `${baseUrl}/${locale}`,
       images: [
         {
-          url: `/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(description)}&locale=${locale}`,
+          url: `${baseUrl}/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(description)}&locale=${locale}`,
           width: 1200,
           height: 630,
           alt: dict.common.appName,
@@ -105,7 +105,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: dict.common.appName,
       description,
       images: [
-        `/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(description)}&locale=${locale}`,
+        `${baseUrl}/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(description)}&locale=${locale}`,
       ],
     },
     robots: {

@@ -187,7 +187,7 @@ export default function LoginPage({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@example.com"
+              placeholder={dict.common.emailPlaceholder}
               autoComplete="email"
               required
             />
@@ -197,7 +197,7 @@ export default function LoginPage({
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={dict.common.passwordPlaceholder}
               autoComplete="current-password"
               required
             />

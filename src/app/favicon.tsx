@@ -9,14 +9,14 @@ export default function Favicon() {
       <defs>
         <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#1B2D4F" />
-          <stop offset="100%" stopColor="#162540" />
+          <stop offset="100%" stopColor="#111c31" />
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="6" fill="url(#bg)" />
       <path
         d="M8 22V12a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h4a1 1 0 011 1v10"
         fill="none"
-        stroke="white"
+        stroke="#C49A2A"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -24,14 +24,14 @@ export default function Favicon() {
       <path
         d="M11 22h10"
         fill="none"
-        stroke="white"
+        stroke="#C49A2A"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
       <path
         d="M16 7v2M12 9l1 1.5M20 9l-1 1.5"
         fill="none"
-        stroke="white"
+        stroke="#C49A2A"
         strokeWidth="1.2"
         strokeLinecap="round"
       />

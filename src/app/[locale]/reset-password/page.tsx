@@ -184,7 +184,7 @@ export default function ResetPasswordPage({
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder={dict.common.passwordPlaceholder}
                     autoComplete="new-password"
                     required
                     minLength={8}
@@ -221,7 +221,7 @@ export default function ResetPasswordPage({
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder={dict.common.passwordPlaceholder}
                     autoComplete="new-password"
                     required
                     minLength={8}
