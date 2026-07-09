@@ -73,6 +73,7 @@ export default async function OfficeDashboard({
     officeResult,
     agentsCountResult,
     recentContactsResult,
+    allPrimaryImagesResult,
   ] = await Promise.all([
     supabase
       .from("properties")
@@ -109,6 +110,10 @@ export default async function OfficeDashboard({
       .eq("office_id", profile.office_id)
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase
+      .from("property_images")
+      .select("property_id, url")
+      .eq("is_primary", true),
   ]);
 
   const propertiesCount = propertiesCountResult;
@@ -119,22 +124,18 @@ export default async function OfficeDashboard({
   const agentsCount = agentsCountResult.count;
   const { data: recentContacts } = recentContactsResult;
 
-  // Fetch primary images for recent properties (in parallel with above if possible)
-  const propertyIds = recentProperties?.map((p: PropertyRecord) => p.id) || [];
-  const { data: propertyImages } = propertyIds.length > 0
-    ? await supabase
-        .from("property_images")
-        .select("property_id, url")
-        .in("property_id", propertyIds)
-        .eq("is_primary", true)
-    : { data: null };
-
-const imageMap = new Map(propertyImages?.map((img: PropertyImage) => [img.property_id, img.url]) || []);
-    const propertiesWithImages: PropertyRecord[] = (recentProperties || []).map((p: PropertyRecord) => ({
-      ...p,
-      status: p.status as PropertyStatus,
-      primaryImage: imageMap.get(p.id) || null,
-    }));
+  // Build image map from pre-fetched primary images (no waterfall)
+  const recentPropertyIds = new Set(recentProperties?.map((p: PropertyRecord) => p.id) || []);
+  const imageMap = new Map(
+    (allPrimaryImagesResult.data || [])
+      .filter((img: PropertyImage) => recentPropertyIds.has(img.property_id))
+      .map((img: PropertyImage) => [img.property_id, img.url])
+  );
+  const propertiesWithImages: PropertyRecord[] = (recentProperties || []).map((p: PropertyRecord) => ({
+    ...p,
+    status: p.status as PropertyStatus,
+    primaryImage: imageMap.get(p.id) || null,
+  }));
 
   return (
     <DashboardLayout locale={locale} dict={dict} role={userRole}>

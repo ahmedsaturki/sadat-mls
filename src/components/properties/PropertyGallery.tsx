@@ -97,7 +97,7 @@ export default function PropertyGallery({
             >
               <ChevronLeft className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
             </button>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
+            <div className="absolute bottom-4 start-1/2 -translate-x-1/2 flex gap-1">
               {images.map((_, i) => (
                 <button
                   key={i}

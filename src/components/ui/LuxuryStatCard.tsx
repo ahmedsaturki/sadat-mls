@@ -54,7 +54,7 @@ const LuxuryStatCard = memo(function LuxuryStatCard({
       aria-label={`${label}: ${formattedValue}`}
     >
       {/* Background decoration */}
-      <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/40 transition-colors duration-500" />
+      <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/40 transition-colors duration-500" aria-hidden="true" />
       
       <div className="relative z-10 flex items-center justify-between">
         <div>
@@ -70,7 +70,7 @@ const LuxuryStatCard = memo(function LuxuryStatCard({
       </div>
       
       {/* Bottom glowing line */}
-      <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-transparent via-gold-500 to-transparent group-hover:w-full transition-all duration-700 ease-out opacity-0 group-hover:opacity-100" />
+      <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-transparent via-gold-500 to-transparent group-hover:w-full transition-all duration-700 ease-out opacity-0 group-hover:opacity-100" aria-hidden="true" />
     </div>
   );
 });

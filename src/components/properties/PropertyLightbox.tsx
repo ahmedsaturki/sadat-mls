@@ -89,7 +89,7 @@ export default function Lightbox({
       {/* Thumbnails strip */}
       {images.length > 1 && (
         <div
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 max-w-[80vw] overflow-x-auto px-4 pb-2"
+          className="absolute bottom-6 start-1/2 -translate-x-1/2 flex gap-2 max-w-[80vw] overflow-x-auto px-4 pb-2"
           role="group"
           aria-label={dict.common?.imageThumbnails}
           onClick={(e) => e.stopPropagation()}
