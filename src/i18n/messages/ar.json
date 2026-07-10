@@ -474,7 +474,15 @@
     "propertyImage": "صورة العقار",
     "newImage": "صورة جديدة",
     "clickOrDrag": "انقر أو اسحب",
-    "imageFormat": "صيغة الصورة: JPG، PNG، الحد الأقصى 2 ميجابايت"
+    "imageFormat": "صيغة الصورة: JPG، PNG، الحد الأقصى 2 ميجابايت",
+    "notificationPreferences": "تفضيلات الإشعارات",
+    "notificationPreferencesDesc": "اختر الإشعارات التي تريد تلقيها",
+    "contactRequestNotifications": "إشعارات طلبات التواصل",
+    "contactRequestNotificationsDesc": "تلقَّ إشعاراً عند تواصل شخص مع مكتبك",
+    "agentJoinedNotifications": "إشعارات انضمام الوكيل",
+    "agentJoinedNotificationsDesc": "تلقَّ إشعاراً عند انضمام وكيل جديد لمكتبك",
+    "notificationsEnabled": "مفعل",
+    "notificationsDisabled": "معطل"
   },
   "contactRequests": {
     "title": "طلبات التواصل",

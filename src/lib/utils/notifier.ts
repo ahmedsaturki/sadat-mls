@@ -16,13 +16,43 @@ interface CreateNotificationParams {
 }
 
 /**
+ * Check if a user has enabled a specific notification type.
+ * Defaults to true if no preferences are set.
+ */
+async function isNotificationEnabled(
+  client: SupabaseClient,
+  userId: string,
+  notificationType: string,
+): Promise<boolean> {
+  const { data, error } = await client
+    .from("users")
+    .select("notification_preferences")
+    .eq("id", userId)
+    .single();
+
+  if (error || !data) return true; // Default: enabled
+
+  const prefs = data.notification_preferences;
+  if (!prefs || typeof prefs !== "object") return true; // Default: enabled
+
+  // If the specific type key exists, use its value; otherwise default to true
+  return prefs[notificationType] !== false;
+}
+
+/**
  * Create a notification for a user.
- * Call this from API routes or server actions.
- * Pass `supabase` when calling from API routes to avoid cookie access issues.
+ * Respects user notification preferences.
  */
 export async function createNotification(params: CreateNotificationParams): Promise<void> {
   try {
     const supabase = params.supabase || await createClient();
+
+    // Check if user has this notification type enabled
+    const enabled = await isNotificationEnabled(supabase, params.userId, params.type);
+    if (!enabled) {
+      return; // User opted out of this notification type
+    }
+
     const { error } = await supabase
       .from("notifications")
       .insert({
@@ -47,6 +77,7 @@ export async function createNotification(params: CreateNotificationParams): Prom
 
 /**
  * Create notifications for all office members.
+ * Filters out members who have opted out of the notification type.
  */
 export async function notifyOffice(
   officeId: string,
@@ -56,10 +87,10 @@ export async function notifyOffice(
   try {
     const client = supabase || await createClient();
 
-    // Get all users in the office
+    // Get all users in the office with their preferences
     const { data: members, error: queryError } = await client
       .from("users")
-      .select("id")
+      .select("id, notification_preferences")
       .eq("office_id", officeId);
 
     if (queryError || !members) {
@@ -67,8 +98,17 @@ export async function notifyOffice(
       return;
     }
 
-    // Create notifications for all members
-    const notifications = members.map((member) => ({
+    // Filter members by notification preferences
+    const eligibleMembers = members.filter((member) => {
+      const prefs = member.notification_preferences;
+      if (!prefs || typeof prefs !== "object") return true; // Default: enabled
+      return prefs[notification.type] !== false;
+    });
+
+    if (eligibleMembers.length === 0) return; // No one wants this notification
+
+    // Create notifications for eligible members
+    const notifications = eligibleMembers.map((member) => ({
       user_id: member.id,
       office_id: officeId,
       type: notification.type,
