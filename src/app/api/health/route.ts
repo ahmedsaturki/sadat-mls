@@ -62,5 +62,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
     checks,
   };
 
-  return NextResponse.json(result, { status: healthy ? 200 : 503 });
+  return NextResponse.json(result, {
+    status: healthy ? 200 : 503,
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+  });
 }

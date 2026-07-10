@@ -103,7 +103,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch offices" }, { status: 500 });
   }
 
-  return NextResponse.json({ offices: offices || [] });
+  return NextResponse.json({ offices: offices || [] }, {
+    headers: { "Cache-Control": "private, no-store" },
+  });
 }
 
 // POST - Create office (super admin only)
