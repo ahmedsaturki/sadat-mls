@@ -24,6 +24,7 @@ interface PropertyRow {
   id: string;
   title: string;
   description: string | null;
+  street: string | null;
   price: number;
   area: number;
   bedrooms: number;
@@ -125,8 +126,8 @@ function ExploreContent({
       if (f.hasParking) query = query.eq("has_parking", true);
       if (f.hasElevator) query = query.eq("has_elevator", true);
       if (f.search) {
-        const escapedSearch = f.search.replace(/%/g, "\\%").replace(/_/g, "\\_");
-        query = query.ilike("title", `%${escapedSearch}%`);
+        // Use full-text search on the fts column (title A-weighted, description B-weighted, street C-weighted)
+        query = query.textSearch("fts", f.search, { type: "websearch", config: "arabic" });
       }
 
       const from = (page - 1) * PAGE_SIZE;
@@ -165,7 +166,8 @@ function ExploreContent({
           const search = f.search.toLowerCase();
           filtered = data.filter((p: PropertyRow) =>
             p.title.toLowerCase().includes(search) ||
-            p.description?.toLowerCase().includes(search)
+            p.description?.toLowerCase().includes(search) ||
+            p.street?.toLowerCase().includes(search)
           );
         }
 
