@@ -37,10 +37,9 @@ test.describe("Contact Form - Public", () => {
 
 test.describe("Dashboard Navigation", () => {
   test("should redirect unauthenticated user from dashboard to login", async ({ page }) => {
-    const response = await page.goto("/ar/dashboard");
-    // Should either redirect to login or show login page
-    const url = page.url();
-    expect(url.includes("/login") || response?.status() === 200).toBeTruthy();
+    await page.goto("/ar/dashboard");
+    // Middleware redirects to login page
+    await expect(page).toHaveURL(/\/login/);
   });
 
   test("should redirect unauthenticated user from admin to login", async ({ page }) => {
