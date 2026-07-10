@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { generateCsrfToken, isCsrfTokenValid } from "@/lib/security/csrf-constants";
 
 /** All locales supported by Sadat MLS */
 const locales = ["ar", "en"];
@@ -85,35 +86,13 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-/** Read existing CSRF token and check if it's still valid (24h) */
-function csrfTokenValid(token: string | undefined): boolean {
-  if (!token) return false;
-  try {
-    const parts = token.split(".");
-    if (parts.length === 2) {
-      const timestamp = parseInt(parts[0], 10);
-      if (!isNaN(timestamp) && Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-        return true;
-      }
-    }
-  } catch {
-    // If parsing fails, generate new token
-  }
-  return false;
-}
-
 /** Seed CSRF token for API calls and authenticated users by mutating the response */
 function seedCsrfToken(response: NextResponse, existingToken: string | undefined) {
-  if (csrfTokenValid(existingToken)) {
+  if (isCsrfTokenValid(existingToken)) {
     return;
   }
 
-  // Generate cryptographically secure CSRF token with timestamp prefix
-  const timestamp = Date.now();
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  const randomPart = Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
-  const token = `${timestamp}.${randomPart}`;
+  const token = generateCsrfToken();
 
   response.cookies.set("csrf_token", token, {
     httpOnly: false,

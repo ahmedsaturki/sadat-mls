@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const limitParam = searchParams.get("limit") || "20";
     const offsetParam = searchParams.get("offset") || "0";
-    const limit = Math.min(Math.max(parseInt(limitParam) || 10, 1), 100);
-    const offset = Math.max(parseInt(offsetParam) || 0, 0);
+    const limit = Math.min(Math.max(parseInt(limitParam, 10) || 10, 1), 100);
+    const offset = Math.max(parseInt(offsetParam, 10) || 0, 0);
 
     const { data: activities, error } = await supabase
       .from("activity_log")
@@ -71,7 +71,12 @@ export async function POST(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
 
     const activitySchema = z.object({
       action: z.string().min(1).max(100),

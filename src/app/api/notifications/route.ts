@@ -25,9 +25,9 @@ const patchNotificationSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const { allowed } = await checkApiRateLimit(`notifications-get:${ip}`);
-    if (!allowed) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    const rateResult = await checkApiRateLimit(`notifications-get:${ip}`);
+    if (!rateResult.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: rateResult.headers });
     }
 
     const supabase = await createClient();
@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50);
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
     const unreadOnly = searchParams.get("unread") === "true";
 
     let query = supabase
@@ -78,9 +78,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const { allowed } = await checkApiRateLimit(`notifications-post:${ip}`);
-    if (!allowed) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    const rateResult = await checkApiRateLimit(`notifications-post:${ip}`);
+    if (!rateResult.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: rateResult.headers });
     }
 
     // CSRF validation
@@ -142,9 +142,9 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const { allowed } = await checkApiRateLimit(`notifications-patch:${ip}`);
-    if (!allowed) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    const rateResult = await checkApiRateLimit(`notifications-patch:${ip}`);
+    if (!rateResult.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: rateResult.headers });
     }
 
     // CSRF validation

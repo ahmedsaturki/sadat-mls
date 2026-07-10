@@ -359,6 +359,8 @@ export interface Database {
           type: string;
           title: string;
           message: string;
+          title_params: Record<string, unknown> | null;
+          message_params: Record<string, unknown> | null;
           entity_type: string | null;
           entity_id: string | null;
           is_read: boolean;
@@ -371,6 +373,8 @@ export interface Database {
           type: string;
           title: string;
           message: string;
+          title_params?: Record<string, unknown> | null;
+          message_params?: Record<string, unknown> | null;
           entity_type?: string | null;
           entity_id?: string | null;
           is_read?: boolean;
@@ -383,6 +387,8 @@ export interface Database {
           type?: string;
           title?: string;
           message?: string;
+          title_params?: Record<string, unknown> | null;
+          message_params?: Record<string, unknown> | null;
           entity_type?: string | null;
           entity_id?: string | null;
           is_read?: boolean;
@@ -398,6 +404,14 @@ export interface Database {
       get_user_office_id: {
         Args: Record<string, never>;
         Returns: string;
+      };
+      increment_rate_limit: {
+        Args: {
+          p_action: string;
+          p_ip: string;
+          p_window_start: string;
+        };
+        Returns: number;
       };
     };
   };

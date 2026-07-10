@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { logger } from "@/lib/logger";
 import { validateCsrfToken } from "@/lib/security/csrf";
@@ -7,17 +6,11 @@ import { agentSchema } from "@/lib/validation";
 import { ROLES } from "@/lib/utils/constants";
 import { logActivity } from "@/lib/utils/activity-logger";
 import { notifyOffice } from "@/lib/utils/notifier";
-
-function getAdminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 async function verifyAdmin(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
-  const supabase = getAdminClient();
+  const supabase = createServiceRoleClient();
 
   let user = null;
 
@@ -120,7 +113,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabaseAdmin = getAdminClient();
+  const supabaseAdmin = createServiceRoleClient();
 
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email: sanitizedEmail,
@@ -223,7 +216,7 @@ export async function DELETE(request: NextRequest) {
 
 // Validate office ownership for OFFICE_ADMIN - can only delete agents from their office
   if (user.role === ROLES.OFFICE_ADMIN && user.office_id) {
-    const client = getAdminClient();
+    const client = createServiceRoleClient();
     let targetUser;
     try {
       const { data, error: queryError } = await client
@@ -256,7 +249,7 @@ export async function DELETE(request: NextRequest) {
     }
   }
 
-  const supabaseAdmin = getAdminClient();
+  const supabaseAdmin = createServiceRoleClient();
 
   const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
   if (error) {
