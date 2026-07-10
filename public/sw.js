@@ -136,6 +136,40 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
+// Handle push notifications
+self.addEventListener("push", (event) => {
+  const data = event.data?.json() || {};
+  const title = data.title || "Sadat MLS";
+  const options = {
+    body: data.body || "",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-96.png",
+    data: { url: data.url || "/ar" },
+    vibrate: [200, 100, 200],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Handle notification click
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/ar";
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clients) => {
+      // Focus existing window if open
+      for (const client of clients) {
+        if (client.url.includes(url) && "focus" in client) {
+          return client.focus();
+        }
+      }
+      // Open new window
+      return self.clients.openWindow(url);
+    })
+  );
+});
+
 // Handle background sync for offline form submissions
 self.addEventListener("sync", (event) => {
   if (event.tag === "sync-contact-forms") {

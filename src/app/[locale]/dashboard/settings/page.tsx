@@ -14,7 +14,8 @@ import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import PageHeader from "@/components/ui/PageHeader";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { SkeletonDashboard } from "@/components/ui/Skeleton";
-import { User, Building2, Camera, Lock, Bell } from "lucide-react";
+import { User, Building2, Camera, Lock, Bell, Smartphone } from "lucide-react";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { logger } from "@/lib/logger";
 import { useAuthUser } from "@/hooks/useAuthUser";
 
@@ -69,6 +70,9 @@ export default function SettingsPage({
     agent_joined: true,
   });
   const [savingPrefs, setSavingPrefs] = useState(false);
+
+  // Push notifications
+  const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe, unsubscribe } = usePushNotifications();
 
   const { showToast } = useToast();
   const { supabase, user, profile } = useAuthUser();
@@ -599,6 +603,31 @@ export default function SettingsPage({
                       />
                     </button>
                   </div>
+                  {/* Push Notifications */}
+                  {pushSupported && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Push Notifications</p>
+                        <p className="text-xs text-gray-500">Receive notifications even when the app is closed</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => pushSubscribed ? unsubscribe() : subscribe()}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                          pushSubscribed ? "bg-navy-600" : "bg-gray-300"
+                        }`}
+                        role="switch"
+                        aria-checked={pushSubscribed}
+                        aria-label="Push Notifications"
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            pushSubscribed ? "translate-x-6" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Card>
 
