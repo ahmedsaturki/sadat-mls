@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card, { CardTitle } from "@/components/ui/Card";
 import PropertyCard from "@/components/properties/PropertyCard";
-import { Home, Plus, Users, Mail, ArrowLeft } from "lucide-react";
+import { Home, Plus, Users, Mail, ArrowLeft, Heart } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { ROLES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
@@ -74,6 +74,7 @@ export default async function OfficeDashboard({
     agentsCountResult,
     recentContactsResult,
     allPrimaryImagesResult,
+    favoritesCountResult,
   ] = await Promise.all([
     supabase
       .from("properties")
@@ -114,6 +115,13 @@ export default async function OfficeDashboard({
       .from("property_images")
       .select("property_id, url")
       .eq("is_primary", true),
+    // Favorites count
+    supabase
+      .from("property_favorites")
+      .select("id", { count: "exact", head: true })
+      .in("property_id", (
+        await supabase.from("properties").select("id").eq("office_id", profile.office_id)
+      ).data?.map((p: { id: string }) => p.id) || []),
   ]);
 
   const propertiesCount = propertiesCountResult;
@@ -122,6 +130,7 @@ export default async function OfficeDashboard({
   const { data: recentProperties } = recentPropertiesResult;
   const { data: office } = officeResult;
   const agentsCount = agentsCountResult.count;
+  const favoritesCount = favoritesCountResult.count || 0;
   const { data: recentContacts } = recentContactsResult;
 
   // Build image map from pre-fetched primary images (no waterfall)
@@ -205,6 +214,19 @@ export default async function OfficeDashboard({
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{contactRequestsCount.count || 0}</p>
                   <p className="text-sm text-gray-500">{dict.nav.contactRequests}</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+          <Link href={`/${locale}/dashboard/favorites`}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-gray-900">{favoritesCount}</p>
+                  <p className="text-sm text-gray-500">{dict.common.favorites}</p>
                 </div>
               </div>
             </Card>
