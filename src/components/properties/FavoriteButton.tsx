@@ -59,7 +59,7 @@ const FavoriteButton = memo(function FavoriteButton({
   }, [userId, propertyId, checkFavoriteStatus]);
 
   const sizeClasses = {
-    sm: "w-8 h-8",
+    sm: "w-10 h-10",
     md: "w-10 h-10",
     lg: "w-12 h-12",
   };

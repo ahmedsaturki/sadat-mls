@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { isValidLocale } from "@/i18n/config";
@@ -9,6 +10,21 @@ import { cn } from "@/lib/utils/cn";
 interface ComparePageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ ids?: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await Promise.resolve(params);
+  const locale = resolvedParams.locale || "ar";
+  if (!isValidLocale(locale)) return {};
+  const dict: Messages = getMessages(locale);
+  return {
+    title: dict.compare?.title,
+    description: dict.compare?.description,
+  };
 }
 
 export default async function ComparePage({ params, searchParams }: ComparePageProps) {

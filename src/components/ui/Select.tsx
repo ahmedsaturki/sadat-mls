@@ -22,7 +22,6 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           id={selectId}
-          aria-label={label}
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? `${selectId}-error` : undefined}
           className={cn(

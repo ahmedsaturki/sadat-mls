@@ -47,6 +47,9 @@
   --color-gray-800: #1f2937;
   --color-gray-900: #111827;
   --font-sans: "Cairo", "Tajawal", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --shadow-glow-navy: 0 0 20px rgba(45, 62, 91, 0.3);
+  --shadow-glow-gold: 0 0 20px rgba(196, 154, 42, 0.3);
 }
 
 * {
@@ -139,7 +142,7 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-glow-navy);
 }
 
 /* Premium gradient border utility */

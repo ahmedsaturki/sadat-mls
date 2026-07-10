@@ -157,7 +157,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
+              className="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? dict.common.close : dict.common.open}
               aria-controls="mobile-menu"

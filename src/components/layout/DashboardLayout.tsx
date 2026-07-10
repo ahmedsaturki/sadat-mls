@@ -67,6 +67,15 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
           <Sidebar locale={locale} dict={dict} role={role} onNavigate={closeSidebar} profile={profile} />
         </div>
 
+        {/* Mobile sidebar backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+            onClick={closeSidebar}
+            aria-hidden="true"
+          />
+        )}
+
         {/* Main content */}
         <main id="dashboard-content" className={`flex-1 transition-all duration-300 ease-in-out ${sidebarOpen ? "lg:ms-64" : "ms-0"}`}>
           <div className="p-4 lg:p-6">

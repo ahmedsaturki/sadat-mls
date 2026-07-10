@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, Shield, Users, TrendingUp, Home, MapPin, ArrowLeft } from "lucide-react";
 import { isValidLocale, type Locale } from "@/i18n/config";
@@ -11,6 +12,37 @@ import { getLandingData } from "@/lib/queries/landing";
 import { getServerAuth } from "@/lib/supabase/server-auth";
 
 export const revalidate = 3600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await Promise.resolve(params);
+  const rawLocale = resolvedParams?.locale || "ar";
+  const locale = (isValidLocale(rawLocale) ? rawLocale : "ar") as Locale;
+  const dict = getMessages(locale);
+  const isArabic = locale === "ar";
+
+  return {
+    title: dict.landing.hero,
+    description: dict.landing.heroDescription,
+    keywords: dict.nav.keywords,
+    alternates: {
+      canonical: isArabic ? "/ar" : "/en",
+      languages: {
+        ar: "/ar",
+        en: "/en",
+      },
+    },
+    openGraph: {
+      title: dict.landing.hero,
+      description: dict.landing.heroDescription,
+      type: "website",
+      locale: isArabic ? "ar_EG" : "en_US",
+    },
+  };
+}
 
 export default async function LandingPage({
   params,

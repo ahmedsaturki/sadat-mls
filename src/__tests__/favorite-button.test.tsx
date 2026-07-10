@@ -91,7 +91,7 @@ describe("FavoriteButton", () => {
   it("renders with small size", () => {
     render(<FavoriteButton propertyId="prop-1" userId="user-1" size="sm" />);
     const button = screen.getByRole("button");
-    expect(button).toHaveClass("w-8", "h-8");
+    expect(button).toHaveClass("w-10", "h-10");
   });
 
   it("renders with large size", () => {

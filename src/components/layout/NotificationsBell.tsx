@@ -230,7 +230,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "relative p-2 rounded-lg transition-colors",
+          "relative min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-lg transition-colors",
           "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
         )}

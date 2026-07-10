@@ -123,7 +123,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label={dir === "rtl" ? nextPageLabel : previousPageLabel}
             >
               {dir === "rtl" ? <ChevronRight className="w-4 h-4" aria-hidden="true" /> : <ChevronLeft className="w-4 h-4" aria-hidden="true" />}
@@ -158,7 +158,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label={dir === "rtl" ? previousPageLabel : nextPageLabel}
             >
               {dir === "rtl" ? <ChevronLeft className="w-4 h-4" aria-hidden="true" /> : <ChevronRight className="w-4 h-4" aria-hidden="true" />}
