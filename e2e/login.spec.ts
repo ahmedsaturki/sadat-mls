@@ -52,8 +52,8 @@ test.describe("Login Form", () => {
     const isDisabled = await submitButton.evaluate(el => (el as HTMLButtonElement).disabled || el.getAttribute("aria-disabled") === "true").catch(() => true);
     if (isDisabled) return;
     await submitButton.click({ timeout: 5000 });
-    // Should show an error message (not redirect) — accept any visible error feedback
-    await expect(page.locator(".bg-red-50, [class*='error'], [role='alert'], [role='status']")).toBeVisible({ timeout: 10000 });
+    // Should show an error message — accept red error styling or alert role
+    await expect(page.locator(".bg-red-50, .text-red-600, [role='alert']")).toBeVisible({ timeout: 10000 });
   });
 
   test("should navigate to forgot password from login", async ({ page }) => {
