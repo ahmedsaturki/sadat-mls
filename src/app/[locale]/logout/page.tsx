@@ -61,13 +61,13 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
             <div className="flex gap-4 justify-center">
               <button
                 onClick={() => router.push(`/${locale}/dashboard`)}
-                className="px-6 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                className="px-6 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
               >
                 {dict.common.cancel}
               </button>
               <button
                 onClick={handleConfirmLogout}
-                className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+                className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
               >
                 {dict.auth.logoutButton}
               </button>

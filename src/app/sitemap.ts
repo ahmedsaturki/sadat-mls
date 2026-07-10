@@ -30,11 +30,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Add login page
   for (const locale of locales) {
+    const otherLocale = locale === "ar" ? "en" : "ar";
     sitemapEntries.push({
       url: `${BASE_URL}/${locale}/login`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.3,
+      alternates: {
+        languages: {
+          [locale]: `${BASE_URL}/${locale}/login`,
+          [otherLocale]: `${BASE_URL}/${otherLocale}/login`,
+        },
+      },
     });
   }
 

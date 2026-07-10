@@ -31,7 +31,7 @@ export default async function LocaleNotFound({
         <p className="text-gray-500 mb-6">{notFoundDesc}</p>
         <Link
           href={`/${locale}`}
-          className="inline-flex items-center gap-2 bg-navy-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-navy-700 transition-colors"
+          className="inline-flex items-center gap-2 bg-navy-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-navy-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-500"
         >
           {isRtl ? (
             <ArrowLeft className="w-5 h-5" />

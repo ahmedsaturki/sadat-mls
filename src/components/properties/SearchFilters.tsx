@@ -301,7 +301,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
             <button
               type="button"
               onClick={clearFilters}
-              className="text-sm text-red-600 hover:text-red-700 me-auto"
+              className="text-sm text-red-600 hover:text-red-700 me-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 rounded"
             >
               {dict.explore.clearAll}
             </button>
