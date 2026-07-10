@@ -91,6 +91,8 @@ export default function AgentsPage({
     return () => { mountedRef.current = false; };
   }, [loadAgents, user, profile]);
 
+  const [inviteLink, setInviteLink] = useState("");
+
   const handleInviteAgent = async () => {
     if (!inviteEmail || !officeId) return;
     setSaving(true);
@@ -119,7 +121,8 @@ export default function AgentsPage({
         return;
       }
 
-      showToast(dict.office.invitationSent || "Invitation sent successfully", "success");
+      // Show invitation link for manual sharing
+      setInviteLink(result.invitationUrl);
       setShowInviteModal(false);
       setInviteEmail("");
     } catch (err) {
@@ -367,6 +370,42 @@ export default function AgentsPage({
                 </Button>
               </div>
             </form>
+          </Modal>
+
+          {/* Invitation Link Display */}
+          <Modal
+            isOpen={!!inviteLink}
+            onClose={() => setInviteLink("")}
+            title={dict.office.invitationSent || "Invitation Link"}
+          >
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Copy this link and share it with the agent:
+              </p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={inviteLink}
+                  className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono"
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(inviteLink);
+                    showToast("Copied!", "success");
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
+              <div className="flex justify-end">
+                <Button variant="ghost" onClick={() => setInviteLink("")}>
+                  {dict.common.close || "Close"}
+                </Button>
+              </div>
+            </div>
           </Modal>
 
           {/* Delete Confirmation Modal */}
