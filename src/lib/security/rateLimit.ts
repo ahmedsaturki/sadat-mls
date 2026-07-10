@@ -104,6 +104,22 @@ function extractActionFromKey(key: string): string {
   return lastColon > 0 ? key.substring(0, lastColon) : key;
 }
 
+/** Validate and sanitize IP for PostgreSQL INET type. Returns a valid IP or fallback. */
+function sanitizeIpForInet(ip: string): string {
+  // Valid IPv4: x.x.x.x where x is 0-255
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+  // Valid IPv6: full, compressed, or mapped formats
+  const ipv6 = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
+  // IPv6 compressed (e.g., ::1, ::ffff:127.0.0.1)
+  const ipv6Compressed = /^::(ffff:)?(\d{1,3}\.){3}\d{1,3}$/;
+
+  if (ipv4.test(ip) || ipv6.test(ip) || ipv6Compressed.test(ip)) {
+    return ip;
+  }
+  // Default to 0.0.0.0 for invalid IPs (local dev, unknown, etc.)
+  return "0.0.0.0";
+}
+
 /** Build standard rate limit result object */
 function buildResult(
   count: number,
@@ -146,9 +162,10 @@ async function upsertRateLimitCount(
   windowStart: Date,
 ): Promise<number> {
   const supabase = createServiceRoleClient();
+  const sanitizedIp = sanitizeIpForInet(ip);
   const { data, error } = await supabase.rpc("increment_rate_limit", {
     p_action: action,
-    p_ip: ip,
+    p_ip: sanitizedIp,
     p_window_start: windowStart.toISOString(),
   });
 
