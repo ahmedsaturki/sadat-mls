@@ -298,7 +298,7 @@ export default async function OfficeDashboard({
                       </div>
                       <p className="text-gray-500 mb-2">{dict.office.noPropertiesYet}</p>
                       <Link href={`/${locale}/dashboard/properties/new`} className="text-sm text-navy-600 hover:text-navy-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded">
-                        {dict.office.addProperty} ←
+                        {dict.office.addProperty}
                       </Link>
                     </div>
             </Card>

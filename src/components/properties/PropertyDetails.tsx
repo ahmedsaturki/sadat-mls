@@ -94,9 +94,6 @@ export default function PropertyDetails({
       
       {/* Status selection with enhanced styling */}
       <div>
-        <label htmlFor="status-select" className="block text-sm font-medium text-gray-700 mb-1">
-          {dict.property.statusLabel}
-        </label>
         <Select
           id="status-select"
           label={dict.property.statusLabel}

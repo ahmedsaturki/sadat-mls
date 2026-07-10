@@ -147,7 +147,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
           ) : (
               <Link
                 href={`/${locale}/login`}
-                className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium bg-navy-600 text-white hover:bg-navy-700 transition-colors"
+                className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium bg-navy-600 text-white hover:bg-navy-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-500"
                 prefetch
               >
                 {dict.common.login}
