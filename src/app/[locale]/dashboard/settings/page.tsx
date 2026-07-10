@@ -43,6 +43,7 @@ export default function SettingsPage({
     email: "",
     phone: "",
     address: "",
+    description: "",
     logo_url: "",
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -120,7 +121,7 @@ export default function SettingsPage({
 
           const { data: office, error: officeError } = await supabase
             .from("offices")
-            .select("id, name, email, phone, address, logo_url")
+            .select("id, name, email, phone, address, description, logo_url")
             .eq("id", profile.officeId)
             .maybeSingle();
 
@@ -132,6 +133,7 @@ export default function SettingsPage({
               email: office.email || "",
               phone: office.phone || "",
               address: office.address || "",
+              description: office.description || "",
               logo_url: office.logo_url || "",
             });
             if (office.logo_url) setLogoUrls({ preview: office.logo_url });
@@ -350,6 +352,7 @@ export default function SettingsPage({
           email: officeData.email,
           phone: officeData.phone,
           address: officeData.address,
+          description: officeData.description || null,
           logo_url: logoUrl || null,
         })
         .eq("id", officeId);
@@ -659,6 +662,18 @@ export default function SettingsPage({
                       value={officeData.address}
                       onChange={(e) => setOfficeData({ ...officeData, address: e.target.value })}
                     />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {dict.common.description || "Description"}
+                      </label>
+                      <textarea
+                        value={officeData.description}
+                        onChange={(e) => setOfficeData({ ...officeData, description: e.target.value })}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent resize-none"
+                        placeholder={dict.common.description || "Office description"}
+                      />
+                    </div>
                     <div className="flex justify-end">
                       <Button type="submit" isLoading={saving}>
                         {dict.common.save}
