@@ -482,7 +482,10 @@
     "agentJoinedNotifications": "Agent Joined Notifications",
     "agentJoinedNotificationsDesc": "Get notified when a new agent joins your office",
     "notificationsEnabled": "Enabled",
-    "notificationsDisabled": "Disabled"
+    "notificationsDisabled": "Disabled",
+    "inviteAgent": "Invite Agent",
+    "invitationSent": "Invitation sent successfully",
+    "invitationDesc": "An invitation link will be sent to this email address."
   },
   "contactRequests": {
     "title": "Contact Requests",

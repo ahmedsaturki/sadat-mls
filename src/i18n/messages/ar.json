@@ -482,7 +482,10 @@
     "agentJoinedNotifications": "إشعارات انضمام الوكيل",
     "agentJoinedNotificationsDesc": "تلقَّ إشعاراً عند انضمام وكيل جديد لمكتبك",
     "notificationsEnabled": "مفعل",
-    "notificationsDisabled": "معطل"
+    "notificationsDisabled": "معطل",
+    "inviteAgent": "دعوة وكيل",
+    "invitationSent": "تم إرسال الدعوة بنجاح",
+    "invitationDesc": "سيتم إرسال رابط الدعوة إلى هذا البريد الإلكتروني."
   },
   "contactRequests": {
     "title": "طلبات التواصل",

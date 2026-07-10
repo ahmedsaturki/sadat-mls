@@ -38,6 +38,8 @@ export default function AgentsPage({
   const [agents, setAgents] = useState<Agent[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -88,6 +90,45 @@ export default function AgentsPage({
     }
     return () => { mountedRef.current = false; };
   }, [loadAgents, user, profile]);
+
+  const handleInviteAgent = async () => {
+    if (!inviteEmail || !officeId) return;
+    setSaving(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showToast(dict.common.unexpectedError, "error");
+        setSaving(false);
+        return;
+      }
+
+      const res = await fetch("/api/invitations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ email: inviteEmail, officeId }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        showToast(result.error || dict.common.unexpectedError, "error");
+        return;
+      }
+
+      showToast(dict.office.invitationSent || "Invitation sent successfully", "success");
+      setShowInviteModal(false);
+      setInviteEmail("");
+    } catch (err) {
+      logger.error("Failed to send invitation", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleCreateAgent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,10 +236,16 @@ export default function AgentsPage({
           <PageHeader
             title={dict.office.manageAgents}
             action={
-              <Button onClick={() => setShowModal(true)}>
-                <Plus className="w-4 h-4 ms-2" />
-                {dict.office.addAgent}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowInviteModal(true)}>
+                  <UserPlus className="w-4 h-4 ms-2" />
+                  {dict.office.inviteAgent || "Invite Agent"}
+                </Button>
+                <Button onClick={() => setShowModal(true)}>
+                  <Plus className="w-4 h-4 ms-2" />
+                  {dict.office.addAgent}
+                </Button>
+              </div>
             }
           />
 
@@ -289,6 +336,34 @@ export default function AgentsPage({
                 </Button>
                 <Button type="submit" isLoading={saving}>
                   {dict.common.save}
+                </Button>
+              </div>
+            </form>
+          </Modal>
+
+          {/* Invite Agent Modal */}
+          <Modal
+            isOpen={showInviteModal}
+            onClose={() => { setShowInviteModal(false); setInviteEmail(""); }}
+            title={dict.office.inviteAgent || "Invite Agent"}
+          >
+            <form onSubmit={(e) => { e.preventDefault(); handleInviteAgent(); }} className="space-y-4">
+              <Input
+                label={dict.common.email}
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                required
+              />
+              <p className="text-xs text-gray-500">
+                {dict.office.invitationDesc || "An invitation link will be sent to this email address."}
+              </p>
+              <div className="flex gap-3 justify-end">
+                <Button variant="ghost" onClick={() => { setShowInviteModal(false); setInviteEmail(""); }}>
+                  {dict.common.cancel}
+                </Button>
+                <Button type="submit" isLoading={saving}>
+                  {dict.office.inviteAgent || "Invite Agent"}
                 </Button>
               </div>
             </form>
