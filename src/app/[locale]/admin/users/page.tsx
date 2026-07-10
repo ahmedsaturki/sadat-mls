@@ -191,7 +191,7 @@ export default function AdminUsersPage({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to create user");
+        throw new Error(data.error || dict.common.unexpectedError);
       }
 
       showToast(dict.admin.userCreated, "success");

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type APIResponse } from "@playwright/test";
 
 test.describe("Rate Limiting", () => {
   test.describe("Health API Rate Limiting", () => {
@@ -11,7 +11,7 @@ test.describe("Rate Limiting", () => {
     test("should return 429 with rate limit headers when exceeded", async ({ request }) => {
       // Health endpoint has 100 req/60s limit
       // Send requests sequentially to ensure they hit the same counter
-      const responses: Response[] = [];
+      const responses: APIResponse[] = [];
       for (let i = 0; i < 105; i++) {
         responses.push(await request.get("/api/health"));
       }
@@ -37,7 +37,7 @@ test.describe("Rate Limiting", () => {
 
     test("should include rate limit info in 429 response body", async ({ request }) => {
       // Send requests sequentially to trigger rate limiting
-      const responses: Response[] = [];
+      const responses: APIResponse[] = [];
       for (let i = 0; i < 105; i++) {
         responses.push(await request.get("/api/health"));
       }
@@ -80,7 +80,7 @@ test.describe("Rate Limiting", () => {
   test.describe("Rate Limit Response Format", () => {
     test("429 responses should have consistent error format", async ({ request }) => {
       // Send requests sequentially to exhaust health rate limit
-      const responses: Response[] = [];
+      const responses: APIResponse[] = [];
       for (let i = 0; i < 105; i++) {
         responses.push(await request.get("/api/health"));
       }
