@@ -7,23 +7,11 @@ import "server-only";
  * Client code must import shared constants from csrf-constants.ts instead.
  */
 import { cookies } from "next/headers";
-import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from "@/lib/security/csrf-constants";
+import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME, TOKEN_MAX_AGE_MS, generateCsrfToken } from "@/lib/security/csrf-constants";
 import { logger } from "@/lib/logger";
 
 // Re-export shared constants so server-only consumers can import from this module
-export { CSRF_COOKIE_NAME, CSRF_HEADER_NAME };
-
-/** Token validity duration (24 hours) */
-const TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000;
-
-/** Generate a cryptographically secure CSRF token */
-export function generateCsrfToken(): string {
-  const timestamp = Date.now();
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  const randomPart = Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
-  return `${timestamp}.${randomPart}`;
-}
+export { CSRF_COOKIE_NAME, CSRF_HEADER_NAME, generateCsrfToken };
 
 /** Get existing token from cookie or generate a new one */
 export async function getOrCreateCsrfToken(): Promise<string> {

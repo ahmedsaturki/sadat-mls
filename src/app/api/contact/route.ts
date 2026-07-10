@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { escapeHtmlEntities } from "@/lib/security/sanitizeHtml";
 import { logger } from "@/lib/logger";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 const contactRequestSchema = z.object({
   propertyId: z.string().uuid().optional().nullable(),
@@ -18,13 +18,6 @@ const contactRequestSchema = z.object({
   ),
   message: z.string().trim().min(1).max(1000),
 });
-
-function getAdminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-}
 
 export async function POST(request: NextRequest) {
   const csrfValid = await validateCsrfToken(request);
@@ -58,7 +51,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const supabase = getAdminClient();
+  const supabase = createServiceRoleClient();
   // Defence-in-depth: Zod validates shape; SecurityValidator scrubs XSS/SQL-injection
   // text from untrusted visitor inputs before they reach the database.
   const raw = parsed.data;

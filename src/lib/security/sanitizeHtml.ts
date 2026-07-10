@@ -1,12 +1,25 @@
 /**
  * HTML sanitization utilities.
  *
- * - `sanitizeHtml` strips dangerous tags, event handlers, and `javascript:` URLs
- *   while preserving safe inline markup.
+ * - `sanitizeHtml` uses DOMPurify to strip dangerous tags, event handlers,
+ *   and `javascript:` URLs while preserving safe inline markup.
  * - `sanitizeJsonLd` escapes HTML entities in every string value of a JSON-LD
  *   object so that the serialised JSON cannot be used for XSS via
  *   structured-data injection.
+ * - `escapeHtmlEntities` provides simple entity escaping for non-HTML contexts.
  */
+import DOMPurify from "isomorphic-dompurify";
+
+// Strip dangerous CSS expressions and javascript: URLs from style attributes.
+// DOMPurify doesn't sanitize CSS values by default, so we post-process.
+DOMPurify.addHook("afterSanitizeAttributes", (node) => {
+  if (node.nodeType === 1 && node.getAttribute("style")) {
+    const style = node.getAttribute("style") || "";
+    if (/expression\s*\(|url\s*\(\s*["']?\s*javascript\s*:/i.test(style)) {
+      node.removeAttribute("style");
+    }
+  }
+});
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
@@ -23,235 +36,41 @@ export function escapeHtmlEntities(str: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  sanitizeHtml                                                              */
+/*  sanitizeHtml (DOMPurify)                                                  */
 /* -------------------------------------------------------------------------- */
 
-/** Tags whose *entire* content (including children) is removed. */
-const STRIP_TAGS = new Set([
-  "script",
-  "iframe",
-  "object",
-  "embed",
-  "form",
-  "input",
-  "textarea",
-  "button",
-  "select",
-  "style",
-  "link",
-  "meta",
-  "base",
-  "applet",
-  "noscript",
-  "noembed",
-]);
-
-/** Tags that are allowed to remain in the output. */
-const SAFE_TAGS = new Set([
-  "p",
-  "div",
-  "span",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "ul",
-  "ol",
-  "li",
-  "a",
-  "img",
-  "strong",
-  "em",
-  "b",
-  "i",
-  "u",
-  "br",
-  "hr",
-  "table",
-  "thead",
-  "tbody",
-  "tr",
-  "td",
-  "th",
-  "caption",
-  "colgroup",
-  "col",
-  "blockquote",
-  "pre",
-  "code",
-  "dl",
-  "dt",
-  "dd",
-  "sub",
-  "sup",
-  "small",
-  "abbr",
-  "address",
-  "article",
-  "aside",
-  "figure",
-  "figcaption",
-  "header",
-  "footer",
-  "main",
-  "nav",
-  "section",
-  "details",
-  "summary",
-  "mark",
-  "time",
-]);
-
-/** Dangerous style values (CSS expressions). */
-const STYLE_EXPR_RE = /expression\s*\(|url\s*\(\s*["']?\s*javascript\s*:/i;
-
 /**
- * Recursively walk the DOM produced by a temporary wrapper and return only
- * the safe inner HTML.
+ * Sanitize HTML using DOMPurify.
  *
- * Because we are in a non-browser environment we use a regex-based state
- * machine rather than a real DOM parser.
+ * Allows safe structural/formatting tags while stripping dangerous elements
+ * (script, iframe, object, embed, form, etc.), event handlers, and
+ * javascript:/vbscript:/data: URLs.
  */
 export function sanitizeHtml(html: string): string {
   if (!html) return "";
 
-  // 1. Strip dangerous tags and their contents (including nested).
-  let result = stripDangerousTags(html);
-
-  // 2. Remove event-handler attributes.
-  result = stripEventHandlers(result);
-
-  // 3. Remove `javascript:` and `vbscript:` URLs.
-  result = stripJsUrls(result);
-
-  // 4. Strip dangerous style attributes.
-  result = stripDangerousStyles(result);
-
-  // 5. Remove tags that are not in the safe list (but keep their text content).
-  result = stripUnsafeTags(result);
-
-  // 6. Validate remaining URLs have safe schemes.
-  result = validateUrlSchemes(result);
-
-  return result;
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Internal sanitisation passes                                               */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Remove dangerous tags and all content between their opening and closing
- * tags. Handles self-closing tags too.
- */
-function stripDangerousTags(html: string): string {
-  for (const tag of STRIP_TAGS) {
-    // Opening + optional self-closing + content + closing.
-    const re = new RegExp(
-      `<${tag}(?:\\s[^>]*)?\\s*/?>[\\s\\S]*?</${tag}\\s*>|<${tag}(?:\\s[^>]*)?\\s*/?>`,
-      "gi",
-    );
-    html = html.replace(re, "");
-  }
-  return html;
-}
-
-/** Remove any attribute that looks like an event handler (`onclick`, …). */
-function stripEventHandlers(html: string): string {
-  return html.replace(/\s+on[a-z][a-z0-9_]*\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
-}
-
-/** Remove `href`, `src`, `action`, and `formaction` that use `javascript:`, `vbscript:`, or dangerous `data:` (except safe images). */
-function stripJsUrls(html: string): string {
-  // Handle quoted values: href="javascript:..." or href="data:text/html..."
-  let result = html.replace(
-    /\b(href|src|action|formaction|data|poster|background)\s*=\s*(["'])\s*(?:java|vb)script\s*:[^"'\s>]*\2/gi,
-    "",
-  );
-  // Remove dangerous data: URLs (text/html, image/svg+xml, etc) but keep images for src
-  result = result.replace(
-    /\b(href|action|formaction|poster|background)\s*=\s*(["'])\s*data\s*:/gi,
-    "",
-  );
-  // Handle unquoted values: href=javascript:... or href= javascript:...
-  result = result.replace(
-    /\b(href|src|action|formaction|data|poster|background)\s*=\s*(?:java|vb)script\s*:[^\s>"']*/gi,
-    "",
-  );
-  result = result.replace(
-    /\b(href|action|formaction|poster|background)\s*=\s*data\s*:/gi,
-    "",
-  );
-  return result;
-}
-
-/** Remove `style` attributes that contain CSS expressions or `javascript:` URLs. */
-function stripDangerousStyles(html: string): string {
-  return html.replace(
-    /\s+style\s*=\s*(["'])[\s\S]*?\1/gi,
-    (match) => {
-      if (STYLE_EXPR_RE.test(match)) return "";
-      return match;
-    },
-  );
-}
-
-/**
- * Remove any tag not in `SAFE_TAGS`. The *text content* of the removed tag
- * is preserved.
- */
-function stripUnsafeTags(html: string): string {
-  // Match opening/closing/self-closing tags.
-  return html.replace(
-    /<\/?([a-zA-Z][a-zA-Z0-9]*(?:\s[^>]*)?)\s*\/?>/g,
-    (full, inner) => {
-      // Extract just the tag name (first word).
-      const tagName = inner.split(/[\s/>]/)[0].toLowerCase();
-
-      if (SAFE_TAGS.has(tagName)) {
-        return full; // keep as-is
-      }
-      // For safe-ish closing tags we keep them; for unknown ones we strip
-      // the whole tag but keep any text between the opening and closing.
-      if (full.startsWith("</")) return ""; // closing tag – just remove
-      // Opening or self-closing – remove the tag itself
-      return "";
-    },
-  );
-}
-
-/**
- * Validate that remaining href/src URLs use safe schemes.
- * Removes any attribute with a dangerous scheme like javascript:, vbscript:, or data:.
- */
-function validateUrlSchemes(html: string): string {
-  // First, remove data: URLs from src attributes (only allow images via img-src CSP)
-  html = html.replace(
-    /\bsrc\s*=\s*(["'])\s*data\s*:[^"']*\1/gi,
-    "",
-  );
-  // Also remove unquoted data: URLs
-  html = html.replace(
-    /\bsrc\s*=\s*data\s*:[^\s>"']*/gi,
-    "",
-  );
-  
-  return html.replace(
-    /\b(href|src|action|formaction|data|poster|background)\s*=\s*(["'])([^"']*)\2/gi,
-    (full, attr, quote, value) => {
-      const trimmed = value.trim().toLowerCase();
-      // Allow empty values
-      if (!trimmed) return full;
-      // Allow relative URLs, fragments, and safe schemes
-      if (trimmed.startsWith("/") || trimmed.startsWith("#") || trimmed.startsWith("mailto:") || trimmed.startsWith("tel:") || trimmed.startsWith("https:") || trimmed.startsWith("http:") || trimmed.startsWith("blob:")) {
-        return full;
-      }
-      // Remove dangerous schemes (javascript:, vbscript:, data:)
-      return "";
-    },
-  );
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      // Block-level
+      "p", "div", "span", "h1", "h2", "h3", "h4", "h5", "h6",
+      "ul", "ol", "li", "blockquote", "pre", "code",
+      "dl", "dt", "dd", "table", "thead", "tbody", "tr", "td", "th",
+      "caption", "colgroup", "col",
+      // Inline
+      "a", "img", "strong", "em", "b", "i", "u", "br", "hr",
+      "sub", "sup", "small", "abbr", "mark", "time",
+      // Sectioning
+      "article", "aside", "figure", "figcaption", "header", "footer",
+      "main", "nav", "section", "details", "summary", "address",
+    ],
+    ALLOWED_ATTR: [
+      "href", "src", "alt", "title", "class", "id", "style",
+      "width", "height", "colspan", "rowspan", "scope", "abbr",
+      "datetime", "open",
+    ],
+    // DOMPurify blocks javascript:/vbscript:/data: by default
+    // Event handlers (onclick, onerror, etc.) are stripped by default
+  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -283,7 +102,7 @@ function deepEscape(value: unknown, seen: WeakSet<object>): unknown {
       return "[Circular]";
     }
     seen.add(value as object);
-    
+
     const result: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
       result[key] = deepEscape(val, seen);

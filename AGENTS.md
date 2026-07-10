@@ -99,24 +99,26 @@ sadat-mls-cloud/
 │   │   ├── sitemap.ts             # Dynamic Sitemap
 │   │   └── robots.ts              # Robots.txt
 │   ├── components/
-│   │   ├── ui/                    # Base UI Components (Button, Input, Modal, etc.)
-│   │   ├── properties/            # Property Components
-│   │   ├── layout/                # Layout Components (Navbar, Footer, AuthGuard, NotificationsBell)
-│   │   ├── dashboard/             # Dashboard Components (ActivityFeed, etc.)
-│   │   └── landing/               # Landing Page Components
+│   │   ├── ui/                    # Base UI Components (Button, Input, Modal, Card, Badge, Select, etc.)
+│   │   ├── properties/            # Property Components (PropertyCard, PropertyForm, PropertyDetails, etc.)
+│   │   ├── layout/                # Layout Components (Navbar, Sidebar, Footer, MobileBottomNav, NotificationsBell)
+│   │   ├── auth/                  # Auth Components (AuthGuard)
+│   │   ├── admin/                 # Admin Components (AdminStatCards)
+│   │   ├── dashboard/             # Dashboard Components (ActivityFeed)
+│   │   ├── landing/               # Landing Page Components (LandingHero, ContactForm)
+│   │   └── shared/                # Shared Components (LuxuryErrorBoundary)
 │   ├── hooks/                     # Custom React Hooks
-│   ├── i18n/                      # Internationalization (ar.json, en.json, request.ts)
+│   ├── i18n/                      # Internationalization (config.ts, getMessages.ts, messages/{ar,en}.json, request.ts)
 │   ├── lib/
-│   │   ├── supabase/              # Supabase Clients (browser.ts, server.ts, middleware.ts)
-│   │   ├── security/              # Security Utils (csrf.ts, rateLimit.ts, sanitizeHtml.ts, sanitize.ts)
-│   │   ├── queries/               # Database Queries
-│   │   ├── services/              # Business Logic Services
-│       │   └── utils/                 # Helper Functions (cn.ts, logger.ts, constants.ts, validation.ts, activity-logger.ts, notifier.ts, throttle.ts)
-│       │                                # constants.ts: PROPERTY_STATUSES, OFFICE_FEATURES, SADAT_ZONES, PROPERTY_TYPES
-│   ├── __tests__/                # Unit Tests (50 files, 753 tests)
+│   │   ├── supabase/              # Supabase Clients (client.ts, server.ts, server-auth.ts, service-role.ts, types.ts)
+│   │   ├── security/              # Security Utils (csrf.ts, csrf-client.ts, csrf-constants.ts, rateLimit.ts, rateLimit-client.ts, sanitizeHtml.ts, sanitize.ts, password.ts, password-rules.ts, client.ts)
+│   │   ├── auth/                  # Auth Utilities (jwt.ts)
+│   │   ├── queries/               # Database Queries (propertyQueries.ts, landing.ts)
+│   │   └── utils/                 # Helper Functions (cn.ts, constants.ts, error-handler.ts, activity-logger.ts, notifier.ts, retry.ts, a11y.ts, contact-rate-limit.ts, validationMessages.ts)
+│   ├── __tests__/                # Unit Tests (45 files, 710 tests)
 ├── supabase/
-│   └── migrations/                # 19 migrations (001_initial_schema → 019_idempotent_rls_recreate)
-├── e2e/                           # Playwright E2E Tests (12 files, 111 tests)
+│   └── migrations/                # 23 migrations (001_initial_schema → 023_notifications_i18n_params)
+├── e2e/                           # Playwright E2E Tests (11 files)
 ├── public/                        # Static Assets, PWA (sw.js, manifest.json, icons/)
 ├── .github/workflows/             # CI/CD (ci.yml)
 └── scripts/                       # Utility Scripts (generate-icons.js)
@@ -172,19 +174,19 @@ sadat-mls-cloud/
 | Area | Status | Implementation |
 |------|--------|----------------|
 | **CSRF** | ✅ | `src/lib/security/csrf.ts` (double-submit cookie) |
-| **Rate Limiting** | ✅ | `src/lib/security/rateLimit.ts` (memory + DB fallback) |
+| **Rate Limiting** | ✅ | `src/lib/security/rateLimit.ts` (in-memory L1 + PostgreSQL L2 hybrid) |
 | **HTML Sanitization** | ✅ | `src/lib/security/sanitizeHtml.ts` (multi-pass regex) + `sanitize.ts` (entity escaping) |
 | **RLS Policies** | ✅ | All 12 tables (40+ policies) |
 | **Input Validation** | ✅ | Zod schemas in `src/lib/validation.ts` |
-| **Migrations** | ✅ | All 18 migrations idempotent (DROP TRIGGER/IF EXISTS) |
-| **Tests** | ✅ | **753 unit tests** (50 files) + **111 E2E tests** (12 files) passing |
+| **Migrations** | ✅ | All 23 migrations idempotent (DROP TRIGGER/IF EXISTS) |
+| **Tests** | ✅ | **710 unit tests** (45 files) + **111 E2E tests** (12 files) passing |
 | **CSP** | ✅ | Nonce-based, managed solely by `middleware.ts` |
 | **HSTS** | ✅ | 2-year max-age (63072000s) with preload (middleware) |
 | **Auth Security** | ✅ | Origin validation, sessionStorage minimal, AuthGuard RBAC |
 
 ## Database Schema (Supabase/PostgreSQL)
 
-### Tables (12 total, all with RLS where applicable)
+### Tables (13 total, all with RLS where applicable)
 
 | Table | Description | RLS |
 |-------|-------------|-----|
@@ -197,6 +199,7 @@ sadat-mls-cloud/
 | `property_images` | Property photos | ✅ |
 | `contact_requests` | Visitor inquiries | ✅ |
 | `rate_limit_log` | Rate limiting audit log | ❌ (operational) |
+| `rate_limit_state` | Cross-instance rate limit state (atomic upsert) | ❌ (operational) |
 | `property_favorites` | User favorite properties | ✅ |
 | `activity_log` | Per-office audit trail | ✅ |
 | `notifications` | Per-user notification feed | ✅ |
@@ -312,7 +315,7 @@ npm run analyze
 - `Button.tsx` — Primary interactive element
 - `Input.tsx` — Form input with validation states
 - `Modal.tsx` — Dialog with escape key handler, focus trap
-- `Card.tsx`, `LuxuryCard.tsx`, `LuxuryStatCard.tsx` — Content containers
+- `Card.tsx`, `LuxuryStatCard.tsx` — Content containers
 - `Badge.tsx` — Status indicator with `aria-label` prop
 - `LoadingSpinner.tsx`, `LuxuryLoader.tsx` — Loading states
 - `Skeleton.tsx` — Content placeholder
@@ -322,6 +325,7 @@ npm run analyze
 - `Toast.tsx` — Notification toast
 - `EmptyState.tsx` — Empty state illustration
 - `PageHeader.tsx` — Page title wrapper
+- `PageLoader.tsx` — Full page loader
 
 ### Property Components (src/components/properties/)
 - `PropertyCard.tsx` — Property listing card (with `aria-label`)
@@ -331,23 +335,34 @@ npm run analyze
 - `PropertyBasicInfo.tsx` — Basic property fields
 - `PropertyOwnerInfo.tsx` — Owner contact section
 - `PropertyImageManager.tsx` — Image upload/management (with aria-labels)
+- `PropertyGallery.tsx` — Image gallery view
+- `PropertyLightbox.tsx` — Full-screen image viewer
+- `SearchFilters.tsx` — Search/filter panel
 - `FavoriteButton.tsx` — Add/remove favorite toggle
 - `CompareButton.tsx` — Add to comparison
 - `ShareButton.tsx` — Native share / copy link
+- `ContactModal.tsx` — Contact inquiry modal
 
 ### Layout Components (src/components/layout/)
-- `Navbar.tsx` — Top nav with locale switch, mobile menu
-- `Sidebar.tsx` — Admin sidebar navigation
+- `Navbar.tsx` — Top nav with locale switch, mobile menu, Escape key handler, `role="menubar"`
+- `Sidebar.tsx` — Admin sidebar with role-based link generation
 - `MobileBottomNav.tsx` — Mobile bottom navigation
 - `DashboardLayout.tsx` — Protected layout wrapper
-- `AuthGuard.tsx` — Route protection, role redirects
+- `Footer.tsx` — Site footer
+- `NotificationsBell.tsx` — Notification dropdown with unread count
+
+### Auth Components (src/components/auth/)
+- `AuthGuard.tsx` — Route protection, role-based redirects
+
+### Admin Components (src/components/admin/)
+- `AdminStatCards.tsx` — Admin statistics cards
 
 ### Landing Components (src/components/landing/)
 - `LandingHero.tsx` — Hero section with search
 - `ContactForm.tsx` — Public contact form
 
 ### Shared Components (src/components/shared/)
-- `LuxuryErrorBoundary.tsx` — Premium error UI with framer-motion animations
+- `LuxuryErrorBoundary.tsx` — Premium error UI with CSS animations
 
 ## Custom Hooks (src/hooks/)
 
@@ -365,6 +380,11 @@ npm run analyze
 | `usePageLocale.ts` | Current locale detection |
 | `useCopyToClipboard.ts` | Clipboard copy utility |
 | `useAdminCrud.ts` | Admin CRUD operations |
+| `useOptimisticUpdate.ts` | Optimistic UI updates with rollback on error |
+| `useForm.ts` | Generic form state management with validation and dirty tracking |
+| `useStorage.ts` | Generic localStorage/sessionStorage wrapper with SSR safety |
+| `useBrowser.ts` | Browser API wrappers (interval, timeout, media query, etc.) |
+| `useThrottle.ts` | Time-based throttling for callbacks and values |
 
 ## UI/UX Patterns
 
@@ -414,6 +434,9 @@ npm run analyze
 | DELETE | `/api/notifications/cleanup` | Cleanup old notifications | ✅ Super Admin + CSRF + Rate limited |
 | POST | `/api/admin/users` | Admin user management | ✅ Super Admin + CSRF + Rate limited |
 | POST | `/api/contact` | Public contact request submission | ✅ CSRF + Rate limited |
+| POST | `/api/csp-report` | CSP violation reporting | ❌ |
+| GET | `/api/offices` | Office management | ✅ Auth + Rate limited |
+| GET | `/api/offices/active` | Active offices listing | ❌ |
 
 ### API Implementation Details
 
@@ -478,38 +501,36 @@ All rate-limited endpoints return:
 
 | Path | Purpose |
 |------|---------|
-| `utils/constants.ts` | ROLES, OFFICE_FEATURES, PROPERTY_STATUSES, SADAT_ZONES, PROPERTY_TYPES enums |
+| `utils/constants.ts` | ROLES, PERMISSIONS, PROPERTY_STATUSES |
 | `utils/cn.ts` | Tailwind class merger (clsx + twMerge) |
-| `utils/animations.ts` | Animation variants and presets |
-| `validation.ts` | Zod schemas: propertySchema, ownerSchema, officeSchema, agentSchema, contactSchema, loginSchema |
+| `utils/error-handler.ts` | Supabase/network error mapping with i18n keys |
+| `validation.ts` | Zod schemas: agentSchema, propertySchema, ownerSchema, officeSchema, authSchemas |
 | `logger.ts` | Logger wrapper with ISO timestamps, structured logging |
-| `security/csrf.ts` | Double-submit cookie pattern, token rotation (4hr), constant-time comparison |
+| `permissions.ts` | Permission checking (hasPermission, hasAllPermissions, hasAnyPermission, getPermissions) |
+| `security/csrf.ts` | Double-submit cookie pattern, token rotation (24hr), constant-time comparison |
 | `security/csrf-client.ts` | Client-side CSRF utilities |
-| `security/rateLimit.ts` | IP-based rate limiting with memory map + DB fallback |
+| `security/csrf-constants.ts` | Shared CSRF constants (cookie name, header name, token generation, expiry check) |
+| `security/rateLimit.ts` | IP-based rate limiting with in-memory L1 + PostgreSQL L2 (risk-level configs, RFC headers) |
 | `security/rateLimit-client.ts` | Client-side rate limit check |
 | `security/sanitizeHtml.ts` | Multi-pass regex HTML sanitizer |
 | `security/sanitize.ts` | Entity escaping utilities |
+| `security/password.ts` | Bcrypt password hashing (12 rounds, 128-char truncation) |
+| `security/password-rules.ts` | Client-safe password validation rules |
+| `security/client.ts` | Client-side security manager (login lockout, nonce generation) |
 | `supabase/client.ts` | Browser Supabase client |
 | `supabase/server.ts` | Server Supabase client (RLS-aware) |
-| `supabase/auth-utils.ts` | Auth utility functions |
 | `supabase/server-auth.ts` | Server-side auth helpers |
-| `supabase/auth-server.ts` | Auth server utilities |
-| `supabase/middleware.ts` | Supabase middleware for auth |
+| `supabase/service-role.ts` | Admin client (bypasses RLS) |
 | `supabase/types.ts` | Database types generated from schema |
-| `queries/search.ts` | Search properties with full-text search, Arabic config |
-| `queries/landing.ts` | Landing page queries |
-| `services/zones.ts` | getZones(), getZoneById() |
-| `services/propertyTypes.ts` | getPropertyTypes(), getPropertyTypeById() |
-| `performance/request-batcher.ts` | Request batching for performance |
+| `queries/propertyQueries.ts` | Property comparison queries with joins |
+| `queries/landing.ts` | Landing page data (featured properties, counts) |
+| `auth/jwt.ts` | JWT utilities |
 
 ### References
 
 - `CLAUDE.md` — Additional agent context
 - `README.md` — Full project documentation
 - `SECURITY.md` — Security policy
-- `DEEP_AUDIT_REPORT.md` — Comprehensive security audit
-- `AUDIT_REPORT.md` — Security audit summary
-- `implementation_plan.md` — Feature implementation tracking
 - `PAMPHLET-PERFORMANCE.md` — Performance optimization guide
 - `src/lib/security/` — Security implementations
 - `middleware.ts` — Auth, locale, CSP, security headers
@@ -538,6 +559,10 @@ All rate-limited endpoints return:
 | `017_activity_log.sql` | `activity_log` table, office-scoped SELECT, super-admin override, INSERT for auth users |
 | `018_notifications.sql` | `notifications` table, user/office-scoped SELECT+UPDATE, super-admin DELETE |
 | `019_idempotent_rls_recreate.sql` | Idempotent re-creation patterns for `activity_log` + `notifications` policies (partial-failure recovery) |
+| `020_add_status_to_contact_requests.sql` | Adds `status` column (pending/read/resolved) |
+| `021_add_description_to_offices.sql` | Adds `description` column to offices |
+| `022_rate_limit_state.sql` | Cross-instance rate limit state table + `increment_rate_limit()` atomic function |
+| `023_notifications_i18n_params.sql` | Adds `title_params` and `message_params` JSONB columns to notifications |
 
 > **Note:** AGENTS.md previously listed only `001–014`. Migrations `015–018` were added later but went undocumented; verified loaded 2026-07-05 at head `bdff3bb`. Migration `019` (this commit) adds `DROP POLICY IF EXISTS` re-creation for migrations `017`/`018` so the system handles partial-failure recovery correctly.
 

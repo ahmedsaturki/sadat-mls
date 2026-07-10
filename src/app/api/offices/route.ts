@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
@@ -7,17 +6,11 @@ import { logger } from "@/lib/logger";
 import { officeSchema } from "@/lib/validation";
 import { ROLES } from "@/lib/utils/constants";
 import { logActivity } from "@/lib/utils/activity-logger";
-
-function getAdminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 async function verifyAdmin(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
-  const supabase = getAdminClient();
+  const supabase = createServiceRoleClient();
 
   let user = null;
 
@@ -63,11 +56,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = getAdminClient();
+  const supabase = createServiceRoleClient();
   const { searchParams } = new URL(request.url);
 
   const querySchema = z.object({
-    search: z.string().max(100).default(""),
+    search: z.string().max(100).regex(/^[a-zA-Z0-9\s@._-]*$/, "Invalid search characters").default(""),
     active: z.enum(["true", "false", ""]).default(""),
   });
 
@@ -149,7 +142,7 @@ export async function POST(request: NextRequest) {
 
   const { name, slug, email, phone, address, description, logoUrl } = result.data;
 
-  const supabase = getAdminClient();
+  const supabase = createServiceRoleClient();
 
   const { data: office, error } = await supabase
     .from("offices")
@@ -241,7 +234,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Cannot update other offices" }, { status: 403 });
   }
 
-  const supabase = getAdminClient();
+  const supabase = createServiceRoleClient();
 
   // Build update object, only including defined fields
   const updateData: Record<string, unknown> = {};
