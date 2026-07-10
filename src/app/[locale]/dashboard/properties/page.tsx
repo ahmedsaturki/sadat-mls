@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Edit, Trash2, Home } from "lucide-react";
+import { Plus, Edit, Trash2, Home, CheckSquare, Square, Trash } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { useToast } from "@/components/ui/Toast";
 import { usePageLocale } from "@/hooks/usePageLocale";
@@ -51,6 +51,12 @@ export default function PropertiesPage({
   const [deleting, setDeleting] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+
+  // Bulk operations state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<"status" | "delete" | null>(null);
+  const [bulkStatus, setBulkStatus] = useState<string>("");
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [stats, setStats] = useState({ available: 0, sold: 0, rented: 0 });
   const router = useRouter();
   const { showToast } = useToast();
@@ -133,6 +139,72 @@ export default function PropertiesPage({
 
   const dict = getMessages(locale);
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  // Bulk selection handlers
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === properties.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(properties.map((p) => p.id)));
+    }
+  };
+
+  const handleBulkStatusChange = async () => {
+    if (!bulkStatus || selectedIds.size === 0) return;
+    setBulkLoading(true);
+    try {
+      const { error } = await supabase
+        .from("properties")
+        .update({ status: bulkStatus, updated_at: new Date().toISOString() })
+        .in("id", Array.from(selectedIds));
+
+      if (!error) {
+        showToast(dict.common.success || "Status updated", "success");
+        setSelectedIds(new Set());
+        setBulkAction(null);
+        loadProperties();
+      } else {
+        showToast(dict.common.unexpectedError, "error");
+      }
+    } catch {
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkLoading(true);
+    try {
+      const { error } = await supabase
+        .from("properties")
+        .delete()
+        .in("id", Array.from(selectedIds));
+
+      if (!error) {
+        showToast(dict.common.delete || "Deleted", "success");
+        setSelectedIds(new Set());
+        setBulkAction(null);
+        loadProperties();
+      } else {
+        showToast(dict.common.unexpectedError, "error");
+      }
+    } catch {
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
 
   const handleDeleteClick = (id: string) => {
     setDeleteId(id);
@@ -272,10 +344,68 @@ export default function PropertiesPage({
           ))}
         </div>
 
+        {/* Bulk Actions Bar */}
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 p-3 bg-navy-50 rounded-xl border border-navy-200">
+            <span className="text-sm font-medium text-navy-700">
+              {selectedIds.size} selected
+            </span>
+            <div className="flex gap-2">
+              <select
+                value={bulkStatus}
+                onChange={(e) => setBulkStatus(e.target.value)}
+                className="text-sm px-3 py-1.5 border border-gray-300 rounded-lg"
+              >
+                <option value="">{dict.office.propertyStatus || "Change Status"}</option>
+                <option value="available">{dict.property.status.available}</option>
+                <option value="sold">{dict.property.status.sold}</option>
+                <option value="rented">{dict.property.status.rented}</option>
+                <option value="reserved">{dict.property.status.reserved}</option>
+              </select>
+              <Button
+                size="sm"
+                onClick={handleBulkStatusChange}
+                disabled={!bulkStatus || bulkLoading}
+                isLoading={bulkLoading}
+              >
+                Apply
+              </Button>
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={() => setBulkAction("delete")}
+              >
+                <Trash className="w-4 h-4 ms-1" />
+                {dict.common.delete}
+              </Button>
+            </div>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="text-sm text-gray-500 hover:text-gray-700 ms-auto"
+            >
+              {dict.common.cancel}
+            </button>
+          </div>
+        )}
+
         {properties.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {properties.map((property) => (
               <div key={property.id} className="relative group">
+                {/* Selection checkbox */}
+                {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleSelect(property.id); }}
+                    className="absolute top-2 end-2 z-10 p-1 rounded bg-white/80 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
+                    aria-label={selectedIds.has(property.id) ? "Deselect" : "Select"}
+                  >
+                    {selectedIds.has(property.id) ? (
+                      <CheckSquare className="w-4 h-4 text-navy-600" />
+                    ) : (
+                      <Square className="w-4 h-4 text-gray-400" />
+                    )}
+                  </button>
+                )}
                 <PropertyCard
                   id={property.id}
                   title={property.title}
@@ -391,6 +521,28 @@ export default function PropertiesPage({
             </button>
           </div>
         )}
+
+        {/* Bulk Delete Confirmation Modal */}
+        <Modal
+          isOpen={bulkAction === "delete"}
+          onClose={() => setBulkAction(null)}
+          title={dict.common.confirm}
+          size="sm"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              {dict.office.confirmDeleteProperty} ({selectedIds.size} properties)
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button variant="ghost" onClick={() => setBulkAction(null)}>
+                {dict.common.cancel}
+              </Button>
+              <Button variant="danger" onClick={handleBulkDelete} isLoading={bulkLoading}>
+                {dict.common.delete}
+              </Button>
+            </div>
+          </div>
+        </Modal>
 
         {/* Delete Confirmation Modal */}
         <Modal
