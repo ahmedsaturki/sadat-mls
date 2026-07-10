@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Edit, Trash2, Home, CheckSquare, Square, Trash } from "lucide-react";
+import { Plus, Edit, Trash2, Home, CheckSquare, Square, Trash, Download } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { useToast } from "@/components/ui/Toast";
 import { usePageLocale } from "@/hooks/usePageLocale";
@@ -299,12 +299,23 @@ export default function PropertiesPage({
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">{dict.office.myProperties}</h1>
           {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
-            <Link href={`/${locale}/dashboard/properties/new`}>
-              <Button>
-                <Plus className="w-4 h-4 ms-2" />
-                {dict.office.addProperty}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (profile?.officeId) window.open(`/api/export?type=properties&officeId=${profile.officeId}`, "_blank");
+                }}
+              >
+                <Download className="w-4 h-4 ms-2" />
+                CSV
               </Button>
-            </Link>
+              <Link href={`/${locale}/dashboard/properties/new`}>
+                <Button>
+                  <Plus className="w-4 h-4 ms-2" />
+                  {dict.office.addProperty}
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
 
