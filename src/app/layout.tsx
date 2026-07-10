@@ -6,6 +6,7 @@ import { getMessages } from "@/i18n/getMessages";
 import { type Locale } from "@/i18n/config";
 import Providers from "@/components/Providers";
 import HtmlAttributes from "@/components/HtmlAttributes";
+import InstallBanner from "@/components/shared/InstallBanner";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -193,6 +194,7 @@ export default async function RootLayout({
           <main id="main-content" tabIndex={-1} className="focus:outline-none">
             {children}
           </main>
+          <InstallBanner dict={dict} />
         </Providers>
       </body>
     </html>
