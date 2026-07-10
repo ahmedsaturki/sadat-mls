@@ -14,7 +14,7 @@ import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import PageHeader from "@/components/ui/PageHeader";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { SkeletonDashboard } from "@/components/ui/Skeleton";
-import { User, Building2, Camera, Lock } from "lucide-react";
+import { User, Building2, Camera, Lock, Bell } from "lucide-react";
 import { logger } from "@/lib/logger";
 import { useAuthUser } from "@/hooks/useAuthUser";
 
@@ -62,6 +62,13 @@ export default function SettingsPage({
   const [changingPassword, setChangingPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<{ [key: string]: string }>({});
 
+  // Notification preferences state
+  const [notifPrefs, setNotifPrefs] = useState<{ contact_request: boolean; agent_joined: boolean }>({
+    contact_request: true,
+    agent_joined: true,
+  });
+  const [savingPrefs, setSavingPrefs] = useState(false);
+
   const { showToast } = useToast();
   const { supabase, user, profile } = useAuthUser();
   const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
@@ -98,6 +105,14 @@ export default function SettingsPage({
 
         if (fullProfile?.avatar_url) {
           setAvatarUrl(fullProfile.avatar_url);
+        }
+
+        // Load notification preferences
+        if (fullProfile?.notification_preferences && typeof fullProfile.notification_preferences === "object") {
+          setNotifPrefs({
+            contact_request: (fullProfile.notification_preferences as Record<string, boolean>).contact_request !== false,
+            agent_joined: (fullProfile.notification_preferences as Record<string, boolean>).agent_joined !== false,
+          });
         }
 
         if (profile.officeId) {
@@ -375,6 +390,30 @@ export default function SettingsPage({
 
   const displayAvatar = avatarPreview || avatarUrl;
 
+  const handleNotifPrefToggle = async (key: keyof typeof notifPrefs) => {
+    const newPrefs = { ...notifPrefs, [key]: !notifPrefs[key] };
+    setNotifPrefs(newPrefs);
+    setSavingPrefs(true);
+
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ notification_preferences: newPrefs })
+        .eq("id", userId);
+
+      if (error) {
+        showToast(dict.common.unexpectedError, "error");
+        setNotifPrefs(notifPrefs); // Revert
+      }
+    } catch (err) {
+      logger.error("Failed to save notification preferences", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+      setNotifPrefs(notifPrefs); // Revert
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
+
   return (
     <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <ErrorBoundary>
@@ -496,6 +535,68 @@ export default function SettingsPage({
                     </Button>
                   </div>
                 </form>
+              </Card>
+
+              {/* Notification Preferences */}
+              <Card>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <CardTitle>{dict.office.notificationPreferences}</CardTitle>
+                </div>
+                <p className="text-sm text-gray-500 mb-4">{dict.office.notificationPreferencesDesc}</p>
+                <div className="space-y-4">
+                  {/* Contact Request Notifications */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{dict.office.contactRequestNotifications}</p>
+                      <p className="text-xs text-gray-500">{dict.office.contactRequestNotificationsDesc}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("contact_request")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.contact_request ? "bg-navy-600" : "bg-gray-300"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.contact_request}
+                      aria-label={dict.office.contactRequestNotifications}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          notifPrefs.contact_request ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Agent Joined Notifications */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{dict.office.agentJoinedNotifications}</p>
+                      <p className="text-xs text-gray-500">{dict.office.agentJoinedNotificationsDesc}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("agent_joined")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.agent_joined ? "bg-navy-600" : "bg-gray-300"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.agent_joined}
+                      aria-label={dict.office.agentJoinedNotifications}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          notifPrefs.agent_joined ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
               </Card>
 
               {/* Office Settings (only for office_admin) */}
