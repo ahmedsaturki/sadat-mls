@@ -7,11 +7,15 @@ import { z } from "zod";
 const sendMessageSchema = z.object({
   contact_request_id: z.string().uuid().optional(),
   property_id: z.string().uuid().optional(),
+  recipient_office_id: z.string().uuid().optional(),
+  parent_id: z.string().uuid().optional(),
   visitor_name: z.string().max(200).optional(),
   visitor_email: z.string().email().max(255).optional(),
   visitor_phone: z.string().max(50).optional(),
   subject: z.string().max(200).optional(),
   body: z.string().min(1).max(2000),
+  attachment_url: z.string().url().optional(),
+  attachment_name: z.string().max(200).optional(),
 });
 
 // GET - List messages for current user's office
@@ -41,10 +45,10 @@ export async function GET(request: NextRequest) {
 
     const { data: messages, error } = await supabase
       .from("messages")
-      .select("id, contact_request_id, office_id, sender_id, sender_type, visitor_name, visitor_email, visitor_phone, property_id, subject, body, is_read, created_at")
-      .eq("office_id", profile.office_id)
+      .select("id, contact_request_id, office_id, sender_id, sender_type, visitor_name, visitor_email, visitor_phone, property_id, recipient_office_id, parent_id, subject, body, is_read, created_at, attachment_url, attachment_name")
+      .or(`office_id.eq.${profile.office_id},recipient_office_id.eq.${profile.office_id}`)
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(100);
 
     if (error) {
       logger.error("Failed to fetch messages", { error: error.message });
@@ -96,6 +100,8 @@ export async function POST(request: NextRequest) {
       office_id: profile.office_id,
       sender_id: user.id,
       sender_type: "agent",
+      recipient_office_id: parsed.data.recipient_office_id || null,
+      parent_id: parsed.data.parent_id || null,
       visitor_name: parsed.data.visitor_name,
       visitor_email: parsed.data.visitor_email,
       visitor_phone: parsed.data.visitor_phone,
@@ -103,6 +109,8 @@ export async function POST(request: NextRequest) {
       contact_request_id: parsed.data.contact_request_id,
       subject: parsed.data.subject,
       body: parsed.data.body,
+      attachment_url: parsed.data.attachment_url || null,
+      attachment_name: parsed.data.attachment_name || null,
       is_read: false,
     });
 

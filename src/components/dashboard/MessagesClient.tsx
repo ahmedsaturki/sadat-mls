@@ -22,10 +22,14 @@ interface Message {
   visitor_email: string | null;
   visitor_phone: string | null;
   property_id: string | null;
+  recipient_office_id: string | null;
+  parent_id: string | null;
   subject: string | null;
   body: string;
   is_read: boolean;
   created_at: string;
+  attachment_url: string | null;
+  attachment_name: string | null;
 }
 
 export default function MessagesClient({
@@ -96,6 +100,8 @@ export default function MessagesClient({
         body: JSON.stringify({
           subject: composeData.subject || selectedMessage?.subject || "Re",
           body: composeData.body,
+          parent_id: selectedMessage?.id || null,
+          recipient_office_id: selectedMessage?.office_id || null,
           visitor_name: composeData.visitorName || selectedMessage?.visitor_name,
           visitor_email: composeData.visitorEmail || selectedMessage?.visitor_email,
           visitor_phone: composeData.visitorPhone || selectedMessage?.visitor_phone,
@@ -268,9 +274,27 @@ export default function MessagesClient({
               {selectedMessage.visitor_phone && <span>· {selectedMessage.visitor_phone}</span>}
               <span className="ms-auto">{formatDate(selectedMessage.created_at)}</span>
             </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-900 whitespace-pre-line">{selectedMessage.body}</p>
+            {selectedMessage.parent_id && (
+              <div className="p-3 bg-blue-50 border-l-4 border-blue-400 rounded-lg text-sm text-blue-700">
+                {typedLocale === "ar" ? "رد على رسالة سابقة" : "Reply to previous message"}
+              </div>
+            )}
+            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <p className="text-gray-900 dark:text-gray-100 whitespace-pre-line">{selectedMessage.body}</p>
             </div>
+            {selectedMessage.attachment_url && (
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center gap-3">
+                <a
+                  href={selectedMessage.attachment_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-navy-600 dark:text-navy-400 hover:underline text-sm flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.414 6.586a4 4 0 005.656 5.656l6.414-6.586a2 2 0 102.828-2.828" /></svg>
+                  {selectedMessage.attachment_name || (typedLocale === "ar" ? "مرفق" : "Attachment")}
+                </a>
+              </div>
+            )}
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setSelectedMessage(null)}>
                 {dict.common.cancel}
