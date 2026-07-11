@@ -12,9 +12,9 @@ const PAGE_SIZE = 12;
 export default async function ExplorePage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const locale = params.locale;
+  const { locale } = await params;
 
   if (!isValidLocale(locale)) {
     notFound();
@@ -91,7 +91,7 @@ export default async function ExplorePage({
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <ExploreClient
-        params={params}
+        params={{ locale }}
         initialProperties={formattedProperties}
         initialCount={count || 0}
         initialZones={formattedZones}
