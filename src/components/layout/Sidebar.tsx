@@ -23,6 +23,7 @@ import {
   Bell,
   MessageSquare,
   Briefcase,
+  ClipboardCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Locale } from "@/i18n/config";
@@ -51,6 +52,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
         { href: `/${locale}/admin/property-types`, label: dict.nav.propertyTypes, icon: Tags },
         { href: `/${locale}/admin/developers`, label: dict.nav.developers, icon: Briefcase },
         { href: `/${locale}/admin/projects`, label: dict.nav.projects, icon: Building2 },
+        { href: `/${locale}/admin/office-registrations`, label: dict.admin.pendingRegistrations, icon: ClipboardCheck },
         { href: `/${locale}/admin/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
       ];
     }

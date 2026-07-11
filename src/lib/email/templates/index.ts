@@ -3,3 +3,5 @@ export { agentJoinedEmail } from "./agent-joined";
 export { welcomeEmail } from "./welcome";
 export { savedSearchAlertEmail } from "./saved-search-alert";
 export { propertyStatusChangeEmail } from "./property-status-change";
+export { officeRegisteredEmail } from "./office-registered";
+export { officeApprovedEmail } from "./office-approved";
