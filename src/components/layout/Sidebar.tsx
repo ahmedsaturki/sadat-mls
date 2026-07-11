@@ -21,6 +21,7 @@ import {
   Bookmark,
   GitCompare,
   Bell,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Locale } from "@/i18n/config";
@@ -57,6 +58,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
         { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
         { href: `/${locale}/dashboard/agents`, label: dict.nav.agents, icon: Users },
         { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
+        { href: `/${locale}/dashboard/messages`, label: dict.nav.messages, icon: MessageSquare },
         { href: `/${locale}/dashboard/notifications`, label: dict.nav.notifications, icon: Bell },
         { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
         { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard.savedSearches, icon: Bookmark },
