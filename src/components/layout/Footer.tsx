@@ -61,6 +61,14 @@ export default function Footer({ locale, dict }: FooterProps) {
               </li>
               <li>
                 <Link
+                  href={`/${locale}/contact`}
+                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 rounded"
+                >
+                  {dict.nav.contact}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href={`/${locale}/login`}
                   className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 rounded"
                 >
