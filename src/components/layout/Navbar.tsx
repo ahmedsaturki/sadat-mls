@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Building2, Globe, Home, LogOut, Menu, X, Search, Settings, LayoutDashboard, Mail, Heart, Info, MessageCircle } from "lucide-react";
 import NotificationsBell from "@/components/layout/NotificationsBell";
+import CitySelector from "@/components/layout/CitySelector";
 import { useState, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils/cn";
 import { useEscapeKey } from "@/lib/utils/a11y";
@@ -111,6 +112,9 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
               <Globe className="w-4 h-4" aria-hidden="true" />
               {dict.nav.switchLanguage}
             </Link>
+
+            {/* City Selector */}
+            <CitySelector locale={locale} dict={dict} />
 
             {/* Notifications Bell (only for logged-in users) */}
             {isLoggedIn && (

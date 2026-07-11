@@ -127,6 +127,7 @@
     "developers": "Developers",
     "projects": "Projects",
     "registerOffice": "Register Your Office",
+    "selectCity": "Select City",
     "explore": "Explore Properties",
     "myOffice": "My Office",
     "myProperties": "My Properties",
@@ -762,6 +763,12 @@
       "privateEntrance": "Private Entrance",
       "roof": "Roof"
     }
+  },
+  "cities": {
+    "title": "Select Your City",
+    "description": "Choose a city to explore properties",
+    "noCities": "No cities available",
+    "propertiesInCity": "properties"
   },
   "contact": {
     "title": "Contact Office",

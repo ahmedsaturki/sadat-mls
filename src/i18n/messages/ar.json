@@ -127,6 +127,7 @@
     "developers": "المطورين",
     "projects": "المشاريع",
     "registerOffice": "سجّل مكتبك",
+    "selectCity": "اختر المدينة",
     "explore": "استكشاف العقارات",
     "myOffice": "مكتبي",
     "myProperties": "عقاراتي",
@@ -761,6 +762,12 @@
       "privateEntrance": "مدخل خاص",
       "roof": "روف"
     }
+  },
+  "cities": {
+    "title": "اختر مدينتك",
+    "description": "اختر مدينة لاستكشاف العقارات",
+    "noCities": "لا توجد مدن متاحة",
+    "propertiesInCity": "عقارات"
   },
   "contact": {
     "title": "تواصل مع المكتب",
