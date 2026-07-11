@@ -35,6 +35,7 @@ import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
 import { logger } from "@/lib/logger";
 
 const ContactModal = lazy(() => import("@/components/properties/ContactModal"));
+const OfferForm = lazy(() => import("@/components/properties/OfferForm"));
 
 interface PropertyData {
   id: string;
@@ -88,6 +89,7 @@ export default function PropertyDetailClient({
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showOfferModal, setShowOfferModal] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
 
   const handleContact = () => setShowContactModal(true);
@@ -314,6 +316,9 @@ export default function PropertyDetailClient({
                 <Share2 className="w-4 h-4 ms-2" />
                 {dict.property.share}
               </Button>
+              <Button className="w-full mt-2" variant="outline" onClick={() => setShowOfferModal(true)}>
+                {dict.dashboard.submitOffer}
+              </Button>
               <div className="mt-2 flex justify-center items-center gap-4">
                 <CompareButton
                   property={property as unknown as PropertyForComparison}
@@ -381,6 +386,17 @@ export default function PropertyDetailClient({
           officePhone={property.offices?.phone}
           officeEmail={property.offices?.email}
           dict={dict as unknown as { contact: Record<string, string>; common: Record<string, string> }}
+        />
+      </Suspense>
+
+      {/* Offer Modal */}
+      <Suspense fallback={null}>
+        <OfferForm
+          isOpen={showOfferModal}
+          onClose={() => setShowOfferModal(false)}
+          propertyId={property.id}
+          propertyTitle={property.title}
+          locale={typedLocale}
         />
       </Suspense>
     </main>
