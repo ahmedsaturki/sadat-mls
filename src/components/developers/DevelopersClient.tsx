@@ -38,7 +38,7 @@ export default function DevelopersClient({
         <Link
           key={dev.id}
           href={`/${locale}/developers/${dev.slug}`}
-          className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-navy-200 transition-all"
+          className="block bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:border-navy-200 dark:hover:border-navy-700 transition-all"
         >
           <div className="flex items-center gap-4 mb-4">
             {dev.logo_url ? (
