@@ -608,7 +608,16 @@
   "agents": {
     "agentNotFound": "المندوب غير موجود",
     "agentNotFoundDesc": "لم يتم العثور على هذا المندوب",
-    "realEstateAgent": "مندوب عقارات"
+    "realEstateAgent": "مندوب عقارات",
+    "memberSince": "عضو منذ",
+    "totalProperties": "إجمالي العقارات",
+    "availableProperties": "متاح",
+    "soldProperties": "تم البيع",
+    "rentedProperties": "تم الإيجار",
+    "callNow": "اتصل الآن",
+    "sendEmail": "إرسال بريد",
+    "whatsapp": "واتساب",
+    "noPropertiesYet": "لا توجد عقارات مدرجة بعد"
   },
   "explore": {
     "title": "استكشاف العقارات",

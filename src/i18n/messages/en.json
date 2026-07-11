@@ -609,7 +609,16 @@
   "agents": {
     "agentNotFound": "Agent Not Found",
     "agentNotFoundDesc": "This agent was not found",
-    "realEstateAgent": "Real Estate Agent"
+    "realEstateAgent": "Real Estate Agent",
+    "memberSince": "Member since",
+    "totalProperties": "Total Properties",
+    "availableProperties": "Available",
+    "soldProperties": "Sold",
+    "rentedProperties": "Rented",
+    "callNow": "Call Now",
+    "sendEmail": "Send Email",
+    "whatsapp": "WhatsApp",
+    "noPropertiesYet": "No properties listed yet"
   },
   "explore": {
     "title": "Explore Properties",
