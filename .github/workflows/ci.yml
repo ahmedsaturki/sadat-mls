@@ -22,6 +22,33 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run lint
 
+  gen-types:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm install --no-audit --no-fund
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+      - name: Generate TypeScript types from schema
+        run: npx supabase gen types typescript --schema-id public > src/lib/supabase/types.auto.ts
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      - name: Check for type drift
+        run: |
+          if ! diff -q src/lib/supabase/types.ts src/lib/supabase/types.auto.ts > /dev/null 2>&1; then
+            echo "::warning::types.ts may be out of sync with schema. Run 'npm run db:gen-types' locally."
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generated-types
+          path: src/lib/supabase/types.auto.ts
+          retention-days: 7
+
   typecheck:
     runs-on: ubuntu-latest
     needs: lint
