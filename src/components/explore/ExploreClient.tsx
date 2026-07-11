@@ -2,16 +2,18 @@
 
 import { useState, useEffect, useCallback, useRef, Suspense, lazy } from "react";
 import { useSearchParams } from "next/navigation";
-import { SlidersHorizontal, X, Home, ArrowUpDown } from "lucide-react";
+import { SlidersHorizontal, X, Home, ArrowUpDown, Bookmark } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { withRetry } from "@/lib/utils/retry";
 import { usePageLocale } from "@/hooks/usePageLocale";
+import { useAuthUser } from "@/hooks/useAuthUser";
 import PropertyCard from "@/components/properties/PropertyCard";
 import type { FilterState } from "@/components/properties/SearchFilters";
 import { EMPTY_FILTERS } from "@/components/properties/SearchFilters";
 import { SkeletonCard } from "@/components/ui/Skeleton";
+import { useToast } from "@/components/ui/Toast";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import type { PropertyStatus } from "@/lib/utils/constants";
 import Navbar from "@/components/layout/Navbar";
@@ -69,6 +71,8 @@ function ExploreClientInner({
   initialOffices = [],
 }: ExploreClientProps) {
   const locale = usePageLocale(params);
+  const { user } = useAuthUser();
+  const { showToast } = useToast();
   const [properties, setProperties] = useState<Property[]>(initialProperties);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -290,7 +294,25 @@ function ExploreClientInner({
   const hasActiveFilters = filters.zoneId || filters.typeId || filters.minPrice || filters.maxPrice ||
     filters.minArea || filters.maxArea || filters.bedrooms || filters.bathrooms ||
     filters.hasBalcony || filters.hasParking || filters.hasElevator ||
-    filters.developerId || filters.projectId || filters.officeId;
+    filters.developerId || filters.projectId || filters.officeId || filters.search;
+
+  const handleSaveSearch = useCallback(async () => {
+    const name = prompt(dict.dashboard.saveSearch || "Save this search");
+    if (!name) return;
+
+    try {
+      const res = await fetch("/api/saved-searches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, filters }),
+      });
+      if (res.ok) {
+        showToast(dict.dashboard.searchSaved || "Search saved", "success");
+      }
+    } catch {
+      // silent fail
+    }
+  }, [filters, dict, showToast]);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -388,9 +410,20 @@ function ExploreClientInner({
               <p className="text-sm text-gray-500" aria-live="polite">
                 {totalCount} {dict.explore.results}
               </p>
-              <Suspense fallback={null}>
-                <MapToggle viewMode={viewMode} onToggle={handleViewModeChange} dict={dict} />
-              </Suspense>
+              <div className="flex items-center gap-2">
+                {user && hasActiveFilters && (
+                  <button
+                    onClick={handleSaveSearch}
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-navy-600 bg-navy-50 rounded-lg hover:bg-navy-100 transition-colors"
+                  >
+                    <Bookmark className="w-4 h-4" />
+                    {dict.dashboard.saveSearch}
+                  </button>
+                )}
+                <Suspense fallback={null}>
+                  <MapToggle viewMode={viewMode} onToggle={handleViewModeChange} dict={dict} />
+                </Suspense>
+              </div>
             </div>
 
             {viewMode === "map" ? (

@@ -1,15 +1,26 @@
 "use client";
 
-import { useCallback } from "react";
-import { Bookmark, Trash2 } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Bookmark, Trash2, Search, Bell } from "lucide-react";
 import Link from "next/link";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { getMessages } from "@/i18n/getMessages";
-import { useSavedSearches } from "@/hooks/useSavedSearches";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { useToast } from "@/components/ui/Toast";
+import { logger } from "@/lib/logger";
+import { getCsrfHeaders } from "@/lib/security/csrf-client";
 import type { FilterState } from "@/components/properties/SearchFilters";
 import { type Locale } from "@/i18n/config";
+
+interface SavedSearch {
+  id: string;
+  name: string;
+  filters: FilterState;
+  last_checked_at: string | null;
+  last_notified_at: string | null;
+  created_at: string;
+}
 
 export default function SavedSearchesClient({
   params,
@@ -18,9 +29,73 @@ export default function SavedSearchesClient({
 }) {
   const typedLocale = params.locale as Locale;
   const dict = getMessages(typedLocale);
-  const { savedSearches, removeSavedSearch, count, clearAll } = useSavedSearches();
   const { profile } = useAuthUser();
   const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
+  const { showToast } = useToast();
+
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [checking, setChecking] = useState<string | null>(null);
+  const mountedRef = useRef(true);
+
+  const loadSearches = useCallback(async () => {
+    try {
+      const res = await fetch("/api/saved-searches");
+      if (res.ok) {
+        const data = await res.json();
+        if (mountedRef.current) setSavedSearches(data.savedSearches || []);
+      }
+    } catch (err) {
+      logger.error("Failed to load saved searches", { error: err instanceof Error ? err.message : String(err) });
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    loadSearches();
+    return () => { mountedRef.current = false; };
+  }, [loadSearches]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/saved-searches?id=${id}`, {
+        method: "DELETE",
+        headers: { ...getCsrfHeaders() },
+      });
+      if (res.ok) {
+        setSavedSearches((prev) => prev.filter((s) => s.id !== id));
+        showToast(dict.common.delete, "success");
+      }
+    } catch (err) {
+      logger.error("Failed to delete saved search", { error: err instanceof Error ? err.message : String(err) });
+    }
+  };
+
+  const handleCheck = async (searchId: string) => {
+    setChecking(searchId);
+    try {
+      const res = await fetch("/api/saved-searches/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.matches > 0) {
+          showToast(`${data.matches} ${typedLocale === "ar" ? "عقارات جديدة تطابق بحثك" : "new properties match your search"}`, "success");
+        } else {
+          showToast(typedLocale === "ar" ? "لا توجد عقارات جديدة" : "No new properties found", "info");
+        }
+        loadSearches(); // Refresh to update last_checked_at
+      }
+    } catch (err) {
+      logger.error("Failed to check saved searches", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setChecking(null);
+    }
+  };
 
   const formatDate = useCallback((dateStr: string) => {
     return new Date(dateStr).toLocaleDateString(typedLocale === "ar" ? "ar-EG" : "en-US", {
@@ -32,6 +107,7 @@ export default function SavedSearchesClient({
 
   const getActiveFiltersSummary = useCallback((filters: FilterState) => {
     const active: string[] = [];
+    if (filters.search) active.push(filters.search);
     if (filters.zoneId) active.push(dict.explore.zone);
     if (filters.typeId) active.push(dict.explore.type);
     if (filters.minPrice || filters.maxPrice) active.push(dict.property.price);
@@ -41,13 +117,16 @@ export default function SavedSearchesClient({
     if (filters.hasBalcony) active.push(dict.explore.balcony);
     if (filters.hasParking) active.push(dict.explore.parking);
     if (filters.hasElevator) active.push(dict.explore.elevator);
+    if (filters.developerId) active.push(dict.explore.developer);
+    if (filters.projectId) active.push(dict.explore.project);
+    if (filters.officeId) active.push(dict.explore.office);
     return active.length > 0 ? active.join(", ") : dict.explore.any;
   }, [dict]);
 
   const handleRunSearch = (filters: FilterState) => {
     const searchParams = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) searchParams.set(key, String(value));
+      if (value !== "" && value !== false) searchParams.set(key, String(value));
     });
     return `/${typedLocale}/explore?${searchParams.toString()}`;
   };
@@ -60,28 +139,47 @@ export default function SavedSearchesClient({
             <Bookmark className="w-6 h-6 text-navy-500" />
             {dict.dashboard.savedSearches}
           </h1>
-          {count > 0 && (
+          {savedSearches.length > 0 && (
             <button
-              onClick={clearAll}
-              className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 rounded"
+              onClick={() => handleCheck("")}
+              disabled={checking !== null}
+              className="flex items-center gap-2 px-4 py-2 bg-navy-600 text-white rounded-lg hover:bg-navy-700 transition-colors text-sm font-medium disabled:opacity-50"
             >
-              <Trash2 className="w-4 h-4" />
-              {dict.explore.clearAll}
+              <Bell className="w-4 h-4" />
+              {checking
+                ? (typedLocale === "ar" ? "جاري الفحص..." : "Checking...")
+                : (typedLocale === "ar" ? "فحص العروض الجديدة" : "Check for New Matches")}
             </button>
           )}
         </div>
 
-        {savedSearches.length === 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-xl p-6 shadow-sm animate-pulse">
+                <div className="h-5 bg-gray-200 rounded w-1/3 mb-3" />
+                <div className="h-4 bg-gray-200 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : savedSearches.length === 0 ? (
           <div className="text-center py-16" role="status">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Bookmark className="w-8 h-8 text-gray-500" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 mb-2">
-              {dict.dashboard.noSavedSearchesFull}
+              {dict.dashboard.noSavedSearchesFull || dict.dashboard.noSavedSearches}
             </h2>
-            <p className="text-sm text-gray-500">
-              {dict.dashboard.saveSearchHint}
+            <p className="text-sm text-gray-500 mb-4">
+              {dict.dashboard.savedSearchesHint || dict.dashboard.savedSearchHint}
             </p>
+            <Link
+              href={`/${typedLocale}/explore`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-navy-600 text-white rounded-lg hover:bg-navy-700 transition-colors text-sm font-medium"
+            >
+              <Search className="w-4 h-4" />
+              {dict.common.search}
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
@@ -97,9 +195,9 @@ export default function SavedSearchesClient({
                       {getActiveFiltersSummary(search.filters)}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {dict.dashboard.created} {formatDate(search.createdAt)}
-                      {search.lastNotified && (
-                        <span className="ms-2">· {dict.dashboard.lastChecked} {formatDate(search.lastNotified)}</span>
+                      {dict.common.createdAt}: {formatDate(search.created_at)}
+                      {search.last_notified_at && (
+                        <span className="ms-2">· {typedLocale === "ar" ? "آخر إشعار" : "Last notified"}: {formatDate(search.last_notified_at)}</span>
                       )}
                     </p>
                   </div>
@@ -108,11 +206,11 @@ export default function SavedSearchesClient({
                       href={handleRunSearch(search.filters)}
                       className="px-4 py-2 text-sm font-medium text-navy-600 bg-navy-50 rounded-lg hover:bg-navy-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
                     >
-                      {dict.dashboard.runSearch || dict.common.search}
+                      {dict.common.search}
                     </Link>
                     <button
-                      onClick={() => removeSavedSearch(search.id)}
-                      className="p-2 text-gray-500 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
+                      onClick={() => handleDelete(search.id)}
+                      className="p-2 text-gray-500 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
                       aria-label={dict.common.delete}
                     >
                       <Trash2 className="w-4 h-4" />
