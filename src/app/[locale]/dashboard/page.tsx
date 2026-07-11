@@ -42,9 +42,9 @@ interface ContactRecord {
 export default async function OfficeDashboard({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const resolvedParams = params;
+  const resolvedParams = await params;
   const locale = resolvedParams?.locale || "ar";
 
   if (!isValidLocale(locale)) {
