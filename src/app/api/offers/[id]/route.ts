@@ -111,6 +111,32 @@ export async function PATCH(
       if (propError) {
         logger.error("Failed to update property status", { error: propError.message });
       }
+
+      // Auto-create commission record
+      const saleAmount = Number(offer.offer_amount);
+      const commissionRate = 2.5; // Default 2.5%
+      const totalCommission = saleAmount * (commissionRate / 100);
+      const listingShare = totalCommission * 0.6; // 60% to listing office
+      const referringShare = totalCommission * 0.4; // 40% to referring office
+
+      const { error: commissionError } = await serviceRole
+        .from("property_commissions")
+        .insert({
+          property_id: offer.property_id,
+          offer_id: offer.id,
+          listing_office_id: offer.office_id,
+          referring_office_id: null, // Will be set if offerer has an office
+          sale_amount: saleAmount,
+          commission_rate: commissionRate,
+          total_commission: totalCommission,
+          listing_share: listingShare,
+          referring_share: referringShare,
+          status: "pending",
+        });
+
+      if (commissionError) {
+        logger.error("Failed to create commission record", { error: commissionError.message });
+      }
     }
 
     // Send email notification to offerer (fire-and-forget)
