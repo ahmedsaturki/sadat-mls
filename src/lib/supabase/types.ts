@@ -395,6 +395,117 @@ export interface Database {
           created_at?: string;
         };
       };
+      developers: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          email: string | null;
+          phone: string | null;
+          website: string | null;
+          logo_url: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          website?: string | null;
+          logo_url?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          description?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          website?: string | null;
+          logo_url?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      projects: {
+        Row: {
+          id: string;
+          developer_id: string;
+          title: string;
+          slug: string;
+          description: string | null;
+          zone_id: string | null;
+          status: "upcoming" | "under_construction" | "delivered";
+          min_price: number | null;
+          max_price: number | null;
+          min_area: number | null;
+          max_area: number | null;
+          delivery_date: string | null;
+          cover_image_url: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          developer_id: string;
+          title: string;
+          slug: string;
+          description?: string | null;
+          zone_id?: string | null;
+          status?: "upcoming" | "under_construction" | "delivered";
+          min_price?: number | null;
+          max_price?: number | null;
+          min_area?: number | null;
+          max_area?: number | null;
+          delivery_date?: string | null;
+          cover_image_url?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          developer_id?: string;
+          title?: string;
+          slug?: string;
+          description?: string | null;
+          zone_id?: string | null;
+          status?: "upcoming" | "under_construction" | "delivered";
+          min_price?: number | null;
+          max_price?: number | null;
+          min_area?: number | null;
+          max_area?: number | null;
+          delivery_date?: string | null;
+          cover_image_url?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      property_projects: {
+        Row: {
+          property_id: string;
+          project_id: string;
+        };
+        Insert: {
+          property_id: string;
+          project_id: string;
+        };
+        Update: {
+          property_id?: string;
+          project_id?: string;
+        };
+      };
     };
     Functions: {
       get_user_role: {

@@ -142,6 +142,47 @@ export const officeSchema = z.object({
   }).optional(),
 });
 
+export const developerSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters",
+  }).max(100, {
+    message: "Name cannot exceed 100 characters",
+  }),
+  slug: z.string().trim().refine(
+    (value) => value === "" || /^[a-z0-9-]+$/.test(value),
+    { message: "Slug can only contain lowercase letters, numbers, and hyphens" },
+  ).optional(),
+  description: z.string().optional(),
+  email: optionalEmailString("Please enter a valid email address"),
+  phone: z.string().optional(),
+  website: z.string().url({ message: "Invalid website URL" }).optional().or(z.literal("")),
+  logo_url: z.string().url({ message: "Invalid logo URL" }).optional().or(z.literal("")),
+});
+
+export const projectSchema = z.object({
+  title: z.string().min(2, {
+    message: "Title must be at least 2 characters",
+  }).max(200, {
+    message: "Title cannot exceed 200 characters",
+  }),
+  slug: z.string().trim().refine(
+    (value) => value === "" || /^[a-z0-9-]+$/.test(value),
+    { message: "Slug can only contain lowercase letters, numbers, and hyphens" },
+  ).optional(),
+  developer_id: z.string().uuid({ message: "Developer is required" }),
+  description: z.string().optional(),
+  zone_id: z.string().uuid().optional().or(z.literal("")),
+  status: z.enum(["upcoming", "under_construction", "delivered"], {
+    message: "Invalid status",
+  }),
+  min_price: z.string().optional(),
+  max_price: z.string().optional(),
+  min_area: z.string().optional(),
+  max_area: z.string().optional(),
+  delivery_date: z.string().optional(),
+  cover_image_url: z.string().url({ message: "Invalid image URL" }).optional().or(z.literal("")),
+});
+
 export const authSchemas = {
   login: z.object({
     email: z.string().email({

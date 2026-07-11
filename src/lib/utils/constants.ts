@@ -9,6 +9,9 @@ export type UserRole = (typeof ROLES)[keyof typeof ROLES];
 export const PROPERTY_STATUSES = ["available", "reserved", "sold", "rented", "pending_review"] as const;
 export type PropertyStatus = (typeof PROPERTY_STATUSES)[number];
 
+export const PROJECT_STATUSES = ["upcoming", "under_construction", "delivered"] as const;
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+
 // ── Fine-grained permissions ──────────────────────────────────────────
 export const PERMISSIONS = {
   // Office management
@@ -54,6 +57,18 @@ export const PERMISSIONS = {
   // Settings
   SETTINGS_VIEW: "settings:view",
   SETTINGS_OFFICE_UPDATE: "settings:office_update",
+
+  // Developer management
+  DEVELOPER_VIEW: "developer:view",
+  DEVELOPER_CREATE: "developer:create",
+  DEVELOPER_UPDATE: "developer:update",
+  DEVELOPER_DELETE: "developer:delete",
+
+  // Project management
+  PROJECT_VIEW: "project:view",
+  PROJECT_CREATE: "project:create",
+  PROJECT_UPDATE: "project:update",
+  PROJECT_DELETE: "project:delete",
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -80,6 +95,12 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
     PERMISSIONS.ANALYTICS_VIEW,
     // Settings
     PERMISSIONS.SETTINGS_VIEW, PERMISSIONS.SETTINGS_OFFICE_UPDATE,
+    // Developer management
+    PERMISSIONS.DEVELOPER_VIEW, PERMISSIONS.DEVELOPER_CREATE,
+    PERMISSIONS.DEVELOPER_UPDATE, PERMISSIONS.DEVELOPER_DELETE,
+    // Project management
+    PERMISSIONS.PROJECT_VIEW, PERMISSIONS.PROJECT_CREATE,
+    PERMISSIONS.PROJECT_UPDATE, PERMISSIONS.PROJECT_DELETE,
   ],
   [ROLES.OFFICE_ADMIN]: [
     // View-only offices
