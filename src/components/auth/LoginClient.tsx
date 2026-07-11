@@ -224,7 +224,13 @@ export default function LoginClient({
             </Button>
           </form>
 
-          <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+          <div className="mt-6 pt-4 border-t border-gray-100 text-center space-y-2">
+            <p className="text-sm text-gray-500">
+              {dict.auth.dontHaveAccount}{" "}
+              <Link href={`/${locale}/register`} className="text-navy-600 hover:text-navy-700 font-medium">
+                {dict.auth.signUpButton}
+              </Link>
+            </p>
             <p className="text-xs text-gray-500">
               {dict.auth.adminNote}
             </p>
