@@ -432,7 +432,7 @@ function ExploreClientInner({
               </Suspense>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {properties.map((property) => (
+                {properties.map((property, index) => (
                   <PropertyCard
                     key={property.id}
                     id={property.id}
@@ -448,6 +448,7 @@ function ExploreClientInner({
                     locale={locale}
                     type={locale === "ar" ? property.property_types?.name_ar : (property.property_types?.name_en ?? undefined)}
                     dict={dict}
+                    priority={index < 3}
                   />
                 ))}
               </div>

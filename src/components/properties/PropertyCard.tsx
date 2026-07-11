@@ -22,6 +22,7 @@ export interface PropertyCardProps {
   bathrooms?: number;
   zone?: string;
   imageUrl?: string;
+  priority?: boolean;
   status: PropertyStatus;
   officeName: string;
   locale: Locale;
@@ -100,6 +101,7 @@ const PropertyCard = memo(function PropertyCard(props: PropertyCardProps) {
     dict,
     userId,
     compact,
+    priority,
   } = props;
 
   const statusLabel = getStatusLabel(dict, status);
@@ -153,6 +155,7 @@ const PropertyCard = memo(function PropertyCard(props: PropertyCardProps) {
               placeholder="blur"
               blurDataURL={PROPERTY_BLUR}
               className="object-cover group-hover:scale-105 transition-transform duration-300"
+              priority={priority}
             />
           ) : (
             <div

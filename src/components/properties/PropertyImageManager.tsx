@@ -4,6 +4,7 @@ import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { Trash2, Star, Upload, Image as ImageIcon } from "lucide-react";
+import { compressImage } from "@/lib/image-compress";
 import type { Messages } from "@/i18n/getMessages";
 
 interface PropertyImage {
@@ -42,9 +43,16 @@ export default function PropertyImageManager({
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [isUploadAreaFocused, setIsUploadAreaFocused] = useState(false);
 
-  const handleFileSelect = useCallback((files: FileList | null) => {
+  const handleFileSelect = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    onUpload(files);
+    // Compress images before passing to parent
+    const compressedFiles = await Promise.all(
+      Array.from(files).map((file) => compressImage(file, { maxWidth: 1920, maxHeight: 1080, quality: 0.85 }))
+    );
+    // Create a new FileList-like array
+    const dt = new DataTransfer();
+    compressedFiles.forEach((f) => dt.items.add(f));
+    onUpload(dt.files);
   }, [onUpload]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent, index: number, isNew: boolean) => {
