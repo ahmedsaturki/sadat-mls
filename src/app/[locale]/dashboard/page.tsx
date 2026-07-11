@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card, { CardTitle } from "@/components/ui/Card";
 import PropertyCard from "@/components/properties/PropertyCard";
-import { Home, Plus, Users, Mail, ArrowLeft, Heart } from "lucide-react";
+import { Home, Plus, Users, Mail, ArrowLeft, Heart, Coins, DollarSign } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { ROLES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
@@ -75,6 +75,8 @@ export default async function OfficeDashboard({
     recentContactsResult,
     allPrimaryImagesResult,
     favoritesCountResult,
+    offersResult,
+    commissionsResult,
   ] = await Promise.all([
     supabase
       .from("properties")
@@ -122,6 +124,16 @@ export default async function OfficeDashboard({
       .in("property_id", (
         await supabase.from("properties").select("id").eq("office_id", profile.office_id)
       ).data?.map((p: { id: string }) => p.id) || []),
+    // Offer stats
+    supabase
+      .from("property_offers")
+      .select("id, status, offer_amount", { count: "exact" })
+      .eq("office_id", profile.office_id),
+    // Commission stats
+    supabase
+      .from("property_commissions")
+      .select("id, status, total_commission", { count: "exact" })
+      .eq("listing_office_id", profile.office_id),
   ]);
 
   const propertiesCount = propertiesCountResult;
@@ -132,6 +144,19 @@ export default async function OfficeDashboard({
   const agentsCount = agentsCountResult.count;
   const favoritesCount = favoritesCountResult.count || 0;
   const { data: recentContacts } = recentContactsResult;
+
+  // Offer & commission stats
+  const offers = (offersResult.data || []) as Array<{ status: string; offer_amount: number }>;
+  const totalOffers = offers.length;
+  const pendingOffers = offers.filter((o) => o.status === "pending").length;
+  const acceptedOffers = offers.filter((o) => o.status === "accepted").length;
+
+  const commissions = (commissionsResult.data || []) as Array<{ status: string; total_commission: number }>;
+  const totalCommissions = commissions.reduce((sum, c) => sum + Number(c.total_commission), 0);
+  const pendingCommissions = commissions.filter((c) => c.status === "pending").reduce((sum, c) => sum + Number(c.total_commission), 0);
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-US").format(Math.round(price)) + " EGP";
 
   // Build image map from pre-fetched primary images (no waterfall)
   const recentPropertyIds = new Set(recentProperties?.map((p: PropertyRecord) => p.id) || []);
@@ -227,6 +252,32 @@ export default async function OfficeDashboard({
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{favoritesCount}</p>
                   <p className="text-sm text-gray-500">{dict.common.favorites}</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+          <Link href={`/${locale}/dashboard/offers`}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                  <Coins className="w-6 h-6 text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-gray-900">{totalOffers}</p>
+                  <p className="text-sm text-gray-500">{dict.dashboard.offers}</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+          <Link href={`/${locale}/dashboard/commissions`}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-gray-900">{formatPrice(pendingCommissions)}</p>
+                  <p className="text-sm text-gray-500">{dict.dashboard.pendingCommissions}</p>
                 </div>
               </div>
             </Card>
