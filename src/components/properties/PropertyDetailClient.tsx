@@ -36,6 +36,7 @@ import { logger } from "@/lib/logger";
 
 const ContactModal = lazy(() => import("@/components/properties/ContactModal"));
 const OfferForm = lazy(() => import("@/components/properties/OfferForm"));
+const PropertyReportButton = lazy(() => import("@/components/properties/PropertyReportButton"));
 
 interface PropertyData {
   id: string;
@@ -319,6 +320,9 @@ export default function PropertyDetailClient({
               <Button className="w-full mt-2" variant="outline" onClick={() => setShowOfferModal(true)}>
                 {dict.dashboard.submitOffer}
               </Button>
+              <Suspense fallback={null}>
+                <PropertyReportButton property={property as any} locale={typedLocale} dict={dict} />
+              </Suspense>
               <div className="mt-2 flex justify-center items-center gap-4">
                 <CompareButton
                   property={property as unknown as PropertyForComparison}
