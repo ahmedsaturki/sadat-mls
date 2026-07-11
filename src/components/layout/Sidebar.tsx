@@ -123,7 +123,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
-                <link.icon className={cn("w-5 h-5", isActive ? "text-navy-600" : "text-gray-400")} aria-hidden="true" />
+                <link.icon className={cn("w-5 h-5", isActive ? "text-navy-600" : "text-gray-500")} aria-hidden="true" />
                 {link.label}
               </Link>
             );

@@ -60,7 +60,7 @@ export default function LandingHero({ locale, dict }: LandingHeroProps) {
           <form onSubmit={handleSearch} className="animate-scale-up max-w-2xl mx-auto mb-12">
             <div className="flex gap-2 p-2 rounded-2xl glass-luxury">
               <div className="flex-1 relative">
-                <Search className="absolute start-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" aria-hidden="true" />
+                <Search className="absolute start-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-500" aria-hidden="true" />
                 <input
                   type="text"
                   value={searchQuery}

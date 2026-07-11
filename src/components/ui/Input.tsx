@@ -29,7 +29,7 @@ const Input = forwardRef<HTMLInputElement | null, InputProps>(
           className={cn(
             "w-full px-3 py-2 border rounded-lg text-sm transition-colors duration-200",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:border-navy-500",
-            "placeholder:text-gray-400",
+            "placeholder:text-gray-500",
             error ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500" : "border-gray-300",
             className
           )}

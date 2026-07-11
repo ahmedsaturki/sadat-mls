@@ -208,7 +208,7 @@ export default function AdminContactRequestsClient({
         {/* Office Filter */}
         {offices.length > 0 && (
           <div className="flex items-center gap-3">
-            <Filter className="w-4 h-4 text-gray-400" />
+            <Filter className="w-4 h-4 text-gray-500" />
               <select
                 value={officeFilter}
                 onChange={(e) => setOfficeFilter(e.target.value)}
@@ -250,7 +250,7 @@ export default function AdminContactRequestsClient({
                     {request.message && (
                       <p className="text-sm text-gray-500 mt-1">{request.message}</p>
                     )}
-                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                       {request.offices && (
                         <span className="flex items-center gap-1">
                            <Building2 className="w-3 h-3" aria-hidden="true" />
@@ -289,10 +289,10 @@ export default function AdminContactRequestsClient({
         ) : (
           <div className="text-center py-12 bg-white rounded-xl shadow-sm">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Inbox className="w-8 h-8 text-gray-400" />
+              <Inbox className="w-8 h-8 text-gray-500" />
             </div>
             <p className="text-gray-500 mb-2">{dict.contactRequests.noRequests}</p>
-            <p className="text-sm text-gray-400">{dict.contactRequests.noRequestsHint}</p>
+            <p className="text-sm text-gray-500">{dict.contactRequests.noRequestsHint}</p>
           </div>
         )}
       </div>

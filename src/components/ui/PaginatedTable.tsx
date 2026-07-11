@@ -66,7 +66,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
       {searchKey && (
         <div className="p-3 border-b border-gray-200">
           <div className="relative max-w-xs">
-            <Search className="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 start-3" />
+            <Search className="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 start-3" />
             <input
               ref={inputRef}
               type="text"
@@ -111,7 +111,7 @@ export default function PaginatedTable<T extends { id?: string | number }>({
         <div className="text-center py-12">
           {emptyIcon && <div className="mb-4">{emptyIcon}</div>}
           <p className="text-gray-500 mb-1">{emptyMessage}</p>
-          {emptyHint && <p className="text-sm text-gray-400">{emptyHint}</p>}
+          {emptyHint && <p className="text-sm text-gray-500">{emptyHint}</p>}
         </div>
       )}
       {totalPages > 1 && (

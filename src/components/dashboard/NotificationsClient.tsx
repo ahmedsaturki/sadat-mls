@@ -178,7 +178,7 @@ export default function NotificationsClient({
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                       notification.is_read ? "bg-gray-100" : "bg-navy-100"
                     }`}>
-                      <Icon className={`w-5 h-5 ${notification.is_read ? "text-gray-400" : "text-navy-600"}`} aria-hidden="true" />
+                      <Icon className={`w-5 h-5 ${notification.is_read ? "text-gray-500" : "text-navy-600"}`} aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export default function NotificationsClient({
                         )}
                       </div>
                       <p className="text-sm text-gray-500 truncate">{notification.message}</p>
-                      <p className="text-xs text-gray-400 mt-1">{formatDate(notification.created_at)}</p>
+                      <p className="text-xs text-gray-500 mt-1">{formatDate(notification.created_at)}</p>
                     </div>
                   </div>
                 </button>
@@ -200,7 +200,7 @@ export default function NotificationsClient({
         ) : (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Bell className="w-8 h-8 text-gray-400" aria-hidden="true" />
+              <Bell className="w-8 h-8 text-gray-500" aria-hidden="true" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 mb-2">
               {typedLocale === "ar" ? "لا توجد إشعارات" : "No notifications"}

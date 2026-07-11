@@ -394,7 +394,7 @@ export default function PropertiesDashboardClient({
                     {selectedIds.has(property.id) ? (
                       <CheckSquare className="w-4 h-4 text-navy-600" />
                     ) : (
-                      <Square className="w-4 h-4 text-gray-400" />
+                      <Square className="w-4 h-4 text-gray-500" />
                     )}
                   </button>
                 )}
@@ -440,14 +440,14 @@ export default function PropertiesDashboardClient({
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                       <Link
                         href={`/${typedLocale}/dashboard/properties/${property.id}/edit`}
-                        className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-1"
+                        className="p-2 bg-white rounded min-w-[44px] min-h-[44px] flex items-center justify-center-lg shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-1"
                         aria-label={dict.office.editProperty}
                       >
                         <Edit className="w-4 h-4 text-gray-600" />
                       </Link>
                       <button
                         onClick={() => handleDeleteClick(property.id)}
-                        className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-1"
+                        className="p-2 bg-white rounded min-w-[44px] min-h-[44px] flex items-center justify-center-lg shadow-sm hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-1"
                         aria-label={dict.common.delete}
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
@@ -464,7 +464,7 @@ export default function PropertiesDashboardClient({
               <Home className="w-10 h-10 text-navy-400" />
             </div>
             <p className="text-lg font-semibold text-gray-700 mb-1.5">{dict.office.noPropertiesYet}</p>
-            <p className="text-sm text-gray-400 max-w-xs mx-auto mb-6">{dict.office.startAdding}</p>
+            <p className="text-sm text-gray-500 max-w-xs mx-auto mb-6">{dict.office.startAdding}</p>
             {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
               <Link href={`/${typedLocale}/dashboard/properties/new`} className="mt-2 inline-block">
                 <Button>{dict.office.addProperty}</Button>

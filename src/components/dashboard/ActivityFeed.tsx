@@ -119,7 +119,7 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
     return (
       <div className="text-center py-8">
         <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" aria-hidden="true" />
-        <p className="text-gray-400 text-sm">
+        <p className="text-gray-500 text-sm">
           {dict.office?.noActivity}
         </p>
       </div>
@@ -149,7 +149,7 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
                   <span className="text-gray-500"> — {activity.entity_title}</span>
                 )}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-gray-500 mt-0.5">
                 {timeAgo(activity.created_at, dict)}
               </p>
             </div>

@@ -255,7 +255,7 @@ export default async function OfficeDashboard({
                             {contact.properties?.title ? ` — ${contact.properties.title}` : ""}
                           </p>
                         </div>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-500">
                           {new Date(contact.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
                         </span>
                       </div>

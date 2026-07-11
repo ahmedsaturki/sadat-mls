@@ -138,7 +138,7 @@ export default async function AdminDashboard({
                           <p className="text-sm text-gray-500">{office.email}</p>
                         </div>
                       </div>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-500">
                         {new Date(office.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
                       </span>
                     </div>
@@ -170,7 +170,7 @@ export default async function AdminDashboard({
                              {contact.contact_type === "whatsapp" ? dict.contactRequests.whatsapp : contact.contact_type}
                            </p>
                         </div>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-500">
                           {new Date(contact.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
                         </span>
                       </div>

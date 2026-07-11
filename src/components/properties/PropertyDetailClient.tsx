@@ -218,7 +218,7 @@ export default function PropertyDetailClient({
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{property.title}</h1>
                   <div className="flex items-center gap-2 mt-2">
-                    <MapPin className="w-4 h-4 text-gray-400" aria-hidden="true" />
+                    <MapPin className="w-4 h-4 text-gray-500" aria-hidden="true" />
                     <span className="text-gray-500">{locale === "ar" ? property.zones?.name_ar : property.zones?.name_en}</span>
                   </div>
                 </div>
@@ -234,15 +234,15 @@ export default function PropertyDetailClient({
               {/* Quick Stats */}
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Maximize className="w-5 h-5 text-gray-400 mx-auto mb-1" aria-hidden="true" />
+                  <Maximize className="w-5 h-5 text-gray-500 mx-auto mb-1" aria-hidden="true" />
                   <p className="font-semibold text-gray-900">{property.area} {dict.property.areaUnit}</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Bed className="w-5 h-5 text-gray-400 mx-auto mb-1" aria-hidden="true" />
+                  <Bed className="w-5 h-5 text-gray-500 mx-auto mb-1" aria-hidden="true" />
                   <p className="font-semibold text-gray-900">{property.bedrooms} {dict.property.bedroom}</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Bath className="w-5 h-5 text-gray-400 mx-auto mb-1" aria-hidden="true" />
+                  <Bath className="w-5 h-5 text-gray-500 mx-auto mb-1" aria-hidden="true" />
                   <p className="font-semibold text-gray-900">{property.bathrooms} {dict.property.bathroom}</p>
                 </div>
               </div>

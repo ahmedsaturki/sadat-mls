@@ -318,7 +318,7 @@ export default function NotificationsBell({ locale, dict }: NotificationsBellPro
                       <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
                         {resolveText(notification.message, notification.message_params)}
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-gray-500 mt-1">
                         {formatTimeAgo(notification.created_at)}
                       </p>
                     </div>

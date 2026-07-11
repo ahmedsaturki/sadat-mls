@@ -173,7 +173,7 @@ export default function ContactRequestsClient({
                         <p className="text-sm text-gray-500 mt-1">{request.message}</p>
                       )}
                       {request.properties && (
-                        <p className="text-xs text-gray-400 mt-1">{dict.contactRequests.property}: {request.properties.title}</p>
+                        <p className="text-xs text-gray-500 mt-1">{dict.contactRequests.property}: {request.properties.title}</p>
                       )}
                     </div>
                     {request.visitor_phone && (
@@ -194,10 +194,10 @@ export default function ContactRequestsClient({
           ) : (
             <div className="text-center py-12 bg-white rounded-xl shadow-sm" role="status">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Inbox className="w-8 h-8 text-gray-400" />
+                <Inbox className="w-8 h-8 text-gray-500" />
               </div>
               <p className="text-gray-500 mb-2">{dict.contactRequests.noRequests}</p>
-              <p className="text-sm text-gray-400">{dict.contactRequests.noRequestsHint}</p>
+              <p className="text-sm text-gray-500">{dict.contactRequests.noRequestsHint}</p>
             </div>
           )}
         </div>

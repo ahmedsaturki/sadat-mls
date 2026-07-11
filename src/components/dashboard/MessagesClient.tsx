@@ -183,7 +183,7 @@ export default function MessagesClient({
             </button>
           </div>
           <div className="flex-1 relative">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" aria-hidden="true" />
             <input
               type="text"
               value={searchQuery}
@@ -227,7 +227,7 @@ export default function MessagesClient({
                         {msg.visitor_name || msg.subject || (typedLocale === "ar" ? "رسالة" : "Message")}
                       </p>
                       {!msg.is_read && <span className="w-2 h-2 bg-navy-600 rounded-full flex-shrink-0" />}
-                      <span className="text-xs text-gray-400 ms-auto flex-shrink-0">{formatDate(msg.created_at)}</span>
+                      <span className="text-xs text-gray-500 ms-auto flex-shrink-0">{formatDate(msg.created_at)}</span>
                     </div>
                     {msg.subject && (
                       <p className="text-sm font-medium text-gray-600 truncate">{msg.subject}</p>
@@ -241,7 +241,7 @@ export default function MessagesClient({
         ) : (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Inbox className="w-8 h-8 text-gray-400" />
+              <Inbox className="w-8 h-8 text-gray-500" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 mb-2">
               {typedLocale === "ar" ? "لا توجد رسائل" : "No messages"}

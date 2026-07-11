@@ -248,7 +248,7 @@ export default function AdminUsersClient({
         const RoleIcon = getRoleIcon(u.role);
         return (
           <div className="flex items-center gap-2">
-            <RoleIcon className="w-4 h-4 text-gray-400" />
+            <RoleIcon className="w-4 h-4 text-gray-500" />
             <Badge className={ROLE_BADGE_COLORS[u.role] || "bg-gray-100 text-gray-700"}>
               {getRoleLabel(u.role)}
             </Badge>
@@ -350,7 +350,7 @@ export default function AdminUsersClient({
               <div className="text-center py-12">
                 <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500">{dict.admin.noUsers}</p>
-                <p className="text-sm text-gray-400 mt-1">{dict.admin.noUsersHint}</p>
+                <p className="text-sm text-gray-500 mt-1">{dict.admin.noUsersHint}</p>
               </div>
             </Card>
           ) : (

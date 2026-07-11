@@ -14,7 +14,7 @@ export default function Footer({ locale, dict }: FooterProps) {
 
   return (
     <footer
-      className="py-12 bg-gray-900 text-gray-400"
+      className="py-12 bg-gray-900 text-gray-500"
       role="contentinfo"
       aria-label={dict.footer?.title}
     >

@@ -206,7 +206,7 @@ export default function ResetPasswordPage({
                           { test: /[!@#$%^&*()_+\-=[\]{};:'",.<>?/\\|`~]/.test(password), label: dict.auth.ruleSpecial },
                         ].map((rule) => (
                           <li key={rule.label} className="flex items-center gap-1.5 text-xs">
-                            <span className={rule.test ? "text-green-500" : "text-gray-400"} aria-hidden="true">
+                            <span className={rule.test ? "text-green-500" : "text-gray-500"} aria-hidden="true">
                               {rule.test ? "✓" : "○"}
                             </span>
                             <span className={rule.test ? "text-green-600" : "text-gray-500"}>{rule.label}</span>

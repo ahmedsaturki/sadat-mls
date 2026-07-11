@@ -101,7 +101,7 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
               onChange={(e) => updateFilter("search", e.target.value)}
               placeholder={dict.explore.searchPlaceholder}
               aria-label={dict.explore.searchPlaceholder}
-              className="w-full py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all duration-300 placeholder:text-gray-400 ps-10 pe-4"
+              className="w-full py-3 border border-gray-200 rounded-xl text-sm bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all duration-300 placeholder:text-gray-500 ps-10 pe-4"
             />
           </div>
           <Button type="submit" className="bg-gradient-to-r from-navy-800 to-navy-800/90 hover:from-navy-800/90 hover:to-navy-800 text-white px-6 rounded-xl shadow-md shadow-navy-800/20 hover:shadow-lg hover:shadow-navy-800/30 transition-all duration-300">

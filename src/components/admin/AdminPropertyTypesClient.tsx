@@ -105,7 +105,7 @@ columns={[
                      header: dict.admin.propertyTypeNameHeader,
                      render: (type) => (
                        <div className="flex items-center gap-2">
-                         <Tags className="w-4 h-4 text-gray-400" />
+                         <Tags className="w-4 h-4 text-gray-500" />
                          <span className="font-medium text-gray-900">{type.name_ar}</span>
                        </div>
                      ),

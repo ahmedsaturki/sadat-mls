@@ -81,7 +81,7 @@ export default function LogoutPage({ params }: { params: { locale: string } }) {
               <LogOut className="w-8 h-8 text-gray-500" />
             </div>
             <p className="text-gray-600 font-medium">{dict.auth.loggingOut}</p>
-            <p className="text-sm text-gray-400 mt-1">{dict.auth.redirectingToHome}</p>
+            <p className="text-sm text-gray-500 mt-1">{dict.auth.redirectingToHome}</p>
           </div>
         )}
 

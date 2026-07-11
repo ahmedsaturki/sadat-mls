@@ -337,7 +337,7 @@ function ExploreClientInner({
             )}
 
             {!hasMore && properties.length > 0 && (
-              <p className="text-center text-sm text-gray-400 mt-8">
+              <p className="text-center text-sm text-gray-500 mt-8">
                 {dict.common.allResultsLoaded}
               </p>
             )}
@@ -345,7 +345,7 @@ function ExploreClientInner({
         ) : (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Home className="w-8 h-8 text-gray-400" aria-hidden="true" />
+              <Home className="w-8 h-8 text-gray-500" aria-hidden="true" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 mb-2">{dict.explore.noResults || dict.explore.noProperties}</h2>
             <p className="text-sm text-gray-500">{dict.explore.tryDifferentSearch}</p>

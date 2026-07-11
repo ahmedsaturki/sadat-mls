@@ -74,7 +74,7 @@ export default function SavedSearchesClient({
         {savedSearches.length === 0 ? (
           <div className="text-center py-16" role="status">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Bookmark className="w-8 h-8 text-gray-400" />
+              <Bookmark className="w-8 h-8 text-gray-500" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 mb-2">
               {dict.dashboard.noSavedSearchesFull}
@@ -96,7 +96,7 @@ export default function SavedSearchesClient({
                     <p className="text-sm text-gray-500 mb-3">
                       {getActiveFiltersSummary(search.filters)}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-500">
                       {dict.dashboard.created} {formatDate(search.createdAt)}
                       {search.lastNotified && (
                         <span className="ms-2">· {dict.dashboard.lastChecked} {formatDate(search.lastNotified)}</span>
@@ -112,7 +112,7 @@ export default function SavedSearchesClient({
                     </Link>
                     <button
                       onClick={() => removeSavedSearch(search.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
+                      className="p-2 text-gray-500 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
                       aria-label={dict.common.delete}
                     >
                       <Trash2 className="w-4 h-4" />

@@ -64,7 +64,7 @@ if (isSelected(property.id)) {
         sizeClasses[size],
         isSelected(property.id)
           ? "bg-navy-50 text-navy-600 hover:bg-navy-100"
-          : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600",
+          : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-600",
         className
       )}
       aria-label={isSelected(property.id) ?

@@ -76,7 +76,7 @@ const handleWebShare = async () => {
       <>
         <button
           onClick={handleShare}
-          className="p-2 rounded-lg text-gray-400 hover:text-navy-600 hover:bg-navy-50 transition-colors"
+          className="p-2 rounded-lg text-gray-500 hover:text-navy-600 hover:bg-navy-50 transition-colors"
           aria-label={explore?.share}
         >
           <Share2 className="w-4 h-4" aria-hidden="true" />

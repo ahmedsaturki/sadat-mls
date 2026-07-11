@@ -128,7 +128,7 @@ const FavoriteButton = memo(function FavoriteButton({
         sizeClasses[size],
         isFavorited
           ? "bg-red-50 text-red-500 hover:bg-red-100"
-          : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600",
+          : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-600",
         loading && "opacity-50 cursor-not-allowed",
         className
       )}

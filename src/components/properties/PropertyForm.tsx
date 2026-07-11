@@ -741,7 +741,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
           </Card>
 
           <div className="flex gap-3 justify-end mt-6">
-            <span className="flex items-center gap-1 text-xs text-gray-400 me-auto">
+            <span className="flex items-center gap-1 text-xs text-gray-500 me-auto">
               <Keyboard className="w-3 h-3" aria-hidden="true" />
               {dict.common.saveShortcut}
             </span>
