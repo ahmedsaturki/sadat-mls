@@ -121,6 +121,7 @@
     "imageThumbnails": "Image thumbnails"
   },
   "nav": {
+    "about": "About",
     "explore": "Explore Properties",
     "myOffice": "My Office",
     "myProperties": "My Properties",
@@ -149,6 +150,19 @@
     "newContactRequest": "New inquiry from {{name}}",
     "deletedOldNotifications": "Deleted notifications older than {{days}} days",
     "keywords": ["real estate", "Sadat City", "buy", "rent", "apartment", "villa", "land"]
+  },
+  "about": {
+    "title": "About Sadat MLS",
+    "mission": "Our Mission",
+    "missionDesc": "Sadat MLS Cloud is a unified Multiple Listing Service platform for Sadat City, Egypt. We connect real estate offices, agents, and buyers in a transparent, efficient marketplace.",
+    "vision": "Our Vision",
+    "visionDesc": "To be the leading real estate platform in Egypt, providing a modern, data-driven marketplace that empowers every participant in the property ecosystem.",
+    "teamTitle": "Built for the Community",
+    "teamDesc": "Our platform is designed to serve the entire Sadat City real estate community — from large offices to independent agents — with equal access to listings, data, and opportunities.",
+    "statsTitle": "Our Impact",
+    "joinTitle": "Join Us",
+    "joinDesc": "Whether you're a real estate office, an independent agent, or a buyer looking for the perfect property, Sadat MLS Cloud is for you.",
+    "contactUs": "Contact Us"
   },
   "roles": {
     "superAdmin": "Super Admin",

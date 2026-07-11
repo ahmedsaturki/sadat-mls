@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Globe, Home, LogOut, Menu, X, Search, Settings, LayoutDashboard, Mail, Heart } from "lucide-react";
+import { Building2, Globe, Home, LogOut, Menu, X, Search, Settings, LayoutDashboard, Mail, Heart, Info } from "lucide-react";
 import NotificationsBell from "@/components/layout/NotificationsBell";
 import { useState, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -36,6 +36,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
     const links = [
       { href: `/${locale}`, label: dict.common.home, icon: Home, prefetch: true },
       { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search, prefetch: true },
+      { href: `/${locale}/about`, label: dict.nav.about, icon: Info, prefetch: true },
     ];
 
     if (role === ROLES.SUPER_ADMIN) {
