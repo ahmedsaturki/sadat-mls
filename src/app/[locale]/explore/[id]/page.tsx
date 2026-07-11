@@ -102,6 +102,19 @@ export default async function PropertyDetailPage({
     offices: Array.isArray(raw.offices) ? (raw.offices[0] || null) : raw.offices,
   };
 
+  // Record view analytics (fire-and-forget, server-side)
+  const { createServiceRoleClient } = await import("@/lib/supabase/service-role");
+  const serviceRole = createServiceRoleClient();
+  serviceRole
+    .from("property_analytics")
+    .insert({
+      property_id: id,
+      office_id: raw.office_id,
+      event_type: "view",
+    })
+    .then(() => {})
+    .catch(() => {});
+
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
