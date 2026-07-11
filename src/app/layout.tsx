@@ -123,7 +123,7 @@ export default async function RootLayout({
   const nonce = h.get("x-nonce") || "";
 
   return (
-    <html lang={locale} dir={dir} className={`${cairo.variable} font-sans antialiased`} nonce={nonce}>
+    <html lang={locale} dir={dir} className={`${cairo.variable} font-sans antialiased`} suppressHydrationWarning nonce={nonce}>
       <head>
         <Script
           id="sw-registration"
@@ -131,6 +131,14 @@ export default async function RootLayout({
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").then(r=>r.update()).catch(()=>{})});}`,
+          }}
+        />
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme")||"system";if(t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}else{document.documentElement.classList.remove("dark")}}catch(e){}})();`,
           }}
         />
         <Script
@@ -143,7 +151,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-gray-50">
+      <body className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-[9999]"

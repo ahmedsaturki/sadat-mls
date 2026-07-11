@@ -90,7 +90,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
   }, [locale, dict, role]);
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-white border-e border-gray-200 min-h-[calc(100vh-4rem)]">
+    <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-white dark:bg-gray-900 border-e border-gray-200 dark:border-gray-700 min-h-[calc(100vh-4rem)]">
       <div className="flex-1 py-4">
         {/* User Profile Section */}
         {profile && (
@@ -128,8 +128,8 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2",
                   isActive
-                    ? "bg-navy-50 text-navy-600"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-navy-50 dark:bg-navy-900/30 text-navy-600 dark:text-navy-400"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
                 )}
               >
                 <link.icon className={cn("w-5 h-5", isActive ? "text-navy-600" : "text-gray-500")} aria-hidden="true" />

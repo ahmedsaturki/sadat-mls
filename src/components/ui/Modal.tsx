@@ -109,7 +109,7 @@ if (!isOpen) return null;
         ref={contentRef}
         tabIndex={-1}
         className={cn(
-          "bg-white rounded-xl shadow-xl w-full max-h-[90vh] overflow-y-auto outline-none",
+          "bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-h-[90vh] overflow-y-auto outline-none",
           sizes[size],
           className
         )}

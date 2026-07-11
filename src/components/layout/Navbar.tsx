@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Building2, Globe, Home, LogOut, Menu, X, Search, Settings, LayoutDashboard, Mail, Heart, Info, MessageCircle } from "lucide-react";
 import NotificationsBell from "@/components/layout/NotificationsBell";
 import CitySelector from "@/components/layout/CitySelector";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useState, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils/cn";
 import { useEscapeKey } from "@/lib/utils/a11y";
@@ -70,13 +71,13 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
   const isLoggedIn = !!(userRole ?? profile);
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50" role="navigation" aria-label={dict.common.mainNavigation}>
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50" role="navigation" aria-label={dict.common.mainNavigation}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center gap-2" prefetch aria-label={dict.common.home}>
             <Building2 className="w-8 h-8 text-navy-600" aria-hidden="true" />
-            <span className="text-xl font-bold text-gray-900">{dict.common.appName}</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">{dict.common.appName}</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -115,6 +116,9 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
 
             {/* City Selector */}
             <CitySelector locale={locale} dict={dict} />
+
+            {/* Theme Toggle */}
+            <ThemeToggle dict={dict} />
 
             {/* Notifications Bell (only for logged-in users) */}
             {isLoggedIn && (
