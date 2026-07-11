@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils/cn";
 import { useEscapeKey } from "@/lib/utils/a11y";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import type { Locale } from "@/i18n/config";
+import { LOCALE_LABELS, locales } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
 import { ROLES, type UserRole } from "@/lib/utils/constants";
 
@@ -23,13 +24,16 @@ interface NavbarProps {
 
 export default function Navbar({ locale, dict, userRole }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
   const pathname = usePathname();
   const { profile } = useAuthUser();
 
+  // For 2 locales: simple toggle. For 3+: dropdown.
+  const hasMultipleLanguages = locales.length > 2;
   const switchLocale = locale === "ar" ? "en" : "ar";
   const switchPath = pathname.replace(`/${locale}`, `/${switchLocale}`);
 
-  const closeMenu = useCallback(() => setMobileMenuOpen(false), []);
+  const closeMenu = useCallback(() => { setMobileMenuOpen(false); setLangMenuOpen(false); }, []);
 
   useEscapeKey(closeMenu, mobileMenuOpen);
 
@@ -105,14 +109,46 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
           {/* Actions */}
           <div className="flex items-center gap-2">
             {/* Language Switcher */}
-            <Link
-              href={switchPath}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-              aria-label={dict.nav.switchLanguageLabel}
-            >
-              <Globe className="w-4 h-4" aria-hidden="true" />
-              {dict.nav.switchLanguage}
-            </Link>
+            {hasMultipleLanguages ? (
+              <div className="relative">
+                <button
+                  onClick={() => setLangMenuOpen(!langMenuOpen)}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
+                  aria-label={dict.nav.switchLanguageLabel}
+                  aria-expanded={langMenuOpen}
+                >
+                  <Globe className="w-4 h-4" />
+                  {LOCALE_LABELS[locale] || locale}
+                </button>
+                {langMenuOpen && (
+                  <div className="absolute top-full end-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-1 z-50">
+                    {locales.map((loc) => (
+                      <Link
+                        key={loc}
+                        href={pathname.replace(`/${locale}`, `/${loc}`)}
+                        onClick={() => setLangMenuOpen(false)}
+                        className={`block px-4 py-2.5 text-sm transition-colors ${
+                          loc === locale
+                            ? "bg-navy-50 dark:bg-navy-900/30 text-navy-600 dark:text-navy-400 font-medium"
+                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        {LOCALE_LABELS[loc] || loc}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href={switchPath}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                aria-label={dict.nav.switchLanguageLabel}
+              >
+                <Globe className="w-4 h-4" aria-hidden="true" />
+                {dict.nav.switchLanguage}
+              </Link>
+            )}
 
             {/* City Selector */}
             <CitySelector locale={locale} dict={dict} />
