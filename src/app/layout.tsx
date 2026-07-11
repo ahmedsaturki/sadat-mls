@@ -18,7 +18,7 @@ const cairo = Cairo({
 
 /**
  * Detect locale from the x-locale header set by middleware,
- * or from the accept-language header as fallback.
+ * the URL path, or the accept-language header as fallback.
  * Falls back to Arabic during static generation when headers() is unavailable.
  */
 async function detectLocale(): Promise<Locale> {
@@ -26,6 +26,12 @@ async function detectLocale(): Promise<Locale> {
     const h = await getHeaders();
     const localeHeader = h.get("x-locale");
     if (localeHeader === "en" || localeHeader === "ar") return localeHeader;
+    // Fallback: extract from URL path via next-url header
+    const nextUrl = h.get("next-url");
+    if (nextUrl) {
+      if (nextUrl.startsWith("/en") || nextUrl.includes("/en/")) return "en";
+      if (nextUrl.startsWith("/ar") || nextUrl.includes("/ar/")) return "ar";
+    }
     // Fallback: check accept-language
     const acceptLanguage = h.get("accept-language");
     if (acceptLanguage?.includes("en")) return "en";
@@ -53,62 +59,18 @@ function sanitizeJsonLd(obj: Record<string, unknown>): string {
   });
 }
 
+/**
+ * Root layout metadata — minimal default for non-locale routes.
+ * Locale-specific metadata is generated in [locale]/layout.tsx which overrides this.
+ */
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await detectLocale();
-  const dict = getMessages(locale);
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
-
-  const title = dict.landing?.hero ?? dict.common.appName;
-  const description =
-    dict.landing?.heroDescription ?? "Cloud real estate platform for Sadat City";
-
-  const keywordsSource = (dict.nav as Record<string, unknown> | undefined)
-    ?.keywords;
-  const keywords = Array.isArray(keywordsSource)
-    ? (keywordsSource as string[])
-    : (["real estate", "Sadat City", "buy", "rent", "apartment", "villa", "land"] as string[]);
-
   return {
     title: {
-      default: `${dict.common.appName} | ${title}`,
-      template: `%s | ${dict.common.appName}`,
+      default: "Sadat MLS Cloud",
+      template: `%s | Sadat MLS Cloud`,
     },
-    description,
-    keywords,
-    authors: [{ name: dict.common.appName }],
-    alternates: {
-      canonical: `${baseUrl}/${locale}`,
-      languages: {
-        ar: `${baseUrl}/ar`,
-        en: `${baseUrl}/en`,
-        "x-default": `${baseUrl}/ar`,
-      },
-    },
-    openGraph: {
-      type: "website",
-      locale: locale === "ar" ? "ar_EG" : "en_US",
-      alternateLocale: locale === "ar" ? "en_US" : "ar_EG",
-      siteName: dict.common.appName,
-      title: `${dict.common.appName} | ${title}`,
-      description,
-      url: `${baseUrl}/${locale}`,
-      images: [
-        {
-          url: `${baseUrl}/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(description)}&locale=${locale}`,
-          width: 1200,
-          height: 630,
-          alt: dict.common.appName,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: dict.common.appName,
-      description,
-      images: [
-        `${baseUrl}/og-image?title=${encodeURIComponent(dict.common.appName)}&description=${encodeURIComponent(description)}&locale=${locale}`,
-      ],
-    },
+    description: "Cloud real estate platform for Sadat City",
+    manifest: "/manifest.json",
     robots: {
       index: true,
       follow: true,
@@ -120,7 +82,6 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-snippet": -1,
       },
     },
-    manifest: "/manifest.json",
   };
 }
 

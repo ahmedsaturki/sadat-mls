@@ -196,15 +196,20 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(redirectResponse);
   }
 
-  // Extract locale from URL path and set as header for root layout
+  // Extract locale from URL path and set on request headers for root layout generateMetadata
   const urlLocale = locales.find(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
   if (urlLocale) {
-    response.headers.set("x-locale", urlLocale);
+    request.headers.set("x-locale", urlLocale);
   }
 
-  return applySecurityHeaders(response);
+  // Rebuild response with updated request headers so generateMetadata() can read x-locale
+  const updatedResponse = NextResponse.next({ request: { headers: request.headers } });
+  const existingCsrf = request.cookies.get("csrf_token")?.value;
+  seedCsrfToken(updatedResponse, existingCsrf);
+
+  return applySecurityHeaders(updatedResponse);
 }
 
 export const config = {
