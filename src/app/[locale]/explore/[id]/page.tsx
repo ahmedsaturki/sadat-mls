@@ -121,6 +121,45 @@ export default async function PropertyDetailPage({
         <div className="w-8 h-8 border-4 border-navy-200 border-t-navy-600 rounded-full animate-spin" />
       </div>
     }>
+      {/* JSON-LD Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "RealEstateListing",
+            name: raw.title,
+            description: raw.description || "",
+            url: `${process.env.NEXT_PUBLIC_APP_URL || "https://sadat-mls.vercel.app"}/${locale}/explore/${id}`,
+            offers: {
+              "@type": "Offer",
+              price: raw.price,
+              priceCurrency: "EGP",
+              availability: raw.status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            },
+            floorSize: {
+              "@type": "QuantitativeValue",
+              value: raw.area,
+              unitCode: "MTK",
+            },
+            numberOfRooms: raw.bedrooms,
+            numberOfBathroomsTotal: raw.bathrooms,
+            ...(normalizedProperty.zones ? {
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: locale === "ar" ? normalizedProperty.zones.name_ar : (normalizedProperty.zones.name_en || normalizedProperty.zones.name_ar),
+                addressCountry: "EG",
+              },
+            } : {}),
+            ...(normalizedProperty.offices ? {
+              seller: {
+                "@type": "RealEstateAgent",
+                name: normalizedProperty.offices.name,
+              },
+            } : {}),
+          }),
+        }}
+      />
       <PropertyDetailClient
         locale={locale}
         property={normalizedProperty}

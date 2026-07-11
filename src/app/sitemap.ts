@@ -94,7 +94,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq("is_active", true)
       .eq("status", "available")
       .order("updated_at", { ascending: false })
-      .limit(1000); // Limit to prevent sitemap from being too large
+      .limit(1000);
 
     if (properties) {
       for (const property of properties) {
@@ -116,6 +116,68 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     logger.warn("Failed to fetch properties for sitemap");
+  }
+
+  // Add developer pages
+  try {
+    const { data: developers } = await supabaseForOffices
+      .from("developers")
+      .select("slug, updated_at")
+      .eq("is_active", true)
+      .order("updated_at", { ascending: false })
+      .limit(200);
+
+    if (developers) {
+      for (const dev of developers) {
+        for (const locale of locales) {
+          sitemapEntries.push({
+            url: `${BASE_URL}/${locale}/developers/${dev.slug}`,
+            lastModified: new Date(dev.updated_at || new Date()),
+            changeFrequency: "weekly",
+            priority: 0.7,
+            alternates: {
+              languages: {
+                ar: `${BASE_URL}/ar/developers/${dev.slug}`,
+                en: `${BASE_URL}/en/developers/${dev.slug}`,
+              },
+            },
+          });
+        }
+      }
+    }
+  } catch {
+    logger.warn("Failed to fetch developers for sitemap");
+  }
+
+  // Add project pages
+  try {
+    const { data: projects } = await supabaseForOffices
+      .from("projects")
+      .select("slug, updated_at")
+      .eq("is_active", true)
+      .order("updated_at", { ascending: false })
+      .limit(200);
+
+    if (projects) {
+      for (const proj of projects) {
+        for (const locale of locales) {
+          sitemapEntries.push({
+            url: `${BASE_URL}/${locale}/projects/${proj.slug}`,
+            lastModified: new Date(proj.updated_at || new Date()),
+            changeFrequency: "weekly",
+            priority: 0.7,
+            alternates: {
+              languages: {
+                ar: `${BASE_URL}/ar/projects/${proj.slug}`,
+                en: `${BASE_URL}/en/projects/${proj.slug}`,
+              },
+            },
+          });
+        }
+      }
+    }
+  } catch {
+    logger.warn("Failed to fetch projects for sitemap");
   }
 
   return sitemapEntries;
