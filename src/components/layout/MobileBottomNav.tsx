@@ -40,7 +40,7 @@ export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavP
   }, [locale, dict, role]);
 
   return (
-    <nav className="lg:hidden fixed bottom-0 start-0 end-0 z-40 bg-white border-t border-gray-200 safe-area-bottom" role="navigation" aria-label={dict.common.mobileNavigation}>
+    <nav className="lg:hidden fixed bottom-0 start-0 end-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 safe-area-bottom" role="navigation" aria-label={dict.common.mobileNavigation}>
       <div className="flex items-center justify-around h-16 px-2">
         {links.map((link) => {
           const isActive = pathname === link.href || (link.href !== `/${locale}/dashboard` && link.href !== `/${locale}/admin` && pathname.startsWith(link.href));
@@ -52,8 +52,8 @@ export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavP
               className={cn(
                 "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors min-w-[60px] min-h-[44px] justify-center focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2",
                 isActive
-                  ? "text-navy-600 bg-navy-50"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-navy-600 dark:text-navy-400 bg-navy-50 dark:bg-navy-900/30"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               )}
             >
               <link.icon className={cn("w-5 h-5", isActive && "text-navy-600")} aria-hidden="true" />

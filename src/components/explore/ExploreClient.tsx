@@ -19,6 +19,7 @@ import type { PropertyStatus } from "@/lib/utils/constants";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
+import BottomSheet from "@/components/ui/BottomSheet";
 
 const SearchFilters = lazy(() => import("@/components/properties/SearchFilters"));
 const MapToggle = lazy(() => import("@/components/explore/MapToggle"));
@@ -369,9 +370,10 @@ function ExploreClientInner({
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6" id="explore-content" tabIndex={-1}>
-        {/* Filters */}
+        {/* Filters - Desktop: inline, Mobile: bottom sheet */}
+        {/* Desktop filters */}
         {showFilters && (
-          <div className="mb-6">
+          <div className="hidden lg:block mb-6">
             <SearchFilters
               dict={dict as unknown as { common: Record<string, string>; explore: Record<string, string> }}
               zones={zones}
@@ -383,6 +385,19 @@ function ExploreClientInner({
             />
           </div>
         )}
+
+        {/* Mobile bottom sheet filters */}
+        <BottomSheet isOpen={showFilters} onClose={() => setShowFilters(false)} title={dict.explore.advancedFilters}>
+          <SearchFilters
+            dict={dict as unknown as { common: Record<string, string>; explore: Record<string, string> }}
+            zones={zones}
+            types={types}
+            developers={developers}
+            projects={projects}
+            offices={offices}
+            onSearch={(f) => { handleSearch(f); setShowFilters(false); }}
+          />
+        </BottomSheet>
 
         {/* Results */}
         {loading ? (
