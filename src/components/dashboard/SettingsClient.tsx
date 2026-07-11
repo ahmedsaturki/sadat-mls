@@ -68,8 +68,12 @@ export default function SettingsClient({
   const [notifPrefs, setNotifPrefs] = useState({
     contact_request: true,
     agent_joined: true,
+    offer_received: true,
+    commission_paid: true,
     contact_request_email: true,
     agent_joined_email: true,
+    offer_received_email: true,
+    commission_paid_email: true,
     saved_search_email: true,
     property_status_email: true,
   });
@@ -122,8 +126,12 @@ export default function SettingsClient({
           setNotifPrefs({
             contact_request: prefs.contact_request !== false,
             agent_joined: prefs.agent_joined !== false,
+            offer_received: prefs.offer_received !== false,
+            commission_paid: prefs.commission_paid !== false,
             contact_request_email: prefs.contact_request_email !== false,
             agent_joined_email: prefs.agent_joined_email !== false,
+            offer_received_email: prefs.offer_received_email !== false,
+            commission_paid_email: prefs.commission_paid_email !== false,
             saved_search_email: prefs.saved_search_email !== false,
             property_status_email: prefs.property_status_email !== false,
           });
@@ -613,6 +621,48 @@ export default function SettingsClient({
                     </button>
                   </div>
 
+                  {/* Offer Received Notifications */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dict.dashboard.offers}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "إشعار عند تلقي عرض جديد" : "Notify when a new offer is received"}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("offer_received")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.offer_received ? "bg-navy-600" : "bg-gray-300 dark:bg-gray-600"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.offer_received}
+                      aria-label={dict.dashboard.offers}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifPrefs.offer_received ? "translate-x-6" : "translate-x-1"}`} />
+                    </button>
+                  </div>
+
+                  {/* Commission Paid Notifications */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dict.dashboard.commissions}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "إشعار عند تأكيد دفع العمولة" : "Notify when a commission is marked as paid"}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("commission_paid")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.commission_paid ? "bg-navy-600" : "bg-gray-300 dark:bg-gray-600"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.commission_paid}
+                      aria-label={dict.dashboard.commissions}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifPrefs.commission_paid ? "translate-x-6" : "translate-x-1"}`} />
+                    </button>
+                  </div>
+
                   {/* Email Notifications Section Header */}
                   <div className="pt-3 border-t border-gray-200">
                     <p className="text-sm font-semibold text-gray-900 mb-3">{dict.office.emailNotifications}</p>
@@ -715,6 +765,48 @@ export default function SettingsClient({
                           notifPrefs.property_status_email ? "translate-x-6" : "translate-x-1"
                         }`}
                       />
+                    </button>
+                  </div>
+
+                  {/* Offer Received Email */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{locale === "ar" ? "بريد العروض" : "Offer Email"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "تلقَّ بريداً عند تلقي عرض جديد" : "Receive email when a new offer is received"}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("offer_received_email")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.offer_received_email ? "bg-navy-600" : "bg-gray-300 dark:bg-gray-600"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.offer_received_email}
+                      aria-label={locale === "ar" ? "بريد العروض" : "Offer Email"}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifPrefs.offer_received_email ? "translate-x-6" : "translate-x-1"}`} />
+                    </button>
+                  </div>
+
+                  {/* Commission Paid Email */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{locale === "ar" ? "بريد العمولات" : "Commission Email"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "تلقَّ بريداً عند تأكيد دفع العمولة" : "Receive email when a commission is paid"}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("commission_paid_email")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.commission_paid_email ? "bg-navy-600" : "bg-gray-300 dark:bg-gray-600"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.commission_paid_email}
+                      aria-label={locale === "ar" ? "بريد العمولات" : "Commission Email"}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifPrefs.commission_paid_email ? "translate-x-6" : "translate-x-1"}`} />
                     </button>
                   </div>
 
