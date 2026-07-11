@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import { getServerAuth } from "@/lib/supabase/server-auth";
-import NotificationsClient from "@/components/dashboard/NotificationsClient";
+import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
+
+const NotificationsClient = dynamic(() => import("@/components/dashboard/NotificationsClient"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center py-20"><LuxuryLoader /></div>,
+});
 
 export async function generateMetadata({
   params,
@@ -13,11 +19,7 @@ export async function generateMetadata({
   const { locale: rawLocale } = await params;
   const locale = (isValidLocale(rawLocale) ? rawLocale : "ar") as Locale;
   const dict = getMessages(locale);
-
-  return {
-    title: dict.nav.notifications,
-    description: dict.auth.platformSubtitle,
-  };
+  return { title: dict.nav.notifications, description: dict.auth.platformSubtitle };
 }
 
 export default async function NotificationsPage({
@@ -26,15 +28,8 @@ export default async function NotificationsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-
-  if (!isValidLocale(locale as Locale)) {
-    redirect("/ar");
-  }
-
+  if (!isValidLocale(locale as Locale)) redirect("/ar");
   const { user } = await getServerAuth();
-  if (!user) {
-    redirect(`/${locale}/login`);
-  }
-
+  if (!user) redirect(`/${locale}/login`);
   return <NotificationsClient params={{ locale, userId: user.id }} />;
 }
