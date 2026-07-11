@@ -13,6 +13,9 @@ interface SearchFiltersProps {
   };
   zones: { id: string; name: string }[];
   types: { id: string; name: string }[];
+  developers?: { id: string; name: string }[];
+  projects?: { id: string; name: string; developer_id: string }[];
+  offices?: { id: string; name: string }[];
   onSearch: (filters: FilterState) => void;
   locale?: string;
 }
@@ -30,6 +33,9 @@ export interface FilterState {
   hasBalcony: boolean;
   hasParking: boolean;
   hasElevator: boolean;
+  developerId: string;
+  projectId: string;
+  officeId: string;
 }
 
 export const EMPTY_FILTERS = {
@@ -45,11 +51,19 @@ export const EMPTY_FILTERS = {
   hasBalcony: false,
   hasParking: false,
   hasElevator: false,
+  developerId: "",
+  projectId: "",
+  officeId: "",
 } as const satisfies FilterState;
 
-export default function SearchFilters({ dict, zones, types, onSearch, locale }: SearchFiltersProps) {
+export default function SearchFilters({ dict, zones, types, developers = [], projects = [], offices = [], onSearch, locale }: SearchFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+
+  // Cascading: filter projects by selected developer
+  const filteredProjects = filters.developerId
+    ? projects.filter((p) => p.developer_id === filters.developerId)
+    : projects;
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -63,7 +77,11 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
   }, []);
 
   const updateFilter = (key: keyof FilterState, value: string | boolean) => {
-    const newFilters = { ...filters, [key]: value };
+    let newFilters = { ...filters, [key]: value };
+    // Cascading: reset project when developer changes
+    if (key === "developerId" && typeof value === "string") {
+      newFilters = { ...newFilters, projectId: "" };
+    }
     setFilters(newFilters);
     // Auto-search on text input changes (debounced)
     if (key === "search" || key === "minPrice" || key === "maxPrice" || key === "minArea" || key === "maxArea") {
@@ -203,6 +221,37 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
               placeholder={dict.explore.any}
             />
 
+            {/* Developer */}
+            {developers.length > 0 && (
+              <Select
+                label={dict.explore.developer}
+                value={filters.developerId}
+                onChange={(e) => updateFilter("developerId", e.target.value)}
+                options={developers.map((d) => ({ value: d.id, label: d.name }))}
+                placeholder={dict.explore.allDevelopers}
+              />
+            )}
+            {/* Project */}
+            {filteredProjects.length > 0 && (
+              <Select
+                label={dict.explore.project}
+                value={filters.projectId}
+                onChange={(e) => updateFilter("projectId", e.target.value)}
+                options={filteredProjects.map((p) => ({ value: p.id, label: p.name }))}
+                placeholder={dict.explore.allProjects}
+              />
+            )}
+            {/* Office */}
+            {offices.length > 0 && (
+              <Select
+                label={dict.explore.office}
+                value={filters.officeId}
+                onChange={(e) => updateFilter("officeId", e.target.value)}
+                options={offices.map((o) => ({ value: o.id, label: o.name }))}
+                placeholder={dict.explore.allOffices}
+              />
+            )}
+
             {/* Features */}
             <div className="col-span-2 md:col-span-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -269,6 +318,30 @@ export default function SearchFilters({ dict, zones, types, onSearch, locale }: 
                 <FilterTag
                   label={types.find((t) => t.id === filters.typeId)?.name || ""}
                   onRemove={() => updateFilter("typeId", "")}
+                  removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
+                />
+              )}
+              {filters.developerId && (
+                <FilterTag
+                  label={developers.find((d) => d.id === filters.developerId)?.name || ""}
+                  onRemove={() => updateFilter("developerId", "")}
+                  removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
+                />
+              )}
+              {filters.projectId && (
+                <FilterTag
+                  label={projects.find((p) => p.id === filters.projectId)?.name || ""}
+                  onRemove={() => updateFilter("projectId", "")}
+                  removeLabel={dict.common.removeFilter}
+                  filterLabel={dict.common?.filter ?? ""}
+                />
+              )}
+              {filters.officeId && (
+                <FilterTag
+                  label={offices.find((o) => o.id === filters.officeId)?.name || ""}
+                  onRemove={() => updateFilter("officeId", "")}
                   removeLabel={dict.common.removeFilter}
                   filterLabel={dict.common?.filter ?? ""}
                 />

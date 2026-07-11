@@ -35,10 +35,13 @@ export default async function ExplorePage({
     console.error("Failed to load explore properties:", error.message);
   }
 
-  // Fetch zones and types for filters
-  const [{ data: zonesData }, { data: typesData }] = await Promise.all([
+  // Fetch zones, types, developers, projects, offices for filters
+  const [{ data: zonesData }, { data: typesData }, { data: developersData }, { data: projectsData }, { data: officesData }] = await Promise.all([
     supabase.from("zones").select("id, name_ar, name_en"),
     supabase.from("property_types").select("id, name_ar, name_en"),
+    supabase.from("developers").select("id, name").eq("is_active", true).order("name"),
+    supabase.from("projects").select("id, title, developer_id").eq("is_active", true).order("title"),
+    supabase.from("offices").select("id, name").eq("is_active", true).order("name"),
   ]);
 
   // Fetch primary images for initial properties
@@ -96,6 +99,9 @@ export default async function ExplorePage({
         initialCount={count || 0}
         initialZones={formattedZones}
         initialTypes={formattedTypes}
+        initialDevelopers={(developersData || []).map((d: { id: string; name: string }) => ({ id: d.id, name: d.name }))}
+        initialProjects={(projectsData || []).map((p: { id: string; title: string; developer_id: string }) => ({ id: p.id, name: p.title, developer_id: p.developer_id }))}
+        initialOffices={(officesData || []).map((o: { id: string; name: string }) => ({ id: o.id, name: o.name }))}
       />
     </Suspense>
   );

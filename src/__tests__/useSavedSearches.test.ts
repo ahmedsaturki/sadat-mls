@@ -19,6 +19,9 @@ function makeFilters(overrides?: Partial<FilterState>): FilterState {
     hasBalcony: false,
     hasParking: false,
     hasElevator: false,
+    developerId: "",
+    projectId: "",
+    officeId: "",
     ...overrides,
   };
 }

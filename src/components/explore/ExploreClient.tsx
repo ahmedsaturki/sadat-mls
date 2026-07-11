@@ -51,6 +51,9 @@ interface ExploreClientProps {
   initialCount: number;
   initialZones: { id: string; name: string }[];
   initialTypes: { id: string; name: string }[];
+  initialDevelopers?: { id: string; name: string }[];
+  initialProjects?: { id: string; name: string; developer_id: string }[];
+  initialOffices?: { id: string; name: string }[];
 }
 
 function ExploreClientInner({
@@ -59,6 +62,9 @@ function ExploreClientInner({
   initialCount,
   initialZones,
   initialTypes,
+  initialDevelopers = [],
+  initialProjects = [],
+  initialOffices = [],
 }: ExploreClientProps) {
   const locale = usePageLocale(params);
   const [properties, setProperties] = useState<Property[]>(initialProperties);
@@ -70,11 +76,25 @@ function ExploreClientInner({
   const [totalCount, setTotalCount] = useState(initialCount);
   const [zones, setZones] = useState<{ id: string; name: string }[]>(initialZones);
   const [types, setTypes] = useState<{ id: string; name: string }[]>(initialTypes);
+  const [developers, setDevelopers] = useState<{ id: string; name: string }[]>(initialDevelopers);
+  const [projects, setProjects] = useState<{ id: string; name: string; developer_id: string }[]>(initialProjects);
+  const [offices, setOffices] = useState<{ id: string; name: string }[]>(initialOffices);
   const [sortBy, setSortBy] = useState<"newest" | "price_low" | "price_high" | "area">("newest");
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<FilterState>({
     ...EMPTY_FILTERS,
     search: searchParams.get("q") || "",
+    zoneId: searchParams.get("zone") || "",
+    typeId: searchParams.get("type") || "",
+    minPrice: searchParams.get("minPrice") || "",
+    maxPrice: searchParams.get("maxPrice") || "",
+    minArea: searchParams.get("minArea") || "",
+    maxArea: searchParams.get("maxArea") || "",
+    bedrooms: searchParams.get("bedrooms") || "",
+    bathrooms: searchParams.get("bathrooms") || "",
+    developerId: searchParams.get("developer") || "",
+    projectId: searchParams.get("project") || "",
+    officeId: searchParams.get("office") || "",
   });
   const [initialLoaded, setInitialLoaded] = useState(true);
 
@@ -119,8 +139,37 @@ function ExploreClientInner({
       if (f.hasBalcony) query = query.eq("has_balcony", true);
       if (f.hasParking) query = query.eq("has_parking", true);
       if (f.hasElevator) query = query.eq("has_elevator", true);
+      if (f.officeId) query = query.eq("office_id", f.officeId);
       if (f.search) {
         query = query.textSearch("fts", f.search, { type: "websearch", config: "arabic" });
+      }
+
+      // Developer/Project filtering via junction table
+      let propertyIds: string[] | null = null;
+      if (f.developerId || f.projectId) {
+        let propQuery = supabase.from("property_projects").select("property_id");
+        if (f.projectId) {
+          propQuery = propQuery.eq("project_id", f.projectId);
+        } else if (f.developerId) {
+          // Get project IDs for this developer first
+          const { data: devProjects } = await supabase.from("projects").select("id").eq("developer_id", f.developerId);
+          if (devProjects?.length) {
+            propQuery = propQuery.in("project_id", devProjects.map((p: { id: string }) => p.id));
+          } else {
+            propertyIds = []; // No projects for this developer
+          }
+        }
+        if (propertyIds === null) {
+          const { data: propLinks } = await propQuery;
+          propertyIds = propLinks?.map((l: { property_id: string }) => l.property_id) || [];
+        }
+        if (!propertyIds || propertyIds.length === 0) {
+          // No matching properties
+          if (append) setLoadingMore(false);
+          else setLoading(false);
+          return;
+        }
+        query = query.in("id", propertyIds);
       }
 
       const from = (page - 1) * PAGE_SIZE;
@@ -196,6 +245,22 @@ function ExploreClientInner({
     setFilters(newFilters);
     setPage(1);
     setShowFilters(false);
+    // URL sync
+    const params = new URLSearchParams();
+    if (newFilters.search) params.set("q", newFilters.search);
+    if (newFilters.zoneId) params.set("zone", newFilters.zoneId);
+    if (newFilters.typeId) params.set("type", newFilters.typeId);
+    if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice);
+    if (newFilters.maxPrice) params.set("maxPrice", newFilters.maxPrice);
+    if (newFilters.minArea) params.set("minArea", newFilters.minArea);
+    if (newFilters.maxArea) params.set("maxArea", newFilters.maxArea);
+    if (newFilters.bedrooms) params.set("bedrooms", newFilters.bedrooms);
+    if (newFilters.bathrooms) params.set("bathrooms", newFilters.bathrooms);
+    if (newFilters.developerId) params.set("developer", newFilters.developerId);
+    if (newFilters.projectId) params.set("project", newFilters.projectId);
+    if (newFilters.officeId) params.set("office", newFilters.officeId);
+    const url = params.toString() ? `?${params.toString()}` : window.location.pathname;
+    window.history.replaceState({}, "", url);
   }, []);
 
   const handleSortChange = useCallback((newSort: typeof sortBy) => {
@@ -206,11 +271,13 @@ function ExploreClientInner({
   const clearFilters = useCallback(() => {
     setFilters(EMPTY_FILTERS);
     setPage(1);
+    window.history.replaceState({}, "", window.location.pathname);
   }, []);
 
   const hasActiveFilters = filters.zoneId || filters.typeId || filters.minPrice || filters.maxPrice ||
     filters.minArea || filters.maxArea || filters.bedrooms || filters.bathrooms ||
-    filters.hasBalcony || filters.hasParking || filters.hasElevator;
+    filters.hasBalcony || filters.hasParking || filters.hasElevator ||
+    filters.developerId || filters.projectId || filters.officeId;
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -274,6 +341,9 @@ function ExploreClientInner({
               dict={dict as unknown as { common: Record<string, string>; explore: Record<string, string> }}
               zones={zones}
               types={types}
+              developers={developers}
+              projects={projects}
+              offices={offices}
               onSearch={handleSearch}
             />
           </div>
