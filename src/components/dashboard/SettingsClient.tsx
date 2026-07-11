@@ -65,9 +65,13 @@ export default function SettingsClient({
   const [passwordErrors, setPasswordErrors] = useState<{ [key: string]: string }>({});
 
   // Notification preferences state
-  const [notifPrefs, setNotifPrefs] = useState<{ contact_request: boolean; agent_joined: boolean }>({
+  const [notifPrefs, setNotifPrefs] = useState({
     contact_request: true,
     agent_joined: true,
+    contact_request_email: true,
+    agent_joined_email: true,
+    saved_search_email: true,
+    property_status_email: true,
   });
   const [savingPrefs, setSavingPrefs] = useState(false);
 
@@ -114,9 +118,14 @@ export default function SettingsClient({
 
         // Load notification preferences
         if (fullProfile?.notification_preferences && typeof fullProfile.notification_preferences === "object") {
+          const prefs = fullProfile.notification_preferences as Record<string, boolean>;
           setNotifPrefs({
-            contact_request: (fullProfile.notification_preferences as Record<string, boolean>).contact_request !== false,
-            agent_joined: (fullProfile.notification_preferences as Record<string, boolean>).agent_joined !== false,
+            contact_request: prefs.contact_request !== false,
+            agent_joined: prefs.agent_joined !== false,
+            contact_request_email: prefs.contact_request_email !== false,
+            agent_joined_email: prefs.agent_joined_email !== false,
+            saved_search_email: prefs.saved_search_email !== false,
+            property_status_email: prefs.property_status_email !== false,
           });
         }
 
@@ -603,6 +612,112 @@ export default function SettingsClient({
                       />
                     </button>
                   </div>
+
+                  {/* Email Notifications Section Header */}
+                  <div className="pt-3 border-t border-gray-200">
+                    <p className="text-sm font-semibold text-gray-900 mb-3">{dict.office.emailNotifications}</p>
+                  </div>
+
+                  {/* Contact Request Email */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{dict.office.contactRequestEmailNotifications}</p>
+                      <p className="text-xs text-gray-500">{dict.office.contactRequestEmailNotificationsDesc}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("contact_request_email")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.contact_request_email ? "bg-navy-600" : "bg-gray-300"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.contact_request_email}
+                      aria-label={dict.office.contactRequestEmailNotifications}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          notifPrefs.contact_request_email ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Agent Joined Email */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{dict.office.agentJoinedEmailNotifications}</p>
+                      <p className="text-xs text-gray-500">{dict.office.agentJoinedEmailNotificationsDesc}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("agent_joined_email")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.agent_joined_email ? "bg-navy-600" : "bg-gray-300"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.agent_joined_email}
+                      aria-label={dict.office.agentJoinedEmailNotifications}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          notifPrefs.agent_joined_email ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Saved Search Email */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{dict.office.savedSearchEmailNotifications}</p>
+                      <p className="text-xs text-gray-500">{dict.office.savedSearchEmailNotificationsDesc}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("saved_search_email")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.saved_search_email ? "bg-navy-600" : "bg-gray-300"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.saved_search_email}
+                      aria-label={dict.office.savedSearchEmailNotifications}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          notifPrefs.saved_search_email ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Property Status Email */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{dict.office.propertyStatusEmailNotifications}</p>
+                      <p className="text-xs text-gray-500">{dict.office.propertyStatusEmailNotificationsDesc}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("property_status_email")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.property_status_email ? "bg-navy-600" : "bg-gray-300"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.property_status_email}
+                      aria-label={dict.office.propertyStatusEmailNotifications}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          notifPrefs.property_status_email ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
                   {/* Push Notifications */}
                   {pushSupported && (
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">

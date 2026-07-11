@@ -167,6 +167,10 @@ export async function POST(request: NextRequest) {
       entityType: "agent",
       entityId: authData.user?.id,
     }).catch(() => {});
+
+    // Send email notification (fire-and-forget)
+    const { sendAgentJoinedNotification } = await import("@/lib/email/notify");
+    sendAgentJoinedNotification(targetOfficeId, sanitizedName, sanitizedEmail, role).catch(() => {});
   }
 
   return NextResponse.json({ success: true, userId: authData.user?.id });

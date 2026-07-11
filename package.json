@@ -33,6 +33,7 @@
     "react-hook-form": "^7.47.0",
     "react-hot-toast": "^2.4.0",
     "react-intersection-observer": "^10.0.0",
+    "resend": "^6.17.2",
     "tailwind-merge": "^1.14.0",
     "zod": "^3.22.4"
   },

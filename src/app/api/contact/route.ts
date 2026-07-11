@@ -152,6 +152,19 @@ export async function POST(request: NextRequest) {
       if (notificationError) {
         logger.error("Failed to create contact notifications", { error: notificationError.message });
       }
+
+      // Send email notifications (fire-and-forget)
+      const { sendContactRequestNotification } = await import("@/lib/email/notify");
+      const propertyTitle = data.propertyId ? (await supabase.from("properties").select("title").eq("id", data.propertyId).maybeSingle())?.data?.title ?? null : null;
+      sendContactRequestNotification(
+        targetOfficeId,
+        propertyTitle,
+        data.visitorName,
+        data.visitorEmail || null,
+        data.visitorPhone || null,
+        data.message,
+        supabase,
+      ).catch(() => {});
     }
 
     return NextResponse.json({ success: true, id: contactRequest.id });
