@@ -19,6 +19,8 @@ import Footer from "@/components/layout/Footer";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
 const SearchFilters = lazy(() => import("@/components/properties/SearchFilters"));
+const MapToggle = lazy(() => import("@/components/explore/MapToggle"));
+const PropertyMap = lazy(() => import("@/components/explore/PropertyMap"));
 
 interface PropertyRow {
   id: string;
@@ -97,6 +99,12 @@ function ExploreClientInner({
     officeId: searchParams.get("office") || "",
   });
   const [initialLoaded, setInitialLoaded] = useState(true);
+  const [viewMode, setViewMode] = useState<"grid" | "map">(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("explore_view_mode") as "grid" | "map") || "grid";
+    }
+    return "grid";
+  });
 
   const dict = getMessages(locale);
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
@@ -268,6 +276,11 @@ function ExploreClientInner({
     setPage(1);
   }, []);
 
+  const handleViewModeChange = useCallback((mode: "grid" | "map") => {
+    setViewMode(mode);
+    localStorage.setItem("explore_view_mode", mode);
+  }, []);
+
   const clearFilters = useCallback(() => {
     setFilters(EMPTY_FILTERS);
     setPage(1);
@@ -371,29 +384,41 @@ function ExploreClientInner({
           </div>
         ) : properties.length > 0 ? (
           <>
-            <p className="text-sm text-gray-500 mb-4" aria-live="polite">
-              {totalCount} {dict.explore.results}
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {properties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  id={property.id}
-                  title={property.title}
-                  price={property.price}
-                  area={property.area}
-                  bedrooms={property.bedrooms}
-                  bathrooms={property.bathrooms}
-                  zone={locale === "ar" ? property.zones?.name_ar : (property.zones?.name_en ?? undefined)}
-                  imageUrl={property.primaryImage || undefined}
-                  status={property.status}
-                  officeName={property.offices?.name || ""}
-                  locale={locale}
-                  type={locale === "ar" ? property.property_types?.name_ar : (property.property_types?.name_en ?? undefined)}
-                  dict={dict}
-                />
-              ))}
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-500" aria-live="polite">
+                {totalCount} {dict.explore.results}
+              </p>
+              <Suspense fallback={null}>
+                <MapToggle viewMode={viewMode} onToggle={handleViewModeChange} dict={dict} />
+              </Suspense>
             </div>
+
+            {viewMode === "map" ? (
+              <Suspense fallback={<div className="h-[500px] bg-gray-100 rounded-xl animate-pulse" />}>
+                <PropertyMap properties={properties} locale={locale} />
+              </Suspense>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {properties.map((property) => (
+                  <PropertyCard
+                    key={property.id}
+                    id={property.id}
+                    title={property.title}
+                    price={property.price}
+                    area={property.area}
+                    bedrooms={property.bedrooms}
+                    bathrooms={property.bathrooms}
+                    zone={locale === "ar" ? property.zones?.name_ar : (property.zones?.name_en ?? undefined)}
+                    imageUrl={property.primaryImage || undefined}
+                    status={property.status}
+                    officeName={property.offices?.name || ""}
+                    locale={locale}
+                    type={locale === "ar" ? property.property_types?.name_ar : (property.property_types?.name_en ?? undefined)}
+                    dict={dict}
+                  />
+                ))}
+              </div>
+            )}
 
             {/* Infinite scroll sentinel */}
             <div ref={sentinelRef} className="h-4" aria-hidden="true" />

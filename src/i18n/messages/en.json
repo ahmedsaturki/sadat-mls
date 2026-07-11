@@ -650,6 +650,8 @@
     "zone": "Zone",
     "type": "Type",
     "clearAll": "Clear All",
+    "mapView": "Map View",
+    "gridView": "Grid View",
     "share": "Share",
     "shareProperty": "Share this property with others",
     "copyLink": "Copy link",
