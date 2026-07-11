@@ -18,7 +18,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  const resolvedParams = await Promise.resolve(params);
+  const resolvedParams = await params;
   const rawLocale = resolvedParams?.locale || "ar";
   const locale = (isValidLocale(rawLocale) ? rawLocale : "ar") as Locale;
   const dict = getMessages(locale);
@@ -47,9 +47,9 @@ export async function generateMetadata({
 export default async function LandingPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const resolvedParams = await Promise.resolve(params);
+  const resolvedParams = await params;
   const rawLocale = resolvedParams?.locale || "ar";
   const typedLocale = (isValidLocale(rawLocale) ? rawLocale : "ar") as Locale;
   const dict = getMessages(typedLocale);
