@@ -448,7 +448,22 @@
     "confirmReject": "رفض تسجيل هذا المكتب؟",
     "registeredDate": "تاريخ التسجيل",
     "noPendingRegistrations": "لا توجد تسجيلات مكتب معلقة",
-    "noPendingHint": "ستظهر تسجيلات المكاتب الجديدة هنا"
+    "noPendingHint": "ستظهر تسجيلات المكاتب الجديدة هنا",
+    "marketOverview": "نظرة عامة على السوق",
+    "totalMarketValue": "إجمالي قيمة السوق",
+    "avgPricePerSqm": "متوسط السعر/م²",
+    "priceDistribution": "توزيع الأسعار",
+    "zoneComparison": "مقارنة المناطق",
+    "zoneName": "المنطقة",
+    "avgPrice": "متوسط السعر",
+    "avgArea": "متوسط المساحة",
+    "recentActivity": "النشاط الأخير",
+    "newProperties7d": "عقارات جديدة (7 أيام)",
+    "newProperties30d": "عقارات جديدة (30 يوم)",
+    "newContacts7d": "تواصل جديد (7 أيام)",
+    "newContacts30d": "تواصل جديد (30 يوم)",
+    "newOffers7d": "عروض جديدة (7 أيام)",
+    "newOffers30d": "عروض جديدة (30 يوم)"
   },
   "office": {
     "dashboard": "لوحة تحكم المكتب",

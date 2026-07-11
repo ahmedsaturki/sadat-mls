@@ -449,7 +449,22 @@
     "confirmReject": "Reject this office registration?",
     "registeredDate": "Registered",
     "noPendingRegistrations": "No pending office registrations",
-    "noPendingHint": "New office registrations will appear here"
+    "noPendingHint": "New office registrations will appear here",
+    "marketOverview": "Market Overview",
+    "totalMarketValue": "Total Market Value",
+    "avgPricePerSqm": "Avg Price/m²",
+    "priceDistribution": "Price Distribution",
+    "zoneComparison": "Zone Comparison",
+    "zoneName": "Zone",
+    "avgPrice": "Avg Price",
+    "avgArea": "Avg Area",
+    "recentActivity": "Recent Activity",
+    "newProperties7d": "New Properties (7d)",
+    "newProperties30d": "New Properties (30d)",
+    "newContacts7d": "New Contacts (7d)",
+    "newContacts30d": "New Contacts (30d)",
+    "newOffers7d": "New Offers (7d)",
+    "newOffers30d": "New Offers (30d)"
   },
   "office": {
     "dashboard": "Office Dashboard",
