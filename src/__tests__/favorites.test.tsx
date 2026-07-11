@@ -65,7 +65,7 @@ vi.mock("@/lib/logger", () => ({
   logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-import FavoritesPageWrapper from "@/app/[locale]/dashboard/favorites/page";
+import FavoritesClient from "@/components/dashboard/FavoritesClient";
 
 describe("FavoritesPage", () => {
   beforeEach(() => {
@@ -73,38 +73,38 @@ describe("FavoritesPage", () => {
   });
 
   it("renders favorites heading", () => {
-    render(<FavoritesPageWrapper params={{ locale: "ar" }} />);
+    render(<FavoritesClient params={{ locale: "ar", userId: "test-user-id" }} />);
     expect(screen.getByText("المفضلة")).toBeInTheDocument();
   });
 
   it("displays empty state when no user is logged in", () => {
-    render(<FavoritesPageWrapper params={{ locale: "ar" }} />);
+    render(<FavoritesClient params={{ locale: "ar", userId: "test-user-id" }} />);
     expect(screen.getByText("لا توجد عقارات مفضلة")).toBeInTheDocument();
   });
 
   it("shows hint text in empty state", () => {
-    render(<FavoritesPageWrapper params={{ locale: "ar" }} />);
+    render(<FavoritesClient params={{ locale: "ar", userId: "test-user-id" }} />);
     expect(screen.getByText("أضف عقارات إلى المفضلة لوجودها هنا")).toBeInTheDocument();
   });
 
   it("renders Heart icon in heading", () => {
-    const { container } = render(<FavoritesPageWrapper params={{ locale: "ar" }} />);
+    const { container } = render(<FavoritesClient params={{ locale: "ar", userId: "test-user-id" }} />);
     const svg = container.querySelector("svg");
     expect(svg).toBeDefined();
   });
 
   it("renders within DashboardLayout", () => {
-    render(<FavoritesPageWrapper params={{ locale: "ar" }} />);
+    render(<FavoritesClient params={{ locale: "ar", userId: "test-user-id" }} />);
     expect(screen.getByTestId("dashboard-layout")).toBeInTheDocument();
   });
 
   it("has empty state with role=status for a11y", () => {
-    render(<FavoritesPageWrapper params={{ locale: "ar" }} />);
+    render(<FavoritesClient params={{ locale: "ar", userId: "test-user-id" }} />);
     expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
   it("renders empty state with Heart icon", () => {
-    render(<FavoritesPageWrapper params={{ locale: "ar" }} />);
+    render(<FavoritesClient params={{ locale: "ar", userId: "test-user-id" }} />);
     const statusEl = screen.getByRole("status");
     expect(statusEl).toContainHTML("svg");
   });
