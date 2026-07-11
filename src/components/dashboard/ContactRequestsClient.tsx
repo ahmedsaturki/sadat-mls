@@ -146,7 +146,7 @@ export default function ContactRequestsClient({
           {loading ? (
             <SkeletonTable rows={5} />
           ) : filteredRequests.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4" role="list" aria-live="polite">
               {filteredRequests.map((request) => (
                 <Card key={request.id}>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

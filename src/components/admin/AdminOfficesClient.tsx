@@ -382,7 +382,7 @@ const locale = params.locale as Locale;
                           <button
                             onClick={() => toggleOfficeStatus(office.id, office.is_active)}
                             disabled={togglingId === office.id}
-                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
+                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
                             title={office.is_active ? dict.admin.deactivate : dict.admin.activate}
                             aria-label={office.is_active ? dict.admin.deactivate : dict.admin.activate}
                           >
@@ -394,7 +394,7 @@ const locale = params.locale as Locale;
                           </button>
                           <button
                             onClick={() => confirmDelete(office.id)}
-                            className="p-2 rounded-lg hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                            className="p-2 rounded-lg hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
                             title={dict.admin.deleteOffice}
                             aria-label={dict.admin.deleteOffice}
                           >

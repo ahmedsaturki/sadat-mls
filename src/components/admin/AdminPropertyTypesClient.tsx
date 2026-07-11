@@ -120,10 +120,10 @@ columns={[
                     header: dict.common.actions,
                     render: (type) => (
                       <div className="flex items-center gap-2">
-                        <button onClick={() => handleEdit(type)} aria-label={`${dict.common.edit} ${type.name_ar}`} className="p-2 rounded-lg hover:bg-navy-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2">
+                        <button onClick={() => handleEdit(type)} aria-label={`${dict.common.edit} ${type.name_ar}`} className="p-2 rounded-lg hover:bg-navy-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
                           <span className="text-navy-500">{dict.common.edit}</span>
                         </button>
-                        <button onClick={() => confirmDelete(type.id)} aria-label={`${dict.common.delete} ${type.name_ar}`} className="p-2 rounded-lg hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2">
+                        <button onClick={() => confirmDelete(type.id)} aria-label={`${dict.common.delete} ${type.name_ar}`} className="p-2 rounded-lg hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
                           <span className="text-red-500">{dict.common.delete}</span>
                         </button>
                       </div>

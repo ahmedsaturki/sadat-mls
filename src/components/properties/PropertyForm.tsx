@@ -644,7 +644,7 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
     <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => router.back()} aria-label={dict.common.goBack} className="p-2 rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:outline-none">
+          <button onClick={() => router.back()} aria-label={dict.common.goBack} className="p-2 rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:outline-none min-w-[44px] min-h-[44px] flex items-center justify-center">
             <ArrowRight className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
           </button>
           <h1 className="text-2xl font-bold text-gray-900">

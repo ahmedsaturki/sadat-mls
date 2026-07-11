@@ -21,7 +21,7 @@ export default function PageHeader({ title, action, showBack, dict }: PageHeader
         {showBack && (
           <button
             onClick={() => router.back()}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={dict?.common?.back}
           >
             <ArrowRight className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />

@@ -161,7 +161,7 @@ export default function NotificationsClient({
             ))}
           </div>
         ) : notifications.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-2" role="list" aria-label={dict.nav.notifications}>
             {notifications.map((notification) => {
               const Icon = getIcon(notification.type);
               return (

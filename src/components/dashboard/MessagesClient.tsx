@@ -206,7 +206,7 @@ export default function MessagesClient({
             ))}
           </div>
         ) : filteredMessages.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-2" role="list" aria-live="polite">
             {filteredMessages.map((msg) => (
               <button
                 key={msg.id}
