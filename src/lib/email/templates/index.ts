@@ -5,3 +5,4 @@ export { savedSearchAlertEmail } from "./saved-search-alert";
 export { propertyStatusChangeEmail } from "./property-status-change";
 export { officeRegisteredEmail } from "./office-registered";
 export { officeApprovedEmail } from "./office-approved";
+export { newListingEmail } from "./new-listing";

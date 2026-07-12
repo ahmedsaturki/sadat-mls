@@ -394,6 +394,13 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         }
         resultPropertyId = property.id;
         showToast(dict.office.propertyCreated, "success");
+
+        // Send email notification to office members (fire-and-forget)
+        fetch("/api/notify/new-listing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ officeId: propertyData.office_id, propertyId: property.id }),
+        }).catch(() => {});
       } else {
         showToast(dict.office.updatingProperty, "info");
         const { error } = await supabase
