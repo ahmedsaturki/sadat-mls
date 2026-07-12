@@ -268,7 +268,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const { userId, role, is_active } = parsed.data;
+  const { userId, role, is_active, fullName, email } = parsed.data;
 
   if (userId === user.id) {
     return NextResponse.json({ error: "Cannot modify your own account" }, { status: 400 });
@@ -280,6 +280,12 @@ export async function PATCH(request: NextRequest) {
   }
   if (typeof is_active === "boolean") {
     updates.is_active = is_active;
+  }
+  if (fullName) {
+    updates.full_name = fullName;
+  }
+  if (email) {
+    updates.email = email;
   }
 
   if (Object.keys(updates).length === 0) {

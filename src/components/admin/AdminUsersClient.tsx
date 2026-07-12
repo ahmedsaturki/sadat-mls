@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
-import { Users, Trash2, Shield, ShieldCheck, ShieldOff, UserPlus } from "lucide-react";
+import { Users, Trash2, Shield, ShieldCheck, ShieldOff, UserPlus, Edit } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -66,6 +66,8 @@ export default function AdminUsersClient({
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: UserRecord | null }>({ open: false, user: null });
   const [createModal, setCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState<{ email: string; password: string; full_name: string; role: UserRole }>({ email: "", password: "", full_name: "", role: ROLES.OFFICE_AGENT });
+  const [editModal, setEditModal] = useState<{ open: boolean; user: UserRecord | null }>({ open: false, user: null });
+  const [editForm, setEditForm] = useState({ full_name: "", email: "", role: ROLES.OFFICE_AGENT, is_active: true });
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [updating, setUpdating] = useState(false);
@@ -157,6 +159,43 @@ export default function AdminUsersClient({
       fetchUsers();
     } catch (err) {
       logger.error("Failed to update role", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleEditUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editModal.user) return;
+    setUpdating(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+
+      const response = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          ...getCsrfHeaders(),
+        },
+        body: JSON.stringify({
+          userId: editModal.user.id,
+          fullName: editForm.full_name,
+          email: editForm.email,
+          role: editForm.role,
+          is_active: editForm.is_active,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update user");
+      showToast(dict.admin.userUpdated, "success");
+      setEditModal({ open: false, user: null });
+      fetchUsers();
+    } catch (err) {
+      logger.error("Failed to update user", { error: err instanceof Error ? err.message : String(err) });
       showToast(dict.common.unexpectedError, "error");
     } finally {
       setUpdating(false);
@@ -282,6 +321,22 @@ export default function AdminUsersClient({
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => {
+                  setEditForm({
+                    full_name: u.full_name,
+                    email: u.email,
+                    role: u.role as UserRole,
+                    is_active: u.is_active ?? true,
+                  });
+                  setEditModal({ open: true, user: u });
+                }}
+                aria-label={dict.admin.editUser}
+              >
+                <Edit className="w-4 h-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setRoleModal({ open: true, user: u })}
                 aria-label={dict.admin.changeRole}
               >
@@ -365,6 +420,66 @@ export default function AdminUsersClient({
             />
           )}
         </div>
+
+        {/* Edit User Modal */}
+        <Modal
+          isOpen={editModal.open}
+          onClose={() => setEditModal({ open: false, user: null })}
+          title={dict.admin.editUser}
+        >
+          <form onSubmit={handleEditUser} className="space-y-4">
+            <Input
+              label={dict.admin.createUserName}
+              value={editForm.full_name}
+              onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+              required
+            />
+            <Input
+              type="email"
+              label={dict.admin.createUserEmail}
+              value={editForm.email}
+              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              required
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{dict.admin.createUserRole}</label>
+              <select
+                value={editForm.role}
+                onChange={(e) => setEditForm({ ...editForm, role: e.target.value as UserRole })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-navy-500 focus:border-navy-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
+              >
+                {ROLE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{getRoleLabel(opt.value)}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">{dict.common.status}</label>
+              <button
+                type="button"
+                onClick={() => setEditForm({ ...editForm, is_active: !editForm.is_active })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  editForm.is_active ? "bg-green-600" : "bg-gray-300"
+                }`}
+                role="switch"
+                aria-checked={editForm.is_active}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  editForm.is_active ? "translate-x-6" : "translate-x-1"
+                }`} />
+              </button>
+              <span className="text-sm text-gray-600">{editForm.is_active ? dict.common.active : dict.common.inactive}</span>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" type="button" onClick={() => setEditModal({ open: false, user: null })}>
+                {dict.common.cancel}
+              </Button>
+              <Button type="submit" isLoading={updating}>
+                {dict.common.save}
+              </Button>
+            </div>
+          </form>
+        </Modal>
 
         {/* Delete Confirmation Modal */}
         <Modal
