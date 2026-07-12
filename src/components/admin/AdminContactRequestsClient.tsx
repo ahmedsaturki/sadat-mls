@@ -22,6 +22,7 @@ interface ContactRequest {
   property_id: string;
   office_id: string;
   contact_type: "whatsapp" | "phone" | "email";
+  status: "pending" | "read" | "resolved";
   visitor_name: string | null;
   visitor_phone: string | null;
   visitor_email: string | null;
@@ -41,6 +42,7 @@ export default function AdminContactRequestsClient({
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
   const [officeFilter, setOfficeFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
@@ -66,7 +68,7 @@ export default function AdminContactRequestsClient({
     try {
       const { data, error } = await supabase
         .from("contact_requests")
-        .select("id, office_id, property_id, visitor_name, visitor_email, visitor_phone, contact_type, message, created_at, updated_at, properties(title), offices(name)")
+        .select("id, office_id, property_id, visitor_name, visitor_email, visitor_phone, contact_type, status, message, created_at, updated_at, properties(title), offices(name)")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -125,6 +127,25 @@ export default function AdminContactRequestsClient({
     }
   };
 
+  const handleStatusUpdate = useCallback(async (id: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from("contact_requests")
+        .update({ status: newStatus })
+        .eq("id", id);
+
+      if (error) {
+        showToast(dict.common.unexpectedError, "error");
+        return;
+      }
+
+      setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: newStatus as ContactRequest["status"] } : r));
+      showToast(dict.contactRequests.statusUpdated, "success");
+    } catch {
+      showToast(dict.common.unexpectedError, "error");
+    }
+  }, [supabase, showToast, dict]);
+
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "whatsapp": return <MessageSquare className="w-4 h-4 text-green-600" />;
@@ -155,6 +176,7 @@ export default function AdminContactRequestsClient({
   const filteredRequests = requests.filter((r) => {
     if (filter !== "all" && r.contact_type !== filter) return false;
     if (officeFilter !== "all" && r.office_id !== officeFilter) return false;
+    if (statusFilter !== "all" && r.status !== statusFilter) return false;
     return true;
   });
 
@@ -223,6 +245,22 @@ export default function AdminContactRequestsClient({
           </div>
         )}
 
+        {/* Status Filter */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">{dict.common.status}:</span>
+          {(["all", "pending", "read", "resolved"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                statusFilter === s ? "bg-navy-100 text-navy-700" : "text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              {s === "all" ? dict.common.all : dict.contactRequests[s] || s}
+            </button>
+          ))}
+        </div>
+
         {filteredRequests.length > 0 ? (
           <div className="space-y-4">
             {filteredRequests.map((request) => (
@@ -234,6 +272,13 @@ export default function AdminContactRequestsClient({
                         {getTypeIcon(request.contact_type)}
                         <Badge>{getTypeLabel(request.contact_type)}</Badge>
                       </div>
+                      <Badge className={
+                        request.status === "resolved" ? "bg-green-100 text-green-800" :
+                        request.status === "read" ? "bg-blue-100 text-blue-800" :
+                        "bg-yellow-100 text-yellow-800"
+                      }>
+                        {dict.contactRequests[request.status] || request.status}
+                      </Badge>
                       <span className="text-sm text-gray-500">
                         {new Date(request.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")}
                       </span>
@@ -274,6 +319,16 @@ export default function AdminContactRequestsClient({
                         {dict.contactRequests.view}
                       </a>
                     )}
+                    <select
+                      value={request.status}
+                      onChange={(e) => handleStatusUpdate(request.id, e.target.value)}
+                      className="text-xs border border-gray-200 rounded px-2 py-1 bg-white"
+                      aria-label={`${dict.contactRequests.updateStatus} for ${request.visitor_name || ""}`}
+                    >
+                      <option value="pending">{dict.contactRequests.pending}</option>
+                      <option value="read">{dict.contactRequests.read}</option>
+                      <option value="resolved">{dict.contactRequests.resolved}</option>
+                    </select>
                     <button
                       onClick={() => setDeleteId(request.id)}
                       aria-label={`${dict.common.delete} ${request.visitor_name ?? ""}`}
