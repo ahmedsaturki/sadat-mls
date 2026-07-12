@@ -623,7 +623,16 @@
     "agentNotFoundDesc": "This agent was not found",
     "agentOffice": "Office",
     "agentProperties": "Agent Properties",
-    "noAgentProperties": "No properties available currently"
+    "noAgentProperties": "No properties available currently",
+    "pending": "Pending",
+    "read": "Read",
+    "resolved": "Resolved",
+    "selected": "selected",
+    "updateStatus": "Update Status",
+    "statusUpdated": "Status updated",
+    "deleted": "Contact requests deleted",
+    "confirmBulkDelete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this contact request?"
   },
   "agents": {
     "agentNotFound": "Agent Not Found",

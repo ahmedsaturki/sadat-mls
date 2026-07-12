@@ -622,7 +622,16 @@
     "agentNotFoundDesc": "لم يتم العثور على هذا المندوب",
     "agentOffice": "مكتب",
     "agentProperties": "عقارات المندوب",
-    "noAgentProperties": "لا توجد عقارات متاحة حالياً"
+    "noAgentProperties": "لا توجد عقارات متاحة حالياً",
+    "pending": "قيد الانتظار",
+    "read": "تمت القراءة",
+    "resolved": "تم الحل",
+    "selected": "محدد",
+    "updateStatus": "تحديث الحالة",
+    "statusUpdated": "تم تحديث الحالة",
+    "deleted": "تم حذف طلبات التواصل",
+    "confirmBulkDelete": "حذف",
+    "confirmDelete": "هل أنت متأكد من حذف طلب التواصل؟"
   },
   "agents": {
     "agentNotFound": "المندوب غير موجود",
