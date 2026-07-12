@@ -603,7 +603,10 @@
     "notificationsDisabled": "Disabled",
     "inviteAgent": "Invite Agent",
     "invitationSent": "Invitation sent successfully",
-    "invitationDesc": "An invitation link will be sent to this email address."
+    "invitationDesc": "An invitation link will be sent to this email address.",
+    "editAgent": "Edit Agent",
+    "agentUpdated": "Agent updated successfully",
+    "agentStatus": "Status"
   },
   "contactRequests": {
     "title": "Contact Requests",

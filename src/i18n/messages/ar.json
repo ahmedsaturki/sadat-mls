@@ -602,7 +602,10 @@
     "notificationsDisabled": "معطل",
     "inviteAgent": "دعوة وكيل",
     "invitationSent": "تم إرسال الدعوة بنجاح",
-    "invitationDesc": "سيتم إرسال رابط الدعوة إلى هذا البريد الإلكتروني."
+    "invitationDesc": "سيتم إرسال رابط الدعوة إلى هذا البريد الإلكتروني.",
+    "editAgent": "تعديل الوكيل",
+    "agentUpdated": "تم تحديث الوكيل بنجاح",
+    "agentStatus": "الحالة"
   },
   "contactRequests": {
     "title": "طلبات التواصل",

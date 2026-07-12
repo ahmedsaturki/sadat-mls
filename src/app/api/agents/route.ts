@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { agentSchema } from "@/lib/validation";
 import { ROLES } from "@/lib/utils/constants";
+import { z } from "zod";
 import { logActivity } from "@/lib/utils/activity-logger";
 import { notifyOffice } from "@/lib/utils/notifier";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -271,6 +272,97 @@ export async function DELETE(request: NextRequest) {
     entityType: "agent",
     entityId: userId,
     metadata: { deletedBy: user.id },
+    ipAddress: ip,
+  });
+
+  return NextResponse.json({ success: true });
+}
+
+export async function PATCH(request: NextRequest) {
+  const rawIp = request.headers.get("x-forwarded-for") || "unknown";
+  const ip = rawIp.split(",")[0].trim();
+  const rate = await checkApiRateLimit(`agents-patch:${ip}`);
+  if (!rate.allowed) {
+    logger.warn("Rate limit exceeded on agents PATCH", { ip });
+    const headers = rate.headers || { "Retry-After": String(rate.retryAfter) };
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers }
+    );
+  }
+
+  const isValidCsrf = await validateCsrfToken(request);
+  if (!isValidCsrf) {
+    logger.warn("Invalid CSRF token on agents PATCH", { ip });
+    return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
+  }
+
+  const user = await verifyAdmin(request);
+  if (!user) {
+    logger.warn("Unauthorized agents PATCH attempt", { ip });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const patchAgentSchema = z.object({
+    id: z.string().uuid(),
+    full_name: z.string().min(1).max(200).optional(),
+    email: z.string().email().optional(),
+    is_active: z.boolean().optional(),
+  });
+
+  const parsed = patchAgentSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten().fieldErrors }, { status: 400 });
+  }
+
+  const { id, ...updates } = parsed.data;
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: "No valid updates provided" }, { status: 400 });
+  }
+
+  // Authorization: OFFICE_ADMIN can only edit agents in their office
+  if (user.role === ROLES.OFFICE_ADMIN && user.office_id) {
+    const client = createServiceRoleClient();
+    const { data: targetUser, error: queryError } = await client
+      .from("users")
+      .select("office_id, role")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (queryError || !targetUser || targetUser.office_id !== user.office_id) {
+      return NextResponse.json({ error: "Cannot edit agents from other offices" }, { status: 403 });
+    }
+  }
+
+  const supabase = createServiceRoleClient();
+
+  const { error } = await supabase
+    .from("users")
+    .update(updates)
+    .eq("id", id);
+
+  if (error) {
+    logger.error("Failed to update agent", { error: error.message, agentId: id });
+    return NextResponse.json({ error: "Failed to update agent" }, { status: 500 });
+  }
+
+  logger.info("Agent updated successfully", { agentId: id, updates, updatedBy: user.id });
+
+  await logActivity({
+    userId: user.id,
+    officeId: user.office_id,
+    action: "agent.updated",
+    entityType: "agent",
+    entityId: id,
+    metadata: { updates },
     ipAddress: ip,
   });
 

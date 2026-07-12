@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Users, Plus, Trash2, UserPlus, Download } from "lucide-react";
+import { Users, Plus, Trash2, UserPlus, Download, Edit } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { useToast } from "@/components/ui/Toast";
 import { usePageLocale } from "@/hooks/usePageLocale";
@@ -41,6 +41,8 @@ export default function AgentsPage({
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editModal, setEditModal] = useState<{ open: boolean; agent: Agent | null }>({ open: false, agent: null });
+  const [editForm, setEditForm] = useState({ full_name: "", email: "", is_active: true });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [officeId, setOfficeId] = useState("");
@@ -232,6 +234,51 @@ export default function AgentsPage({
     }
   };
 
+  const handleEditAgent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editModal.agent) return;
+    setSaving(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showToast(dict.common.unexpectedError, "error");
+        setSaving(false);
+        return;
+      }
+
+      const res = await fetch("/api/agents", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          ...getCsrfHeaders(),
+        },
+        body: JSON.stringify({
+          id: editModal.agent.id,
+          full_name: editForm.full_name,
+          email: editForm.email,
+          is_active: editForm.is_active,
+        }),
+      });
+
+      if (!res.ok) {
+        const result = await res.json();
+        showToast(result.error || dict.common.unexpectedError, "error");
+        return;
+      }
+
+      showToast(dict.office.agentUpdated, "success");
+      setEditModal({ open: false, agent: null });
+      loadAgents();
+    } catch (err) {
+      logger.error("Failed to update agent", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <DashboardLayout locale={locale} dict={dict} role={userRole}>
       <ErrorBoundary>
@@ -300,14 +347,31 @@ export default function AgentsPage({
                     key: "actions",
                     header: dict.common.actions,
                     render: (agent) => (
-                      <button
-                        onClick={() => confirmDelete(agent.id)}
-                        className="p-2 rounded-lg hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
-                        title={dict.common.delete}
-                        aria-label={dict.common.delete}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            setEditForm({
+                              full_name: agent.full_name,
+                              email: agent.email,
+                              is_active: agent.is_active,
+                            });
+                            setEditModal({ open: true, agent });
+                          }}
+                          className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                          title={dict.office.editAgent}
+                          aria-label={dict.office.editAgent}
+                        >
+                          <Edit className="w-4 h-4 text-navy-600" />
+                        </button>
+                        <button
+                          onClick={() => confirmDelete(agent.id)}
+                          className="p-2 rounded-lg hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                          title={dict.common.delete}
+                          aria-label={dict.common.delete}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </div>
                     ),
                   },
                 ]}
@@ -412,6 +476,50 @@ export default function AgentsPage({
                 </Button>
               </div>
             </div>
+          </Modal>
+
+          {/* Edit Agent Modal */}
+          <Modal isOpen={editModal.open} onClose={() => setEditModal({ open: false, agent: null })} title={dict.office.editAgent}>
+            <form onSubmit={handleEditAgent} className="space-y-4">
+              <Input
+                label={dict.office.agentName}
+                value={editForm.full_name}
+                onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                required
+              />
+              <Input
+                label={dict.common.email}
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                required
+              />
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">{dict.office.agentStatus}</label>
+                <button
+                  type="button"
+                  onClick={() => setEditForm({ ...editForm, is_active: !editForm.is_active })}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    editForm.is_active ? "bg-green-600" : "bg-gray-300"
+                  }`}
+                  role="switch"
+                  aria-checked={editForm.is_active}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    editForm.is_active ? "translate-x-6" : "translate-x-1"
+                  }`} />
+                </button>
+                <span className="text-sm text-gray-600">{editForm.is_active ? dict.common.active : dict.common.inactive}</span>
+              </div>
+              <div className="flex gap-3 justify-end pt-4">
+                <Button type="button" variant="ghost" onClick={() => setEditModal({ open: false, agent: null })}>
+                  {dict.common.cancel}
+                </Button>
+                <Button type="submit" isLoading={saving}>
+                  {dict.common.save}
+                </Button>
+              </div>
+            </form>
           </Modal>
 
           {/* Delete Confirmation Modal */}
