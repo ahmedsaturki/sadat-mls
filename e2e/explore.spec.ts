@@ -35,7 +35,7 @@ test.describe("Explore Page - Search & Filters", () => {
     await expect(filterToggle).toBeVisible();
     await filterToggle.click();
     // Now the advanced filters toggle (inside SearchFilters) should appear
-    const advancedToggle = page.locator('button[aria-controls="advanced-filters-section"]');
+    const advancedToggle = page.locator('button[aria-controls="advanced-filters-section"]').first();
     await expect(advancedToggle).toBeVisible({ timeout: 5000 });
     await advancedToggle.click();
     await expect(advancedToggle).toHaveAttribute("aria-expanded", "true");
