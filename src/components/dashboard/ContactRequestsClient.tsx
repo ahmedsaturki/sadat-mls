@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Mail, Phone, MessageSquare, ExternalLink, Inbox, Trash2,
-  CheckCircle, Circle, Clock, ChevronLeft, ChevronRight,
+  CheckCircle, Circle, Clock, ChevronLeft, ChevronRight, Download,
 } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { useToast } from "@/components/ui/Toast";
@@ -274,7 +274,18 @@ export default function ContactRequestsClient({
           <PageHeader
             title={dict.contactRequests.title}
             action={
-              <span className="text-sm text-gray-500">{filteredRequests.length} {dict.contactRequests.requestsCount}</span>
+              <div className="flex items-center gap-3">
+                {profile?.officeId && (
+                  <button
+                    onClick={() => window.open(`/api/export?type=contacts&officeId=${profile.officeId}`, "_blank")}
+                    className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    CSV
+                  </button>
+                )}
+                <span className="text-sm text-gray-500">{filteredRequests.length} {dict.contactRequests.requestsCount}</span>
+              </div>
             }
           />
 

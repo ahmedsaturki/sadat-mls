@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Copy, RefreshCw, Plus, Users, TrendingUp, Clock, CheckCircle,
-  Send, Inbox, Filter, X, Building2, Phone, Mail, FileText,
+  Send, Inbox, Filter, X, Building2, Phone, Mail, FileText, Download,
 } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
@@ -181,13 +181,22 @@ export default function ReferralsClient({ locale, dict }: ReferralsClientProps) 
           <h1 className="text-2xl font-bold text-gray-900">{dict.referral.title}</h1>
           <p className="text-gray-600 mt-1">{dict.referral.description}</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="bg-navy-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-navy-700 transition-colors flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          {dict.referral.newReferral}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => window.open("/api/export?type=referrals", "_blank")}
+            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            CSV
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-navy-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-navy-700 transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {dict.referral.newReferral}
+          </button>
+        </div>
       </div>
 
       {/* Referral Code Card */}

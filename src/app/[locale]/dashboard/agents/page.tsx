@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Users, Plus, Trash2, UserPlus } from "lucide-react";
+import { Users, Plus, Trash2, UserPlus, Download } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { useToast } from "@/components/ui/Toast";
 import { usePageLocale } from "@/hooks/usePageLocale";
@@ -240,6 +240,12 @@ export default function AgentsPage({
             title={dict.office.manageAgents}
             action={
               <div className="flex gap-2">
+                {officeId && (
+                  <Button variant="outline" onClick={() => window.open(`/api/export?type=agents&officeId=${officeId}`, "_blank")}>
+                    <Download className="w-4 h-4 ms-2" />
+                    CSV
+                  </Button>
+                )}
                 <Button variant="outline" onClick={() => setShowInviteModal(true)}>
                   <UserPlus className="w-4 h-4 ms-2" />
                   {dict.office.inviteAgent || "Invite Agent"}

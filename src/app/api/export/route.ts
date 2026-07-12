@@ -75,6 +75,75 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    if (type === "agents") {
+      const { data: agents, error } = await supabase
+        .from("users")
+        .select("id, email, full_name, phone, role, is_active, created_at")
+        .eq("office_id", officeId)
+        .eq("role", "office_agent")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        logger.error("Failed to export agents", { error: error.message });
+        return NextResponse.json({ error: "Export failed" }, { status: 500 });
+      }
+
+      const rows = (agents || []).map((a: Record<string, unknown>) => ({
+        id: a.id,
+        email: a.email,
+        full_name: a.full_name || "",
+        phone: a.phone || "",
+        is_active: a.is_active ? "Active" : "Inactive",
+        created_at: a.created_at,
+      }));
+
+      const csv = generateCsv(rows);
+      return new NextResponse(csv, {
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": "attachment; filename=agents.csv",
+        },
+      });
+    }
+
+    if (type === "referrals") {
+      const { data: referrals, error } = await supabase
+        .from("referrals")
+        .select(`
+          id, client_name, client_email, client_phone, status, notes, referral_code_used, created_at,
+          referring_office:offices!referrals_referring_office_id_fkey(name),
+          referred_office:offices!referrals_referred_office_id_fkey(name)
+        `)
+        .or(`referring_office_id.eq.${officeId},referred_office_id.eq.${officeId}`)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        logger.error("Failed to export referrals", { error: error.message });
+        return NextResponse.json({ error: "Export failed" }, { status: 500 });
+      }
+
+      const rows = (referrals || []).map((r: Record<string, unknown>) => ({
+        id: r.id,
+        client_name: r.client_name,
+        client_email: r.client_email || "",
+        client_phone: r.client_phone || "",
+        referring_office: (r.referring_office as Record<string, string> | null)?.name || "",
+        referred_office: (r.referred_office as Record<string, string> | null)?.name || "",
+        status: r.status,
+        referral_code_used: r.referral_code_used || "",
+        notes: r.notes || "",
+        created_at: r.created_at,
+      }));
+
+      const csv = generateCsv(rows);
+      return new NextResponse(csv, {
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": "attachment; filename=referrals.csv",
+        },
+      });
+    }
+
     return NextResponse.json({ error: "Invalid export type" }, { status: 400 });
   } catch (err) {
     logger.error("Export error", { error: err instanceof Error ? err.message : String(err) });
