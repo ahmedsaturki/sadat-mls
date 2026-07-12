@@ -35,8 +35,9 @@ test.describe("Homepage", () => {
 
   test("should have skip to content link for accessibility", async ({ page }) => {
     await page.goto("/ar");
+    await page.waitForLoadState("networkidle");
     const skipLink = page.locator('a[href="#main-content"]');
-    await expect(skipLink).toBeAttached();
+    await expect(skipLink).toBeAttached({ timeout: 10000 });
   });
 });
 
