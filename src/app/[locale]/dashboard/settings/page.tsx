@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
-import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
-
-const SettingsClient = dynamic(() => import("@/components/dashboard/SettingsClient"), {
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center py-20"><LuxuryLoader /></div>,
-});
+import SettingsClientWrapper from "@/components/dashboard/SettingsClientWrapper";
 
 export async function generateMetadata({
   params,
@@ -29,5 +23,5 @@ export default async function SettingsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return <SettingsClient params={{ locale }} />;
+  return <SettingsClientWrapper params={{ locale }} />;
 }

@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import { getServerAuth } from "@/lib/supabase/server-auth";
-import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
-
-const NotificationsClient = dynamic(() => import("@/components/dashboard/NotificationsClient"), {
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center py-20"><LuxuryLoader /></div>,
-});
+import NotificationsClientWrapper from "@/components/dashboard/NotificationsClientWrapper";
 
 export async function generateMetadata({
   params,
@@ -31,5 +25,5 @@ export default async function NotificationsPage({
   if (!isValidLocale(locale as Locale)) redirect("/ar");
   const { user } = await getServerAuth();
   if (!user) redirect(`/${locale}/login`);
-  return <NotificationsClient params={{ locale, userId: user.id }} />;
+  return <NotificationsClientWrapper params={{ locale, userId: user.id }} />;
 }

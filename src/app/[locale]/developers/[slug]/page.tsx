@@ -247,7 +247,7 @@ export default async function DeveloperDetailPage({
                         </span>
                       )}
                     </div>
-                    {(proj.min_price || proj.max_price) && (
+                    {(proj.min_price as number || proj.max_price as number) && (
                       <p className="text-navy-600 dark:text-navy-400 font-semibold mt-3">
                         {formatPrice(proj.min_price as number, locale)} - {formatPrice(proj.max_price as number, locale)}
                       </p>

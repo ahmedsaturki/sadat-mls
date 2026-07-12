@@ -113,8 +113,7 @@ export default async function PropertyDetailPage({
       office_id: raw.office_id,
       event_type: "view",
     })
-    .then(() => {})
-    .catch(() => {});
+    .then(() => {}, () => {});
 
   return (
     <Suspense fallback={

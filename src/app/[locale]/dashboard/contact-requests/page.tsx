@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import { getServerAuth } from "@/lib/supabase/server-auth";
-import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
-
-const ContactRequestsClient = dynamic(() => import("@/components/dashboard/ContactRequestsClient"), {
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center py-20"><LuxuryLoader /></div>,
-});
+import ContactRequestsClientWrapper from "@/components/dashboard/ContactRequestsClientWrapper";
 
 export async function generateMetadata({
   params,
@@ -31,5 +25,5 @@ export default async function ContactRequestsPage({
   if (!isValidLocale(locale as Locale)) redirect("/ar");
   const { user } = await getServerAuth();
   if (!user) redirect(`/${locale}/login`);
-  return <ContactRequestsClient params={{ locale, userId: user.id }} />;
+  return <ContactRequestsClientWrapper params={{ locale, userId: user.id }} />;
 }

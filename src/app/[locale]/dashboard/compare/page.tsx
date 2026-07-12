@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import { getServerAuth } from "@/lib/supabase/server-auth";
-import { LuxuryLoader } from "@/components/ui/LuxuryLoader";
-
-const CompareClient = dynamic(() => import("@/components/dashboard/CompareClient"), {
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center py-20"><LuxuryLoader /></div>,
-});
+import CompareClientWrapper from "@/components/dashboard/CompareClientWrapper";
 
 export async function generateMetadata({
   params,
@@ -31,5 +25,5 @@ export default async function ComparePage({
   if (!isValidLocale(locale as Locale)) redirect("/ar");
   const { user } = await getServerAuth();
   if (!user) redirect(`/${locale}/login`);
-  return <CompareClient params={{ locale }} />;
+  return <CompareClientWrapper params={{ locale }} />;
 }

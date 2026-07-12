@@ -78,11 +78,11 @@ export default async function AdminAnalyticsPage({
   const allUsers = usersRes.data || [];
   const allOffices = officesRes.data || [];
   const zonesData = zonesRes.data || [];
-  const allContacts = contactsRes.data || [];
-  const allOffers = offersRes.data || [];
+  const allContacts = (contactsRes.data || []) as { created_at: string }[];
+  const allOffers = (offersRes.data || []) as { created_at: string }[];
 
   // Zone name map
-  const zoneMap = new Map(zonesData.map((z: { id: string; name_ar: string; name_en: string | null }) => [
+  const zoneMap = new Map<string, string>(zonesData.map((z: { id: string; name_ar: string; name_en: string | null }) => [
     z.id,
     locale === "ar" ? z.name_ar : (z.name_en || z.name_ar),
   ]));
@@ -151,7 +151,7 @@ export default async function AdminAnalyticsPage({
   const maxRangeCount = Math.max(...priceRanges.map((r) => r.count), 1);
 
   // ── Zone Comparison ──
-  const zoneStats = Array.from(zoneMap.entries()).map(([zoneId, zoneName]) => {
+  const zoneStats: { name: string; count: number; avgPrice: number; avgPricePerSqm: number; avgArea: number }[] = Array.from(zoneMap.entries()).map(([zoneId, zoneName]) => {
     const zoneProps = allProperties.filter((p) => p.zone_id === zoneId);
     return {
       name: zoneName,
@@ -305,7 +305,7 @@ export default async function AdminAnalyticsPage({
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-start py-3 px-4 font-medium text-gray-500">{dict.admin.zoneName}</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">{dict.admin.propertyCount}</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500">{dict.admin.propertiesCount}</th>
                     <th className="text-end py-3 px-4 font-medium text-gray-500">{dict.admin.avgPrice}</th>
                     <th className="text-end py-3 px-4 font-medium text-gray-500">{dict.admin.avgPricePerSqm}</th>
                     <th className="text-end py-3 px-4 font-medium text-gray-500">{dict.admin.avgArea}</th>

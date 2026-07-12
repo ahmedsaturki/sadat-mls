@@ -254,10 +254,10 @@ export default async function ProjectDetailPage({
                   </div>
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">{devName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{dict.agents.viewOffice || dict.common.details}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{dict.common.details}</p>
                   </div>
                 </Link>
-                {developer.email && (
+                {developer.email as string && (
                   <a href={`mailto:${developer.email}`} className="flex items-center gap-2 mt-3 text-sm text-gray-600 dark:text-gray-400 hover:text-navy-600 dark:hover:text-navy-400">
                     <Mail className="w-4 h-4" />{developer.email}
                   </a>
