@@ -1,4 +1,4 @@
-import { resend, isEmailEnabled } from "./config";
+import { isEmailEnabled, getResendClient, EMAIL_FROM } from "./config";
 import { logger } from "@/lib/logger";
 
 interface SendEmailParams {
@@ -20,8 +20,11 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
   }
 
   try {
-    await resend!.emails.send({
-      from: "Aqar Cloud <onboarding@resend.dev>",
+    const client = getResendClient();
+    if (!client) return;
+
+    await client.emails.send({
+      from: EMAIL_FROM,
       to: params.to,
       subject: params.subject,
       html: params.html,

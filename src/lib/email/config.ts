@@ -1,11 +1,25 @@
 import { Resend } from "resend";
 
-const apiKey = process.env.RESEND_API_KEY;
+const EMAIL_FROM = "Aqar Cloud <onboarding@resend.dev>";
 
-export const resend = apiKey ? new Resend(apiKey) : null;
+function getClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return null;
+  return new Resend(apiKey);
+}
 
-export const EMAIL_FROM = "Aqar Cloud <onboarding@resend.dev>";
-// Note: For production, verify a custom domain in Resend dashboard
-// and update EMAIL_FROM to use your verified domain.
+/**
+ * Check if email is configured (reads env var at runtime, not build time).
+ */
+export function isEmailEnabled(): boolean {
+  return !!process.env.RESEND_API_KEY;
+}
 
-export const isEmailEnabled = () => !!resend;
+/**
+ * Get the Resend client (creates fresh instance per call to avoid stale env vars).
+ */
+export function getResendClient() {
+  return getClient();
+}
+
+export { EMAIL_FROM };
