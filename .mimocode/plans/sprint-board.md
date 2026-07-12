@@ -450,6 +450,22 @@
 
 ---
 
+## Sprint 45 — Multi-Office Comparison (DONE)
+
+**Commit**: `e47b4f7` — feat: multi-office comparison page
+
+| # | Item | Status |
+|---|------|--------|
+| 140 | API: GET /api/analytics/offices (all office stats) | Done |
+| 141 | Public page at /investors/compare-offices | Done |
+| 142 | Office selection grid (max 4) with visual bar charts | Done |
+| 143 | Detailed comparison table (10 metrics) | Done |
+| 144 | Best-in-class highlighting | Done |
+| 145 | Sidebar link (both role types) | Done |
+| 146 | Full i18n: 20+ keys in Arabic and English | Done |
+
+---
+
 ## FINAL STATUS — ALL ITEMS COMPLETE
 
 ### Platform Stats (as of Sprint 42)
