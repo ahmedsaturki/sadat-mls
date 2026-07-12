@@ -66,6 +66,11 @@ export default async function PropertyDetailPage({
     notFound();
   }
 
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    notFound();
+  }
+
   const dict = getMessages(locale as Locale);
   const supabase = await createClient();
 

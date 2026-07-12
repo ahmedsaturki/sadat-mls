@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Property Compare - Guest User", () => {
   test("should add property to compare from explore page", async ({ page }) => {
     await page.goto("/ar/explore");
-    const compareButton = page.locator("button[aria-label*='compare']").first();
+    const compareButton = page.locator("button[aria-label*='compare'], button[aria-label*='المقارنة']").first();
     if (await compareButton.count() > 0) {
       await compareButton.click();
       await expect(compareButton).toHaveClass(/bg-navy-50|text-navy-600/);
@@ -12,7 +12,7 @@ test.describe("Property Compare - Guest User", () => {
 
   test("should navigate to compare page from explore", async ({ page }) => {
     await page.goto("/ar/explore");
-    const compareButton = page.locator("button[aria-label*='compare']").first();
+    const compareButton = page.locator("button[aria-label*='compare'], button[aria-label*='المقارنة']").first();
     if (await compareButton.count() > 0) {
       await compareButton.click();
       const compareLink = page.locator("a[href*='/dashboard/compare']").first();
@@ -31,7 +31,7 @@ test.describe("Property Compare - Property Detail", () => {
     if (await propertyLink.count() > 0) {
       await propertyLink.click();
       await page.waitForLoadState("networkidle");
-      const compareButton = page.locator("button[aria-label*='compare']");
+      const compareButton = page.locator("button[aria-label*='compare'], button[aria-label*='المقارنة']");
       await expect(compareButton).toBeVisible();
     }
   });
@@ -42,7 +42,7 @@ test.describe("Property Compare - Property Detail", () => {
     if (await propertyLink.count() > 0) {
       await propertyLink.click();
       await page.waitForLoadState("networkidle");
-      const compareButton = page.locator("button[aria-label*='compare']");
+      const compareButton = page.locator("button[aria-label*='compare'], button[aria-label*='المقارنة']");
       await compareButton.click();
       await expect(compareButton).toHaveClass(/bg-navy-50|text-navy-600/);
       await compareButton.click();
@@ -56,7 +56,6 @@ test.describe("Property Compare - RTL Support", () => {
     await page.goto("/ar/dashboard/compare");
     const url = page.url();
     if (url.includes("/login")) {
-      // Redirect to login is expected for unauthenticated users
       expect(url).toContain("/login");
     } else {
       await expect(page.locator("html")).toHaveAttribute("lang", "ar");
@@ -69,7 +68,6 @@ test.describe("Property Compare - RTL Support", () => {
     await page.goto("/en/dashboard/compare");
     const url = page.url();
     if (url.includes("/login")) {
-      // Redirect to login is expected for unauthenticated users
       expect(url).toContain("/login");
     } else {
       await expect(page.locator("html")).toHaveAttribute("lang", "en");
@@ -82,7 +80,7 @@ test.describe("Property Compare - RTL Support", () => {
 test.describe("Property Compare - Accessibility", () => {
   test("should have accessible compare button on explore page", async ({ page }) => {
     await page.goto("/ar/explore");
-    const compareButton = page.locator("button[aria-label*='compare']").first();
+    const compareButton = page.locator("button[aria-label*='compare'], button[aria-label*='المقارنة']").first();
     if (await compareButton.count() > 0) {
       await expect(compareButton).toBeVisible();
       await expect(compareButton).toHaveAttribute("aria-label");

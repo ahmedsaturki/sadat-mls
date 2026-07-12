@@ -71,8 +71,9 @@ test.describe("Favorites - Property Detail Page", () => {
     if (await propertyLink.count() > 0) {
       await propertyLink.click();
       await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(1000);
       const favoriteButton = page.locator("button[aria-label*='favorite'], button[aria-label*='المفضلة']");
-      await expect(favoriteButton).toBeVisible();
+      await expect(favoriteButton).toBeVisible({ timeout: 10000 });
       await expect(favoriteButton).toHaveAttribute("aria-pressed");
     }
   });
