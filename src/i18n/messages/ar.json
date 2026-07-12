@@ -1064,5 +1064,29 @@
     "avgDaysToSell": "متوسط أيام البيع",
     "days": "أيام",
     "pending": "قيد الانتظار"
+  },
+  "invitation": {
+    "acceptInvitation": "قبول الدعوة",
+    "acceptInvitationDescription": "أنشئ حسابك للانضمام إلى المنصة",
+    "youAreInvited": "تمت دعوتك للانضمام إلى",
+    "fullName": "الاسم الكامل",
+    "fullNamePlaceholder": "أدخل اسمك الكامل",
+    "setPassword": "تعيين كلمة المرور",
+    "passwordPlaceholder": "8 أحرف على الأقل",
+    "passwordRequirements": "8 أحرف على الأقل",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "createAccount": "إنشاء حساب",
+    "accountCreated": "تم إنشاء الحساب بنجاح!",
+    "redirectingToLogin": "جاري التحويل إلى صفحة الدخول...",
+    "invalidInvitation": "دعوة غير صالحة",
+    "invitationExpired": "انتهت صلاحية هذه الدعوة",
+    "invitationAlreadyUsed": "تم استخدام هذه الدعوة بالفعل",
+    "acceptFailed": "فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.",
+    "expiryNotice": "صلاحية رابط الدعوة هذه 7 أيام.",
+    "sendInvitation": "إرسال الدعوة",
+    "invitationSent": "تم إرسال الدعوة بنجاح!",
+    "invitationLinkCopied": "تم نسخ رابط الدعوة!",
+    "noEmailProvided": "لم يتم تقديم عنوان بريد إلكتروني"
   }
 }

@@ -66,11 +66,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to create invitation" }, { status: 500 });
     }
 
-    // Send invitation email via Supabase Auth magic link
+    // Send invitation email
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.vercel.app";
     const invitationUrl = `${siteUrl}/ar/invitations/accept?token=${inviteToken}`;
 
-    // Use Supabase to send the email (or log it for now)
+    // Get office name and inviter name for the email
+    const { data: office } = await supabase
+      .from("offices")
+      .select("name")
+      .eq("id", officeId)
+      .single();
+
+    const { data: inviter } = await supabase
+      .from("users")
+      .select("full_name, email")
+      .eq("id", user.id)
+      .single();
+
+    const officeName = office?.name || "Aqar Cloud";
+    const inviterName = inviter?.full_name || inviter?.email || "Admin";
+
+    // Send email (fire-and-forget)
+    const { isEmailEnabled } = await import("@/lib/email/config");
+    if (isEmailEnabled()) {
+      const { sendEmail } = await import("@/lib/email/send");
+      const { agentInvitationEmail } = await import("@/lib/email/templates");
+
+      const { subject, html, text } = agentInvitationEmail({
+        locale: "ar",
+        officeName,
+        inviterName,
+        invitationUrl,
+      });
+
+      sendEmail({ to: email, subject, html, text }).catch(() => {});
+    }
+
     logger.info("Invitation created", { email, officeId, token: inviteToken.substring(0, 8) + "..." });
 
     return NextResponse.json({

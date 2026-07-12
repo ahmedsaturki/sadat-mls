@@ -1065,5 +1065,29 @@
     "avgDaysToSell": "Avg. Days to Sell",
     "days": "days",
     "pending": "pending"
+  },
+  "invitation": {
+    "acceptInvitation": "Accept Invitation",
+    "acceptInvitationDescription": "Set up your account to join the platform",
+    "youAreInvited": "You've been invited to join",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "setPassword": "Set Password",
+    "passwordPlaceholder": "Minimum 8 characters",
+    "passwordRequirements": "At least 8 characters",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "createAccount": "Create Account",
+    "accountCreated": "Account created successfully!",
+    "redirectingToLogin": "Redirecting to login...",
+    "invalidInvitation": "Invalid invitation",
+    "invitationExpired": "This invitation has expired",
+    "invitationAlreadyUsed": "This invitation has already been used",
+    "acceptFailed": "Failed to create account. Please try again.",
+    "expiryNotice": "This invitation link expires in 7 days.",
+    "sendInvitation": "Send Invitation",
+    "invitationSent": "Invitation sent successfully!",
+    "invitationLinkCopied": "Invitation link copied!",
+    "noEmailProvided": "No email address provided"
   }
 }
