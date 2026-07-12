@@ -225,6 +225,11 @@ export default function PropertiesDashboardClient({
       return;
     }
     setUpdatingStatus(propertyId);
+
+    // Capture old status before update
+    const oldProperty = properties.find((p) => p.id === propertyId);
+    const oldStatus = oldProperty?.status;
+
     const { error } = await supabase
       .from("properties")
       .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -246,6 +251,20 @@ export default function PropertiesDashboardClient({
           metadata: { field: "status", new_value: newStatus },
         }),
       }).catch(() => {});
+
+      // Send status change notifications (fire-and-forget)
+      if (oldStatus && oldStatus !== newStatus) {
+        fetch("/api/notify/property-change", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
+          body: JSON.stringify({
+            property_id: propertyId,
+            change_type: "status",
+            old_value: oldStatus,
+            new_value: newStatus,
+          }),
+        }).catch(() => {});
+      }
     } else {
       showToast(dict.common.unexpectedError, "error");
     }

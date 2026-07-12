@@ -76,6 +76,7 @@ export default function SettingsClient({
     commission_paid_email: true,
     saved_search_email: true,
     property_status_email: true,
+    price_drop_email: true,
   });
   const [savingPrefs, setSavingPrefs] = useState(false);
 
@@ -134,6 +135,7 @@ export default function SettingsClient({
             commission_paid_email: prefs.commission_paid_email !== false,
             saved_search_email: prefs.saved_search_email !== false,
             property_status_email: prefs.property_status_email !== false,
+            price_drop_email: prefs.price_drop_email !== false,
           });
         }
 
@@ -763,6 +765,31 @@ export default function SettingsClient({
                       <span
                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                           notifPrefs.property_status_email ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Price Drop Email */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{locale === "ar" ? "بريد انخفاض السعر" : "Price Drop Email"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "تلقَّ بريداً عند انخفاض سعر عقار مفضل" : "Receive email when a favorited property drops in price"}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNotifPrefToggle("price_drop_email")}
+                      disabled={savingPrefs}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                        notifPrefs.price_drop_email ? "bg-navy-600" : "bg-gray-300"
+                      }`}
+                      role="switch"
+                      aria-checked={notifPrefs.price_drop_email}
+                      aria-label={locale === "ar" ? "بريد انخفاض السعر" : "Price Drop Email"}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          notifPrefs.price_drop_email ? "translate-x-6" : "translate-x-1"
                         }`}
                       />
                     </button>

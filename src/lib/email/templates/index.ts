@@ -7,3 +7,4 @@ export { officeRegisteredEmail } from "./office-registered";
 export { officeApprovedEmail } from "./office-approved";
 export { newListingEmail } from "./new-listing";
 export { agentInvitationEmail } from "./agent-invitation";
+export { priceDropEmail } from "./price-drop";

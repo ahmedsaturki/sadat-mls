@@ -403,6 +403,15 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
         }).catch(() => {});
       } else {
         showToast(dict.office.updatingProperty, "info");
+
+        // Capture old price before update
+        const { data: oldProperty } = await supabase
+          .from("properties")
+          .select("price")
+          .eq("id", propertyId)
+          .single();
+        const oldPrice = oldProperty?.price;
+
         const { error } = await supabase
           .from("properties")
           .update({ ...propertyData, updated_at: new Date().toISOString() })
@@ -415,6 +424,20 @@ export default function PropertyForm({ mode, locale, propertyId }: PropertyFormP
           return;
         }
         showToast(dict.common.save, "success");
+
+        // Send price change notification if price changed (fire-and-forget)
+        if (oldPrice && propertyData.price && oldPrice !== propertyData.price) {
+          fetch("/api/notify/property-change", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              property_id: propertyId,
+              change_type: "price",
+              old_value: oldPrice,
+              new_value: propertyData.price,
+            }),
+          }).catch(() => {});
+        }
       }
 
       // Handle owner update
