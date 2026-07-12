@@ -302,9 +302,13 @@ function ExploreClientInner({
     if (!name) return;
 
     try {
+      const { getCsrfHeaders } = await import("@/lib/security/csrf-client");
       const res = await fetch("/api/saved-searches", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...getCsrfHeaders(),
+        },
         body: JSON.stringify({ name, filters }),
       });
       if (res.ok) {

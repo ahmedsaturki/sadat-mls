@@ -38,12 +38,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ searches: 0, matches: 0, emailsSent: 0 });
     }
 
-    // Get user email for sending
+    // Get user email and notification preferences
     const { data: userData } = await serviceRole.auth.admin.getUserById(user.id);
     const userEmail = userData?.user?.email;
     if (!userEmail) {
       return NextResponse.json({ error: "No email found" }, { status: 400 });
     }
+
+    // Check notification preference
+    const { data: userProfile } = await serviceRole
+      .from("users")
+      .select("notification_preferences, locale")
+      .eq("id", user.id)
+      .single();
+
+    const prefs = userProfile?.notification_preferences;
+    if (prefs && typeof prefs === "object" && prefs.saved_search_email === false) {
+      return NextResponse.json({ searches: searches.length, matches: 0, emailsSent: 0, skipped: true });
+    }
+
+    const userLocale = (userProfile?.locale as "ar" | "en") || "ar";
 
     let totalMatches = 0;
     let emailsSent = 0;
@@ -87,7 +101,7 @@ export async function POST(request: NextRequest) {
         const formatPrice = (p: number) => new Intl.NumberFormat("ar-EG").format(p) + " EGP";
 
         const { subject, html, text } = savedSearchAlertEmail({
-          locale: "ar",
+          locale: userLocale,
           userName: userData?.user?.user_metadata?.full_name || "User",
           searchName: search.name,
           properties: matchingProperties.map((p: Record<string, unknown>) => ({
