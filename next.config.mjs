@@ -13,9 +13,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   serverExternalPackages: ["bcryptjs", "jsonwebtoken"],
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
