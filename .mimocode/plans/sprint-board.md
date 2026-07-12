@@ -418,6 +418,23 @@
 
 ---
 
+## Sprint 43 — Bulk Operations (DONE)
+
+**Commit**: `2828dd2` — feat: bulk operations for contact requests
+
+| # | Item | Status |
+|---|------|--------|
+| 126 | Selection UI (checkboxes + select all) | Done |
+| 127 | Bulk status change (pending/read/resolved) | Done |
+| 128 | Bulk delete with confirmation modal | Done |
+| 129 | Single-item status update | Done |
+| 130 | Single-item delete | Done |
+| 131 | Pagination (10 per page) | Done |
+| 132 | Status filter tabs | Done |
+| 133 | i18n: 10+ new keys in Arabic and English | Done |
+
+---
+
 ## FINAL STATUS — ALL ITEMS COMPLETE
 
 ### Platform Stats (as of Sprint 42)
