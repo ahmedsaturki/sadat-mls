@@ -5,7 +5,7 @@ Plan: `docs/superpowers/plans/2026-07-12-phase3-crud-operations.md`
 | Task | Name | Status | Commit | Report |
 |------|------|--------|--------|--------|
 | 10 | Office Edit (API + UI) | DONE | — | Implementation complete (awaiting typecheck & commit) |
-| 11 | Contact Request Status Updates | DONE | — | Status filter, status badge, and status update dropdown added to admin contact requests |
+| 11 | Contact Request Status Updates | DONE | 251f14bd | Status filter, status badge, and status update dropdown added to admin contact requests |
 | 12 | Agent Edit and Status Toggle | TODO | — | — |
 | 13 | User Edit and Status Toggle | TODO | — | — |
 
