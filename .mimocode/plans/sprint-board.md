@@ -466,6 +466,23 @@
 
 ---
 
+## Sprint 46 — PWA Enhancement (DONE)
+
+**Commit**: `caff990` — feat: PWA enhancement — push notification delivery + offline fallback
+
+| # | Item | Status |
+|---|------|--------|
+| 147 | Push notification delivery via web-push + VAPID | Done |
+| 148 | Send push to individual users and offices | Done |
+| 149 | Wire push into notification creation | Done |
+| 150 | Wire push into new listing notifications | Done |
+| 151 | Auto-clean invalid subscriptions (404/410) | Done |
+| 152 | Offline fallback page (Arabic) with retry | Done |
+| 153 | Service worker offline navigation fallback | Done |
+| 154 | Fix theme color mismatch (manifest + viewport) | Done |
+
+---
+
 ## FINAL STATUS — ALL ITEMS COMPLETE
 
 ### Platform Stats (as of Sprint 42)
