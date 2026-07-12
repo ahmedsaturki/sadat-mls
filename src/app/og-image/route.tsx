@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
               fontFamily: "Inter, sans-serif",
             }}
           >
-            sadatmls.com
+            sadat-mls.vercel.app
           </span>
         </div>
 

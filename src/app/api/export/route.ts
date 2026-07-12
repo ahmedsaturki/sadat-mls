@@ -1,11 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { logger } from "@/lib/logger";
+import { ROLES } from "@/lib/utils/constants";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const { allowed } = await checkApiRateLimit(`export-get:${ip}`);
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    // Authenticate user via RLS-aware client
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Get user profile for ownership check
+    const { data: userProfile } = await supabase
+      .from("users")
+      .select("office_id, role")
+      .eq("id", user.id)
+      .single();
+
+    if (!userProfile?.office_id && userProfile?.role !== ROLES.SUPER_ADMIN) {
+      return NextResponse.json({ error: "No office associated" }, { status: 403 });
+    }
+
     const officeId = request.nextUrl.searchParams.get("officeId");
     const type = request.nextUrl.searchParams.get("type") || "properties";
 
@@ -13,10 +40,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "officeId required" }, { status: 400 });
     }
 
-    const supabase = createServiceRoleClient();
+    // Ownership check: non-super-admin can only export their own office data
+    if (userProfile?.role !== ROLES.SUPER_ADMIN && userProfile?.office_id !== officeId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Use service-role client for data queries (RLS applies but we've verified ownership)
+    const supabaseAdmin = createServiceRoleClient();
 
     if (type === "properties") {
-      const { data: properties, error } = await supabase
+      const { data: properties, error } = await supabaseAdmin
         .from("properties")
         .select("id, title, description, price, area, bedrooms, bathrooms, status, street, created_at, updated_at, property_types(name_ar, name_en), zones(name_ar, name_en)")
         .eq("office_id", officeId)
@@ -55,7 +88,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "contacts") {
-      const { data: contacts, error } = await supabase
+      const { data: contacts, error } = await supabaseAdmin
         .from("contact_requests")
         .select("id, visitor_name, visitor_email, visitor_phone, contact_type, message, status, created_at")
         .eq("office_id", officeId)
@@ -76,7 +109,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "agents") {
-      const { data: agents, error } = await supabase
+      const { data: agents, error } = await supabaseAdmin
         .from("users")
         .select("id, email, full_name, phone, role, is_active, created_at")
         .eq("office_id", officeId)
@@ -107,7 +140,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "referrals") {
-      const { data: referrals, error } = await supabase
+      const { data: referrals, error } = await supabaseAdmin
         .from("referrals")
         .select(`
           id, client_name, client_email, client_phone, status, notes, referral_code_used, created_at,

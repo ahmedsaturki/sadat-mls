@@ -5,6 +5,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
+import { escapeHtmlEntities } from "@/lib/security/sanitizeHtml";
 
 const createOfferSchema = z.object({
   property_id: z.string().uuid(),
@@ -179,8 +180,10 @@ export async function POST(request: NextRequest) {
           const prefs = member.notification_preferences;
           if (prefs && typeof prefs === "object" && prefs.contact_request_email === false) continue;
 
-          const subject = `عرض جديد على ${property.title} - ${formatPrice(offer_amount)}`;
-          const html = `<div style="font-family:sans-serif;padding:20px;"><h2>عرض جديد</h2><p>عرض من <strong>${offerer_name}</strong> بقيمة <strong>${formatPrice(offer_amount)}</strong> على العقار <strong>${property.title}</strong>.</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.vercel.app"}/dashboard/offers" style="background:#1B2D4F;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">عرض العروض</a></p></div>`;
+          const safeTitle = escapeHtmlEntities(property.title);
+          const safeName = escapeHtmlEntities(offerer_name);
+          const subject = `عرض جديد على ${safeTitle} - ${formatPrice(offer_amount)}`;
+          const html = `<div style="font-family:sans-serif;padding:20px;"><h2>عرض جديد</h2><p>عرض من <strong>${safeName}</strong> بقيمة <strong>${formatPrice(offer_amount)}</strong> على العقار <strong>${safeTitle}</strong>.</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.vercel.app"}/dashboard/offers" style="background:#1B2D4F;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">عرض العروض</a></p></div>`;
           sendEmail({ to: member.email, subject, html }).catch(() => {});
         }
       }

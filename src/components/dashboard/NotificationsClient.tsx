@@ -113,7 +113,7 @@ export default function NotificationsClient({
     const diffHr = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHr / 24);
 
-    if (diffMin < 1) return typedLocale === "ar" ? "الآن" : "Just now";
+    if (diffMin < 1) return dict.dashboard.justNow;
     if (diffMin < 60) return `${diffMin}m`;
     if (diffHr < 24) return `${diffHr}h`;
     if (diffDay < 7) return `${diffDay}d`;
@@ -130,7 +130,7 @@ export default function NotificationsClient({
             <h1 className="text-2xl font-bold text-gray-900">{dict.nav.notifications}</h1>
             {unreadCount > 0 && (
               <p className="text-sm text-gray-500 mt-1">
-                {unreadCount} {typedLocale === "ar" ? "غير مقروء" : "unread"}
+                {unreadCount} {dict.dashboard.unread}
               </p>
             )}
           </div>
@@ -141,7 +141,7 @@ export default function NotificationsClient({
               isLoading={markingAll}
             >
               <CheckCheck className="w-4 h-4 ms-2" />
-              {typedLocale === "ar" ? "تحديد الكل كمقروء" : "Mark all read"}
+              {dict.nav.markAllRead}
             </Button>
           )}
         </div>
@@ -203,10 +203,10 @@ export default function NotificationsClient({
               <Bell className="w-8 h-8 text-gray-500" aria-hidden="true" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 mb-2">
-              {typedLocale === "ar" ? "لا توجد إشعارات" : "No notifications"}
+              {dict.dashboard.noNotifications}
             </h2>
             <p className="text-sm text-gray-500">
-              {typedLocale === "ar" ? "ستظهر الإشعارات الجديدة هنا" : "New notifications will appear here"}
+              {dict.dashboard.noNotificationsDesc}
             </p>
           </div>
         )}

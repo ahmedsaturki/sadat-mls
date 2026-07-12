@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const locales = ["ar", "en"];

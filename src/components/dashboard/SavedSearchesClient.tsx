@@ -83,9 +83,9 @@ export default function SavedSearchesClient({
       const data = await res.json();
       if (res.ok) {
         if (data.matches > 0) {
-          showToast(`${data.matches} ${typedLocale === "ar" ? "عقارات جديدة تطابق بحثك" : "new properties match your search"}`, "success");
+          showToast(`${data.matches} ${dict.dashboard.newPropertiesMatch}`, "success");
         } else {
-          showToast(typedLocale === "ar" ? "لا توجد عقارات جديدة" : "No new properties found", "info");
+          showToast(dict.dashboard.noNewProperties, "info");
         }
         loadSearches(); // Refresh to update last_checked_at
       }
@@ -147,8 +147,8 @@ export default function SavedSearchesClient({
             >
               <Bell className="w-4 h-4" />
               {checking
-                ? (typedLocale === "ar" ? "جاري الفحص..." : "Checking...")
-                : (typedLocale === "ar" ? "فحص العروض الجديدة" : "Check for New Matches")}
+                ? dict.dashboard.checking
+                : dict.dashboard.checkNewMatches}
             </button>
           )}
         </div>
@@ -171,7 +171,7 @@ export default function SavedSearchesClient({
               {dict.dashboard.noSavedSearchesFull || dict.dashboard.noSavedSearches}
             </h2>
             <p className="text-sm text-gray-500 mb-4">
-              {dict.dashboard.savedSearchesHint || dict.dashboard.savedSearchHint}
+              {dict.dashboard.saveSearchHint}
             </p>
             <Link
               href={`/${typedLocale}/explore`}
@@ -197,7 +197,7 @@ export default function SavedSearchesClient({
                     <p className="text-xs text-gray-500">
                       {dict.common.createdAt}: {formatDate(search.created_at)}
                       {search.last_notified_at && (
-                        <span className="ms-2">· {typedLocale === "ar" ? "آخر إشعار" : "Last notified"}: {formatDate(search.last_notified_at)}</span>
+                        <span className="ms-2">· {dict.dashboard.lastNotified}: {formatDate(search.last_notified_at)}</span>
                       )}
                     </p>
                   </div>

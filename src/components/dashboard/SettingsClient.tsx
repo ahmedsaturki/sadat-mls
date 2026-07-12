@@ -627,7 +627,7 @@ export default function SettingsClient({
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dict.dashboard.offers}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "إشعار عند تلقي عرض جديد" : "Notify when a new offer is received"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{dict.dashboard.newOfferNotify}</p>
                     </div>
                     <button
                       type="button"
@@ -648,7 +648,7 @@ export default function SettingsClient({
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dict.dashboard.commissions}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "إشعار عند تأكيد دفع العمولة" : "Notify when a commission is marked as paid"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{dict.dashboard.commissionPaidNotify}</p>
                     </div>
                     <button
                       type="button"
@@ -773,8 +773,8 @@ export default function SettingsClient({
                   {/* Price Drop Email */}
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{locale === "ar" ? "بريد انخفاض السعر" : "Price Drop Email"}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "تلقَّ بريداً عند انخفاض سعر عقار مفضل" : "Receive email when a favorited property drops in price"}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dict.dashboard.priceDropEmail}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{dict.dashboard.priceDropEmailDesc}</p>
                     </div>
                     <button
                       type="button"
@@ -785,7 +785,7 @@ export default function SettingsClient({
                       }`}
                       role="switch"
                       aria-checked={notifPrefs.price_drop_email}
-                      aria-label={locale === "ar" ? "بريد انخفاض السعر" : "Price Drop Email"}
+                      aria-label={dict.dashboard.priceDropEmail}
                     >
                       <span
                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -798,8 +798,8 @@ export default function SettingsClient({
                   {/* Offer Received Email */}
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{locale === "ar" ? "بريد العروض" : "Offer Email"}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "تلقَّ بريداً عند تلقي عرض جديد" : "Receive email when a new offer is received"}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dict.dashboard.offerEmail}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{dict.dashboard.offerEmailDesc}</p>
                     </div>
                     <button
                       type="button"
@@ -810,7 +810,7 @@ export default function SettingsClient({
                       }`}
                       role="switch"
                       aria-checked={notifPrefs.offer_received_email}
-                      aria-label={locale === "ar" ? "بريد العروض" : "Offer Email"}
+                      aria-label={dict.dashboard.offerEmail}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifPrefs.offer_received_email ? "translate-x-6" : "translate-x-1"}`} />
                     </button>
@@ -819,8 +819,8 @@ export default function SettingsClient({
                   {/* Commission Paid Email */}
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{locale === "ar" ? "بريد العمولات" : "Commission Email"}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{locale === "ar" ? "تلقَّ بريداً عند تأكيد دفع العمولة" : "Receive email when a commission is paid"}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dict.dashboard.commissionEmail}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{dict.dashboard.commissionEmailDesc}</p>
                     </div>
                     <button
                       type="button"
@@ -831,7 +831,7 @@ export default function SettingsClient({
                       }`}
                       role="switch"
                       aria-checked={notifPrefs.commission_paid_email}
-                      aria-label={locale === "ar" ? "بريد العمولات" : "Commission Email"}
+                      aria-label={dict.dashboard.commissionEmail}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifPrefs.commission_paid_email ? "translate-x-6" : "translate-x-1"}`} />
                     </button>
@@ -841,8 +841,8 @@ export default function SettingsClient({
                   {pushSupported && (
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Push Notifications</p>
-                        <p className="text-xs text-gray-500">Receive notifications even when the app is closed</p>
+                        <p className="text-sm font-medium text-gray-900">{dict.dashboard.pushNotifications}</p>
+                        <p className="text-xs text-gray-500">{dict.dashboard.pushNotificationsDesc}</p>
                       </div>
                       <button
                         type="button"
@@ -852,7 +852,7 @@ export default function SettingsClient({
                         }`}
                         role="switch"
                         aria-checked={pushSubscribed}
-                        aria-label="Push Notifications"
+                        aria-label={dict.dashboard.pushNotifications}
                       >
                         <span
                           className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${

@@ -143,7 +143,7 @@ export default function MessagesClient({
     const diffMs = now.getTime() - date.getTime();
     const diffHr = Math.floor(diffMs / 3600000);
     const diffDay = Math.floor(diffHr / 24);
-    if (diffHr < 1) return typedLocale === "ar" ? "الآن" : "Just now";
+    if (diffHr < 1) return dict.dashboard.justNow;
     if (diffHr < 24) return `${diffHr}${typedLocale === "ar" ? "س" : "h"}`;
     if (diffDay < 7) return `${diffDay}${typedLocale === "ar" ? "ي" : "d"}`;
     return date.toLocaleDateString(typedLocale === "ar" ? "ar-EG" : "en-US");
@@ -159,12 +159,12 @@ export default function MessagesClient({
               {dict.nav.messages}
             </h1>
             {unreadCount > 0 && (
-              <p className="text-sm text-gray-500 mt-1">{unreadCount} {typedLocale === "ar" ? "غير مقروء" : "unread"}</p>
+              <p className="text-sm text-gray-500 mt-1">{unreadCount} {dict.dashboard.unread}</p>
             )}
           </div>
           <Button onClick={() => setShowCompose(true)}>
             <Send className="w-4 h-4 ms-2" />
-            {typedLocale === "ar" ? "رسالة جديدة" : "New Message"}
+            {dict.dashboard.newMessage}
           </Button>
         </div>
 
@@ -185,7 +185,7 @@ export default function MessagesClient({
                 filter === "unread" ? "bg-navy-100 text-navy-700" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              {typedLocale === "ar" ? "غير مقروء" : "Unread"} ({unreadCount})
+              {dict.dashboard.unread} ({unreadCount})
             </button>
           </div>
           <div className="flex-1 relative">
@@ -194,9 +194,9 @@ export default function MessagesClient({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={typedLocale === "ar" ? "بحث في الرسائل..." : "Search messages..."}
+              placeholder={dict.dashboard.searchMessagesPlaceholder}
               className="w-full ps-10 pe-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
-              aria-label={typedLocale === "ar" ? "بحث في الرسائل" : "Search messages"}
+              aria-label={dict.dashboard.searchMessages}
             />
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function MessagesClient({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className={`font-medium truncate ${msg.is_read ? "text-gray-700" : "text-gray-900"}`}>
-                        {msg.visitor_name || msg.subject || (typedLocale === "ar" ? "رسالة" : "Message")}
+                        {msg.visitor_name || msg.subject || dict.dashboard.messageBody}
                       </p>
                       {!msg.is_read && <span className="w-2 h-2 bg-navy-600 rounded-full flex-shrink-0" />}
                       <span className="text-xs text-gray-500 ms-auto flex-shrink-0">{formatDate(msg.created_at)}</span>
@@ -250,10 +250,10 @@ export default function MessagesClient({
               <Inbox className="w-8 h-8 text-gray-500" />
             </div>
             <h2 className="text-lg font-medium text-gray-900 mb-2">
-              {typedLocale === "ar" ? "لا توجد رسائل" : "No messages"}
+              {dict.dashboard.noMessages}
             </h2>
             <p className="text-sm text-gray-500">
-              {typedLocale === "ar" ? "ستظهر الرسائل الجديدة هنا" : "New messages will appear here"}
+              {dict.dashboard.noMessagesDesc}
             </p>
           </div>
         )}
@@ -263,7 +263,7 @@ export default function MessagesClient({
       <Modal
         isOpen={!!selectedMessage}
         onClose={() => setSelectedMessage(null)}
-        title={selectedMessage?.subject || (typedLocale === "ar" ? "الرسالة" : "Message")}
+        title={selectedMessage?.subject || dict.dashboard.messageBody}
         size="lg"
       >
         {selectedMessage && (
@@ -276,7 +276,7 @@ export default function MessagesClient({
             </div>
             {selectedMessage.parent_id && (
               <div className="p-3 bg-blue-50 border-l-4 border-blue-400 rounded-lg text-sm text-blue-700">
-                {typedLocale === "ar" ? "رد على رسالة سابقة" : "Reply to previous message"}
+                {dict.dashboard.replyToPrevious}
               </div>
             )}
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -291,7 +291,7 @@ export default function MessagesClient({
                   className="text-navy-600 dark:text-navy-400 hover:underline text-sm flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.414 6.586a4 4 0 005.656 5.656l6.414-6.586a2 2 0 102.828-2.828" /></svg>
-                  {selectedMessage.attachment_name || (typedLocale === "ar" ? "مرفق" : "Attachment")}
+                  {selectedMessage.attachment_name || dict.dashboard.attachment}
                 </a>
               </div>
             )}
@@ -301,7 +301,7 @@ export default function MessagesClient({
               </Button>
               <Button onClick={() => { setShowCompose(true); setComposeData({ ...composeData, subject: `Re: ${selectedMessage.subject || ""}`, visitorName: selectedMessage.visitor_name || "", visitorEmail: selectedMessage.visitor_email || "", visitorPhone: selectedMessage.visitor_phone || "" }); }}>
                 <Send className="w-4 h-4 ms-2" />
-                {typedLocale === "ar" ? "رد" : "Reply"}
+                {dict.dashboard.reply}
               </Button>
             </div>
           </div>
@@ -309,35 +309,35 @@ export default function MessagesClient({
       </Modal>
 
       {/* Compose Modal */}
-      <Modal isOpen={showCompose} onClose={() => setShowCompose(false)} title={typedLocale === "ar" ? "رسالة جديدة" : "New Message"} size="lg">
+      <Modal isOpen={showCompose} onClose={() => setShowCompose(false)} title={dict.dashboard.newMessage} size="lg">
         <div className="space-y-4">
           <Input
-            label={typedLocale === "ar" ? "الاسم" : "Name"}
+            label={dict.common.name || "Name"}
             value={composeData.visitorName}
             onChange={(e) => setComposeData({ ...composeData, visitorName: e.target.value })}
-            placeholder={typedLocale === "ar" ? "اسم المستلم" : "Recipient name"}
+            placeholder={dict.dashboard.recipientName}
           />
           <Input
-            label={typedLocale === "ar" ? "البريد الإلكتروني" : "Email"}
+            label={dict.common.email}
             type="email"
             value={composeData.visitorEmail}
             onChange={(e) => setComposeData({ ...composeData, visitorEmail: e.target.value })}
             placeholder="email@example.com"
           />
           <Input
-            label={typedLocale === "ar" ? "الموضوع" : "Subject"}
+            label={dict.common.subject || "Subject"}
             value={composeData.subject}
             onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
-            placeholder={typedLocale === "ar" ? "موضوع الرسالة" : "Message subject"}
+            placeholder={dict.dashboard.messageSubject || dict.common.subject || "Subject"}
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{typedLocale === "ar" ? "الرسالة" : "Message"}</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{dict.dashboard.messageBody}</label>
             <textarea
               value={composeData.body}
               onChange={(e) => setComposeData({ ...composeData, body: e.target.value })}
               rows={5}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
-              placeholder={typedLocale === "ar" ? "اكتب رسالتك هنا..." : "Write your message here..."}
+              placeholder={dict.dashboard.messagePlaceholder}
               required
             />
           </div>
@@ -345,7 +345,7 @@ export default function MessagesClient({
             <Button variant="ghost" onClick={() => setShowCompose(false)}>{dict.common.cancel}</Button>
             <Button onClick={handleSendReply} isLoading={sending} disabled={!composeData.body.trim()}>
               <Send className="w-4 h-4 ms-2" />
-              {typedLocale === "ar" ? "إرسال" : "Send"}
+              {dict.dashboard.send}
             </Button>
           </div>
         </div>

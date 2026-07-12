@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 import { getMessages } from "@/i18n/getMessages";
+import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
 import type { Metadata } from "next";
 import PropertyDetailClient from "@/components/properties/PropertyDetailClient";
 
@@ -125,12 +126,12 @@ export default async function PropertyDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: sanitizeJsonLd({
             "@context": "https://schema.org",
             "@type": "RealEstateListing",
             name: raw.title,
             description: raw.description || "",
-            url: `${process.env.NEXT_PUBLIC_APP_URL || "https://sadat-mls.vercel.app"}/${locale}/explore/${id}`,
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.vercel.app"}/${locale}/explore/${id}`,
             offers: {
               "@type": "Offer",
               price: raw.price,
