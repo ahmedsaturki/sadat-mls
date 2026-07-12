@@ -435,6 +435,21 @@
 
 ---
 
+## Sprint 44 — CSV Export (DONE)
+
+**Commit**: `1cae352` — feat: CSV export for agents, contacts, and referrals
+
+| # | Item | Status |
+|---|------|--------|
+| 134 | Agents export (email, name, phone, status) | Done |
+| 135 | Referrals export (client, offices, status, code) | Done |
+| 136 | CSV button on contact requests page | Done |
+| 137 | CSV button on agents page | Done |
+| 138 | CSV button on referrals page | Done |
+| 139 | Properties CSV export (already existed) | Done |
+
+---
+
 ## FINAL STATUS — ALL ITEMS COMPLETE
 
 ### Platform Stats (as of Sprint 42)
