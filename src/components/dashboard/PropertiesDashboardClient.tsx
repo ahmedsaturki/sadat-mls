@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Edit, Trash2, Home, CheckSquare, Square, Trash, Download } from "lucide-react";
+import { Plus, Edit, Trash2, Home, CheckSquare, Square, Trash, Download, Search, ArrowUpDown } from "lucide-react";
+import { useDebouncedValue } from "@/hooks/useDebounce";
 import { getMessages } from "@/i18n/getMessages";
 import { useToast } from "@/components/ui/Toast";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -80,9 +81,38 @@ export default function PropertiesDashboardClient({
   const [bulkLoading, setBulkLoading] = useState(false);
   const [stats, setStats] = useState(initialStats);
   const [initialLoaded, setInitialLoaded] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"created_at" | "price" | "area">("created_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const mountedRef = useRef(true);
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  // Client-side filtered properties for search
+  const filteredProperties = useMemo(() => {
+    if (!debouncedSearch.trim()) return properties;
+    const q = debouncedSearch.toLowerCase();
+    return properties.filter(
+      (p) =>
+        p.title?.toLowerCase().includes(q) ||
+        (p as unknown as { description?: string })?.description?.toLowerCase().includes(q)
+    );
+  }, [properties, debouncedSearch]);
+
+  // Client-side sorted properties
+  const sortedProperties = useMemo(() => {
+    return [...filteredProperties].sort((a, b) => {
+      const aVal = a[sortBy];
+      const bVal = b[sortBy];
+      if (sortBy === "created_at") {
+        const aDate = new Date(aVal as string).getTime();
+        const bDate = new Date(bVal as string).getTime();
+        return sortOrder === "asc" ? aDate - bDate : bDate - aDate;
+      }
+      return sortOrder === "asc" ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
+    });
+  }, [filteredProperties, sortBy, sortOrder]);
 
   const loadStats = useCallback(async () => {
     if (!officeId || !supabase || !mountedRef.current) return;
@@ -369,6 +399,45 @@ export default function PropertiesDashboardClient({
           ))}
         </div>
 
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+            placeholder={dict.office.searchProperties}
+            aria-label={dict.office.searchProperties}
+            className="w-full ps-10 pe-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 placeholder:text-gray-400"
+          />
+        </div>
+
+        {/* Sort Controls */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="w-4 h-4 text-gray-500" aria-hidden="true" />
+            <label htmlFor="sort-select" className="text-sm text-gray-600">
+              {dict.property.sortBy}
+            </label>
+          </div>
+          <select
+            id="sort-select"
+            value={`${sortBy}-${sortOrder}`}
+            onChange={(e) => {
+              const [newSortBy, newSortOrder] = e.target.value.split("-") as [typeof sortBy, typeof sortOrder];
+              setSortBy(newSortBy);
+              setSortOrder(newSortOrder);
+            }}
+            className="text-sm px-3 py-2 border border-gray-300 rounded-lg bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 cursor-pointer"
+            aria-label={dict.property.sortBy}
+          >
+            <option value="created_at-desc">{dict.property.sortNewest}</option>
+            <option value="price-asc">{dict.property.sortPriceLow}</option>
+            <option value="price-desc">{dict.property.sortPriceHigh}</option>
+            <option value="area-desc">{dict.property.sortArea}</option>
+          </select>
+        </div>
+
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3 p-3 bg-navy-50 rounded-xl border border-navy-200">
@@ -401,9 +470,9 @@ export default function PropertiesDashboardClient({
           </div>
         )}
 
-        {properties.length > 0 ? (
+        {sortedProperties.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {properties.map((property) => (
+            {sortedProperties.map((property) => (
               <div key={property.id} className="relative group">
                 {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
                   <button
@@ -481,11 +550,19 @@ export default function PropertiesDashboardClient({
         ) : (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm">
             <div className="w-20 h-20 bg-gradient-to-br from-navy-50 to-navy-100 rounded-full flex items-center justify-center mx-auto mb-5 ring-1 ring-navy-200/60">
-              <Home className="w-10 h-10 text-navy-400" />
+              {debouncedSearch.trim() ? (
+                <Search className="w-10 h-10 text-navy-400" />
+              ) : (
+                <Home className="w-10 h-10 text-navy-400" />
+              )}
             </div>
-            <p className="text-lg font-semibold text-gray-700 mb-1.5">{dict.office.noPropertiesYet}</p>
-            <p className="text-sm text-gray-500 max-w-xs mx-auto mb-6">{dict.office.startAdding}</p>
-            {(userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
+            <p className="text-lg font-semibold text-gray-700 mb-1.5">
+              {debouncedSearch.trim() ? dict.explore.noResults : dict.office.noPropertiesYet}
+            </p>
+            <p className="text-sm text-gray-500 max-w-xs mx-auto mb-6">
+              {debouncedSearch.trim() ? "" : dict.office.startAdding}
+            </p>
+            {!debouncedSearch.trim() && (userRole === ROLES.OFFICE_ADMIN || userRole === ROLES.OFFICE_AGENT) && (
               <Link href={`/${typedLocale}/dashboard/properties/new`} className="mt-2 inline-block">
                 <Button>{dict.office.addProperty}</Button>
               </Link>

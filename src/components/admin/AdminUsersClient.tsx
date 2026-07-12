@@ -71,6 +71,9 @@ export default function AdminUsersClient({
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const mountedRef = useRef(true);
 
   const fetchUsers = useCallback(async () => {
@@ -246,6 +249,68 @@ export default function AdminUsersClient({
     }
   };
 
+  const toggleSelect = (id: string | number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const idStr = String(id);
+      if (next.has(idStr)) next.delete(idStr);
+      else next.add(idStr);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === users.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(users.map((u) => u.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+
+      // Delete users sequentially (API only supports single delete)
+      const ids = Array.from(selectedIds);
+      let failed = 0;
+      for (const id of ids) {
+        try {
+          const response = await fetch(`/api/admin/users?id=${id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              ...getCsrfHeaders(),
+            },
+          });
+          if (!response.ok) failed++;
+        } catch {
+          failed++;
+        }
+      }
+
+      if (failed === 0) {
+        showToast(dict.admin.bulkDeleteSuccess, "success");
+      } else if (failed < ids.length) {
+        showToast(dict.admin.bulkDeleteSuccess, "success");
+      } else {
+        showToast(dict.common.unexpectedError, "error");
+      }
+
+      setSelectedIds(new Set());
+      setShowBulkDeleteModal(false);
+      fetchUsers();
+    } catch (err) {
+      logger.error("Failed to bulk delete users", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
   const getRoleLabel = (role: string) => {
     switch (role) {
       case ROLES.SUPER_ADMIN: return dict.roles.superAdmin;
@@ -409,15 +474,42 @@ export default function AdminUsersClient({
               </div>
             </Card>
           ) : (
-            <PaginatedTable
-              data={users}
-              columns={columns}
-              pageSize={10}
-              searchKey="full_name"
-              searchPlaceholder={dict.admin.searchUsers}
-              emptyMessage={dict.admin.noUsers}
-              dir={locale === "ar" ? "rtl" : "ltr"}
-            />
+            <>
+              {/* Bulk Action Toolbar */}
+              {selectedIds.size > 0 && (
+                <Card padding="sm">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-navy-700">
+                      {dict.admin.selectedItems.replace("{{count}}", String(selectedIds.size))}
+                    </span>
+                    <div className="me-auto" />
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setShowBulkDeleteModal(true)}
+                      disabled={bulkLoading}
+                    >
+                      <Trash2 className="w-4 h-4 ms-1" aria-hidden="true" />
+                      {dict.admin.bulkDelete}
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              <PaginatedTable
+                data={users}
+                columns={columns}
+                pageSize={10}
+                searchKey="full_name"
+                searchPlaceholder={dict.admin.searchUsers}
+                emptyMessage={dict.admin.noUsers}
+                dir={locale === "ar" ? "rtl" : "ltr"}
+                selectedIds={selectedIds}
+                onToggleSelect={toggleSelect}
+                onSelectAll={toggleSelectAll}
+                selectAllLabel={selectedIds.size === users.length ? dict.admin.deselectAll : dict.admin.selectAll}
+              />
+            </>
           )}
         </div>
 
@@ -506,6 +598,33 @@ export default function AdminUsersClient({
                 variant="danger"
                 onClick={handleDelete}
                 isLoading={deleting}
+              >
+                {dict.common.delete}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Bulk Delete Confirmation Modal */}
+        <Modal
+          isOpen={showBulkDeleteModal}
+          onClose={() => setShowBulkDeleteModal(false)}
+          title={dict.common.confirm}
+          size="sm"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-600">{dict.admin.confirmBulkDelete.replace("{{count}}", String(selectedIds.size))}</p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setShowBulkDeleteModal(false)}
+              >
+                {dict.common.cancel}
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleBulkDelete}
+                isLoading={bulkLoading}
               >
                 {dict.common.delete}
               </Button>

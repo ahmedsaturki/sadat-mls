@@ -80,6 +80,7 @@ export function PageLoader({
       className="flex flex-col items-center justify-center w-full p-8 min-h-[400px]"
       role="status"
       aria-busy="true"
+      aria-live="polite"
     >
       <div className="animate-pulse-scale w-16 h-16 rounded-full bg-navy-800/10 flex items-center justify-center mb-6 relative">
         <div className="animate-spin-slow absolute inset-0 rounded-full border-t-2 border-e-2 border-gold-500 opacity-70" />

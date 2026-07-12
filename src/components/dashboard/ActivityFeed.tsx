@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Home, UserPlus, Mail, Settings, Trash2, Edit, Eye, Plus, Clock } from "lucide-react";
 import { logger } from "@/lib/logger";
 import type { Messages } from "@/i18n/getMessages";
@@ -133,6 +134,14 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
         const colorClass = ACTION_COLORS[activity.action] || "bg-gray-100 text-gray-600";
         const userName = activity.users?.full_name || activity.users?.email || dict.common?.unknown;
 
+        const entityLink = activity.entity_id
+          ? activity.entity_type === "property"
+            ? `/explore/${activity.entity_id}`
+            : activity.entity_type === "office"
+            ? `/offices/${activity.entity_id}`
+            : null
+          : null;
+
         return (
           <div
             key={activity.id}
@@ -146,7 +155,16 @@ export default function ActivityFeed({ dict }: ActivityFeedProps) {
                 <span className="font-medium">{userName}</span>{" "}
                 {formatAction(activity.action, dict)}
                 {activity.entity_title && (
-                  <span className="text-gray-500"> — {activity.entity_title}</span>
+                  entityLink ? (
+                    <Link
+                      href={entityLink}
+                      className="text-navy-600 hover:text-navy-800 hover:underline"
+                    >
+                      {" — "}{activity.entity_title}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-500"> — {activity.entity_title}</span>
+                  )
                 )}
               </p>
               <p className="text-xs text-gray-500 mt-0.5">

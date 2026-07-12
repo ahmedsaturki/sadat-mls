@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Heart } from "lucide-react";
 import PropertyCard from "@/components/properties/PropertyCard";
 import { SkeletonCard } from "@/components/ui/Skeleton";
@@ -20,6 +20,8 @@ type Property = Database["public"]["Tables"]["properties"]["Row"] & {
   primaryImage?: string | null;
 };
 
+const PAGE_SIZE = 9;
+
 export default function FavoritesClient({
   params,
 }: {
@@ -29,10 +31,17 @@ export default function FavoritesClient({
   const dict = getMessages(typedLocale);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
   const { supabase, user, profile } = useAuthUser();
   const userRole = (profile?.role as UserRole) || ROLES.OFFICE_AGENT;
 
   const mountedRef = useRef(true);
+  const totalPages = Math.ceil(properties.length / PAGE_SIZE);
+
+  const paginatedProperties = useMemo(
+    () => properties.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [properties, page]
+  );
 
   const loadFavorites = useCallback(async () => {
     if (!user || !mountedRef.current) {
@@ -121,27 +130,64 @@ export default function FavoritesClient({
             ))}
           </div>
         ) : properties.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-live="polite">
-            {properties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                id={property.id}
-                title={property.title}
-                price={property.price}
-                area={property.area}
-                bedrooms={property.bedrooms}
-                bathrooms={property.bathrooms}
-                zone={property.zones?.name_ar}
-                imageUrl={property.primaryImage || undefined}
-                status={property.status}
-                officeName={property.offices?.name || ""}
-                locale={typedLocale}
-                type={property.property_types?.name_ar}
-                dict={dict}
-                userId={user?.id || null}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-live="polite">
+              {paginatedProperties.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  id={property.id}
+                  title={property.title}
+                  price={property.price}
+                  area={property.area}
+                  bedrooms={property.bedrooms}
+                  bathrooms={property.bathrooms}
+                  zone={property.zones?.name_ar}
+                  imageUrl={property.primaryImage || undefined}
+                  status={property.status}
+                  officeName={property.offices?.name || ""}
+                  locale={typedLocale}
+                  type={property.property_types?.name_ar}
+                  dict={dict}
+                  userId={user?.id || null}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {dict.common.previous}
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p: number) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    aria-label={`${p}`}
+                    aria-current={page === p ? "page" : undefined}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 ${
+                      page === p
+                        ? "bg-navy-600 text-white"
+                        : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {dict.common.next}
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-16" role="status">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

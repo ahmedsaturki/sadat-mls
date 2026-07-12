@@ -42,6 +42,8 @@ export default function PropertyImageManager({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [isUploadAreaFocused, setIsUploadAreaFocused] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleteConfirmIndex, setDeleteConfirmIndex] = useState<number | null>(null);
 
   const handleFileSelect = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -147,12 +149,24 @@ export default function PropertyImageManager({
                   </button>
                   <button
                     type="button"
-                    onClick={() => onRemoveExisting(img.id)}
-                    className="text-xs px-3 py-1.5 rounded-sm font-medium bg-red-500 text-white flex items-center justify-center gap-1.5 hover:bg-red-600 transition-colors"
-                    aria-label={`${dict.common.removeImage}: ${img.alt_text || ""}`}
+                    onClick={() => {
+                      if (deleteConfirmId === img.id) {
+                        onRemoveExisting(img.id);
+                        setDeleteConfirmId(null);
+                      } else {
+                        setDeleteConfirmId(img.id);
+                      }
+                    }}
+                    onBlur={() => setDeleteConfirmId(null)}
+                    className={`text-xs px-3 py-1.5 rounded-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${
+                      deleteConfirmId === img.id
+                        ? "bg-red-700 text-white hover:bg-red-800"
+                        : "bg-red-500 text-white hover:bg-red-600"
+                    }`}
+                    aria-label={deleteConfirmId === img.id ? dict.common.confirm : `${dict.common.removeImage}: ${img.alt_text || ""}`}
                   >
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
-                    <span>{dict.common.remove}</span>
+                    <span>{deleteConfirmId === img.id ? dict.common.confirm : dict.common.remove}</span>
                   </button>
                 </div>
               </div>
@@ -203,12 +217,24 @@ export default function PropertyImageManager({
                   />
                   <button
                     type="button"
-                    onClick={() => onRemoveNew(index)}
-                    className="text-xs px-3 py-1.5 rounded-sm font-medium bg-red-500 text-white flex items-center justify-center gap-1.5 hover:bg-red-600 transition-colors w-full"
-                    aria-label={`${dict.common.removeImage}: ${img.alt_text || ""}`}
+                    onClick={() => {
+                      if (deleteConfirmIndex === index) {
+                        onRemoveNew(index);
+                        setDeleteConfirmIndex(null);
+                      } else {
+                        setDeleteConfirmIndex(index);
+                      }
+                    }}
+                    onBlur={() => setDeleteConfirmIndex(null)}
+                    className={`text-xs px-3 py-1.5 rounded-sm font-medium flex items-center justify-center gap-1.5 transition-colors w-full ${
+                      deleteConfirmIndex === index
+                        ? "bg-red-700 text-white hover:bg-red-800"
+                        : "bg-red-500 text-white hover:bg-red-600"
+                    }`}
+                    aria-label={deleteConfirmIndex === index ? dict.common.confirm : `${dict.common.removeImage}: ${img.alt_text || ""}`}
                   >
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
-                    <span>{dict.common.remove}</span>
+                    <span>{deleteConfirmIndex === index ? dict.common.confirm : dict.common.remove}</span>
                   </button>
                 </div>
               </div>

@@ -55,8 +55,11 @@ const locale = params.locale as Locale;
    const [editErrors, setEditErrors] = useState<Record<string, string>>({});
    const [loading, setLoading] = useState(true);
    const [saving, setSaving] = useState(false);
-   const [togglingId, setTogglingId] = useState<string | null>(null);
-   const [errors, setErrors] = useState<Record<string, string>>({});
+    const [togglingId, setTogglingId] = useState<string | null>(null);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [bulkLoading, setBulkLoading] = useState(false);
+    const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
     const [formData, setFormData] = useState({
       name: "",
       slug: "",
@@ -356,6 +359,73 @@ const locale = params.locale as Locale;
     }
   };
 
+  const toggleSelect = (id: string | number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const idStr = String(id);
+      if (next.has(idStr)) next.delete(idStr);
+      else next.add(idStr);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === offices.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(offices.map((o) => o.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkLoading(true);
+    try {
+      const { error } = await supabase
+        .from("offices")
+        .delete()
+        .in("id", Array.from(selectedIds));
+
+      if (!error) {
+        showToast(dict.admin.bulkDeleteSuccess, "success");
+        setSelectedIds(new Set());
+        setShowBulkDeleteModal(false);
+        loadOffices();
+      } else {
+        showToast(dict.common.unexpectedError, "error");
+      }
+    } catch (err) {
+      logger.error("Failed to bulk delete offices", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleBulkActivate = async (activate: boolean) => {
+    if (selectedIds.size === 0) return;
+    setBulkLoading(true);
+    try {
+      const { error } = await supabase
+        .from("offices")
+        .update({ is_active: activate })
+        .in("id", Array.from(selectedIds));
+
+      if (!error) {
+        showToast(activate ? dict.admin.bulkActivateSuccess : dict.admin.bulkDeactivateSuccess, "success");
+        setSelectedIds(new Set());
+        loadOffices();
+      } else {
+        showToast(dict.common.unexpectedError, "error");
+      }
+    } catch (err) {
+      logger.error("Failed to bulk update office status", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
   return (
     <DashboardLayout locale={locale} dict={dict} role={ROLES.SUPER_ADMIN}>
       <ErrorBoundary>
@@ -375,6 +445,43 @@ const locale = params.locale as Locale;
               <SkeletonTable rows={5} />
             ) : (
               <>
+                {/* Bulk Action Toolbar */}
+                {selectedIds.size > 0 && (
+                  <div className="flex items-center gap-3 px-4 py-3 bg-navy-50 border-b border-navy-200">
+                    <span className="text-sm font-medium text-navy-700">
+                      {dict.admin.selectedItems.replace("{{count}}", String(selectedIds.size))}
+                    </span>
+                    <div className="me-auto" />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleBulkActivate(true)}
+                      disabled={bulkLoading}
+                    >
+                      <Eye className="w-4 h-4 ms-1" />
+                      {dict.admin.bulkActivate}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleBulkActivate(false)}
+                      disabled={bulkLoading}
+                    >
+                      <EyeOff className="w-4 h-4 ms-1" />
+                      {dict.admin.bulkDeactivate}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setShowBulkDeleteModal(true)}
+                      disabled={bulkLoading}
+                    >
+                      <Trash2 className="w-4 h-4 ms-1" />
+                      {dict.admin.bulkDelete}
+                    </Button>
+                  </div>
+                )}
+
                 <PaginatedTable
                   data={offices}
                   searchKey="name"
@@ -382,6 +489,10 @@ const locale = params.locale as Locale;
                   emptyMessage={dict.common.noData}
                   emptyIcon={<Building className="w-12 h-12 text-navy-300" />}
                   emptyHint={dict.admin.noOfficesHint}
+                  selectedIds={selectedIds}
+                  onToggleSelect={toggleSelect}
+                  onSelectAll={toggleSelectAll}
+                  selectAllLabel={selectedIds.size === offices.length ? dict.admin.deselectAll : dict.admin.selectAll}
                   columns={[
                     {
                       key: "name",
@@ -578,6 +689,17 @@ const locale = params.locale as Locale;
               <div className="flex gap-3 justify-end">
                 <Button variant="ghost" onClick={() => setShowDeleteModal(false)}>{dict.common.cancel}</Button>
                 <Button variant="danger" onClick={handleDeleteOffice} isLoading={saving}>{dict.common.delete}</Button>
+              </div>
+            </div>
+          </Modal>
+
+          {/* Bulk Delete Confirmation Modal */}
+          <Modal isOpen={showBulkDeleteModal} onClose={() => setShowBulkDeleteModal(false)} title={dict.common.confirm} size="sm">
+            <div className="space-y-4">
+              <p className="text-gray-600">{dict.admin.confirmBulkDelete.replace("{{count}}", String(selectedIds.size))}</p>
+              <div className="flex gap-3 justify-end">
+                <Button variant="ghost" onClick={() => setShowBulkDeleteModal(false)}>{dict.common.cancel}</Button>
+                <Button variant="danger" onClick={handleBulkDelete} isLoading={bulkLoading}>{dict.common.delete}</Button>
               </div>
             </div>
           </Modal>

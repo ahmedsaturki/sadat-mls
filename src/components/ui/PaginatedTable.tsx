@@ -25,6 +25,14 @@ interface PaginatedTableProps<T> {
   nextPageLabel?: string;
   previousPageLabel?: string;
   pageLabel?: string;
+  /** Enable multi-select with checkboxes. Pass the current set of selected IDs. */
+  selectedIds?: Set<string | number>;
+  /** Called when a row checkbox is toggled. */
+  onToggleSelect?: (id: string | number) => void;
+  /** Called when the header checkbox is toggled (select/deselect all on current page). */
+  onSelectAll?: () => void;
+  /** Accessible label for the select-all checkbox. */
+  selectAllLabel?: string;
 }
 
 export default function PaginatedTable<T extends { id?: string | number }>({
@@ -41,6 +49,10 @@ export default function PaginatedTable<T extends { id?: string | number }>({
   nextPageLabel = "",
   previousPageLabel = "",
   pageLabel = "",
+  selectedIds,
+  onToggleSelect,
+  onSelectAll,
+  selectAllLabel = "",
 }: PaginatedTableProps<T>) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -83,6 +95,26 @@ export default function PaginatedTable<T extends { id?: string | number }>({
         <table className="w-full" aria-label={resultsLabel}>
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
+              {selectedIds !== undefined && onToggleSelect && onSelectAll && (
+                <th scope="col" className="px-4 py-3 w-12">
+                  <button
+                    type="button"
+                    onClick={onSelectAll}
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
+                    aria-label={selectAllLabel}
+                  >
+                    {selectedIds.size === paged.length && paged.length > 0 ? (
+                      <svg className="w-5 h-5 text-navy-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 0v10h10V5H5z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+                </th>
+              )}
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -95,15 +127,39 @@ export default function PaginatedTable<T extends { id?: string | number }>({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {paged.map((item, i) => (
-              <tr key={item.id || i} className="hover:bg-gray-50">
-                {columns.map((col) => (
-                  <td key={col.key} className={`px-6 py-4 ${col.className || ""}`}>
-                    {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? "")}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {paged.map((item, i) => {
+              const itemId = item.id ?? i;
+              const isSelected = selectedIds !== undefined ? selectedIds.has(itemId) : false;
+              return (
+                <tr key={itemId} className={`hover:bg-gray-50 ${isSelected ? "bg-navy-50" : ""}`}>
+                  {selectedIds !== undefined && onToggleSelect && (
+                    <td className="px-4 py-4 w-12">
+                      <button
+                        type="button"
+                        onClick={() => onToggleSelect(itemId)}
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2"
+                        aria-label={isSelected ? "Deselect" : "Select"}
+                      >
+                        {isSelected ? (
+                          <svg className="w-5 h-5 text-navy-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 0v10h10V5H5z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </button>
+                    </td>
+                  )}
+                  {columns.map((col) => (
+                    <td key={col.key} className={`px-6 py-4 ${col.className || ""}`}>
+                      {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? "")}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
