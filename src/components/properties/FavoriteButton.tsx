@@ -29,7 +29,6 @@ const FavoriteButton = memo(function FavoriteButton({
 }: FavoriteButtonProps) {
   const router = useRouter();
   const [isFavorited, setIsFavorited] = useState(false);
-  const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
   const mountedRef = useRef(true);
 
@@ -79,42 +78,46 @@ const FavoriteButton = memo(function FavoriteButton({
       return;
     }
 
-    setLoading(true);
-    const supabase = createClient();
+    // Optimistic update: toggle immediately for instant UI feedback
+    const newFavorited = !isFavorited;
+    setIsFavorited(newFavorited);
 
     try {
-      if (isFavorited) {
+      const supabase = createClient();
+
+      if (!newFavorited) {
+        // Removing favorite
         const { error } = await supabase
           .from("property_favorites")
           .delete()
           .eq("user_id", userId)
           .eq("property_id", propertyId);
 
-        if (!error) {
-          setIsFavorited(false);
-          showToast(dict?.common?.removeFavorite ?? "", "success");
-        } else {
+        if (error) {
+          setIsFavorited(isFavorited); // Rollback on error
           showToast(dict?.common?.error ?? "", "error");
           logger.error("Failed to remove favorite", { error });
+        } else {
+          showToast(dict?.common?.removeFavorite ?? "", "success");
         }
       } else {
+        // Adding favorite
         const { error } = await supabase
           .from("property_favorites")
           .insert({ user_id: userId, property_id: propertyId });
 
-        if (!error) {
-          setIsFavorited(true);
-          showToast(dict?.common?.addFavorite ?? "", "success");
-        } else {
+        if (error) {
+          setIsFavorited(isFavorited); // Rollback on error
           showToast(dict?.common?.error ?? "", "error");
           logger.error("Failed to add favorite", { error });
+        } else {
+          showToast(dict?.common?.addFavorite ?? "", "success");
         }
       }
     } catch (err) {
+      setIsFavorited(isFavorited); // Rollback on error
       logger.error("Failed to toggle favorite", { error: err instanceof Error ? err.message : String(err) });
       showToast(dict?.common?.error ?? "", "error");
-    } finally {
-      setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId, userId, isFavorited, locale, showToast]);
@@ -122,14 +125,12 @@ const FavoriteButton = memo(function FavoriteButton({
   return (
     <button
       onClick={toggleFavorite}
-      disabled={loading}
       className={cn(
         "flex items-center justify-center rounded-full transition-all active:scale-90",
         sizeClasses[size],
         isFavorited
           ? "bg-red-50 text-red-500 hover:bg-red-100"
           : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-600",
-        loading && "opacity-50 cursor-not-allowed",
         className
       )}
       aria-label={isFavorited

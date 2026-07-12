@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState, useEffect } from "react";
 import { GitCompare } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useCompare, type PropertyForComparison } from "@/hooks/useCompare";
@@ -24,6 +24,12 @@ const CompareButton = memo(function CompareButton({
   }: CompareButtonProps) {
    const { addProperty, removeProperty, isSelected, count, max } = useCompare();
    const { showToast } = useToast();
+   const [optimisticSelected, setOptimisticSelected] = useState(() => isSelected(property.id));
+
+   // Sync local state with hook when property or hook state changes
+   useEffect(() => {
+     setOptimisticSelected(isSelected(property.id));
+   }, [isSelected, property.id]);
 
     const sizeClasses = {
       sm: "w-10 h-10",
@@ -41,20 +47,27 @@ const CompareButton = memo(function CompareButton({
      e.preventDefault();
      e.stopPropagation();
 
-if (isSelected(property.id)) {
-        removeProperty(property.id);
-        showToast(getLabel("removeFromComparison"), "success");
-      } else {
-        const added = addProperty(property);
-        if (added) {
-          showToast(getLabel("addToComparison"), "success");
+     // Optimistic update: toggle immediately for instant UI feedback
+     const newSelected = !optimisticSelected;
+     setOptimisticSelected(newSelected);
+
+     if (!newSelected) {
+       // Removing from comparison
+       removeProperty(property.id);
+       showToast(getLabel("removeFromComparison"), "success");
+     } else {
+       // Adding to comparison
+       const added = addProperty(property);
+       if (added) {
+         showToast(getLabel("addToComparison"), "success");
        } else {
-          logger.warn("Cannot add more properties to compare", { currentCount: count, max });
-          const maxCompareMsg = getLabel("maxCompare");
-          showToast(maxCompareMsg.replace("{{max}}", String(max)), "warning");
+         setOptimisticSelected(false); // Rollback on failure (e.g., max reached)
+         logger.warn("Cannot add more properties to compare", { currentCount: count, max });
+         const maxCompareMsg = getLabel("maxCompare");
+         showToast(maxCompareMsg.replace("{{max}}", String(max)), "warning");
        }
      }
-    }, [isSelected, property, removeProperty, addProperty, showToast, getLabel, count, max]);
+     }, [optimisticSelected, property, removeProperty, addProperty, showToast, getLabel, count, max]);
 
   return (
     <button
@@ -62,15 +75,15 @@ if (isSelected(property.id)) {
       className={cn(
         "flex items-center justify-center rounded-full transition-all active:scale-90",
         sizeClasses[size],
-        isSelected(property.id)
+        optimisticSelected
           ? "bg-navy-50 text-navy-600 hover:bg-navy-100"
           : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-600",
         className
       )}
-      aria-label={isSelected(property.id) ?
+      aria-label={optimisticSelected ?
         getLabel("removeFromComparison") :
         getLabel("addToComparison")}
-      aria-pressed={isSelected(property.id)}
+      aria-pressed={optimisticSelected}
     >
       <GitCompare className={cn(size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5")} aria-hidden="true" />
     </button>

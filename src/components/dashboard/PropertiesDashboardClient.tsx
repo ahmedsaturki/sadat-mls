@@ -10,7 +10,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import PropertyCard from "@/components/properties/PropertyCard";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { PropertyCardSkeletonGrid } from "@/components/properties/PropertyCardSkeleton";
 import { ROLES, PROPERTY_STATUSES, type UserRole, type PropertyStatus } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { logger } from "@/lib/logger";
@@ -299,8 +299,9 @@ export default function PropertiesDashboardClient({
   if (loading && properties.length === 0) {
     return (
       <DashboardLayout locale={typedLocale} dict={dict} role={userRole}>
-        <div className="flex items-center justify-center py-20">
-          <LoadingSpinner />
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold text-gray-900">{dict.office.myProperties}</h1>
+          <PropertyCardSkeletonGrid count={6} />
         </div>
       </DashboardLayout>
     );

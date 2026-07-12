@@ -4,6 +4,7 @@ import { isValidLocale, type Locale } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 import { getServerAuth } from "@/lib/supabase/server-auth";
 import PropertiesDashboardClient from "@/components/dashboard/PropertiesDashboardClient";
+import { PropertyCardSkeletonGrid } from "@/components/properties/PropertyCardSkeleton";
 
 const PROPERTY_COLUMNS = "id, title, description, property_type_id, zone_id, street, price, area, bedrooms, bathrooms, floors, has_balcony, has_parking, has_elevator, status, is_active, office_id, created_at, property_types(name_ar, name_en), zones(name_ar, name_en)";
 const PAGE_SIZE = 9;
@@ -87,8 +88,11 @@ export default async function PropertiesPage({
 
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-navy-200 border-t-navy-600 rounded-full animate-spin" />
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+          <PropertyCardSkeletonGrid count={6} />
+        </div>
       </div>
     }>
       <PropertiesDashboardClient
