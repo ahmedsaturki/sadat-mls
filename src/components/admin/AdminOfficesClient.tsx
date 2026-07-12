@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, Plus, Trash2, Eye, EyeOff, Building } from "lucide-react";
+import { Building2, Plus, Trash2, Eye, EyeOff, Building, Edit } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -31,6 +31,7 @@ interface Office {
   slug: string;
   email: string;
   phone: string;
+  address?: string;
   is_active: boolean;
   created_at: string;
   usersCount?: number;
@@ -49,6 +50,9 @@ const locale = params.locale as Locale;
    const [showModal, setShowModal] = useState(false);
    const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [deleteId, setDeleteId] = useState<string | null>(null);
+   const [editModal, setEditModal] = useState<{ open: boolean; office: Office | null }>({ open: false, office: null });
+   const [editForm, setEditForm] = useState({ name: "", email: "", phone: "", address: "" });
+   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
    const [loading, setLoading] = useState(true);
    const [saving, setSaving] = useState(false);
    const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -270,6 +274,74 @@ const locale = params.locale as Locale;
     }
   };
 
+  const handleEditOffice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editModal.office) return;
+
+    const result = officeSchema.safeParse({
+      name: editForm.name,
+      email: editForm.email,
+      phone: editForm.phone,
+      address: editForm.address,
+    });
+
+    const newErrors: Record<string, string> = {};
+    if (!result.success) {
+      const validationDict = dict.validation as Record<string, string>;
+      result.error.issues.forEach((issue) => {
+        newErrors[issue.path.join(".")] = getValidationMessage(issue, validationDict);
+      });
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setEditErrors(newErrors);
+      return;
+    }
+
+    setEditErrors({});
+    setSaving(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showToast(dict.common.unexpectedError, "error");
+        setSaving(false);
+        return;
+      }
+
+      const res = await fetch("/api/admin/offices", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          ...getCsrfHeaders(),
+        },
+        body: JSON.stringify({
+          id: editModal.office.id,
+          name: editForm.name,
+          email: editForm.email,
+          phone: editForm.phone,
+          address: editForm.address,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        showToast(data.error || dict.common.unexpectedError, "error");
+        return;
+      }
+
+      showToast(dict.admin.officeUpdated, "success");
+      setEditModal({ open: false, office: null });
+      loadOffices();
+    } catch (err) {
+      logger.error("Failed to update office", { error: err instanceof Error ? err.message : String(err) });
+      showToast(dict.common.unexpectedError, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const toggleOfficeStatus = async (id: string, currentStatus: boolean) => {
     setTogglingId(id);
     try {
@@ -380,6 +452,22 @@ const locale = params.locale as Locale;
                       render: (office) => (
                         <div className="flex items-center gap-2">
                           <button
+                            onClick={() => {
+                              setEditForm({
+                                name: office.name,
+                                email: office.email || "",
+                                phone: office.phone || "",
+                                address: office.address || "",
+                              });
+                              setEditModal({ open: true, office });
+                            }}
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                            title={dict.admin.editOffice}
+                            aria-label={dict.admin.editOffice}
+                          >
+                            <Edit className="w-4 h-4 text-navy-600" />
+                          </button>
+                          <button
                             onClick={() => toggleOfficeStatus(office.id, office.is_active)}
                             disabled={togglingId === office.id}
                             className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -451,6 +539,33 @@ const locale = params.locale as Locale;
 
               <div className="flex gap-3 justify-end pt-4">
                 <Button type="button" variant="ghost" onClick={() => setShowModal(false)}>{dict.common.cancel}</Button>
+                <Button type="submit" isLoading={saving}>{dict.common.save}</Button>
+              </div>
+            </form>
+          </Modal>
+
+          {/* Edit Office Modal */}
+          <Modal isOpen={editModal.open} onClose={() => setEditModal({ open: false, office: null })} title={dict.admin.editOffice} size="lg">
+            <form onSubmit={handleEditOffice} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Input label={dict.admin.officeName} value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+                  {editErrors.name && <p role="alert" className="text-red-500 text-xs mt-1">{editErrors.name}</p>}
+                </div>
+                <div>
+                  <Input label={dict.common.email} type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
+                  {editErrors.email && <p role="alert" className="text-red-500 text-xs mt-1">{editErrors.email}</p>}
+                </div>
+                <div>
+                  <Input label={dict.common.phone} value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
+                  {editErrors.phone && <p role="alert" className="text-red-500 text-xs mt-1">{editErrors.phone}</p>}
+                </div>
+                <div>
+                  <Input label={dict.common.address} value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} />
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end pt-4">
+                <Button type="button" variant="ghost" onClick={() => setEditModal({ open: false, office: null })}>{dict.common.cancel}</Button>
                 <Button type="submit" isLoading={saving}>{dict.common.save}</Button>
               </div>
             </form>
