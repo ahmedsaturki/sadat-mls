@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import {
   Building2,
+  Calculator,
   Home,
   LayoutDashboard,
   MapPin,
@@ -74,6 +75,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
         { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
         { href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings },
         { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
+        { href: `/${locale}/investors/roi-calculator`, label: dict.investor.roiCalculator, icon: Calculator },
       ];
     }
     return [
@@ -86,6 +88,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
       { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard.savedSearches, icon: Bookmark },
       { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
       { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
+      { href: `/${locale}/investors/roi-calculator`, label: dict.investor.roiCalculator, icon: Calculator },
     ];
   }, [locale, dict, role]);
 
