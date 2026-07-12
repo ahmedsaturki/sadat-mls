@@ -69,6 +69,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
         { href: `/${locale}/dashboard/offers`, label: dict.dashboard.offers, icon: Coins },
         { href: `/${locale}/dashboard/commissions`, label: dict.dashboard.commissions, icon: DollarSign },
         { href: `/${locale}/dashboard/referrals`, label: dict.referral.title, icon: Users },
+        { href: `/${locale}/dashboard/analytics`, label: dict.analytics.title, icon: BarChart3 },
         { href: `/${locale}/dashboard/messages`, label: dict.nav.messages, icon: MessageSquare },
         { href: `/${locale}/dashboard/notifications`, label: dict.nav.notifications, icon: Bell },
         { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
