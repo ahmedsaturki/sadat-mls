@@ -483,6 +483,22 @@
 
 ---
 
+## Sprint 47 — Property Alerts (DONE)
+
+**Commit**: `c26074b` — feat: property alerts for price drops and status changes
+
+| # | Item | Status |
+|---|------|--------|
+| 155 | API: POST /api/notify/property-change (status + price) | Done |
+| 156 | Price drop email template (bilingual AR/EN) | Done |
+| 157 | Wire status change: capture old status, send email + push | Done |
+| 158 | Wire price change: capture old price, send email + push | Done |
+| 159 | Notify favorited users + saved search match users | Done |
+| 160 | price_drop_email toggle in notification preferences | Done |
+| 161 | 10 email templates total | Done |
+
+---
+
 ## FINAL STATUS — ALL ITEMS COMPLETE
 
 ### Platform Stats (as of Sprint 42)
