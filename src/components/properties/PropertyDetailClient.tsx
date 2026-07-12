@@ -321,7 +321,22 @@ export default function PropertyDetailClient({
                 {dict.dashboard.submitOffer}
               </Button>
               <Suspense fallback={null}>
-                <PropertyReportButton property={property as any} locale={typedLocale} dict={dict} />
+                <PropertyReportButton
+                  property={{
+                    title: property.title,
+                    description: property.description ?? undefined,
+                    price: property.price,
+                    area: property.area,
+                    bedrooms: property.bedrooms,
+                    bathrooms: property.bathrooms,
+                    status: property.status,
+                    zone: property.zones?.name_en ?? property.zones?.name_ar ?? undefined,
+                    type: property.property_types?.name_en ?? property.property_types?.name_ar ?? undefined,
+                    office: property.offices?.name ?? undefined,
+                  }}
+                  locale={typedLocale}
+                  dict={dict}
+                />
               </Suspense>
               <div className="mt-2 flex justify-center items-center gap-4">
                 <CompareButton

@@ -36,7 +36,7 @@ export default async function CitiesPage({
 
   // Get property counts per city
   const cityIds = (cities || []).map((c: { id: string }) => c.id);
-  let propertyCounts: Record<string, number> = {};
+  const propertyCounts: Record<string, number> = {};
   if (cityIds.length > 0) {
     const { data: props } = await supabase
       .from("properties")

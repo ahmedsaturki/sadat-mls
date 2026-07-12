@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { Map } from "lucide-react";
 import type { PropertyStatus } from "@/lib/utils/constants";
 import type { Locale } from "@/i18n/config";
 

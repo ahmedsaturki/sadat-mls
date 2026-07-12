@@ -91,6 +91,25 @@ export default function AdminContactRequestsClient({
     return () => { mountedRef.current = false; };
   }, [loadRequests]);
 
+  const handleStatusUpdate = useCallback(async (id: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from("contact_requests")
+        .update({ status: newStatus })
+        .eq("id", id);
+
+      if (error) {
+        showToast(dict.common.unexpectedError, "error");
+        return;
+      }
+
+      setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: newStatus as ContactRequest["status"] } : r));
+      showToast(dict.contactRequests.statusUpdated, "success");
+    } catch {
+      showToast(dict.common.unexpectedError, "error");
+    }
+  }, [supabase, showToast, dict]);
+
   // Don't render content if not authorized
   if (!user || profile?.role !== ROLES.SUPER_ADMIN) {
     return null;
@@ -126,25 +145,6 @@ export default function AdminContactRequestsClient({
       setDeleting(false);
     }
   };
-
-  const handleStatusUpdate = useCallback(async (id: string, newStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from("contact_requests")
-        .update({ status: newStatus })
-        .eq("id", id);
-
-      if (error) {
-        showToast(dict.common.unexpectedError, "error");
-        return;
-      }
-
-      setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: newStatus as ContactRequest["status"] } : r));
-      showToast(dict.contactRequests.statusUpdated, "success");
-    } catch {
-      showToast(dict.common.unexpectedError, "error");
-    }
-  }, [supabase, showToast, dict]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {

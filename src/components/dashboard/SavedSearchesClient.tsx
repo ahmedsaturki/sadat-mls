@@ -97,15 +97,15 @@ export default function SavedSearchesClient({
     }
   };
 
-  const formatDate = useCallback((dateStr: string) => {
+  const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString(typedLocale === "ar" ? "ar-EG" : "en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
-  }, [typedLocale]);
+  };
 
-  const getActiveFiltersSummary = useCallback((filters: FilterState) => {
+  const getActiveFiltersSummary = (filters: FilterState) => {
     const active: string[] = [];
     if (filters.search) active.push(filters.search);
     if (filters.zoneId) active.push(dict.explore.zone);
@@ -121,7 +121,7 @@ export default function SavedSearchesClient({
     if (filters.projectId) active.push(dict.explore.project);
     if (filters.officeId) active.push(dict.explore.office);
     return active.length > 0 ? active.join(", ") : dict.explore.any;
-  }, [dict]);
+  };
 
   const handleRunSearch = (filters: FilterState) => {
     const searchParams = new URLSearchParams();

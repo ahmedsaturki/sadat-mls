@@ -179,7 +179,8 @@ export default function AdminProjectsClient({
     setSaving(true);
 
     try {
-      const slug = formData.slug || formData.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "") || `project-${Date.now()}`;
+      const titleSlug = formData.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      const slug = formData.slug || titleSlug || "project-new";
 
       const { error } = await supabase.from("projects").insert({
         title: formData.title,
