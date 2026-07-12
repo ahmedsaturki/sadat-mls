@@ -402,16 +402,32 @@
 
 ---
 
+## Sprint 42 — Agent Invitation Flow (DONE)
+
+**Commit**: `71ed744` — feat: agent invitation flow with email + acceptance UI
+
+| # | Item | Status |
+|---|------|--------|
+| 119 | Invitation email template (bilingual AR/EN) | Done |
+| 120 | Wire email sending into POST /api/invitations | Done |
+| 121 | Acceptance page at /invitations/accept | Done |
+| 122 | Token verification with email pre-fill | Done |
+| 123 | Full name + password form with show/hide | Done |
+| 124 | Success/error states with redirect to login | Done |
+| 125 | Full i18n: 20+ keys in Arabic and English | Done |
+
+---
+
 ## FINAL STATUS — ALL ITEMS COMPLETE
 
-### Platform Stats (as of Sprint 41)
+### Platform Stats (as of Sprint 42)
 - **39 database migrations** (001-039)
-- **54+ page routes** (all SSR with locale-aware metadata)
+- **55+ page routes** (all SSR with locale-aware metadata)
 - **709 unit tests** passing
 - **28 API endpoints** (23 documented + cron + referrals + analytics)
-- **38+ components** (UI, layout, properties, admin, dashboard, landing, auth, investors)
+- **39+ components** (UI, layout, properties, admin, dashboard, landing, auth, investors)
 - **19 custom hooks**
-- **8 email templates** (bilingual AR/EN)
+- **9 email templates** (bilingual AR/EN)
 - **2 cron jobs** (daily cleanup 3 AM + saved search alerts 8 AM)
 - **Bilingual i18n** (AR/EN) with framework for adding more languages
 
