@@ -116,8 +116,9 @@ export async function PATCH(
       const saleAmount = Number(offer.offer_amount);
       const commissionRate = 2.5; // Default 2.5%
       const totalCommission = saleAmount * (commissionRate / 100);
-      const listingShare = totalCommission * 0.6; // 60% to listing office
-      const referringShare = totalCommission * 0.4; // 40% to referring office
+      const referringOfficeId = offer.referring_office_id || null;
+      const referringShare = referringOfficeId ? totalCommission * 0.4 : 0;
+      const listingShare = referringOfficeId ? totalCommission * 0.6 : totalCommission;
 
       const { error: commissionError } = await serviceRole
         .from("property_commissions")
@@ -125,7 +126,7 @@ export async function PATCH(
           property_id: offer.property_id,
           offer_id: offer.id,
           listing_office_id: offer.office_id,
-          referring_office_id: null, // Will be set if offerer has an office
+          referring_office_id: referringOfficeId,
           sale_amount: saleAmount,
           commission_rate: commissionRate,
           total_commission: totalCommission,

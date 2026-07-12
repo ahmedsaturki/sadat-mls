@@ -13,6 +13,7 @@ const createOfferSchema = z.object({
   offerer_phone: z.string().max(50).optional().nullable(),
   offer_amount: z.number().positive(),
   message: z.string().max(1000).optional().nullable(),
+  referral_code: z.string().max(20).optional().nullable(),
 });
 
 // GET - List offers for current user's office
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const { property_id, offerer_name, offerer_email, offerer_phone, offer_amount, message } = parsed.data;
+    const { property_id, offerer_name, offerer_email, offerer_phone, offer_amount, message, referral_code } = parsed.data;
 
     // Get property and its office
     const serviceRole = createServiceRoleClient();
@@ -125,6 +126,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
+    // Look up referring office if referral code provided
+    let referringOfficeId: string | null = null;
+    if (referral_code) {
+      const { data: referringOffice } = await serviceRole
+        .from("offices")
+        .select("id")
+        .eq("referral_code", referral_code.toUpperCase())
+        .single();
+      if (referringOffice) {
+        referringOfficeId = referringOffice.id;
+      }
+    }
+
     // Create the offer
     const { data: offer, error: offerError } = await serviceRole
       .from("property_offers")
@@ -136,6 +150,7 @@ export async function POST(request: NextRequest) {
         offerer_phone: offerer_phone || null,
         offer_amount,
         message: message || null,
+        referring_office_id: referringOfficeId,
         status: "pending",
       })
       .select("id")
