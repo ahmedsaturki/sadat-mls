@@ -362,14 +362,36 @@
 
 ---
 
+## Sprint 40 — Office-to-Office Referral System (DONE)
+
+**Commit**: `9196354` — feat: office-to-office referral system
+
+| # | Item | Status |
+|---|------|--------|
+| 97 | Migration 039: referral_code, referrals table, referring_office_id on offers | Done |
+| 98 | API: GET/POST /api/referrals (list + create) | Done |
+| 99 | API: GET/POST /api/referrals/code (get + regenerate) | Done |
+| 100 | API: PATCH /api/referrals/[id] (status update) | Done |
+| 101 | Dashboard page at /dashboard/referrals | Done |
+| 102 | Referral code card with copy/regenerate | Done |
+| 103 | Create referral modal (office selector, client info, notes) | Done |
+| 104 | Stats cards (total, pending, deals closed, this month) | Done |
+| 105 | Filter tabs (all, sent, received) | Done |
+| 106 | Wire referral_code into offer creation | Done |
+| 107 | Wire referring_office_id into commission creation (60/40 split) | Done |
+| 108 | Sidebar link (both role types) | Done |
+| 109 | Full i18n: 40+ keys in Arabic and English | Done |
+
+---
+
 ## FINAL STATUS — ALL ITEMS COMPLETE
 
-### Platform Stats (as of Sprint 39)
-- **38 database migrations** (001-038)
-- **50+ page routes** (all SSR with locale-aware metadata)
+### Platform Stats (as of Sprint 40)
+- **39 database migrations** (001-039)
+- **52+ page routes** (all SSR with locale-aware metadata)
 - **709 unit tests** passing
-- **24 API endpoints** (23 documented + saved-searches cron)
-- **36+ components** (UI, layout, properties, admin, dashboard, landing, auth, investors)
+- **27 API endpoints** (23 documented + cron + referrals)
+- **37+ components** (UI, layout, properties, admin, dashboard, landing, auth, investors)
 - **19 custom hooks**
 - **8 email templates** (bilingual AR/EN)
 - **2 cron jobs** (daily cleanup 3 AM + saved search alerts 8 AM)
