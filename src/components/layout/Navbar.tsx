@@ -157,7 +157,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
             <CitySelector locale={locale} dict={dict} />
 
             {/* Theme Toggle */}
-            <ThemeToggle dict={dict} />
+            <ThemeToggle dict={{ common: dict.common } as unknown as { common: Record<string, string> }} />
 
             {/* Notifications Bell (only for logged-in users) */}
             {isLoggedIn && (

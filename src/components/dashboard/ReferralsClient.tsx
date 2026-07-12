@@ -337,7 +337,7 @@ export default function ReferralsClient({ locale, dict }: ReferralsClientProps) 
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{dict.referral.referredOffice} *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{(dict.referral as Record<string, unknown>).referredOffice as string || dict.referral.referralTo} *</label>
                 <select
                   value={form.referred_office_id}
                   onChange={(e) => setForm((p) => ({ ...p, referred_office_id: e.target.value }))}

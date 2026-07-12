@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     // Get property details
     const { data: property } = await supabase
       .from("properties")
-      .select("id, title, office_id, price, status")
+      .select("id, title, office_id, price, status, bedrooms")
       .eq("id", property_id)
       .single();
 

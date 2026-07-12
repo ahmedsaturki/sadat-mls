@@ -38,6 +38,8 @@ interface PropertyRow {
   zone_id: string | null;
   property_type_id: string | null;
   office_id: string;
+  latitude: number | null;
+  longitude: number | null;
   property_types: { name_ar: string; name_en: string | null } | null;
   zones: { name_ar: string; name_en: string | null } | null;
   offices: { name: string } | null;
@@ -48,7 +50,7 @@ type Property = PropertyRow & {
 };
 
 const PAGE_SIZE = 12;
-const PROPERTY_COLUMNS = "id, title, description, price, area, bedrooms, bathrooms, status, zone_id, property_type_id, office_id, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)";
+const PROPERTY_COLUMNS = "id, title, description, price, area, bedrooms, bathrooms, status, zone_id, property_type_id, office_id, latitude, longitude, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)";
 
 interface ExploreClientProps {
   params: { locale: string };

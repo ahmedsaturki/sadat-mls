@@ -10,6 +10,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
 
+  const supabaseForAll = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   // Add static pages for each locale
   for (const route of staticRoutes) {
     for (const locale of locales) {
@@ -47,12 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Add office profile pages
   try {
-    const supabaseForOffices = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    const { data: offices } = await supabaseForOffices
+    const { data: offices } = await supabaseForAll
       .from("offices")
       .select("slug, updated_at")
       .eq("is_active", true)
@@ -83,12 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Add individual property pages
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    const { data: properties } = await supabase
+    const { data: properties } = await supabaseForAll
       .from("properties")
       .select("id, updated_at")
       .eq("is_active", true)
@@ -120,7 +115,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Add developer pages
   try {
-    const { data: developers } = await supabaseForOffices
+    const { data: developers } = await supabaseForAll
       .from("developers")
       .select("slug, updated_at")
       .eq("is_active", true)
@@ -151,7 +146,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Add project pages
   try {
-    const { data: projects } = await supabaseForOffices
+    const { data: projects } = await supabaseForAll
       .from("projects")
       .select("slug, updated_at")
       .eq("is_active", true)

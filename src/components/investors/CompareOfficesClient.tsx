@@ -135,10 +135,10 @@ export default function CompareOfficesClient({ locale, dict }: CompareOfficesCli
                     <p className="text-xs text-gray-500">{office.stats.properties.total} {dict.investor.listings}</p>
                   </div>
                 </div>
-                {isSelected && (
+                    {isSelected && (
                   <div className="flex items-center gap-1 text-xs text-navy-600 mt-1">
                     <CheckCircle className="w-3.5 h-3.5" />
-                    {dict.common.selected}
+                    {(dict.common as Record<string, unknown>).selected as string || "✓"}
                   </div>
                 )}
               </button>
@@ -248,13 +248,13 @@ export default function CompareOfficesClient({ locale, dict }: CompareOfficesCli
                 </thead>
                 <tbody>
                   {[
-                    { label: dict.investor.totalListings, render: (o: OfficeStats) => String(o.stats.properties.total), best: bestProps },
+                    { label: (dict.investor as Record<string, unknown>).totalListings as string || "Total Listings", render: (o: OfficeStats) => String(o.stats.properties.total), best: bestProps },
                     { label: dict.investor.available, render: (o: OfficeStats) => String(o.stats.properties.available) },
                     { label: dict.investor.sold, render: (o: OfficeStats) => String(o.stats.properties.sold) },
                     { label: dict.investor.agents, render: (o: OfficeStats) => String(o.stats.agents), best: bestAgents },
                     { label: dict.investor.contacts, render: (o: OfficeStats) => String(o.stats.contacts.total) },
                     { label: dict.investor.totalOffers, render: (o: OfficeStats) => String(o.stats.offers.total) },
-                    { label: dict.investor.dealsClosed, render: (o: OfficeStats) => String(o.stats.offers.accepted), best: bestDeals },
+                    { label: (dict.investor as Record<string, unknown>).dealsClosed as string || "Deals Closed", render: (o: OfficeStats) => String(o.stats.offers.accepted), best: bestDeals },
                     { label: dict.investor.totalMarketValue, render: (o: OfficeStats) => formatCurrency(o.stats.totalMarketValue, locale), best: bestValue },
                     { label: dict.investor.totalCommission, render: (o: OfficeStats) => formatCurrency(o.stats.commissions.total, locale) },
                     { label: dict.investor.avgPrice, render: (o: OfficeStats) => formatCurrency(o.stats.avgPrice, locale) },

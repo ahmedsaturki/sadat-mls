@@ -257,12 +257,12 @@ export default async function ProjectDetailPage({
                     <p className="text-xs text-gray-500 dark:text-gray-400">{dict.common.details}</p>
                   </div>
                 </Link>
-                {developer.email as string && (
+                {typeof developer.email === "string" && developer.email && (
                   <a href={`mailto:${developer.email}`} className="flex items-center gap-2 mt-3 text-sm text-gray-600 dark:text-gray-400 hover:text-navy-600 dark:hover:text-navy-400">
                     <Mail className="w-4 h-4" />{developer.email}
                   </a>
                 )}
-                {developer.phone && (
+                {typeof developer.phone === "string" && developer.phone && (
                   <a href={`tel:${developer.phone}`} className="flex items-center gap-2 mt-2 text-sm text-gray-600 dark:text-gray-400 hover:text-navy-600 dark:hover:text-navy-400">
                     <Phone className="w-4 h-4" />{developer.phone}
                   </a>

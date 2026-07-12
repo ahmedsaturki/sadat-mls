@@ -22,7 +22,7 @@ interface PropertyBasicInfoProps {
   types: { id: string; name_ar: string; name_en: string }[];
   errors: Record<string, string>;
   onChange: (field: string, value: string) => void;
-  titleRef?: React.RefObject<HTMLInputElement>;
+  titleRef?: React.RefObject<HTMLInputElement | null>;
   onGenerateDescription?: () => Promise<string | null>;
 }
 

@@ -177,7 +177,7 @@ export default function CommissionsClient({ params }: { params: { locale: string
               <PaginatedTable
                 data={commissions}
                 searchKey="properties"
-                searchPlaceholder={dict.dashboard.searchOffices || dict.common.search}
+                searchPlaceholder={(dict.dashboard as Record<string, unknown>).searchOffices as string || dict.common.search}
                 emptyMessage={dict.common.noData}
                 emptyIcon={<DollarSign className="w-12 h-12 text-navy-300" />}
                 emptyHint={dict.dashboard.noCommissionsHint}
@@ -189,7 +189,7 @@ export default function CommissionsClient({ params }: { params: { locale: string
                       const props = c.properties as Record<string, unknown> | null;
                       return (
                         <span className="font-medium text-gray-900">
-                          {props?.title || "-"}
+                          {String(props?.title) || "-"}
                         </span>
                       );
                     },

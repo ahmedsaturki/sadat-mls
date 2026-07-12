@@ -80,11 +80,6 @@ export async function sendPushToUser(
       }),
       {
         TTL: 60 * 60, // 1 hour
-        vapidDetails: {
-          subject: VAPID_EMAIL,
-          publicKey: VAPID_PUBLIC_KEY!,
-          privateKey: VAPID_PRIVATE_KEY!,
-        },
       },
     );
 

@@ -6,7 +6,7 @@ import ExploreClient from "@/components/explore/ExploreClient";
 
 export const revalidate = 3600; // ISR: revalidate every 1 hour
 
-const PROPERTY_COLUMNS = "id, title, description, price, area, bedrooms, bathrooms, status, zone_id, property_type_id, office_id, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)";
+const PROPERTY_COLUMNS = "id, title, description, price, area, bedrooms, bathrooms, status, zone_id, property_type_id, office_id, latitude, longitude, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)";
 const PAGE_SIZE = 12;
 
 export default async function ExplorePage({
@@ -85,6 +85,8 @@ export default async function ExplorePage({
     zone_id: p.zone_id,
     property_type_id: p.property_type_id,
     office_id: p.office_id,
+    latitude: p.latitude,
+    longitude: p.longitude,
     property_types: p.property_types,
     zones: p.zones,
     offices: p.offices,

@@ -67,12 +67,12 @@ export default function CompareClient({
                 <div key={p.id}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-600 dark:text-gray-400 truncate max-w-[120px]">{p.title}</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatPrice(p.price)}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatPrice(p.price ?? 0)}</span>
                   </div>
                   <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${(p.price / maxPrice) * 100}%`, backgroundColor: COLORS[i % COLORS.length] }}
+                      style={{ width: `${((p.price ?? 0) / maxPrice) * 100}%`, backgroundColor: COLORS[i % COLORS.length] }}
                     />
                   </div>
                 </div>
@@ -91,12 +91,12 @@ export default function CompareClient({
                 <div key={p.id}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-600 dark:text-gray-400 truncate max-w-[120px]">{p.title}</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{p.area} m²</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{p.area ?? 0} m²</span>
                   </div>
                   <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${(p.area / maxArea) * 100}%`, backgroundColor: COLORS[i % COLORS.length] }}
+                      style={{ width: `${((p.area ?? 0) / maxArea) * 100}%`, backgroundColor: COLORS[i % COLORS.length] }}
                     />
                   </div>
                 </div>
@@ -114,8 +114,8 @@ export default function CompareClient({
             </div>
             <div className="space-y-3">
               {properties.map((p, i) => {
-                const pricePerSqm = p.area > 0 ? p.price / p.area : 0;
-                const allPricePerSqm = properties.map((pp) => (pp.area > 0 ? pp.price / pp.area : 0));
+                const pricePerSqm = (p.area ?? 0) > 0 ? (p.price ?? 0) / (p.area ?? 0) : 0;
+                const allPricePerSqm = properties.map((pp) => ((pp.area ?? 0) > 0 ? (pp.price ?? 0) / (pp.area ?? 0) : 0));
                 const maxPps = Math.max(...allPricePerSqm, 1);
                 return (
                   <div key={p.id}>
@@ -161,7 +161,7 @@ export default function CompareClient({
             </thead>
             <tbody>
               {[
-                { label: dict.property.price, render: (p: typeof properties[0]) => <span className="font-semibold">{formatPrice(p.price)} {dict.property.priceUnit}</span> },
+                { label: dict.property.price, render: (p: typeof properties[0]) => <span className="font-semibold">{formatPrice(p.price ?? 0)} {dict.property.priceUnit}</span> },
                 { label: dict.property.area, render: (p: typeof properties[0]) => `${p.area} ${dict.property.areaUnit}` },
                 { label: dict.property.bedrooms, render: (p: typeof properties[0]) => p.bedrooms },
                 { label: dict.property.bathrooms, render: (p: typeof properties[0]) => p.bathrooms },

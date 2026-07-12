@@ -90,7 +90,7 @@ export default function ContactRequestsClient({
       if (requestsError) {
         showToast(dict.common.unexpectedError, "error");
       } else {
-        setRequests((data || []).map((r) => ({ ...r, status: r.status || "pending" })));
+        setRequests((data || []).map((r: ContactRequest) => ({ ...r, status: r.status || "pending" })));
       }
     } catch (err) {
       logger.error("Failed to fetch contact requests", { error: err instanceof Error ? err.message : String(err) });

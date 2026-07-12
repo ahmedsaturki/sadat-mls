@@ -67,7 +67,7 @@ export default function AdminUsersClient({
   const [createModal, setCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState<{ email: string; password: string; full_name: string; role: UserRole }>({ email: "", password: "", full_name: "", role: ROLES.OFFICE_AGENT });
   const [editModal, setEditModal] = useState<{ open: boolean; user: UserRecord | null }>({ open: false, user: null });
-  const [editForm, setEditForm] = useState({ full_name: "", email: "", role: ROLES.OFFICE_AGENT, is_active: true });
+  const [editForm, setEditForm] = useState<{ full_name: string; email: string; role: UserRole; is_active: boolean }>({ full_name: "", email: "", role: ROLES.OFFICE_AGENT, is_active: true });
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [updating, setUpdating] = useState(false);

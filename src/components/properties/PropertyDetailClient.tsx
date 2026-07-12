@@ -335,7 +335,7 @@ export default function PropertyDetailClient({
                     office: property.offices?.name ?? undefined,
                   }}
                   locale={typedLocale}
-                  dict={dict}
+                  dict={{ common: dict.common } as unknown as { common: Record<string, string> }}
                 />
               </Suspense>
               <div className="mt-2 flex justify-center items-center gap-4">

@@ -101,7 +101,7 @@ export default function MessagesClient({
           subject: composeData.subject || selectedMessage?.subject || "Re",
           body: composeData.body,
           parent_id: selectedMessage?.id || null,
-          recipient_office_id: selectedMessage?.office_id || null,
+          recipient_office_id: selectedMessage?.recipient_office_id || null,
           visitor_name: composeData.visitorName || selectedMessage?.visitor_name,
           visitor_email: composeData.visitorEmail || selectedMessage?.visitor_email,
           visitor_phone: composeData.visitorPhone || selectedMessage?.visitor_phone,
@@ -328,7 +328,7 @@ export default function MessagesClient({
             label={dict.common.subject || "Subject"}
             value={composeData.subject}
             onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
-            placeholder={dict.dashboard.messageSubject || dict.common.subject || "Subject"}
+            placeholder={(dict.dashboard as Record<string, unknown>).messageSubject as string || dict.common.subject || "Subject"}
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{dict.dashboard.messageBody}</label>
