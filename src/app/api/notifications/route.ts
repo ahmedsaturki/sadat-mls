@@ -131,6 +131,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to create notification" }, { status: 500 });
     }
 
+    // Send push notification (fire-and-forget)
+    try {
+      const { sendPushToUser } = await import("@/lib/push/send");
+      sendPushToUser(user.id, {
+        title,
+        body: message,
+        url: entity_type === "property" ? "/dashboard/properties" : "/dashboard/notifications",
+      }).catch(() => {});
+    } catch {
+      // Push is optional — don't fail the notification creation
+    }
+
     return NextResponse.json({ success: true });
   } catch (err) {
     logger.error("Notification create error", { error: err instanceof Error ? err.message : String(err) });

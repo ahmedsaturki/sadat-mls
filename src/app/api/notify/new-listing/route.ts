@@ -91,6 +91,14 @@ export async function POST(request: NextRequest) {
       emailsSent++;
     }
 
+    // Send push notifications (fire-and-forget)
+    try {
+      const { sendNewListingPush } = await import("@/lib/push/send");
+      sendNewListingPush(officeId, property.title, propertyId).catch(() => {});
+    } catch {
+      // Push is optional
+    }
+
     return NextResponse.json({ success: true, emailsSent });
   } catch (err) {
     logger.error("New listing notification error", { error: err instanceof Error ? err.message : String(err) });

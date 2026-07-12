@@ -129,7 +129,7 @@ self.addEventListener("fetch", (event) => {
           }
           return response;
         })
-        .catch(() => cached || caches.match(fallbackPath));
+        .catch(() => cached || caches.match(fallbackPath) || caches.match("/offline.html"));
 
       return cached || fetchPromise;
     })
