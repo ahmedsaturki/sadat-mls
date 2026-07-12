@@ -384,14 +384,32 @@
 
 ---
 
+## Sprint 41 — Advanced Analytics Dashboard (DONE)
+
+**Commit**: `aa7d5b1` — feat: advanced analytics dashboard with agent performance + conversion funnel
+
+| # | Item | Status |
+|---|------|--------|
+| 110 | API: GET /api/analytics/office (agent performance, funnel, trends) | Done |
+| 111 | Dashboard page at /dashboard/analytics | Done |
+| 112 | Agent performance table (listings, sold, contacts, offers, commission, avg days to sell) | Done |
+| 113 | Conversion funnel (properties → contacts → offers → deals with rates) | Done |
+| 114 | Commission summary (total, paid, pending) | Done |
+| 115 | Referral stats (sent, received, closed) | Done |
+| 116 | Monthly trends (6 months) | Done |
+| 117 | Sidebar link for office_admin | Done |
+| 118 | Full i18n: 25+ keys in Arabic and English | Done |
+
+---
+
 ## FINAL STATUS — ALL ITEMS COMPLETE
 
-### Platform Stats (as of Sprint 40)
+### Platform Stats (as of Sprint 41)
 - **39 database migrations** (001-039)
-- **52+ page routes** (all SSR with locale-aware metadata)
+- **54+ page routes** (all SSR with locale-aware metadata)
 - **709 unit tests** passing
-- **27 API endpoints** (23 documented + cron + referrals)
-- **37+ components** (UI, layout, properties, admin, dashboard, landing, auth, investors)
+- **28 API endpoints** (23 documented + cron + referrals + analytics)
+- **38+ components** (UI, layout, properties, admin, dashboard, landing, auth, investors)
 - **19 custom hooks**
 - **8 email templates** (bilingual AR/EN)
 - **2 cron jobs** (daily cleanup 3 AM + saved search alerts 8 AM)
