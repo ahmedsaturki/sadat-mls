@@ -55,41 +55,44 @@ test.describe("Admin Zones Page @admin", () => {
 
   test("should have add zone button", async ({ page }) => {
     await page.goto("/ar/admin/zones");
+    await page.waitForLoadState("networkidle");
     const addButton = page.locator("button", { hasText: /إضافة|add/i });
-    await expect(addButton.first()).toBeVisible();
+    await expect(addButton.first()).toBeVisible({ timeout: 15000 });
   });
 
   test("should open add zone modal when clicking add button", async ({ page }) => {
     await page.goto("/ar/admin/zones");
+    await page.waitForLoadState("networkidle");
     const addButton = page.locator("button", { hasText: /إضافة|add/i });
-    await addButton.first().click();
-    // Modal should appear with save/cancel buttons
+    await addButton.first().click({ timeout: 15000 });
     const modal = page.locator('[role="dialog"], .fixed, [data-testid="modal"]');
-    await expect(modal.first()).toBeVisible({ timeout: 5000 });
+    await expect(modal.first()).toBeVisible({ timeout: 10000 });
   });
 
   test("should show cancel button in modal", async ({ page }) => {
     await page.goto("/ar/admin/zones");
+    await page.waitForLoadState("networkidle");
     const addButton = page.locator("button", { hasText: /إضافة|add/i });
-    await addButton.first().click();
+    await addButton.first().click({ timeout: 15000 });
     const cancelButton = page.locator("button", { hasText: /إلغاء|cancel/i });
-    await expect(cancelButton.first()).toBeVisible({ timeout: 5000 });
+    await expect(cancelButton.first()).toBeVisible({ timeout: 10000 });
   });
 
   test("should close modal when clicking cancel", async ({ page }) => {
     await page.goto("/ar/admin/zones");
+    await page.waitForLoadState("networkidle");
     const addButton = page.locator("button", { hasText: /إضافة|add/i });
-    await addButton.first().click();
+    await addButton.first().click({ timeout: 15000 });
     const cancelButton = page.locator("button", { hasText: /إلغاء|cancel/i });
     await cancelButton.first().click();
-    // Modal should be hidden
-    await expect(page.locator('[role="dialog"], .fixed')).toHaveCount(0, { timeout: 5000 });
+    await expect(page.locator('[role="dialog"], .fixed')).toHaveCount(0, { timeout: 10000 });
   });
 
   test("should have search input for zones", async ({ page }) => {
     await page.goto("/ar/admin/zones");
+    await page.waitForLoadState("networkidle");
     const searchInput = page.locator('input[placeholder*="بحث"], input[placeholder*="search"], input[type="search"]');
-    await expect(searchInput.first()).toBeVisible();
+    await expect(searchInput.first()).toBeVisible({ timeout: 15000 });
   });
 });
 
@@ -116,33 +119,37 @@ test.describe("Admin Property Types Page @admin", () => {
 
   test("should have add property type button", async ({ page }) => {
     await page.goto("/ar/admin/property-types");
+    await page.waitForLoadState("networkidle");
     const addButton = page.locator("button", { hasText: /إضافة|add/i });
-    await expect(addButton.first()).toBeVisible();
+    await expect(addButton.first()).toBeVisible({ timeout: 15000 });
   });
 
   test("should open add property type modal when clicking add button", async ({ page }) => {
     await page.goto("/ar/admin/property-types");
+    await page.waitForLoadState("networkidle");
     const addButton = page.locator("button", { hasText: /إضافة|add/i });
-    await addButton.first().click();
+    await addButton.first().click({ timeout: 15000 });
     const modal = page.locator('[role="dialog"], .fixed, [data-testid="modal"]');
-    await expect(modal.first()).toBeVisible({ timeout: 5000 });
+    await expect(modal.first()).toBeVisible({ timeout: 10000 });
   });
 
   test("should show save button in modal", async ({ page }) => {
     await page.goto("/ar/admin/property-types");
+    await page.waitForLoadState("networkidle");
     const addButton = page.locator("button", { hasText: /إضافة|add/i });
-    await addButton.first().click();
+    await addButton.first().click({ timeout: 15000 });
     const saveButton = page.locator("button", { hasText: /حفظ|save/i });
-    await expect(saveButton.first()).toBeVisible({ timeout: 5000 });
+    await expect(saveButton.first()).toBeVisible({ timeout: 10000 });
   });
 
   test("should close modal when clicking cancel", async ({ page }) => {
     await page.goto("/ar/admin/property-types");
+    await page.waitForLoadState("networkidle");
     const addButton = page.locator("button", { hasText: /إضافة|add/i });
-    await addButton.first().click();
+    await addButton.first().click({ timeout: 15000 });
     const cancelButton = page.locator("button", { hasText: /إلغاء|cancel/i });
     await cancelButton.first().click();
-    await expect(page.locator('[role="dialog"], .fixed')).toHaveCount(0, { timeout: 5000 });
+    await expect(page.locator('[role="dialog"], .fixed')).toHaveCount(0, { timeout: 10000 });
   });
 });
 

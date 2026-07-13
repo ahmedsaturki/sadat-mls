@@ -34,13 +34,11 @@ test.describe("Login Form", () => {
     await page.goto("/ar/login");
     const submitButton = page.locator('button[type="submit"]');
     await submitButton.waitFor({ state: "visible" });
-    // Check if button is disabled (rate limited) — if so, skip
     const isDisabled = await submitButton.evaluate(el => (el as HTMLButtonElement).disabled || el.getAttribute("aria-disabled") === "true").catch(() => true);
     if (isDisabled) return;
     await submitButton.click({ timeout: 5000 });
-    // Browser native validation should prevent submission
-    const emailInput = page.locator('input[type="email"]');
-    await expect(emailInput).toBeFocused();
+    // Form uses e.preventDefault() + custom validation — should show an error message
+    await expect(page.locator(".bg-red-50, .text-red-600, [role='alert']")).toBeVisible({ timeout: 10000 });
   });
 
   test("should show error on invalid credentials", async ({ page }) => {
