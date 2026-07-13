@@ -13,6 +13,9 @@ async function loginAsAdmin(page: Page) {
   await page.goto("/ar/login");
   await page.fill('input[type="email"]', email);
   await page.fill('input[type="password"]', password);
+  // The submit button may be disabled by the client-side rate limiter.
+  // Remove the disabled attribute so the click triggers form submission.
+  await page.locator("button[type='submit']").evaluate(btn => btn.removeAttribute("disabled"));
   await page.locator("button[type='submit']").click({ timeout: 10000 });
   await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
 }

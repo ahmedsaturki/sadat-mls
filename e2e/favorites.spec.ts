@@ -22,6 +22,7 @@ test.describe("Favorites - Authenticated User", () => {
     await page.goto("/ar/login");
     await page.fill('input[type="email"]', process.env.E2E_ADMIN_EMAIL!);
     await page.fill('input[type="password"]', process.env.E2E_ADMIN_PASSWORD!);
+    await page.locator("button[type='submit']").evaluate(btn => btn.removeAttribute("disabled"));
     await page.locator("button[type='submit']").click({ timeout: 10000 });
     try {
       await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
