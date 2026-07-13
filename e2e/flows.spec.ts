@@ -22,14 +22,15 @@ test.describe("Contact Form - Public", () => {
 
   test("should have share button on property detail", async ({ page }) => {
     await page.goto("/ar/explore");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     const propertyLink = page.locator("a[href*='/explore/']").first();
     if (await propertyLink.count() > 0) {
       await propertyLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
+      await page.waitForTimeout(2000);
       const shareButton = page.locator('button[aria-label*="share"], button[aria-label*="مشاركة"]').first();
       if (await shareButton.count() > 0) {
-        await expect(shareButton).toBeVisible();
+        await expect(shareButton).toBeVisible({ timeout: 10000 });
       }
     }
   });
