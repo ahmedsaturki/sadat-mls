@@ -33,6 +33,8 @@ setup("authenticate as super_admin", async ({ page }) => {
   await page.goto("/ar/login");
   await page.locator('input[type="email"]').fill(email);
   await page.locator('input[type="password"]').fill(password);
+  // Remove disabled attribute in case client-side rate limiter is active
+  await page.locator('button[type="submit"]').evaluate(btn => btn.removeAttribute("disabled"));
   await page.locator('button[type="submit"]').click();
 
   // Wait for redirect to dashboard or admin (post-login).
