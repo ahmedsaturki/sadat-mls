@@ -48,9 +48,10 @@ test.describe("XSS Prevention", () => {
   test("should sanitize JSON-LD structured data", async ({ page }) => {
     await page.goto("/ar/explore");
     const propertyLink = page.locator("a[href*='/explore/']").first();
+    await page.waitForLoadState("domcontentloaded");
     if (await propertyLink.count() > 0) {
       await propertyLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
       const jsonLd = page.locator('script[type="application/ld+json"]');
       if (await jsonLd.count() > 0) {
         const content = await jsonLd.textContent();

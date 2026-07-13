@@ -16,29 +16,32 @@ test.describe("Favorites - Authenticated User", () => {
 
   test.beforeEach(async ({ page }) => {
     isAuthenticated = false;
-    // Skip if no admin credentials available (CI without env vars)
     const hasCredentials = !!process.env.E2E_ADMIN_EMAIL && !!process.env.E2E_ADMIN_PASSWORD;
     if (!hasCredentials) return;
 
     await page.goto("/ar/login");
     await page.fill('input[type="email"]', process.env.E2E_ADMIN_EMAIL!);
     await page.fill('input[type="password"]', process.env.E2E_ADMIN_PASSWORD!);
-    // Click with force to bypass any disabled state from rate limiting
-    await page.locator("button[type='submit']").click({ timeout: 5000 }).catch(() => {});
-    // Wait briefly for redirect; if still on login, auth failed
-    await page.waitForTimeout(2000);
-    const url = page.url();
-    isAuthenticated = !url.includes("/login");
+    await page.locator("button[type='submit']").click({ timeout: 10000 });
+    try {
+      await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
+      isAuthenticated = true;
+    } catch {
+      isAuthenticated = false;
+    }
   });
 
   test("should toggle favorite state on property card", async ({ page }) => {
     test.skip(!isAuthenticated, "Login failed - skipping authenticated test");
     await page.goto("/ar/explore");
+    await page.waitForLoadState("domcontentloaded");
     const favoriteButton = page.locator("button[aria-label*='favorite'], button[aria-label*='المفضلة']").first();
+    await page.waitForTimeout(2000);
     if (await favoriteButton.count() > 0) {
       const initialPressed = await favoriteButton.getAttribute("aria-pressed");
+      const wasPressed = initialPressed === "true";
       await favoriteButton.click();
-      await expect(favoriteButton).toHaveAttribute("aria-pressed", (!initialPressed).toString());
+      await expect(favoriteButton).toHaveAttribute("aria-pressed", (!wasPressed).toString());
     }
   });
 

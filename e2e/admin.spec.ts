@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 // When E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD are not set (CI without
 // admin seed), skip all @admin tests so they don't fail with a login-
@@ -7,6 +7,16 @@ import { test, expect } from "@playwright/test";
 const isAdminConfigured =
   !!process.env.E2E_ADMIN_EMAIL && !!process.env.E2E_ADMIN_PASSWORD;
 
+async function loginAsAdmin(page: Page) {
+  const email = process.env.E2E_ADMIN_EMAIL!;
+  const password = process.env.E2E_ADMIN_PASSWORD!;
+  await page.goto("/ar/login");
+  await page.fill('input[type="email"]', email);
+  await page.fill('input[type="password"]', password);
+  await page.locator("button[type='submit']").click({ timeout: 10000 });
+  await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
+}
+
 // The 404 tests at the bottom are untagged (no @admin) so they run on
 // any browser without auth. However, the middleware may redirect an
 // unauthenticated user to /login before the 404 page renders, so
@@ -14,6 +24,7 @@ const isAdminConfigured =
 
 test.describe("Admin Zones Page @admin", () => {
   test.skip(!isAdminConfigured, "E2E_ADMIN_EMAIL/PASSWORD not set — skipping admin tests");
+  test.beforeEach(async ({ page }) => { await loginAsAdmin(page); });
 
   test("should load zones page in Arabic @admin", async ({ page }) => {
     await page.goto("/ar/admin/zones");
@@ -71,6 +82,7 @@ test.describe("Admin Zones Page @admin", () => {
 
 test.describe("Admin Property Types Page @admin", () => {
   test.skip(!isAdminConfigured, "E2E_ADMIN_EMAIL/PASSWORD not set — skipping admin tests");
+  test.beforeEach(async ({ page }) => { await loginAsAdmin(page); });
 
   test("should load property types page in Arabic", async ({ page }) => {
     await page.goto("/ar/admin/property-types");
@@ -120,6 +132,7 @@ test.describe("Admin Property Types Page @admin", () => {
 
 test.describe("Admin Contact Requests Page @admin", () => {
   test.skip(!isAdminConfigured, "E2E_ADMIN_EMAIL/PASSWORD not set — skipping admin tests");
+  test.beforeEach(async ({ page }) => { await loginAsAdmin(page); });
 
   test("should load contact requests page", async ({ page }) => {
     await page.goto("/ar/admin/contact-requests");
@@ -136,6 +149,7 @@ test.describe("Admin Contact Requests Page @admin", () => {
 
 test.describe("Admin Navigation @admin", () => {
   test.skip(!isAdminConfigured, "E2E_ADMIN_EMAIL/PASSWORD not set — skipping admin tests");
+  test.beforeEach(async ({ page }) => { await loginAsAdmin(page); });
 
   test("should navigate between admin pages", async ({ page }) => {
     await page.goto("/ar/admin/zones");

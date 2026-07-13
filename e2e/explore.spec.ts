@@ -6,8 +6,10 @@ test.describe("Explore Page - Search & Filters", () => {
     await expect(page).toHaveURL(/\/ar\/explore/);
     // The search input lives inside the lazy-loaded SearchFilters panel,
     // which is only rendered after clicking the filter toggle button.
-    const filterToggle = page.locator('button[aria-expanded]:not([aria-controls])').first();
-    await expect(filterToggle).toBeVisible();
+    // Use aria-label to avoid matching the Navbar lang-menu button (which
+    // also has aria-expanded but no aria-controls).
+    const filterToggle = page.locator('button[aria-label="فلاتر"], button[aria-label="Filters"]').first();
+    await expect(filterToggle).toBeVisible({ timeout: 10000 });
     await filterToggle.click();
     const searchInput = page.locator('input[type="text"]').first();
     await expect(searchInput).toBeVisible({ timeout: 5000 });
@@ -22,17 +24,14 @@ test.describe("Explore Page - Search & Filters", () => {
 
   test("should have filters toggle button", async ({ page }) => {
     await page.goto("/ar/explore");
-    // The explore filter toggle has aria-expanded but NOT aria-controls,
-    // unlike the Navbar mobile menu button which has aria-controls="mobile-menu".
-    const filterButton = page.locator('button[aria-expanded]:not([aria-controls])').first();
-    await expect(filterButton).toBeVisible();
+    const filterButton = page.locator('button[aria-label="فلاتر"], button[aria-label="Filters"]').first();
+    await expect(filterButton).toBeVisible({ timeout: 10000 });
   });
 
   test("should toggle advanced filters on click", async ({ page }) => {
     await page.goto("/ar/explore");
-    // Open the SearchFilters panel first
-    const filterToggle = page.locator('button[aria-expanded]:not([aria-controls])').first();
-    await expect(filterToggle).toBeVisible();
+    const filterToggle = page.locator('button[aria-label="فلاتر"], button[aria-label="Filters"]').first();
+    await expect(filterToggle).toBeVisible({ timeout: 10000 });
     await filterToggle.click();
     // Now the advanced filters toggle (inside SearchFilters) should appear
     const advancedToggle = page.locator('button[aria-controls="advanced-filters-section"]').first();

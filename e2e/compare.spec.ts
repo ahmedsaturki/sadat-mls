@@ -28,21 +28,24 @@ test.describe("Property Compare - Property Detail", () => {
   test("should render compare button on property detail page", async ({ page }) => {
     await page.goto("/ar/explore");
     const propertyLink = page.locator("a[href*='/explore/']").first();
+    await page.waitForLoadState("domcontentloaded");
     if (await propertyLink.count() > 0) {
       await propertyLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
       const compareButton = page.locator("button[aria-label*='compare'], button[aria-label*='المقارنة']");
-      await expect(compareButton).toBeVisible();
+      await expect(compareButton).toBeVisible({ timeout: 10000 });
     }
   });
 
   test("should add and remove property from compare in detail page", async ({ page }) => {
     await page.goto("/ar/explore");
     const propertyLink = page.locator("a[href*='/explore/']").first();
+    await page.waitForLoadState("domcontentloaded");
     if (await propertyLink.count() > 0) {
       await propertyLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
       const compareButton = page.locator("button[aria-label*='compare'], button[aria-label*='المقارنة']");
+      await expect(compareButton).toBeVisible({ timeout: 10000 });
       await compareButton.click();
       await expect(compareButton).toHaveClass(/bg-navy-50|text-navy-600/);
       await compareButton.click();
