@@ -216,12 +216,12 @@ export async function checkApiRateLimit(
   const maxRequests = options?.maxRequests || 100;
   try {
     const { count, resetTime, retryAfter } = await databaseRateLimitCheck(key, windowMs, maxRequests);
-    return buildResult(count, maxRequests, resetTime, retryAfter);
+    return { ...buildResult(count, maxRequests, resetTime, retryAfter), unavailable: false };
   } catch (error) {
     logger.error("API rate limit unavailable; failing closed", {
       error: error instanceof Error ? error.message : String(error),
     });
-    return buildResult(maxRequests + 1, maxRequests, Date.now() + 30000, 30);
+    return { ...buildResult(maxRequests + 1, maxRequests, Date.now() + 30000, 30), unavailable: true };
   }
 }
 
