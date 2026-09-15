@@ -76,17 +76,28 @@ export function evaluateAssetReadiness(input: AssetReadinessInput): AssetReadine
 
   const score = Math.round((weightedPasses / 8) * 100) / 100;
 
-  if (input.rejectionEvidence) {
-    reasons.push("Evidence indicates the asset should not advance in the Lara workflow.");
-    return { state: "REJECTED", score, hardBlockers, missingCritical, reasons };
-  }
-
   if (input.staleCriticalEvidence) {
     hardBlockers.push("Critical evidence is stale or availability is uncertain.");
   }
 
   if (input.unresolvedCriticalContradictions) {
     hardBlockers.push("Unresolved critical source contradiction exists.");
+  }
+
+  if (hardBlockers.length > 0) {
+    reasons.push(...hardBlockers);
+    return {
+      state: input.staleCriticalEvidence ? "STALE" : "BLOCKED",
+      score,
+      hardBlockers,
+      missingCritical,
+      reasons,
+    };
+  }
+
+  if (input.rejectionEvidence) {
+    reasons.push("Evidence indicates the asset should not advance in the Lara workflow.");
+    return { state: "REJECTED", score, hardBlockers, missingCritical, reasons };
   }
 
   const criticalChecks: Array<[string, boolean]> = [
@@ -103,17 +114,6 @@ export function evaluateAssetReadiness(input: AssetReadinessInput): AssetReadine
   if (!input.identityKnown) {
     reasons.push("Asset identity is not sufficiently established.");
     return { state: "UNVERIFIED", score, hardBlockers, missingCritical, reasons };
-  }
-
-  if (hardBlockers.length > 0) {
-    reasons.push(...hardBlockers);
-    return {
-      state: input.staleCriticalEvidence ? "STALE" : "BLOCKED",
-      score,
-      hardBlockers,
-      missingCritical,
-      reasons,
-    };
   }
 
   if (missingCritical.length > 0) {
