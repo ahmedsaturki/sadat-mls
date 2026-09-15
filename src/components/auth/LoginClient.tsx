@@ -31,13 +31,18 @@ export default function LoginClient({ params }: { params: { locale: string } }) 
     try {
       const response = await fetch("/api/auth/rate-limit", { method: "POST", headers: { "Content-Type": "application/json" } });
       const data: RateLimitResponse = await response.json();
+      if (!response.ok || typeof data.allowed !== "boolean") {
+        setError(data.error || dict.common.unexpectedError);
+        return false;
+      }
       if (!data.allowed) { setAttemptsRemaining(0); setError(data.error || dict.common.rateLimitExceeded.replace("{{minutes}}", String(Math.ceil(data.retryAfter / 60)))); return false; }
       setAttemptsRemaining(data.remaining); return true;
     } catch (err) {
       logger.error("Rate limit check failed", { error: err instanceof Error ? err.message : String(err) });
-      return true;
+      setError(dict.common.unexpectedError);
+      return false;
     }
-  }, [dict.common.rateLimitExceeded]);
+  }, [dict.common.rateLimitExceeded, dict.common.unexpectedError]);
 
   useEffect(() => { checkRateLimit(); }, [checkRateLimit]);
 
