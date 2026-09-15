@@ -1,18 +1,33 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/types";
 
-type Property = Database["public"]["Tables"]["properties"]["Row"] & {
-  property_types: { name_ar: string; name_en: string } | null;
-  zones: { name_ar: string; name_en: string } | null;
-  offices: { name: string } | null;
-  primaryImage?: string | null;
+export type LandingProperty = {
+  id: string;
+  title: string | null;
+  description: string | null;
+  price: number | null;
+  area_m2: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  property_type: string | null;
+  status: string | null;
+  city: string | null;
+  district: string | null;
+  neighborhood: string | null;
+  primaryImage: string | null;
 };
 
 interface LandingData {
-  properties: Property[];
-  officesCount: number;
+  properties: LandingProperty[];
+  officesCount: number | null;
   propertiesCount: number;
-  zonesCount: number;
+  zonesCount: number | null;
+}
+
+const FEATURED_COLUMNS =
+  "id, title, description, price, area_m2, bedrooms, bathrooms, property_type, status, city, district, neighborhood";
+
+function sanitizeSearchTerm(value: string): string {
+  return value.trim().replace(/[%,()]/g, " ").replace(/\s+/g, " ");
 }
 
 export async function getLandingData(searchQuery?: string): Promise<LandingData> {
@@ -21,50 +36,38 @@ export async function getLandingData(searchQuery?: string): Promise<LandingData>
 
     let propertiesQuery = supabase
       .from("properties")
-      .select("*, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)")
-      .eq("status", "available")
-      .eq("is_active", true);
+      .select(FEATURED_COLUMNS)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(6);
 
     if (searchQuery && searchQuery.trim().length > 0) {
-      propertiesQuery = propertiesQuery.textSearch("fts", searchQuery.trim(), {
-        type: "websearch",
-        config: "arabic",
-      });
-    } else {
-      propertiesQuery = propertiesQuery.order("created_at", { ascending: false });
+      const q = sanitizeSearchTerm(searchQuery);
+      propertiesQuery = propertiesQuery.or(
+        `title.ilike.%${q}%,description.ilike.%${q}%,district.ilike.%${q}%,neighborhood.ilike.%${q}%`,
+      );
     }
 
-    propertiesQuery = propertiesQuery.limit(6);
-
-    const [officesRes, propertiesRes, zonesRes, featuredRes] = await Promise.all([
-      supabase.from("offices").select("id", { count: "exact", head: true }).eq("is_active", true),
-      supabase.from("properties").select("id", { count: "exact", head: true }).eq("is_active", true),
-      supabase.from("zones").select("id", { count: "exact", head: true }),
+    const [{ data: properties, error: propertiesError }, propertiesCountRes] = await Promise.all([
       propertiesQuery,
+      supabase.from("properties").select("id", { count: "exact", head: true }).eq("status", "active"),
     ]);
 
-    const propertyIds = (featuredRes.data || []).map((p) => p.id);
-    const { data: images } = propertyIds.length > 0
-      ? await supabase
-          .from("property_images")
-          .select("property_id, url")
-          .in("property_id", propertyIds)
-          .eq("is_primary", true)
-      : { data: [] };
+    if (propertiesError) throw propertiesError;
+    if (propertiesCountRes.error) throw propertiesCountRes.error;
 
-    const imageMap = new Map(images?.map((img) => [img.property_id, img.url]) || []);
-    const withImages = (featuredRes.data || []).map((p) => ({
-      ...p,
-      primaryImage: imageMap.get(p.id) || null,
+    const featured = (properties ?? []).map((property) => ({
+      ...property,
+      primaryImage: null,
     }));
 
     return {
-      properties: withImages,
-      officesCount: officesRes.count || 0,
-      propertiesCount: propertiesRes.count || 0,
-      zonesCount: zonesRes.count || 0,
+      properties: featured,
+      officesCount: null,
+      propertiesCount: propertiesCountRes.count ?? 0,
+      zonesCount: null,
     };
   } catch {
-    return { properties: [], officesCount: 0, propertiesCount: 0, zonesCount: 0 };
+    return { properties: [], officesCount: null, propertiesCount: 0, zonesCount: null };
   }
 }
