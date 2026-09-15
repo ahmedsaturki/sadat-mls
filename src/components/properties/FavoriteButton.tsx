@@ -1,13 +1,8 @@
 "use client";
 
-import { memo, useState, useCallback, useEffect, useRef } from "react";
+import { memo } from "react";
 import { Heart } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
-import { useToast } from "@/components/ui/Toast";
-import { logger } from "@/lib/logger";
-
 import type { Messages } from "@/i18n/getMessages";
 
 interface FavoriteButtonProps {
@@ -20,129 +15,29 @@ interface FavoriteButtonProps {
 }
 
 const FavoriteButton = memo(function FavoriteButton({
-  propertyId,
-  userId,
-  locale = "ar",
+  propertyId: _propertyId,
+  userId: _userId,
+  locale: _locale = "ar",
   dict,
   className,
   size = "md",
 }: FavoriteButtonProps) {
-  const router = useRouter();
-  const [isFavorited, setIsFavorited] = useState(false);
-  const { showToast } = useToast();
-  const mountedRef = useRef(true);
-
-  const checkFavoriteStatus = useCallback(async () => {
-    if (!userId) return;
-    const supabase = createClient();
-    try {
-      const { data } = await supabase
-        .from("property_favorites")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("property_id", propertyId)
-        .maybeSingle();
-      
-      if (!mountedRef.current) return;
-      setIsFavorited(!!data);
-    } catch (err) {
-      logger.warn("Failed to check favorite status", { error: err instanceof Error ? err.message : String(err) });
-    }
-  }, [userId, propertyId]);
-
-  useEffect(() => {
-    if (!userId) return;
-    mountedRef.current = true;
-    checkFavoriteStatus();
-    return () => { mountedRef.current = false; };
-  }, [userId, propertyId, checkFavoriteStatus]);
-
-  const sizeClasses = {
-    sm: "w-10 h-10",
-    md: "w-10 h-10",
-    lg: "w-12 h-12",
-  };
-
-  const iconSizes = {
-    sm: "w-4 h-4",
-    md: "w-5 h-5",
-    lg: "w-6 h-6",
-  };
-
-  const toggleFavorite = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!userId) {
-      router.push(`/${locale}/login`);
-      return;
-    }
-
-    // Optimistic update: toggle immediately for instant UI feedback
-    const newFavorited = !isFavorited;
-    setIsFavorited(newFavorited);
-
-    try {
-      const supabase = createClient();
-
-      if (!newFavorited) {
-        // Removing favorite
-        const { error } = await supabase
-          .from("property_favorites")
-          .delete()
-          .eq("user_id", userId)
-          .eq("property_id", propertyId);
-
-        if (error) {
-          setIsFavorited(isFavorited); // Rollback on error
-          showToast(dict?.common?.error ?? "", "error");
-          logger.error("Failed to remove favorite", { error });
-        } else {
-          showToast(dict?.common?.removeFavorite ?? "", "success");
-        }
-      } else {
-        // Adding favorite
-        const { error } = await supabase
-          .from("property_favorites")
-          .insert({ user_id: userId, property_id: propertyId });
-
-        if (error) {
-          setIsFavorited(isFavorited); // Rollback on error
-          showToast(dict?.common?.error ?? "", "error");
-          logger.error("Failed to add favorite", { error });
-        } else {
-          showToast(dict?.common?.addFavorite ?? "", "success");
-        }
-      }
-    } catch (err) {
-      setIsFavorited(isFavorited); // Rollback on error
-      logger.error("Failed to toggle favorite", { error: err instanceof Error ? err.message : String(err) });
-      showToast(dict?.common?.error ?? "", "error");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyId, userId, isFavorited, locale, showToast]);
+  const sizeClass = size === "sm" ? "w-8 h-8" : size === "lg" ? "w-12 h-12" : "w-10 h-10";
+  const iconClass = size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5";
+  const label = dict?.common?.favorites || "Favorites";
 
   return (
     <button
-      onClick={toggleFavorite}
-      className={cn(
-        "flex items-center justify-center rounded-full transition-all active:scale-90",
-        sizeClasses[size],
-        isFavorited
-          ? "bg-red-50 text-red-500 hover:bg-red-100"
-          : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-600",
-        className
-      )}
-      aria-label={isFavorited
-        ? dict?.common?.removeFavorite
-        : dict?.common?.addFavorite}
-      aria-pressed={isFavorited}
+      type="button"
+      disabled
+      aria-label={label}
+      title={label}
+      className={cn(sizeClass, "inline-flex items-center justify-center rounded-full border border-gray-200 bg-white text-gray-300 cursor-not-allowed", className)}
     >
-      <Heart
-        className={cn(iconSizes[size], "transition-transform", isFavorited && "fill-current")}
-      />
+      <Heart className={iconClass} aria-hidden="true" />
     </button>
   );
 });
 
+FavoriteButton.displayName = "FavoriteButton";
 export default FavoriteButton;
