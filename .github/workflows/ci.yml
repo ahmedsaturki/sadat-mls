@@ -102,7 +102,8 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Supabase's verified publishable key is safe for browser/E2E use and avoids a stale legacy anon secret.
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
@@ -113,7 +114,8 @@ jobs:
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
           NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Supabase's verified publishable key is safe for browser/E2E use and avoids a stale legacy anon secret.
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
