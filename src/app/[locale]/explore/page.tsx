@@ -24,7 +24,6 @@ export default async function ExplorePage({
     .from("properties")
     .select(PROPERTY_COLUMNS, { count: "exact" })
     .eq("status", "active")
-    .overrideTypes<AqaratProperty[], { merge: false }>()
     .order("created_at", { ascending: false })
     .range(0, PAGE_SIZE - 1);
 
@@ -34,7 +33,7 @@ export default async function ExplorePage({
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <AqaratExploreClient
         params={{ locale }}
-        initialProperties={properties ?? []}
+        initialProperties={(properties ?? []) as AqaratProperty[]}
         initialCount={count ?? 0}
       />
     </Suspense>
