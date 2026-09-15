@@ -40,7 +40,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
     if (supabaseUrl && supabaseKey) {
       const supabase = createSupabaseClient(supabaseUrl, supabaseKey);
       const { error } = await supabase
-        .from("offices")
+        .from("properties")
         .select("id", { count: "exact", head: true })
         .limit(1)
         .abortSignal(AbortSignal.timeout(3000)); // 3-second timeout
