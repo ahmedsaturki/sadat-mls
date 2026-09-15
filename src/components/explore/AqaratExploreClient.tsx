@@ -84,7 +84,6 @@ export default function AqaratExploreClient({ params, initialProperties, initial
       let query = supabase
         .from("properties")
         .select(COLUMNS, { count: "exact" })
-        .overrideTypes<AqaratProperty[], { merge: false }>()
         .eq("status", "active");
 
       if (queryText.trim()) {
@@ -107,7 +106,7 @@ export default function AqaratExploreClient({ params, initialProperties, initial
 
       const { data, count: nextCount, error: queryError } = await query.range(0, 47);
       if (queryError) throw queryError;
-      setProperties(data ?? []);
+      setProperties((data ?? []) as AqaratProperty[]);
       setCount(nextCount ?? 0);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Unknown error";
