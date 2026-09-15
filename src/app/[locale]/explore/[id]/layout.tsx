@@ -7,67 +7,60 @@ interface PageProps {
   params: Promise<{ locale: string; id: string }>;
 }
 
+type PropertyMeta = {
+  title: string | null;
+  description: string | null;
+  city: string | null;
+  district: string | null;
+  neighborhood: string | null;
+  status: string;
+};
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, id } = await params;
   const validLocale: Locale = isValidLocale(locale) ? locale : "ar";
   const dict = getMessages(validLocale);
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
 
-  // Fetch property data for metadata
   const supabase = await createClient();
   const { data: property } = await supabase
     .from("properties")
-    .select("title, description, price, status, area, bedrooms, bathrooms, property_type_id, zone_id, office_id, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name)")
+    .select("title, description, city, district, neighborhood, status")
     .eq("id", id)
-    .maybeSingle();
+    .maybeSingle()
+    .overrideTypes<PropertyMeta, { merge: false }>();
 
-  if (!property) {
-    return {
-      title: dict.property.notFound,
-    };
-  }
+  if (!property) return { title: dict.property.notFound };
 
-  const { data: images } = await supabase
-    .from("property_images")
-    .select("url")
-    .eq("property_id", id)
-    .eq("is_primary", true)
-    .limit(1);
-
-  const primaryImage = images?.[0]?.url;
-  const imageUrl = primaryImage ? new URL(primaryImage, baseUrl).toString() : undefined;
+  const title = property.title ?? dict.property.notFound;
+  const location = [property.city, property.district, property.neighborhood].filter(Boolean).join(" · ");
+  const description = property.description || `${title}${location ? ` - ${location}` : ""}`;
+  const url = `${baseUrl}/${validLocale}/explore/${id}`;
 
   return {
-    title: property.title,
-    description: property.description || (dict.landing?.heroDescription ?? ""),
+    title,
+    description,
     alternates: {
-      canonical: `${baseUrl}/${validLocale}/explore/${id}`,
+      canonical: url,
       languages: {
-        "ar": `${baseUrl}/ar/explore/${id}`,
-        "en": `${baseUrl}/en/explore/${id}`,
+        ar: `${baseUrl}/ar/explore/${id}`,
+        en: `${baseUrl}/en/explore/${id}`,
       },
     },
     openGraph: {
       type: "website",
       locale: validLocale === "ar" ? "ar_EG" : "en_US",
       siteName: dict.common.appName,
-      title: property.title,
-      description: property.description || (dict.landing?.heroDescription ?? ""),
-      url: `${baseUrl}/${validLocale}/explore/${id}`,
-      images: imageUrl ? [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: property.title,
-        },
-      ] : [],
+      title,
+      description,
+      url,
+      images: [],
     },
     twitter: {
-      card: "summary_large_image",
-      title: property.title,
-      description: property.description || (dict.landing?.heroDescription ?? ""),
-      images: imageUrl ? [imageUrl] : [],
+      card: "summary",
+      title,
+      description,
+      images: [],
     },
   };
 }
