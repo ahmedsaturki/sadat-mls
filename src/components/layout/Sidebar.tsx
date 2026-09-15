@@ -15,17 +15,11 @@ import {
   Settings,
   Tags,
   Users,
-  Mail,
-  BarChart3,
-  Heart,
   UserCog,
-  Bookmark,
   GitCompare,
   Bell,
-  MessageSquare,
   Briefcase,
   ClipboardCheck,
-  Coins,
   DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -48,7 +42,7 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
     if (role === ROLES.SUPER_ADMIN) {
       return [
         { href: `/${locale}/admin`, label: dict.nav.dashboard, icon: LayoutDashboard },
-        { href: `/${locale}/admin/analytics`, label: dict.admin.analytics, icon: BarChart3 },
+        { href: `/${locale}/admin/analytics`, label: dict.admin.analytics, icon: Calculator },
         { href: `/${locale}/admin/offices`, label: dict.nav.offices, icon: Building2 },
         { href: `/${locale}/admin/users`, label: dict.admin.users, icon: UserCog },
         { href: `/${locale}/admin/zones`, label: dict.nav.zones, icon: MapPin },
@@ -56,7 +50,6 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
         { href: `/${locale}/admin/developers`, label: dict.nav.developers, icon: Briefcase },
         { href: `/${locale}/admin/projects`, label: dict.nav.projects, icon: Building2 },
         { href: `/${locale}/admin/office-registrations`, label: dict.admin.pendingRegistrations, icon: ClipboardCheck },
-        { href: `/${locale}/admin/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
       ];
     }
     if (role === ROLES.OFFICE_ADMIN) {
@@ -65,15 +58,10 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
         { href: `/${locale}/dashboard/properties`, label: dict.nav.myProperties, icon: Home },
         { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
         { href: `/${locale}/dashboard/agents`, label: dict.nav.agents, icon: Users },
-        { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
-        { href: `/${locale}/dashboard/offers`, label: dict.dashboard.offers, icon: Coins },
-        { href: `/${locale}/dashboard/commissions`, label: dict.dashboard.commissions, icon: DollarSign },
+        { href: `/${locale}/dashboard/offers`, label: dict.dashboard.offers, icon: DollarSign },
         { href: `/${locale}/dashboard/referrals`, label: dict.referral.title, icon: Users },
-        { href: `/${locale}/dashboard/analytics`, label: dict.analytics.title, icon: BarChart3 },
-        { href: `/${locale}/dashboard/messages`, label: dict.nav.messages, icon: MessageSquare },
+        { href: `/${locale}/dashboard/messages`, label: dict.nav.messages, icon: Bell },
         { href: `/${locale}/dashboard/notifications`, label: dict.nav.notifications, icon: Bell },
-        { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
-        { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard.savedSearches, icon: Bookmark },
         { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
         { href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings },
         { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
@@ -85,11 +73,8 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
       { href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard },
       { href: `/${locale}/dashboard/properties`, label: dict.nav.myProperties, icon: Home },
       { href: `/${locale}/dashboard/properties/new`, label: dict.nav.addProperty, icon: Plus },
-      { href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail },
       { href: `/${locale}/dashboard/referrals`, label: dict.referral.title, icon: Users },
       { href: `/${locale}/dashboard/notifications`, label: dict.nav.notifications, icon: Bell },
-      { href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart },
-      { href: `/${locale}/dashboard/saved-searches`, label: dict.dashboard.savedSearches, icon: Bookmark },
       { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
       { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
       { href: `/${locale}/investors/roi-calculator`, label: dict.investor.roiCalculator, icon: Calculator },
@@ -100,7 +85,6 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-white dark:bg-gray-900 border-e border-gray-200 dark:border-gray-700 min-h-[calc(100vh-4rem)]">
       <div className="flex-1 py-4">
-        {/* User Profile Section */}
         {profile && (
           <div className="px-4 pb-4 mb-4 border-b border-gray-100">
             <div className="flex items-center gap-3">
