@@ -16,6 +16,7 @@ describe("evaluateAssetReadiness", () => {
     freshnessEvidence: true,
     promotionIntegrity: true,
     ddHandoffReady: false,
+    rejectionEvidence: false,
     unresolvedCriticalContradictions: false,
     staleCriticalEvidence: false,
     evidence: [],
@@ -35,6 +36,17 @@ describe("evaluateAssetReadiness", () => {
     expect(result.reasons).toContain(
       "Internal evidence package is complete enough for professional DD handoff.",
     );
+  });
+
+  it("returns REJECTED when explicit rejection evidence says the asset should not advance", () => {
+    const result = evaluateAssetReadiness({ ...base, rejectionEvidence: true });
+    expect(result.state).toBe("REJECTED");
+    expect(result.reasons).toContain(
+      "Evidence indicates the asset should not advance in the Lara workflow.",
+    );
+    expect(isMarketPublishable(result.state)).toBe(false);
+    expect(isPromotionAllowed(result.state)).toBe(false);
+    expect(isHigherRiskState(result.state)).toBe(true);
   });
 
   it("keeps an asset in screening when critical evidence is missing", () => {
