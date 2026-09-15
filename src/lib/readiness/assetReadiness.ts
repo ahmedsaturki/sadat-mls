@@ -74,7 +74,7 @@ export function evaluateAssetReadiness(input: AssetReadinessInput): AssetReadine
     input.ddHandoffReady,
   ].filter(Boolean).length;
 
-  const score = Math.round((weightedPasses / 8) * 100) / 100;
+  const score = weightedPasses / 8;
 
   if (input.staleCriticalEvidence) {
     hardBlockers.push("Critical evidence is stale or availability is uncertain.");
@@ -150,7 +150,7 @@ export function isMarketPublishable(state: AssetReadinessState): boolean {
 }
 
 export function isPromotionAllowed(state: AssetReadinessState): boolean {
-  return ["MARKET_READY", "NEGOTIATION_READY", "DD_READY"].includes(state);
+  return isMarketPublishable(state);
 }
 
 export function isHigherRiskState(state: AssetReadinessState): boolean {
