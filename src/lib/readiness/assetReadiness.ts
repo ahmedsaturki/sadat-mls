@@ -38,6 +38,7 @@ export type AssetReadinessInput = {
   freshnessEvidence: boolean;
   promotionIntegrity: boolean;
   ddHandoffReady: boolean;
+  rejectionEvidence: boolean;
   unresolvedCriticalContradictions: boolean;
   staleCriticalEvidence: boolean;
   evidence: readonly EvidenceItem[];
@@ -62,6 +63,24 @@ export function evaluateAssetReadiness(input: AssetReadinessInput): AssetReadine
   const missingCritical: string[] = [];
   const reasons: string[] = [];
 
+  const weightedPasses = [
+    input.identityKnown,
+    input.authorityEvidence,
+    input.statusEvidence,
+    input.economicsEvidence,
+    input.comparableEvidence,
+    input.freshnessEvidence,
+    input.promotionIntegrity,
+    input.ddHandoffReady,
+  ].filter(Boolean).length;
+
+  const score = Math.round((weightedPasses / 8) * 100) / 100;
+
+  if (input.rejectionEvidence) {
+    reasons.push("Evidence indicates the asset should not advance in the Lara workflow.");
+    return { state: "REJECTED", score, hardBlockers, missingCritical, reasons };
+  }
+
   if (input.staleCriticalEvidence) {
     hardBlockers.push("Critical evidence is stale or availability is uncertain.");
   }
@@ -80,19 +99,6 @@ export function evaluateAssetReadiness(input: AssetReadinessInput): AssetReadine
   for (const [label, passed] of criticalChecks) {
     if (!passed) missingCritical.push(label);
   }
-
-  const weightedPasses = [
-    input.identityKnown,
-    input.authorityEvidence,
-    input.statusEvidence,
-    input.economicsEvidence,
-    input.comparableEvidence,
-    input.freshnessEvidence,
-    input.promotionIntegrity,
-    input.ddHandoffReady,
-  ].filter(Boolean).length;
-
-  const score = Math.round((weightedPasses / 8) * 100) / 100;
 
   if (!input.identityKnown) {
     reasons.push("Asset identity is not sufficiently established.");
