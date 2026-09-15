@@ -75,7 +75,7 @@ export default function ContactModal({
     }
 
     const attempts = getContactAttempts(CONTACT_RATE_LIMIT_CONFIG);
-    if (attempts.locked) {
+    if (attempts.count >= CONTACT_RATE_LIMIT_CONFIG.maxAttempts) {
       setError(dict.contact.error);
       return;
     }
