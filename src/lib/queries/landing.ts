@@ -44,8 +44,7 @@ export async function getLandingData(searchQuery?: string): Promise<LandingData>
       .select(FEATURED_COLUMNS)
       .eq("status", "active")
       .order("created_at", { ascending: false })
-      .limit(6)
-      .overrideTypes<FeaturedRow[], { merge: false }>();
+      .limit(6);
 
     if (searchQuery && searchQuery.trim().length > 0) {
       const q = sanitizeSearchTerm(searchQuery);
@@ -54,8 +53,10 @@ export async function getLandingData(searchQuery?: string): Promise<LandingData>
       );
     }
 
+    const typedPropertiesQuery = propertiesQuery.overrideTypes<FeaturedRow[], { merge: false }>();
+
     const [{ data: properties, error: propertiesError }, propertiesCountRes] = await Promise.all([
-      propertiesQuery,
+      typedPropertiesQuery,
       supabase.from("properties").select("id", { count: "exact", head: true }).eq("status", "active"),
     ]);
 
