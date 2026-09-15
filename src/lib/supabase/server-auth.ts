@@ -4,9 +4,15 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { UserRole } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
+import type { Database } from "@/lib/supabase/types";
 
 export interface AuthUser {
   user: { id: string } | null;
+  /**
+   * Business profile is intentionally unavailable until an authoritative
+   * auth.users -> people mapping exists in the Aqarat OS schema.
+   * Returning null is fail-closed for protected role-gated flows.
+   */
   profile: {
     id: string;
     email: string | null;
@@ -14,17 +20,19 @@ export interface AuthUser {
     role: UserRole;
     office_id: string | null;
   } | null;
-  supabase: ReturnType<typeof createServerClient>;
+  supabase: ReturnType<typeof createServerClient<Database>>;
 }
 
 /**
- * Get auth user for server-side rendering.
- * Note: In serverless environments, caching at module level is unsafe.
- * Each request gets fresh auth data to prevent user data leakage.
+ * Get the authenticated Supabase identity for server-side rendering.
+ *
+ * IMPORTANT: Aqarat OS separates authentication identity from business
+ * entities. The legacy public.users table is not part of the live contract,
+ * and no authoritative auth.users -> people mapping has been proven yet.
  */
 export async function getServerAuth(): Promise<AuthUser> {
   const cookieStore = await cookies();
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -34,33 +42,22 @@ export async function getServerAuth(): Promise<AuthUser> {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
           } catch {
-            // Expected in Server Components (cookies immutable after response).
-            // Log in non-SC contexts for debugging token refresh failures.
             if (process.env.NODE_ENV === "development") {
               logger.debug("[server-auth] cookie write skipped (expected in SC)");
             }
           }
         },
       },
-    }
+    },
   );
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  let profile: AuthUser["profile"] = null;
-  if (user) {
-    const { data } = await supabase
-      .from("users")
-      .select("id, email, full_name, role, office_id")
-      .eq("id", user.id)
-      .maybeSingle();
-    
-    profile = data;
-  }
+  // Deliberately fail closed until the database contains an authoritative
+  // mapping between auth identity and business-person identity/role.
+  const profile: AuthUser["profile"] = null;
 
   return { user, profile, supabase };
 }
@@ -79,18 +76,11 @@ export async function clearAuthCache() {
   // No-op in serverless - each request is independent
 }
 
-/**
- * Get authenticated user and profile.
- * Returns null user/profile if not authenticated.
- */
 export async function getAuthenticatedUser() {
   const { user, profile } = await getServerAuth();
   return { user, profile };
 }
 
-/**
- * Require authentication. Throws if not authenticated.
- */
 export async function requireAuth(redirectPath: string) {
   const { user, profile } = await getServerAuth();
   if (!user) {
@@ -99,9 +89,6 @@ export async function requireAuth(redirectPath: string) {
   return { user, profile };
 }
 
-/**
- * Require specific role. Throws if not authenticated or wrong role.
- */
 export async function requireRole(requiredRole: UserRole, redirectPath: string) {
   const { user, profile } = await requireAuth(redirectPath);
   if (!profile || profile.role !== requiredRole) {
