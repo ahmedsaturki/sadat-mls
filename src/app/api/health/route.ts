@@ -18,14 +18,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
     return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
   }
 
-  // Rate limiting to prevent DoS
+  // Rate limiting to prevent DoS. A backend outage is surfaced as 503,
+  // while a real exhausted quota remains 429.
   const rawIp = request.headers.get("x-forwarded-for") || "unknown";
   const ip = rawIp.split(",")[0].trim();
   const rate = await checkApiRateLimit(`health:${ip}`);
+  if (rate.unavailable) {
+    return NextResponse.json(
+      { error: "Rate limiting temporarily unavailable" },
+      { status: 503, headers: { "Retry-After": String(rate.retryAfter) } },
+    );
+  }
   if (!rate.allowed) {
     return NextResponse.json(
       { error: "Too many requests", status: "error", timestamp: new Date().toISOString(), checks: { supabase: "error" } },
-      { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } }
+      { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } },
     );
   }
 
