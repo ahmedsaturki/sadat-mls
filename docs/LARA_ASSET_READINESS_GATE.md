@@ -50,6 +50,7 @@ Evidence classes:
 6. Conflicting critical evidence blocks higher readiness states until resolved or explicitly accepted by an authorized human.
 7. The system should generate a reason for every state transition.
 8. Final legal/technical diligence remains external to Lara's internal readiness gate.
+9. Stale critical evidence or unresolved critical contradictions take precedence over rejection evidence; stale/conflicted evidence must not itself produce a final `REJECTED` state.
 
 ## Workflow
 
