@@ -5,13 +5,8 @@ import { MessageCircle, Phone, Mail } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
-import {
-  getContactAttempts,
-  recordContactAttempt,
-  clearContactAttempts,
-} from "@/lib/utils/contact-rate-limit";
+import { getContactAttempts, recordContactAttempt, clearContactAttempts } from "@/lib/utils/contact-rate-limit";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -40,7 +35,6 @@ export default function ContactModal({
   isOpen,
   onClose,
   propertyId,
-  officeId,
   officeName,
   officePhone,
   officeEmail,
@@ -50,18 +44,10 @@ export default function ContactModal({
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [formData, setFormData] = useState({
-    visitor_name: "",
-    visitor_phone: "",
-    visitor_email: "",
-    message: "",
-  });
-
   const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({ visitor_name: "", visitor_phone: "", visitor_email: "", message: "" });
 
-  const whatsappUrl = officePhone
-    ? `https://wa.me/${officePhone.replace(/[^0-9]/g, "")}`
-    : null;
+  const whatsappUrl = officePhone ? `https://wa.me/${officePhone.replace(/[^0-9]/g, "")}` : null;
 
   const handleSelectType = useCallback((type: "whatsapp" | "phone" | "email") => {
     setContactType(type);
@@ -72,70 +58,54 @@ export default function ContactModal({
 
   const handleSend = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!propertyId || !officeId) return;
+    if (!propertyId) return;
 
     const trimmedName = formData.visitor_name.trim();
     const trimmedMessage = formData.message.trim();
+    const visitorPhone = formData.visitor_phone.trim();
+    const visitorEmail = formData.visitor_email.trim();
 
-    if (!trimmedName || trimmedName.length < 2) {
+    if (trimmedName.length < 2) {
       setError(dict.contact.nameRequired);
       return;
     }
-
-    if (!trimmedMessage || trimmedMessage.length < 2) {
+    if (trimmedMessage.length < 2) {
       setError(dict.contact.messageRequired);
       return;
     }
 
-    const { locked } = recordContactAttempt(CONTACT_RATE_LIMIT_CONFIG);
-    if (locked) {
+    const attempts = getContactAttempts(CONTACT_RATE_LIMIT_CONFIG);
+    if (attempts.locked) {
       setError(dict.contact.error);
       return;
     }
+    recordContactAttempt(CONTACT_RATE_LIMIT_CONFIG);
 
     setSaving(true);
     setError(null);
-    const supabase = createClient();
-
-    const insertData = {
-      property_id: propertyId,
-      office_id: officeId,
-      contact_type: contactType,
-      visitor_name: trimmedName,
-      visitor_phone: formData.visitor_phone.trim() || null,
-      visitor_email: formData.visitor_email.trim() || null,
-      message: trimmedMessage,
-    };
-
     try {
-      const { error: insertError } = await supabase.from("contact_requests").insert(insertData);
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          propertyId,
+          contactType,
+          visitorName: trimmedName,
+          visitorPhone: visitorPhone || null,
+          visitorEmail: visitorEmail || null,
+          message: trimmedMessage,
+        }),
+      });
 
-      if (insertError) {
-        logger.error("Contact form submission failed", { error: insertError.message });
-        setSaving(false);
-        setError(dict.contact.error);
-        return;
+      if (!response.ok) {
+        const result = await response.json().catch(() => null);
+        throw new Error(typeof result?.error === "string" ? result.error : "Contact request failed");
       }
 
-      setSaving(false);
       setSuccess(true);
       setFormData({ visitor_name: "", visitor_phone: "", visitor_email: "", message: "" });
       clearContactAttempts(CONTACT_RATE_LIMIT_CONFIG);
-
-      // Create notification for office members (fire-and-forget)
-      if (officeId) {
-        fetch("/api/notifications", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            office_id: officeId,
-            type: "contact_request",
-            title: dict.contact.newContactRequest?.replace("{{name}}", trimmedName) || trimmedName,
-            message: trimmedMessage.substring(0, 200),
-            entity_type: "contact_request",
-          }),
-        }).catch(() => {});
-      }
 
       if (contactType === "whatsapp" && whatsappUrl) {
         window.open(whatsappUrl, "_blank", "noopener,noreferrer");
@@ -147,147 +117,62 @@ export default function ContactModal({
         window.open(`mailto:${officeEmail}?subject=${subject}&body=${body}`, "_self");
       }
     } catch (err) {
-      logger.error("Contact form error", { error: err instanceof Error ? err.message : String(err) });
-      setSaving(false);
+      logger.error("Contact form submission failed", { error: err instanceof Error ? err.message : String(err) });
       setError(dict.contact.error);
+    } finally {
+      setSaving(false);
     }
-  }, [propertyId, officeId, contactType, formData, whatsappUrl, officePhone, officeEmail, dict]);
+  }, [propertyId, contactType, formData, whatsappUrl, officePhone, officeEmail, dict]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={dict.contact.title} size="sm">
       <div className="space-y-4">
         {!showForm ? (
           <>
-            <p className="text-center text-gray-600">
-              {dict.contact.contactWith.replace("{{name}}", officeName)}
-            </p>
-
+            <p className="text-center text-gray-600">{dict.contact.contactWith.replace("{{name}}", officeName)}</p>
             <div className="space-y-3">
               {whatsappUrl && (
-                <button
-                  onClick={() => handleSelectType("whatsapp")}
-                  className="w-full flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-start"
-                  aria-label={dict.contact.whatsapp}
-                >
-                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                     <MessageCircle className="w-5 h-5 text-white" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{dict.contact.whatsapp}</p>
-                    <p className="text-sm text-gray-500">{officePhone}</p>
-                  </div>
+                <button onClick={() => handleSelectType("whatsapp")} className="w-full flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-start">
+                  <MessageCircle className="w-5 h-5 text-green-600" />
+                  <span>{dict.contact.whatsapp}</span>
                 </button>
               )}
-
               {officePhone && (
-                <button
-                  onClick={() => handleSelectType("phone")}
-                  className="w-full flex items-center gap-3 p-3 bg-navy-50 rounded-lg hover:bg-navy-100 transition-colors text-start"
-                  aria-label={dict.contact.call}
-                >
-                  <div className="w-10 h-10 bg-navy-500 rounded-full flex items-center justify-center">
-                     <Phone className="w-5 h-5 text-white" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{dict.contact.call}</p>
-                    <p className="text-sm text-gray-500">{officePhone}</p>
-                  </div>
+                <button onClick={() => handleSelectType("phone")} className="w-full flex items-center gap-3 p-3 bg-navy-50 rounded-lg hover:bg-navy-100 transition-colors text-start">
+                  <Phone className="w-5 h-5 text-navy-600" />
+                  <span>{dict.contact.call}</span>
                 </button>
               )}
-
               {officeEmail && (
-                <button
-                  onClick={() => handleSelectType("email")}
-                  className="w-full flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-start"
-                  aria-label={dict.contact.emailSend}
-                >
-                  <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
-                     <Mail className="w-5 h-5 text-white" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{dict.contact.emailSend}</p>
-                    <p className="text-sm text-gray-500">{officeEmail}</p>
-                  </div>
+                <button onClick={() => handleSelectType("email")} className="w-full flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-start">
+                  <Mail className="w-5 h-5 text-purple-600" />
+                  <span>{dict.contact.emailSend}</span>
                 </button>
               )}
             </div>
-
-            {!officePhone && !officeEmail && (
-              <p className="text-center text-gray-500 py-4">
-                {dict.contact.noContactInfo}
-              </p>
-            )}
           </>
         ) : success ? (
           <div className="text-center py-6" role="status">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <span className="text-2xl text-green-600">✓</span>
             </div>
             <p className="text-green-600 font-medium">{dict.contact.success}</p>
-            <button
-              onClick={() => { setShowForm(false); setSuccess(false); onClose(); }}
-              className="mt-4 text-sm text-gray-500 hover:text-gray-700"
-              aria-label={dict.common.close}
-            >
-              {dict.common.close}
-            </button>
+            <button onClick={() => { setShowForm(false); setSuccess(false); onClose(); }} className="mt-4 text-sm text-gray-500">{dict.common.close}</button>
           </div>
         ) : (
           <form onSubmit={handleSend} className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                {contactType === "whatsapp" ? dict.contact.whatsapp :
-                 contactType === "phone" ? dict.contact.call : dict.contact.emailSend}
+                {contactType === "whatsapp" ? dict.contact.whatsapp : contactType === "phone" ? dict.contact.call : dict.contact.emailSend}
               </p>
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="text-sm text-gray-500 hover:text-gray-700"
-                aria-label={dict.common.back}
-              >
-                {dict.common.back}
-              </button>
+              <button type="button" onClick={() => setShowForm(false)} className="text-sm text-gray-500">{dict.common.back}</button>
             </div>
-            {error && (
-              <p className="text-red-600 text-sm bg-red-50 p-2 rounded-lg" role="alert">{error}</p>
-            )}
-            <Input
-              label={dict.contact.name}
-              name="visitor_name"
-              inputMode="text"
-              autoComplete="name"
-              value={formData.visitor_name}
-              onChange={(e) => setFormData({ ...formData, visitor_name: e.target.value.slice(0, MAX_NAME_LENGTH) })}
-              placeholder={dict.contact.yourName}
-              required
-              maxLength={MAX_NAME_LENGTH}
-            />
-            <Input
-              label={dict.contact.phone}
-              name="visitor_phone"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              value={formData.visitor_phone}
-              onChange={(e) => setFormData({ ...formData, visitor_phone: e.target.value.slice(0, MAX_PHONE_LENGTH) })}
-              placeholder={dict.contact.yourPhone}
-              maxLength={MAX_PHONE_LENGTH}
-            />
-            <Input
-              label={dict.contact.message}
-              name="message"
-              autoComplete="off"
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value.slice(0, MAX_MESSAGE_LENGTH) })}
-              placeholder={dict.contact.yourMessage}
-              required
-              maxLength={MAX_MESSAGE_LENGTH}
-            />
-            <Button type="submit" className="w-full" isLoading={saving}>
-              {dict.contact.send}
-            </Button>
+            {error && <p className="text-red-600 text-sm bg-red-50 p-2 rounded-lg" role="alert">{error}</p>}
+            <Input label={dict.contact.name} name="visitor_name" value={formData.visitor_name} onChange={(e) => setFormData({ ...formData, visitor_name: e.target.value.slice(0, MAX_NAME_LENGTH) })} placeholder={dict.contact.yourName} required maxLength={MAX_NAME_LENGTH} />
+            <Input label={dict.contact.phone} name="visitor_phone" type="tel" value={formData.visitor_phone} onChange={(e) => setFormData({ ...formData, visitor_phone: e.target.value.slice(0, MAX_PHONE_LENGTH) })} placeholder={dict.contact.yourPhone} maxLength={MAX_PHONE_LENGTH} />
+            <Input label={dict.contact.email} name="visitor_email" type="email" value={formData.visitor_email} onChange={(e) => setFormData({ ...formData, visitor_email: e.target.value })} placeholder={dict.contact.yourEmail || "Email"} />
+            <Input label={dict.contact.message} name="message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value.slice(0, MAX_MESSAGE_LENGTH) })} placeholder={dict.contact.yourMessage} required maxLength={MAX_MESSAGE_LENGTH} />
+            <Button type="submit" className="w-full" isLoading={saving}>{dict.contact.send}</Button>
           </form>
         )}
       </div>
