@@ -37,8 +37,9 @@ test.describe("Login Form", () => {
     const isDisabled = await submitButton.evaluate(el => (el as HTMLButtonElement).disabled || el.getAttribute("aria-disabled") === "true").catch(() => true);
     if (isDisabled) return;
     await submitButton.click({ timeout: 5000 });
-    // Form uses e.preventDefault() + custom validation — should show an error message
-    await expect(page.locator(".bg-red-50, .text-red-600, [role='alert']")).toBeVisible({ timeout: 10000 });
+    // Use an actual non-empty alert so Next.js's empty route-announcer is not matched.
+    const errorAlert = page.locator('[role="alert"]').filter({ hasText: /\S/ }).first();
+    await expect(errorAlert).toBeVisible({ timeout: 10000 });
   });
 
   test("should show error on invalid credentials", async ({ page }) => {
@@ -50,8 +51,9 @@ test.describe("Login Form", () => {
     const isDisabled = await submitButton.evaluate(el => (el as HTMLButtonElement).disabled || el.getAttribute("aria-disabled") === "true").catch(() => true);
     if (isDisabled) return;
     await submitButton.click({ timeout: 5000 });
-    // Should show an error message — accept red error styling or alert role
-    await expect(page.locator(".bg-red-50, .text-red-600, [role='alert']")).toBeVisible({ timeout: 10000 });
+    // Should show a real, non-empty error alert — not Next.js's empty route announcer.
+    const errorAlert = page.locator('[role="alert"]').filter({ hasText: /\S/ }).first();
+    await expect(errorAlert).toBeVisible({ timeout: 10000 });
   });
 
   test("should navigate to forgot password from login", async ({ page }) => {
