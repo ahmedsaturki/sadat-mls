@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowUpDown, Search, X } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { createClient } from "@/lib/supabase/client";
 import type { AqaratPropertyRow } from "@/lib/supabase/aqarat-types";
@@ -36,6 +36,8 @@ export default function AqaratExploreClient({ params, initialProperties, initial
   const [count, setCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [queryText, setQueryText] = useState(searchParams.get("q") ?? "");
   const [propertyType, setPropertyType] = useState(searchParams.get("type") ?? "");
   const [district, setDistrict] = useState(searchParams.get("district") ?? "");
@@ -145,45 +147,77 @@ export default function AqaratExploreClient({ params, initialProperties, initial
               <h1 className="text-2xl font-bold text-gray-900">{dict.explore.title}</h1>
               <p className="mt-1 text-sm text-gray-500">{count} active properties from the authoritative property contract.</p>
             </div>
-            {hasFilters && (
-              <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-2 text-sm text-gray-600 hover:bg-gray-200">
-                <X className="h-4 w-4" aria-hidden="true" />
-                {dict.explore.clearFilters}
+            <div className="flex flex-wrap items-center gap-2">
+              {hasFilters && (
+                <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-2 text-sm text-gray-600 hover:bg-gray-200">
+                  <X className="h-4 w-4" aria-hidden="true" />
+                  {dict.explore.clearFilters}
+                </button>
+              )}
+              <button
+                type="button"
+                aria-label={locale === "ar" ? "فلاتر" : "Filters"}
+                aria-expanded={showFilters}
+                onClick={() => setShowFilters((current) => !current)}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+              >
+                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+                {locale === "ar" ? "فلاتر" : "Filters"}
               </button>
-            )}
+            </div>
           </div>
 
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
-              <Search className="h-4 w-4 text-gray-400" aria-hidden="true" />
-              <input value={queryText} onChange={(event) => setQueryText(event.target.value)} placeholder={locale === "ar" ? "ابحث" : "Search"} className="w-full bg-transparent text-sm outline-none" />
-            </label>
-            <select value={propertyType} onChange={(event) => setPropertyType(event.target.value)} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
-              <option value="">{locale === "ar" ? "كل الأنواع" : "All types"}</option>
-              {types.map((type) => <option key={type} value={type}>{type}</option>)}
-            </select>
-            <select value={district} onChange={(event) => setDistrict(event.target.value)} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
-              <option value="">{locale === "ar" ? "كل المناطق" : "All districts"}</option>
-              {districts.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
-            <label className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
-              <span className="text-gray-400">{locale === "ar" ? "ترتيب" : "Sort"}</span>
-              <ArrowUpDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
-              <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="w-full bg-transparent outline-none">
-                <option value="newest">{locale === "ar" ? "الأحدث" : "Newest"}</option>
-                <option value="price_low">{locale === "ar" ? "السعر الأقل" : "Lowest price"}</option>
-                <option value="price_high">{locale === "ar" ? "السعر الأعلى" : "Highest price"}</option>
-                <option value="area">{locale === "ar" ? "المساحة" : "Largest area"}</option>
-              </select>
-            </label>
-          </div>
+          {showFilters && (
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50/60 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-sm font-medium text-gray-700">{locale === "ar" ? "البحث والتصفية" : "Search & filters"}</span>
+                <button
+                  type="button"
+                  aria-controls="advanced-filters-section"
+                  aria-expanded={showAdvancedFilters}
+                  onClick={() => setShowAdvancedFilters((current) => !current)}
+                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-white"
+                >
+                  {locale === "ar" ? "فلاتر متقدمة" : "Advanced filters"}
+                  <ChevronDown className={`h-4 w-4 transition-transform ${showAdvancedFilters ? "rotate-180" : ""}`} aria-hidden="true" />
+                </button>
+              </div>
 
-          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <input value={minPrice} onChange={(event) => setMinPrice(event.target.value)} inputMode="numeric" placeholder={locale === "ar" ? "أقل سعر" : "Min price"} className="rounded-lg border border-gray-200 px-3 py-2 text-sm" />
-            <input value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} inputMode="numeric" placeholder={locale === "ar" ? "أقصى سعر" : "Max price"} className="rounded-lg border border-gray-200 px-3 py-2 text-sm" />
-            <input value={minArea} onChange={(event) => setMinArea(event.target.value)} inputMode="decimal" placeholder={locale === "ar" ? "أقل مساحة م²" : "Min m²"} className="rounded-lg border border-gray-200 px-3 py-2 text-sm" />
-            <input value={maxArea} onChange={(event) => setMaxArea(event.target.value)} inputMode="decimal" placeholder={locale === "ar" ? "أقصى مساحة م²" : "Max m²"} className="rounded-lg border border-gray-200 px-3 py-2 text-sm" />
-          </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                <label className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                  <Search className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                  <input value={queryText} onChange={(event) => setQueryText(event.target.value)} placeholder={locale === "ar" ? "ابحث" : "Search"} className="w-full bg-transparent text-sm outline-none" />
+                </label>
+                <select value={propertyType} onChange={(event) => setPropertyType(event.target.value)} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
+                  <option value="">{locale === "ar" ? "كل الأنواع" : "All types"}</option>
+                  {types.map((type) => <option key={type} value={type}>{type}</option>)}
+                </select>
+                <select value={district} onChange={(event) => setDistrict(event.target.value)} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
+                  <option value="">{locale === "ar" ? "كل المناطق" : "All districts"}</option>
+                  {districts.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+                <label className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
+                  <span className="text-gray-400">{locale === "ar" ? "ترتيب" : "Sort"}</span>
+                  <ArrowUpDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                  <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="w-full bg-transparent outline-none">
+                    <option value="newest">{locale === "ar" ? "الأحدث" : "Newest"}</option>
+                    <option value="price_low">{locale === "ar" ? "السعر الأقل" : "Lowest price"}</option>
+                    <option value="price_high">{locale === "ar" ? "السعر الأعلى" : "Highest price"}</option>
+                    <option value="area">{locale === "ar" ? "المساحة" : "Largest area"}</option>
+                  </select>
+                </label>
+              </div>
+
+              {showAdvancedFilters && (
+                <div id="advanced-filters-section" className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                  <input value={minPrice} onChange={(event) => setMinPrice(event.target.value)} inputMode="numeric" placeholder={locale === "ar" ? "أقل سعر" : "Min price"} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm" />
+                  <input value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} inputMode="numeric" placeholder={locale === "ar" ? "أقصى سعر" : "Max price"} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm" />
+                  <input value={minArea} onChange={(event) => setMinArea(event.target.value)} inputMode="decimal" placeholder={locale === "ar" ? "أقل مساحة م²" : "Min m²"} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm" />
+                  <input value={maxArea} onChange={(event) => setMaxArea(event.target.value)} inputMode="decimal" placeholder={locale === "ar" ? "أقصى مساحة م²" : "Max m²"} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm" />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
