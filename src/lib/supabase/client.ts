@@ -1,11 +1,11 @@
 import { createBrowserClient } from "@supabase/ssr";
-import type { AqaratDatabase } from "@/lib/supabase/aqarat-types";
+import type { Database } from "@/lib/supabase/types";
 
-let browserClient: ReturnType<typeof createBrowserClient<AqaratDatabase>> | null = null;
+let browserClient: ReturnType<typeof createBrowserClient<Database>> | null = null;
 
 export function createClient() {
   if (!browserClient) {
-    browserClient = createBrowserClient<AqaratDatabase>(
+    browserClient = createBrowserClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
