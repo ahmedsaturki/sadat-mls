@@ -18,6 +18,10 @@ export interface PropertyCardProps {
   bedrooms?: number | null;
   bathrooms?: number | null;
   location?: string | null;
+  /** Transitional presentation aliases kept for non-database callers during migration. */
+  zone?: string | null;
+  officeName?: string | null;
+  userId?: string | null;
   imageUrl?: string | null;
   priority?: boolean;
   status: string;
@@ -53,6 +57,7 @@ const PropertyCard = memo(function PropertyCard({
   bedrooms,
   bathrooms,
   location,
+  zone,
   imageUrl,
   status,
   locale,
@@ -62,6 +67,7 @@ const PropertyCard = memo(function PropertyCard({
   priority,
 }: PropertyCardProps) {
   const statusLabel = getStatusLabel(dict, status);
+  const displayLocation = location ?? zone ?? null;
   const priceUnit = (dict?.property as Record<string, unknown> | undefined)?.priceUnit as string | undefined;
   const areaUnit = (dict?.property as Record<string, unknown> | undefined)?.areaUnit as string | undefined;
   const compareProp = {
@@ -71,7 +77,7 @@ const PropertyCard = memo(function PropertyCard({
     area: area ?? null,
     bedrooms: bedrooms ?? 0,
     bathrooms: bathrooms ?? 0,
-    zone: location ?? null,
+    zone: displayLocation,
     type: type ?? null,
     officeName: "",
     status,
@@ -124,7 +130,7 @@ const PropertyCard = memo(function PropertyCard({
             {bathrooms != null && <span className="flex items-center gap-1"><Bath className="w-4 h-4" aria-hidden="true" />{bathrooms}</span>}
             {area != null && <span className="flex items-center gap-1"><Maximize className="w-4 h-4" aria-hidden="true" />{area} {areaUnit ?? ""}</span>}
           </div>
-          {location && <div className="flex items-center gap-1 text-xs text-gray-500 mb-3"><MapPin className="w-3 h-3 shrink-0" aria-hidden="true" /><span className="truncate">{location}</span></div>}
+          {displayLocation && <div className="flex items-center gap-1 text-xs text-gray-500 mb-3"><MapPin className="w-3 h-3 shrink-0" aria-hidden="true" /><span className="truncate">{displayLocation}</span></div>}
           <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto">
             <span className={cn("font-bold text-navy-600", compact ? "text-sm" : "text-lg")}>
               {price != null ? formatPrice(price, locale) : "—"}{" "}
