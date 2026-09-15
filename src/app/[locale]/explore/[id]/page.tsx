@@ -12,6 +12,11 @@ export const revalidate = 3600;
 const PROPERTY_COLUMNS =
   "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, confidence, first_seen_at, last_seen_at, created_at, updated_at, parcel_number, installments_clear, canonical_key";
 
+type PropertyMeta = Pick<
+  AqaratPropertyDetail,
+  "title" | "description" | "city" | "district" | "neighborhood"
+>;
+
 export async function generateMetadata({
   params,
 }: {
@@ -26,20 +31,21 @@ export async function generateMetadata({
     .from("properties")
     .select("title, description, city, district, neighborhood")
     .eq("id", id)
-    .maybeSingle();
+    .maybeSingle()
+    .overrideTypes<PropertyMeta, { merge: false }>();
 
   if (!property) return { title: dict.property.notFound };
 
   const location = [property.city, property.district, property.neighborhood].filter(Boolean).join(" · ");
-  const description = property.description || `${property.title}${location ? ` - ${location}` : ""}`;
+  const description = property.description || `${property.title ?? "Property"}${location ? ` - ${location}` : ""}`;
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
 
   return {
-    title: property.title,
+    title: property.title ?? dict.property.notFound,
     description,
     alternates: { canonical: `${baseUrl}/${locale}/explore/${id}` },
     openGraph: {
-      title: property.title,
+      title: property.title ?? dict.property.notFound,
       description,
       type: "website",
       locale: locale === "ar" ? "ar_EG" : "en_US",
@@ -65,7 +71,8 @@ export default async function PropertyDetailPage({
     .from("properties")
     .select(PROPERTY_COLUMNS)
     .eq("id", id)
-    .maybeSingle();
+    .maybeSingle()
+    .overrideTypes<AqaratPropertyDetail, { merge: false }>();
 
   if (error || !property) {
     return (
@@ -78,37 +85,6 @@ export default async function PropertyDetailPage({
     );
   }
 
-  const normalizedProperty: AqaratPropertyDetail = {
-    id: property.id,
-    title: property.title,
-    description: property.description,
-    property_type: property.property_type,
-    transaction_type: property.transaction_type as AqaratPropertyDetail["transaction_type"],
-    status: property.status as AqaratPropertyDetail["status"],
-    city: property.city,
-    district: property.district,
-    neighborhood: property.neighborhood,
-    address: property.address,
-    latitude: property.latitude,
-    longitude: property.longitude,
-    area_m2: property.area_m2,
-    bedrooms: property.bedrooms,
-    bathrooms: property.bathrooms,
-    floor: property.floor,
-    finishing: property.finishing,
-    price: property.price,
-    currency: property.currency,
-    features: property.features as Record<string, unknown> | null,
-    confidence: property.confidence,
-    first_seen_at: property.first_seen_at,
-    last_seen_at: property.last_seen_at,
-    created_at: property.created_at,
-    updated_at: property.updated_at,
-    parcel_number: property.parcel_number,
-    installments_clear: property.installments_clear,
-    canonical_key: property.canonical_key,
-  };
-
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <script
@@ -117,36 +93,40 @@ export default async function PropertyDetailPage({
           __html: sanitizeJsonLd({
             "@context": "https://schema.org",
             "@type": "RealEstateListing",
-            name: normalizedProperty.title,
-            description: normalizedProperty.description || "",
+            name: property.title ?? "Property",
+            description: property.description || "",
             url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.vercel.app"}/${locale}/explore/${id}`,
             offers: {
               "@type": "Offer",
-              price: normalizedProperty.price,
-              priceCurrency: normalizedProperty.currency || "EGP",
+              ...(property.price != null ? { price: property.price } : {}),
+              priceCurrency: property.currency || "EGP",
               availability:
-                normalizedProperty.status === "active"
+                property.status === "active"
                   ? "https://schema.org/InStock"
                   : "https://schema.org/OutOfStock",
             },
             address: {
               "@type": "PostalAddress",
-              addressLocality: [normalizedProperty.city, normalizedProperty.district, normalizedProperty.neighborhood]
+              addressLocality: [property.city, property.district, property.neighborhood]
                 .filter(Boolean)
                 .join(" · ") || undefined,
               addressCountry: "EG",
             },
-            floorSize: {
-              "@type": "QuantitativeValue",
-              value: normalizedProperty.area_m2,
-              unitCode: "MTK",
-            },
-            numberOfRooms: normalizedProperty.bedrooms,
-            numberOfBathroomsTotal: normalizedProperty.bathrooms,
+            ...(property.area_m2 != null
+              ? {
+                  floorSize: {
+                    "@type": "QuantitativeValue",
+                    value: property.area_m2,
+                    unitCode: "MTK",
+                  },
+                }
+              : {}),
+            ...(property.bedrooms != null ? { numberOfRooms: property.bedrooms } : {}),
+            ...(property.bathrooms != null ? { numberOfBathroomsTotal: property.bathrooms } : {}),
           }),
         }}
       />
-      <PropertyDetailClient locale={locale} property={normalizedProperty} images={[]} />
+      <PropertyDetailClient locale={locale} property={property} />
     </Suspense>
   );
 }
