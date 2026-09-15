@@ -1,41 +1,73 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Building2 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { useAuthUser } from "@/hooks/useAuthUser";
-import { useLocale, useTranslations } from "@/lib/i18n/client";
+import { Building2, ArrowRight } from "lucide-react";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { createClient } from "@/lib/supabase/client";
+import { getMessages } from "@/i18n/getMessages";
+import { usePageLocale } from "@/hooks/usePageLocale";
+import { logger } from "@/lib/logger";
 
-export default function LoginClient() {
-  const locale = useLocale();
-  const dict = useTranslations();
-  const { login } = useAuthUser();
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_LOGIN_ATTEMPTS = 5;
+
+interface RateLimitResponse { allowed: boolean; remaining: number; retryAfter: number; locked?: boolean; error?: string; }
+
+export default function LoginClient({ params }: { params: { locale: string } }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
+  const locale = usePageLocale(params);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const dict = getMessages(locale);
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
-    const result = await login(email, password);
-    setLoading(false);
+  const checkRateLimit = useCallback(async () => {
+    try {
+      const response = await fetch("/api/auth/rate-limit", { method: "POST", headers: { "Content-Type": "application/json" } });
+      const data: RateLimitResponse = await response.json();
+      if (!data.allowed) { setAttemptsRemaining(0); setError(data.error || dict.common.rateLimitExceeded.replace("{{minutes}}", String(Math.ceil(data.retryAfter / 60)))); return false; }
+      setAttemptsRemaining(data.remaining); return true;
+    } catch (err) {
+      logger.error("Rate limit check failed", { error: err instanceof Error ? err.message : String(err) });
+      return true;
+    }
+  }, [dict.common.rateLimitExceeded]);
 
-    if (!result.success) {
-      setError(result.error ?? dict.common.unexpectedError);
-      setAttemptsRemaining(null);
-      return;
+  useEffect(() => { checkRateLimit(); }, [checkRateLimit]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); setLoading(true); setError("");
+    if (!email.trim()) { setError(dict.auth.emailRequired || dict.auth.loginError); setLoading(false); return; }
+    if (!EMAIL_REGEX.test(email)) { setError(dict.auth.emailInvalid || dict.auth.loginError); setLoading(false); return; }
+    if (!(await checkRateLimit())) { setLoading(false); return; }
+
+    const supabase = createClient();
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError) {
+      if (authError.message.includes("Email not confirmed") || authError.message.includes("email not verified")) {
+        setError(dict.auth.emailNotVerified); setLoading(false); return;
+      }
+      if (!(await checkRateLimit())) { setError(dict.common.rateLimitLocked); setAttemptsRemaining(0); }
+      else { setError(dict.auth.loginError); setAttemptsRemaining(Math.max(0, (attemptsRemaining || MAX_LOGIN_ATTEMPTS) - 1)); }
+      setLoading(false); return;
     }
 
-    setAttemptsRemaining(null);
-    const params = new URLSearchParams(window.location.search);
-    const next = params.get("next");
-    const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
-    window.location.assign(safeNext || `/${locale}/explore`);
+    if (!data.user) { setError(dict.auth.loginError); setLoading(false); return; }
+    if (!data.user.email_confirmed_at) {
+      await supabase.auth.signOut(); setError(dict.auth.emailNotVerified); setLoading(false); return;
+    }
+
+    // Auth identity is authoritative. Business-role routing stays fail-closed
+    // until a verified `auth.users` -> public.people mapping exists.
+    const nextParam = searchParams.get("next");
+    router.push(nextParam && nextParam.startsWith("/") ? nextParam : `/${locale}/explore`);
+    setLoading(false);
   };
 
   return (
