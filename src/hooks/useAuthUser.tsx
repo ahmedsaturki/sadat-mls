@@ -165,7 +165,7 @@ export function useAuth() {
     }
   }, []);
 
-  const register = useCallback(async (userData: z.infer<typeof authSchemas.register>) => {
+  const register = async (userData: z.infer<typeof authSchemas.register>) => {
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       const result = authSchemas.register.safeParse(userData);
@@ -215,7 +215,7 @@ export function useAuth() {
       setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
       return { success: false, error: errorMessage };
     }
-  }, []);
+  };
 
   const logout = useCallback(async () => {
     try {
