@@ -1,18 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 
-export type LandingProperty = {
-  id: string;
-  title: string | null;
-  description: string | null;
-  price: number | null;
-  area_m2: number | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  property_type: string | null;
-  status: string | null;
-  city: string | null;
-  district: string | null;
-  neighborhood: string | null;
+export type LandingProperty = Pick<
+  Database["public"]["Tables"]["properties"]["Row"],
+  | "id"
+  | "title"
+  | "description"
+  | "price"
+  | "area_m2"
+  | "bedrooms"
+  | "bathrooms"
+  | "property_type"
+  | "status"
+  | "city"
+  | "district"
+  | "neighborhood"
+> & {
   primaryImage: string | null;
 };
 
@@ -25,6 +28,8 @@ interface LandingData {
 
 const FEATURED_COLUMNS =
   "id, title, description, price, area_m2, bedrooms, bathrooms, property_type, status, city, district, neighborhood";
+
+type FeaturedRow = Omit<LandingProperty, "primaryImage">;
 
 function sanitizeSearchTerm(value: string): string {
   return value.trim().replace(/[%,()]/g, " ").replace(/\s+/g, " ");
@@ -39,7 +44,8 @@ export async function getLandingData(searchQuery?: string): Promise<LandingData>
       .select(FEATURED_COLUMNS)
       .eq("status", "active")
       .order("created_at", { ascending: false })
-      .limit(6);
+      .limit(6)
+      .overrideTypes<FeaturedRow[], { merge: false }>();
 
     if (searchQuery && searchQuery.trim().length > 0) {
       const q = sanitizeSearchTerm(searchQuery);
@@ -56,7 +62,7 @@ export async function getLandingData(searchQuery?: string): Promise<LandingData>
     if (propertiesError) throw propertiesError;
     if (propertiesCountRes.error) throw propertiesCountRes.error;
 
-    const featured = (properties ?? []).map((property) => ({
+    const featured: LandingProperty[] = (properties ?? []).map((property) => ({
       ...property,
       primaryImage: null,
     }));
