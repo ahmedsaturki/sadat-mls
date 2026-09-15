@@ -8,28 +8,36 @@ export async function POST(request: NextRequest) {
 
   const rate = await checkAuthRateLimit(`login:${ip}`);
 
+  if (rate.unavailable) {
+    logger.error("Login rate limiting unavailable", { ip });
+    return NextResponse.json(
+      { error: "Rate limiting temporarily unavailable", retryAfter: rate.retryAfter },
+      { status: 503, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } },
+    );
+  }
+
   if (!rate.allowed) {
     logger.warn("Login rate limit exceeded", { ip });
     return NextResponse.json(
-      { 
+      {
         error: "Too many login attempts",
         retryAfter: rate.retryAfter,
-        locked: true
+        locked: true,
       },
-      { 
-        status: 429, 
+      {
+        status: 429,
         headers: rate.headers || {
           "Retry-After": String(rate.retryAfter),
           "X-RateLimit-Remaining": String(rate.remaining),
-          "X-RateLimit-Reset": String(Math.ceil(Date.now() / 1000) + rate.retryAfter)
-        }
-      }
+          "X-RateLimit-Reset": String(Math.ceil(Date.now() / 1000) + rate.retryAfter),
+        },
+      },
     );
   }
 
   return NextResponse.json({
     allowed: true,
     remaining: rate.remaining,
-    retryAfter: 0
+    retryAfter: 0,
   });
 }
