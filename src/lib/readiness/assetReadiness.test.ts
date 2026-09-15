@@ -49,6 +49,26 @@ describe("evaluateAssetReadiness", () => {
     expect(isHigherRiskState(result.state)).toBe(true);
   });
 
+  it("does not reject from stale evidence", () => {
+    const result = evaluateAssetReadiness({
+      ...base,
+      rejectionEvidence: true,
+      staleCriticalEvidence: true,
+    });
+    expect(result.state).toBe("STALE");
+    expect(result.hardBlockers).toContain("Critical evidence is stale or availability is uncertain.");
+  });
+
+  it("does not reject when a critical contradiction is unresolved", () => {
+    const result = evaluateAssetReadiness({
+      ...base,
+      rejectionEvidence: true,
+      unresolvedCriticalContradictions: true,
+    });
+    expect(result.state).toBe("BLOCKED");
+    expect(result.hardBlockers).toContain("Unresolved critical source contradiction exists.");
+  });
+
   it("keeps an asset in screening when critical evidence is missing", () => {
     const result = evaluateAssetReadiness({ ...base, authorityEvidence: false });
     expect(result.state).toBe("SCREENING");
