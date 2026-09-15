@@ -17,6 +17,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:install": "playwright install",
     "security-audit": "node scripts/security-audit.js",
+    "contract:check": "node scripts/contract-check.js",
     "db:gen-types": "supabase gen types typescript --local > src/lib/supabase/types.auto.ts || supabase gen types typescript > src/lib/supabase/types.auto.ts"
   },
   "dependencies": {
@@ -27,7 +28,7 @@
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "isomorphic-dompurify": "^3.18.0",
-    "leaflet": "^1.9.4",
+    "leaflet": "^1.9.0",
     "lucide-react": "^0.263.1",
     "next": "^16.2.10",
     "next-intl": "^4.0.1",
