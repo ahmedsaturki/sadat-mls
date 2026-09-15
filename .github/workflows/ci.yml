@@ -35,9 +35,10 @@ jobs:
       - name: Install Supabase CLI
         run: npm install -g supabase
       - name: Generate TypeScript types from schema
-        run: npx supabase gen types typescript --schema public > src/lib/supabase/types.auto.ts
+        run: npx supabase gen types typescript --project-id "$SUPABASE_PROJECT_ID" --schema public > src/lib/supabase/types.auto.ts
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
       - name: Check for type drift
         run: |
           if ! diff -q src/lib/supabase/types.ts src/lib/supabase/types.auto.ts > /dev/null 2>&1; then
