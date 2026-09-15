@@ -123,27 +123,27 @@ export default async function LandingPage({
                 {dict.landing.viewAll} <ArrowLeft className="w-4 h-4 rtl:rotate-180 inline-block" />
               </Link>
             </div>
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-               {data.properties.map((property) => (
-                 <PropertyCard
-                   key={property.id}
-                   id={property.id}
-                   title={property.title}
-                   price={property.price}
-                   area={property.area}
-                   bedrooms={property.bedrooms}
-                   bathrooms={property.bathrooms}
-                   zone={typedLocale === "ar" ? property.zones?.name_ar : property.zones?.name_en}
-                   imageUrl={property.primaryImage || undefined}
-                   status={property.status}
-                   officeName={property.offices?.name || ""}
-                   locale={typedLocale}
-                   type={typedLocale === "ar" ? property.property_types?.name_ar : property.property_types?.name_en}
-                   userId={userId}
-                   dict={dict}
-                 />
-               ))}
-             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {data.properties.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  id={property.id}
+                  title={property.title ?? "Property"}
+                  price={property.price}
+                  area={property.area_m2}
+                  bedrooms={property.bedrooms}
+                  bathrooms={property.bathrooms}
+                  zone={[property.city, property.district, property.neighborhood].filter(Boolean).join(" · ") || null}
+                  imageUrl={property.primaryImage || undefined}
+                  status={property.status}
+                  officeName=""
+                  locale={typedLocale}
+                  type={property.property_type}
+                  userId={userId}
+                  dict={dict}
+                />
+              ))}
+            </div>
           </div>
         </section>
       )}
@@ -155,7 +155,7 @@ export default async function LandingPage({
               <div className="w-12 h-12 bg-navy-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                 <Building2 className="w-6 h-6 text-navy-600" aria-hidden="true" />
               </div>
-              <div className="text-4xl font-bold text-navy-600 mb-2">{data.officesCount}+</div>
+              <div className="text-4xl font-bold text-navy-600 mb-2">{data.officesCount ?? "—"}</div>
               <div className="text-gray-600">{dict.landing.officesCount}</div>
             </div>
             <div className="p-6 rounded-2xl bg-green-50">
@@ -169,7 +169,7 @@ export default async function LandingPage({
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                 <MapPin className="w-6 h-6 text-purple-600" aria-hidden="true" />
               </div>
-              <div className="text-4xl font-bold text-purple-600 mb-2">{data.zonesCount}</div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">{data.zonesCount ?? "—"}</div>
               <div className="text-gray-600">{dict.landing.zonesCount}</div>
             </div>
             <div className="p-6 rounded-2xl bg-orange-50">
