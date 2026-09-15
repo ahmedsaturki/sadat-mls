@@ -37,6 +37,7 @@ export type AssetReadinessInput = {
   comparableEvidence: boolean;
   freshnessEvidence: boolean;
   promotionIntegrity: boolean;
+  ddHandoffReady: boolean;
   unresolvedCriticalContradictions: boolean;
   staleCriticalEvidence: boolean;
   evidence: readonly EvidenceItem[];
@@ -88,9 +89,10 @@ export function evaluateAssetReadiness(input: AssetReadinessInput): AssetReadine
     input.comparableEvidence,
     input.freshnessEvidence,
     input.promotionIntegrity,
+    input.ddHandoffReady,
   ].filter(Boolean).length;
 
-  const score = Math.round((weightedPasses / 7) * 100) / 100;
+  const score = Math.round((weightedPasses / 8) * 100) / 100;
 
   if (!input.identityKnown) {
     reasons.push("Asset identity is not sufficiently established.");
@@ -126,6 +128,11 @@ export function evaluateAssetReadiness(input: AssetReadinessInput): AssetReadine
   if (!input.comparableEvidence) {
     reasons.push("Comparable-market evidence is insufficient or unavailable.");
     return { state: "MARKET_READY", score, hardBlockers, missingCritical, reasons };
+  }
+
+  if (input.ddHandoffReady) {
+    reasons.push("Internal evidence package is complete enough for professional DD handoff.");
+    return { state: "DD_READY", score, hardBlockers, missingCritical, reasons };
   }
 
   reasons.push("Critical readiness conditions are evidenced and no hard blocker remains.");
