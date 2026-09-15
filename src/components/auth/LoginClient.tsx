@@ -1,73 +1,41 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
-import { Building2, ArrowRight } from "lucide-react";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import { createClient } from "@/lib/supabase/client";
-import { getMessages } from "@/i18n/getMessages";
-import { usePageLocale } from "@/hooks/usePageLocale";
-import { logger } from "@/lib/logger";
+import { ArrowRight, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { useAuthUser } from "@/hooks/useAuthUser";
+import { useLocale, useTranslations } from "@/lib/i18n/client";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_LOGIN_ATTEMPTS = 5;
-
-interface RateLimitResponse { allowed: boolean; remaining: number; retryAfter: number; locked?: boolean; error?: string; }
-
-export default function LoginClient({ params }: { params: { locale: string } }) {
+export default function LoginClient() {
+  const locale = useLocale();
+  const dict = useTranslations();
+  const { login } = useAuthUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
-  const locale = usePageLocale(params);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const dict = getMessages(locale);
 
-  const checkRateLimit = useCallback(async () => {
-    try {
-      const response = await fetch("/api/auth/rate-limit", { method: "POST", headers: { "Content-Type": "application/json" } });
-      const data: RateLimitResponse = await response.json();
-      if (!data.allowed) { setAttemptsRemaining(0); setError(data.error || dict.common.rateLimitExceeded.replace("{{minutes}}", String(Math.ceil(data.retryAfter / 60)))); return false; }
-      setAttemptsRemaining(data.remaining); return true;
-    } catch (err) {
-      logger.error("Rate limit check failed", { error: err instanceof Error ? err.message : String(err) });
-      return true;
-    }
-  }, [dict.common.rateLimitExceeded]);
-
-  useEffect(() => { checkRateLimit(); }, [checkRateLimit]);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true); setError("");
-    if (!email.trim()) { setError(dict.auth.emailRequired || dict.auth.loginError); setLoading(false); return; }
-    if (!EMAIL_REGEX.test(email)) { setError(dict.auth.emailInvalid || dict.auth.loginError); setLoading(false); return; }
-    if (!(await checkRateLimit())) { setLoading(false); return; }
-
-    const supabase = createClient();
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError) {
-      if (authError.message.includes("Email not confirmed") || authError.message.includes("email not verified")) {
-        setError(dict.auth.emailNotVerified); setLoading(false); return;
-      }
-      if (!(await checkRateLimit())) { setError(dict.common.rateLimitLocked); setAttemptsRemaining(0); }
-      else { setError(dict.auth.loginError); setAttemptsRemaining(Math.max(0, (attemptsRemaining || MAX_LOGIN_ATTEMPTS) - 1)); }
-      setLoading(false); return;
-    }
-
-    if (!data.user) { setError(dict.auth.loginError); setLoading(false); return; }
-    if (!data.user.email_confirmed_at) {
-      await supabase.auth.signOut(); setError(dict.auth.emailNotVerified); setLoading(false); return;
-    }
-
-    // Auth identity is authoritative. Business-role routing stays fail-closed
-    // until a verified `auth.users` -> public.people mapping exists.
-    const nextParam = searchParams.get("next");
-    router.push(nextParam && nextParam.startsWith("/") ? nextParam : `/${locale}/explore`);
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    const result = await login(email, password);
     setLoading(false);
+
+    if (!result.success) {
+      setError(result.error ?? dict.common.unexpectedError);
+      setAttemptsRemaining(null);
+      return;
+    }
+
+    setAttemptsRemaining(null);
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get("next");
+    const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+    window.location.assign(safeNext || `/${locale}/explore`);
   };
 
   return (
@@ -85,9 +53,8 @@ export default function LoginClient({ params }: { params: { locale: string } }) 
           <div className="flex items-center gap-3 mb-6"><div className="w-12 h-12 bg-navy-100 rounded-xl flex items-center justify-center"><Building2 className="w-6 h-6 text-navy-600" aria-hidden="true" /></div><div><h1 className="text-2xl font-bold text-gray-900">{dict.common.login}</h1><p className="text-sm text-gray-500">{dict.common.appName}</p></div></div>
           {error && <div className="mb-4 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm" role="alert">{error}</div>}
           <form onSubmit={handleLogin} className="space-y-5">
-            <Input label={dict.auth.email} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
-            <Input label={dict.auth.password} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
-            {attemptsRemaining !== null && <p className="text-xs text-gray-500">{attemptsRemaining} {dict.auth.attemptsRemaining}</p>}
+            <Input label={dict.auth.emailLabel} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+            <Input label={dict.auth.passwordLabel} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
             <Button type="submit" className="w-full" disabled={loading}>{loading ? dict.common.loading : dict.common.login}</Button>
           </form>
         </div>
