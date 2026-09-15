@@ -18,6 +18,16 @@ const contactSchema = z.object({
   message: z.string().trim().min(1).max(1000),
 });
 
+type ContactRow = {
+  person_id: string;
+  contact_type: string;
+  value: string;
+  normalized_value: string;
+  is_primary: boolean;
+  verified: boolean;
+  confidence: number;
+};
+
 export async function POST(request: NextRequest) {
   const csrfValid = await validateCsrfToken(request);
   if (!csrfValid) return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
@@ -89,8 +99,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to create contact request" }, { status: 500 });
     }
 
-    const contactRows = [
-      data.visitorEmail && {
+    const contactRows: ContactRow[] = [];
+    if (data.visitorEmail) {
+      contactRows.push({
         person_id: person.id,
         contact_type: "email",
         value: data.visitorEmail,
@@ -98,8 +109,10 @@ export async function POST(request: NextRequest) {
         is_primary: data.contactType === "email",
         verified: false,
         confidence: 1,
-      },
-      data.visitorPhone && {
+      });
+    }
+    if (data.visitorPhone) {
+      contactRows.push({
         person_id: person.id,
         contact_type: data.contactType === "whatsapp" ? "whatsapp" : "phone",
         value: data.visitorPhone,
@@ -107,8 +120,8 @@ export async function POST(request: NextRequest) {
         is_primary: data.contactType !== "email",
         verified: false,
         confidence: 1,
-      },
-    ].filter(Boolean);
+      });
+    }
 
     if (contactRows.length) {
       const { error: contactsError } = await supabase.from("contacts").insert(contactRows);
