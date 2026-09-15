@@ -23,19 +23,18 @@ export default async function ExplorePage({
   const { data: properties, count, error } = await supabase
     .from("properties")
     .select(PROPERTY_COLUMNS, { count: "exact" })
+    .overrideTypes<AqaratProperty[], { merge: false }>()
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .range(0, PAGE_SIZE - 1);
 
   if (error) console.error("Failed to load Aqarat OS properties:", error.message);
 
-  const initialProperties = (properties ?? []) as AqaratProperty[];
-
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <AqaratExploreClient
         params={{ locale }}
-        initialProperties={initialProperties}
+        initialProperties={properties ?? []}
         initialCount={count ?? 0}
       />
     </Suspense>
