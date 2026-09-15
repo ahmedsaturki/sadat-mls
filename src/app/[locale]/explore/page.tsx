@@ -23,8 +23,8 @@ export default async function ExplorePage({
   const { data: properties, count, error } = await supabase
     .from("properties")
     .select(PROPERTY_COLUMNS, { count: "exact" })
-    .overrideTypes<AqaratProperty[], { merge: false }>()
     .eq("status", "active")
+    .overrideTypes<AqaratProperty[], { merge: false }>()
     .order("created_at", { ascending: false })
     .range(0, PAGE_SIZE - 1);
 
