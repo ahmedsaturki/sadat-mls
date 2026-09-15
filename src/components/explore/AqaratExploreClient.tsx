@@ -5,44 +5,13 @@ import { useSearchParams } from "next/navigation";
 import { ArrowUpDown, Search, X } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 import { createClient } from "@/lib/supabase/client";
+import type { AqaratPropertyRow } from "@/lib/supabase/aqarat-types";
 import { logger } from "@/lib/logger";
 import PropertyCard from "@/components/properties/PropertyCard";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-type TransactionType = "sale" | "rent" | "both" | "unknown";
-type PropertyStatus = "active" | "inactive" | "sold" | "rented" | "archived" | "unknown";
-
-export interface AqaratProperty {
-  id: string;
-  title: string | null;
-  description: string | null;
-  property_type: string | null;
-  transaction_type: TransactionType;
-  status: PropertyStatus;
-  city: string | null;
-  district: string | null;
-  neighborhood: string | null;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  area_m2: number | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  floor: string | null;
-  finishing: string | null;
-  price: number | null;
-  currency: string | null;
-  features: Record<string, unknown> | null;
-  confidence: number | null;
-  first_seen_at: string;
-  last_seen_at: string;
-  created_at: string;
-  updated_at: string;
-  parcel_number: number | null;
-  installments_clear: boolean | null;
-  canonical_key: string | null;
-}
+export type AqaratProperty = AqaratPropertyRow;
 
 interface Props {
   params: { locale: string };
@@ -106,7 +75,7 @@ export default function AqaratExploreClient({ params, initialProperties, initial
 
       const { data, count: nextCount, error: queryError } = await query.range(0, 47);
       if (queryError) throw queryError;
-      setProperties((data ?? []) as AqaratProperty[]);
+      setProperties(data ?? []);
       setCount(nextCount ?? 0);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Unknown error";
