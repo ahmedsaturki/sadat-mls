@@ -63,7 +63,7 @@ describe("rateLimit", () => {
     expect(result.headers["X-RateLimit-Limit"]).toBe("100");
     expect(mockRpc).toHaveBeenCalledWith(
       "increment_security_rate_limit",
-      expect.objectContaining({ p_action: "test-ip", p_ip: "test-ip" }),
+      expect.objectContaining({ p_action: "test-ip", p_ip: "0.0.0.0" }),
     );
   });
 
