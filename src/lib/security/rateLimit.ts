@@ -4,11 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { logger } from "@/lib/logger";
 
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-const CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
-const ROW_RETENTION_MS = 60 * 60 * 1000;
-let lastCleanupTime = 0;
-
 export class RateLimitError extends Error {
   constructor(
     message: string,
@@ -71,12 +66,7 @@ function sanitizeIpForInet(ip: string): string {
   return ipv4.test(ip) || ipv6.test(ip) || ipv6Mapped.test(ip) ? ip : "0.0.0.0";
 }
 
-function buildResult(
-  count: number,
-  maxRequests: number,
-  resetTime: number,
-  retryAfter: number,
-) {
+function buildResult(count: number, maxRequests: number, resetTime: number, retryAfter: number) {
   return {
     allowed: count <= maxRequests,
     remaining: Math.max(0, maxRequests - count),
@@ -91,7 +81,7 @@ function buildResult(
   };
 }
 
-async function upsertRateLimitCount(action: string, ip: string, windowStart: Date): Promise<number> {
+async function incrementRateLimit(action: string, ip: string, windowStart: Date): Promise<number> {
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase.rpc("increment_security_rate_limit", {
     p_action: action,
@@ -104,53 +94,34 @@ async function upsertRateLimitCount(action: string, ip: string, windowStart: Dat
     throw error;
   }
 
-  if (typeof data !== "number") {
-    throw new Error("Rate limit database returned an invalid count");
-  }
-
+  if (typeof data !== "number") throw new Error("Rate limit database returned an invalid count");
   return data;
 }
 
 async function cleanupOldRateLimitState(): Promise<void> {
-  const now = Date.now();
-  if (now - lastCleanupTime < CLEANUP_INTERVAL_MS) return;
-  lastCleanupTime = now;
-
-  try {
-    const supabase = createServiceRoleClient();
-    await supabase
-      .from("security_rate_limits")
-      .delete()
-      .lt("window_start", new Date(now - ROW_RETENTION_MS).toISOString());
-  } catch (error) {
-    logger.warn("Rate limit cleanup failed", {
-      error: error instanceof Error ? error.message : String(error),
-    });
+  const supabase = createServiceRoleClient();
+  const cutoff = new Date(Date.now() - 60 * 60 * 1000);
+  const { error } = await supabase
+    .from("security_rate_limits")
+    .delete()
+    .lt("window_start", cutoff.toISOString());
+  if (error) {
+    logger.warn("Rate limit cleanup failed", { error: error.message });
   }
 }
 
-async function hybridRateLimitCheck(key: string, windowMs: number, maxRequests: number) {
+async function databaseRateLimitCheck(key: string, windowMs: number, maxRequests: number) {
   const now = Date.now();
   const windowStart = calculateWindowStart(windowMs);
   const resetTime = windowStart.getTime() + windowMs;
-  const record = rateLimitStore.get(key);
+  const count = await incrementRateLimit(
+    extractActionFromKey(key),
+    extractIpFromKey(key),
+    windowStart,
+  );
 
-  if (record && now <= record.resetTime) {
-    record.count++;
-    return {
-      count: record.count,
-      resetTime: record.resetTime,
-      retryAfter: Math.ceil((record.resetTime - now) / 1000),
-    };
-  }
-
-  const action = extractActionFromKey(key);
-  const ip = extractIpFromKey(key);
-  const count = await upsertRateLimitCount(action, ip, windowStart);
-  rateLimitStore.set(key, { count, resetTime });
-  void cleanupOldRateLimitState();
-
-  return { count, resetTime, retryAfter: Math.ceil((resetTime - now) / 1000) };
+  if (Math.random() < 0.01) void cleanupOldRateLimitState();
+  return { count, resetTime, retryAfter: Math.max(1, Math.ceil((resetTime - now) / 1000)) };
 }
 
 function getRequestKey(request: NextRequest): string {
@@ -167,18 +138,10 @@ function getRequestKey(request: NextRequest): string {
   return "unknown";
 }
 
-export async function rateLimitMiddleware(
-  request: NextRequest,
-  config: RateLimitConfig,
-): Promise<NextResponse | null> {
+export async function rateLimitMiddleware(request: NextRequest, config: RateLimitConfig): Promise<NextResponse | null> {
   try {
     const key = config.keyGenerator ? config.keyGenerator(request) : getRequestKey(request);
-    const { count, resetTime, retryAfter } = await hybridRateLimitCheck(
-      key,
-      config.windowMs,
-      config.maxRequests,
-    );
-
+    const { count, resetTime, retryAfter } = await databaseRateLimitCheck(key, config.windowMs, config.maxRequests);
     const headers: Record<string, string> = {
       "X-RateLimit-Remaining": Math.max(0, config.maxRequests - count).toString(),
       "X-RateLimit-Reset": resetTime.toString(),
@@ -190,22 +153,23 @@ export async function rateLimitMiddleware(
       headers["RateLimit-Remaining"] = Math.max(0, config.maxRequests - count).toString();
       headers["RateLimit-Reset"] = Math.ceil(resetTime / 1000).toString();
     }
-
     if (config.standardHeaders === "draft-7") {
       headers["RateLimit-Duration"] = Math.ceil(config.windowMs / 1000).toString();
     }
-
     if (config.legacyHeaders) headers["Retry-After"] = retryAfter.toString();
 
     if (count > config.maxRequests) {
-      const errorMessage = config.message || `Rate limit exceeded. Try again in ${retryAfter} seconds.`;
       if (config.errorResponse) return config.errorResponse(request, { remaining: 0, resetTime });
       return NextResponse.json(
-        { error: "Too many requests", message: errorMessage, i18nKey: "rateLimited", i18nParams: { seconds: retryAfter } },
+        {
+          error: "Too many requests",
+          message: config.message || `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+          i18nKey: "rateLimited",
+          i18nParams: { seconds: retryAfter },
+        },
         { status: 429, headers },
       );
     }
-
     return null;
   } catch (error) {
     logger.error("Rate limiting unavailable; failing closed", {
@@ -219,8 +183,7 @@ export async function rateLimitMiddleware(
 }
 
 export function createSecureRateLimitMiddleware(riskLevel: RateLimitRiskLevel = RateLimitRiskLevel.MEDIUM) {
-  const config = RateLimitRiskConfigs[riskLevel];
-  return (request: NextRequest) => rateLimitMiddleware(request, config);
+  return (request: NextRequest) => rateLimitMiddleware(request, RateLimitRiskConfigs[riskLevel]);
 }
 
 export async function superAdminRateLimitMiddleware(request: NextRequest): Promise<NextResponse | null> {
@@ -233,12 +196,11 @@ export async function superAdminRateLimitMiddleware(request: NextRequest): Promi
 }
 
 export function clearRateLimitStore(): void {
-  rateLimitStore.clear();
+  // Retained for API/test compatibility; rate-limit decisions are DB-authoritative.
 }
 
-export function getRateLimitStatus(key: string, limit = 30) {
-  const record = rateLimitStore.get(key);
-  return record ? { count: record.count, resetTime: record.resetTime, limit } : null;
+export function getRateLimitStatus(_key: string, _limit = 30): null {
+  return null;
 }
 
 export function createRateLimitMiddleware(config: RateLimitConfig) {
@@ -253,7 +215,7 @@ export async function checkApiRateLimit(
   const windowMs = options?.windowMs || 60000;
   const maxRequests = options?.maxRequests || 100;
   try {
-    const { count, resetTime, retryAfter } = await hybridRateLimitCheck(key, windowMs, maxRequests);
+    const { count, resetTime, retryAfter } = await databaseRateLimitCheck(key, windowMs, maxRequests);
     return buildResult(count, maxRequests, resetTime, retryAfter);
   } catch (error) {
     logger.error("API rate limit unavailable; failing closed", {
@@ -267,12 +229,12 @@ export async function checkAuthRateLimit(
   key: string,
   options?: { windowMs?: number; maxRequests?: number },
 ) {
-  return checkApiRateLimit(key, undefined, { windowMs: options?.windowMs || 60000, maxRequests: options?.maxRequests || 10 });
+  return checkApiRateLimit(key, undefined, {
+    windowMs: options?.windowMs || 60000,
+    maxRequests: options?.maxRequests || 10,
+  });
 }
 
-export async function checkRateLimit(
-  key: string,
-  options?: { windowMs?: number; maxRequests?: number },
-) {
+export async function checkRateLimit(key: string, options?: { windowMs?: number; maxRequests?: number }) {
   return checkApiRateLimit(key, "medium", options);
 }
