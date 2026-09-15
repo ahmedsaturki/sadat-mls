@@ -16,19 +16,23 @@ export type PropertyForComparison = {
   primaryImage: string | null;
 };
 
-type RawPropertyRow = {
+type AqaratComparisonRow = {
   id: string;
-  title: string;
+  title: string | null;
   description: string | null;
   price: number | null;
-  area: number | null;
+  area_m2: number | null;
   bedrooms: number | null;
   bathrooms: number | null;
-  status: string;
-  property_types: { name_ar: string; name_en: string }[] | null;
-  zones: { name_ar: string; name_en: string }[] | null;
-  offices: { name: string }[] | null;
+  property_type: string | null;
+  status: string | null;
+  city: string | null;
+  district: string | null;
+  neighborhood: string | null;
 };
+
+const COMPARISON_COLUMNS =
+  "id, title, description, price, area_m2, bedrooms, bathrooms, property_type, status, city, district, neighborhood";
 
 export async function getPropertyByIds(ids: string[]): Promise<PropertyForComparison[]> {
   if (ids.length === 0) return [];
@@ -38,60 +42,28 @@ export async function getPropertyByIds(ids: string[]): Promise<PropertyForCompar
 
     const { data: properties, error } = await supabase
       .from("properties")
-      .select(
-        `
-        id,
-        title,
-        description,
-        price,
-        area,
-        bedrooms,
-        bathrooms,
-        status,
-        property_types!property_types_id(name_ar, name_en),
-        zones!properties_zone_id_fkey(name_ar, name_en),
-        offices!properties_office_id_fkey(name)
-      `
-      )
+      .select(COMPARISON_COLUMNS)
       .in("id", ids)
-      .eq("status", "available")
-      .eq("is_active", true);
+      .eq("status", "active")
+      .overrideTypes<AqaratComparisonRow[], { merge: false }>();
 
     if (error) throw error;
 
-    const rawRows = (properties || []) as unknown as RawPropertyRow[];
-
-    const { data: images, error: imagesError } = await supabase
-      .from("property_images")
-      .select("property_id, url")
-      .in("property_id", ids)
-      .eq("is_primary", true);
-
-    if (imagesError) throw imagesError;
-
-    const imageMap = new Map<string, string>(
-      (images || []).map((img) => [img.property_id, img.url])
-    );
-
-    return rawRows.map((prop) => {
-      const typeRow = prop.property_types?.[0] ?? null;
-      const zoneRow = prop.zones?.[0] ?? null;
-      const officeRow = prop.offices?.[0] ?? null;
-      return {
-        id: prop.id,
-        title: prop.title,
-        description: prop.description,
-        price: prop.price,
-        area: prop.area,
-        bedrooms: prop.bedrooms ?? 0,
-        bathrooms: prop.bathrooms ?? 0,
-        zone: zoneRow?.name_ar || zoneRow?.name_en || null,
-        type: typeRow?.name_ar || typeRow?.name_en || null,
-        officeName: officeRow?.name || null,
-        status: prop.status,
-        primaryImage: imageMap.get(prop.id) || null,
-      };
-    });
+    return (properties ?? []).map((prop) => ({
+      id: prop.id,
+      title: prop.title ?? "Property",
+      description: prop.description,
+      price: prop.price,
+      area: prop.area_m2,
+      bedrooms: prop.bedrooms ?? 0,
+      bathrooms: prop.bathrooms ?? 0,
+      zone: [prop.district, prop.neighborhood].filter(Boolean).join(" · ") || null,
+      type: prop.property_type,
+      // Aqarat OS currently has no authoritative office/media relation in the property contract.
+      officeName: null,
+      status: prop.status,
+      primaryImage: null,
+    }));
   } catch (err) {
     logger.error("Error fetching properties for comparison", {
       error: err instanceof Error ? err.message : "Unknown",
