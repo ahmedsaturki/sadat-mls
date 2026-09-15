@@ -175,7 +175,7 @@ export default function PropertyDetailClient({ locale, property }: PropertyDetai
               <div className="grid sm:grid-cols-2 gap-3 text-sm border-t border-gray-100 pt-4">
                 {property.property_type && <p><span className="text-gray-500">{dict.property.typeLabel}: </span><span className="font-medium text-gray-900">{property.property_type}</span></p>}
                 {property.floor && <p><span className="text-gray-500">{dict.property.floorsLabel}: </span><span className="font-medium text-gray-900">{property.floor}</span></p>}
-                {property.finishing && <p><span className="text-gray-500">{dict.property.finishing}: </span><span className="font-medium text-gray-900">{property.finishing}</span></p>}
+                {property.finishing && <p><span className="text-gray-500">Finishing: </span><span className="font-medium text-gray-900">{property.finishing}</span></p>}
                 {property.address && <p><span className="text-gray-500">{dict.common.address}: </span><span className="font-medium text-gray-900">{property.address}</span></p>}
               </div>
             </div>
