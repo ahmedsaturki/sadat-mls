@@ -4,35 +4,38 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { UserRole } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
-import type { Database } from "@/lib/supabase/types";
 
 export interface AuthUser {
   user: { id: string } | null;
-  /**
-   * Business profile is intentionally unavailable until an authoritative
-   * auth.users -> people mapping exists in the Aqarat OS schema.
-   * Returning null is fail-closed for protected role-gated flows.
-   */
   profile: {
     id: string;
     email: string | null;
     full_name: string | null;
-    role: UserRole;
+    role: UserRole | null;
     office_id: string | null;
   } | null;
-  supabase: ReturnType<typeof createServerClient<Database>>;
+  supabase: ReturnType<typeof createServerClient>;
 }
 
-/**
- * Get the authenticated Supabase identity for server-side rendering.
- *
- * IMPORTANT: Aqarat OS separates authentication identity from business
- * entities. The legacy public.users table is not part of the live contract,
- * and no authoritative auth.users -> people mapping has been proven yet.
- */
+function mapAuthProfile(authUser: {
+  id: string;
+  email?: string | null;
+  user_metadata?: Record<string, unknown>;
+}) : AuthUser["profile"] {
+  const metadata = authUser.user_metadata ?? {};
+  return {
+    id: authUser.id,
+    email: authUser.email ?? null,
+    full_name: typeof metadata.full_name === "string" ? metadata.full_name : null,
+    // Authorization roles are intentionally not trusted from user-editable metadata.
+    role: null,
+    office_id: null,
+  };
+}
+
 export async function getServerAuth(): Promise<AuthUser> {
   const cookieStore = await cookies();
-  const supabase = createServerClient<Database>(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -53,13 +56,15 @@ export async function getServerAuth(): Promise<AuthUser> {
     },
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
+  if (error) logger.debug("[server-auth] getUser failed", { error: error.message });
 
-  // Deliberately fail closed until the database contains an authoritative
-  // mapping between auth identity and business-person identity/role.
-  const profile: AuthUser["profile"] = null;
-
-  return { user, profile, supabase };
+  const user = data.user;
+  return {
+    user: user ? { id: user.id } : null,
+    profile: user ? mapAuthProfile(user) : null,
+    supabase,
+  };
 }
 
 export async function getServerUser() {
@@ -73,7 +78,7 @@ export async function getServerProfile() {
 }
 
 export async function clearAuthCache() {
-  // No-op in serverless - each request is independent
+  // No-op in serverless; each request is independent.
 }
 
 export async function getAuthenticatedUser() {
@@ -83,15 +88,13 @@ export async function getAuthenticatedUser() {
 
 export async function requireAuth(redirectPath: string) {
   const { user, profile } = await getServerAuth();
-  if (!user) {
-    throw new Error(`REDIRECT:${redirectPath}`);
-  }
+  if (!user) throw new Error(`REDIRECT:${redirectPath}`);
   return { user, profile };
 }
 
 export async function requireRole(requiredRole: UserRole, redirectPath: string) {
   const { user, profile } = await requireAuth(redirectPath);
-  if (!profile || profile.role !== requiredRole) {
+  if (!profile?.role || profile.role !== requiredRole) {
     throw new Error(`REDIRECT:${redirectPath}`);
   }
   return { user, profile };
