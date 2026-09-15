@@ -106,7 +106,7 @@ export default function AqaratExploreClient({ params, initialProperties, initial
 
       const { data, count: nextCount, error: queryError } = await query.range(0, 47);
       if (queryError) throw queryError;
-      setProperties((data as AqaratProperty[] | null) ?? []);
+      setProperties((data as unknown as AqaratProperty[] | null) ?? []);
       setCount(nextCount ?? 0);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Unknown error";
@@ -248,7 +248,7 @@ export default function AqaratExploreClient({ params, initialProperties, initial
           </div>
         )}
       </section>
-      <Footer />
+      <Footer locale={locale} dict={dict} />
     </main>
   );
 }
