@@ -3,9 +3,9 @@
 /**
  * Deterministic guard for the Aqarat OS application contract.
  *
- * This intentionally fails while the known legacy runtime contract remains in
- * application source. The goal is to make schema drift explicit in CI instead
- * of allowing E2E to discover it indirectly.
+ * This intentionally fails while known legacy runtime contracts remain in
+ * application source. It detects runtime database usage, not incidental UI
+ * vocabulary such as a field label named "area".
  *
  * Do not add compatibility-table exceptions here. Migrate the caller instead.
  */
@@ -23,12 +23,9 @@ const legacyRelationPatterns = [
   /\.rpc\(["']increment_rate_limit["']/g,
 ];
 
-const legacyPropertyPatterns = [
-  /\.eq\(["']status["']\s*,\s*["']available["']\)/g,
-  /["'](?:is_active|zone_id|property_type_id|office_id|area|street)["']/g,
-];
-
-const forbiddenLegacyTypeFiles = new Set(["src/lib/supabase/types.ts"]);
+const legacyStatusPattern = /\.eq\(["']status["']\s*,\s*["']available["']\)/g;
+const legacyFieldPattern = /\.(?:select|eq|neq|gt|gte|lt|lte|in|order|match|contains)\([\s\S]{0,300}["'](?:is_active|zone_id|property_type_id|office_id|area|street)["']/g;
+const legacyTypePattern = /export\s+interface\s+Database\s*\{/g;
 
 function walk(dir) {
   const result = [];
@@ -54,18 +51,18 @@ function scanFile(file) {
     }
   }
 
-  for (const pattern of legacyPropertyPatterns) {
-    for (const match of text.matchAll(pattern)) {
-      findings.push({ file: relative, match: match[0], kind: "legacy property field/status" });
-    }
+  for (const match of text.matchAll(legacyStatusPattern)) {
+    findings.push({ file: relative, match: match[0], kind: "legacy property status" });
   }
 
-  if (forbiddenLegacyTypeFiles.has(relative)) {
-    findings.push({
-      file: relative,
-      match: "legacy Database interface",
-      kind: "legacy generated/manual database contract",
-    });
+  for (const match of text.matchAll(legacyFieldPattern)) {
+    findings.push({ file: relative, match: match[0], kind: "legacy property field" });
+  }
+
+  if (relative === "src/lib/supabase/types.ts") {
+    for (const match of text.matchAll(legacyTypePattern)) {
+      findings.push({ file: relative, match: match[0], kind: "legacy generated/manual database contract" });
+    }
   }
 
   return findings;
