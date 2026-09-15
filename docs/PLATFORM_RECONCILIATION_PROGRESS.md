@@ -25,6 +25,14 @@ The authoritative direction remains forward migration to the connected Aqarat OS
 - The deterministic `contract:check` remains enabled and intentionally fails while other legacy runtime callers elsewhere in the repository still exist.
 - A stale favorites unit test was removed after the corresponding legacy `FavoritesClient` surface was retired.
 - A retired export endpoint was corrected to import `NextResponse` from `next/server`.
+- Public contact submission was reconciled to the verified Aqarat `people` + `contacts` + `interactions` contract; the UI now submits through `/api/contact` instead of `contact_requests`.
+- Legacy admin/office dashboards and agent-management UI were retired until a verified Auth-to-people/organization mapping exists.
+- Legacy admin APIs for offices/users, office analytics, invitations, messages, notifications, offers, referrals, office registration, agents, offices, and legacy notification delivery were retired rather than reimplemented against invented compatibility tables.
+- Legacy city directory/selector surfaces were retired pending a verified Aqarat location contract.
+- Legacy favorites persistence was disabled at the UI boundary pending an authoritative favorite relation/workflow.
+- Legacy property write UI was disabled pending a verified Aqarat property write/media contract.
+- Generic legacy admin CRUD was disabled pending an authoritative Aqarat admin contract.
+- Legacy email/push/notification persistence helpers now fail closed while preserving their exported compatibility functions.
 
 ## Newly verified live database facts — 2026-09-15
 
@@ -34,15 +42,15 @@ The live `properties` relation was re-verified with the Aqarat fields used by th
 
 ## Verification boundary
 
-PR #14 remains open and draft. The latest branch work is intentionally not production-certified. CI run #326 failed at the schema-contract guard and typecheck, and the typecheck rerun is being used to separate stale legacy-surface errors from genuine Aqarat contract issues. No green-branch claim is made until the current verification completes.
+PR #14 remains open and draft. The latest cleanup is being verified by CI run #369 and subsequent runs triggered by newer branch commits. No green-branch claim is made until the current verification completes.
 
 ## Current architectural blockers
 
 1. Business authorization mapping between Supabase Auth identity and `public.people` is not yet persisted or proven. Current role-gated flows therefore fail closed.
-2. Favorites still reference `property_favorites`; no authoritative Aqarat replacement has been proven.
+2. Favorites still lack an authoritative Aqarat replacement.
 3. Property imagery/media still lack a verified Aqarat media/storage persistence contract; presentation is decoupled but persistence remains pending.
 4. Manual/checked-in type usage and generated live types must be reconciled so the checked-in artifact represents the authoritative database contract without legacy relations.
-5. Broad admin, analytics, notifications, invitations, saved-searches, offers, office, developer, and project paths still contain legacy callers and need contract-by-contract migration or explicit retirement.
+5. Remaining core/runtime callers must be eliminated or migrated as the current CI schema-contract scan identifies them.
 6. Rate limiting requires semantic reconciliation between the two verified live primitives, not schema recreation.
 
 ## Safety rules
