@@ -148,6 +148,16 @@ export default function AqaratExploreClient({ params, initialProperties, initial
               <p className="mt-1 text-sm text-gray-500">{count} active properties from the authoritative property contract.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <label className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
+                <span className="text-gray-400">{locale === "ar" ? "ترتيب" : "Sort"}</span>
+                <ArrowUpDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                <select aria-label={locale === "ar" ? "ترتيب" : "Sort"} value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="bg-transparent outline-none">
+                  <option value="newest">{locale === "ar" ? "الأحدث" : "Newest"}</option>
+                  <option value="price_low">{locale === "ar" ? "السعر الأقل" : "Lowest price"}</option>
+                  <option value="price_high">{locale === "ar" ? "السعر الأعلى" : "Highest price"}</option>
+                  <option value="area">{locale === "ar" ? "المساحة" : "Largest area"}</option>
+                </select>
+              </label>
               {hasFilters && (
                 <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-2 text-sm text-gray-600 hover:bg-gray-200">
                   <X className="h-4 w-4" aria-hidden="true" />
@@ -186,7 +196,7 @@ export default function AqaratExploreClient({ params, initialProperties, initial
               <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <label className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
                   <Search className="h-4 w-4 text-gray-400" aria-hidden="true" />
-                  <input value={queryText} onChange={(event) => setQueryText(event.target.value)} placeholder={locale === "ar" ? "ابحث" : "Search"} className="w-full bg-transparent text-sm outline-none" />
+                  <input type="text" value={queryText} onChange={(event) => setQueryText(event.target.value)} placeholder={locale === "ar" ? "ابحث" : "Search"} className="w-full bg-transparent text-sm outline-none" />
                 </label>
                 <select value={propertyType} onChange={(event) => setPropertyType(event.target.value)} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
                   <option value="">{locale === "ar" ? "كل الأنواع" : "All types"}</option>
@@ -196,16 +206,6 @@ export default function AqaratExploreClient({ params, initialProperties, initial
                   <option value="">{locale === "ar" ? "كل المناطق" : "All districts"}</option>
                   {districts.map((item) => <option key={item} value={item}>{item}</option>)}
                 </select>
-                <label className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
-                  <span className="text-gray-400">{locale === "ar" ? "ترتيب" : "Sort"}</span>
-                  <ArrowUpDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
-                  <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="w-full bg-transparent outline-none">
-                    <option value="newest">{locale === "ar" ? "الأحدث" : "Newest"}</option>
-                    <option value="price_low">{locale === "ar" ? "السعر الأقل" : "Lowest price"}</option>
-                    <option value="price_high">{locale === "ar" ? "السعر الأعلى" : "Highest price"}</option>
-                    <option value="area">{locale === "ar" ? "المساحة" : "Largest area"}</option>
-                  </select>
-                </label>
               </div>
 
               {showAdvancedFilters && (
