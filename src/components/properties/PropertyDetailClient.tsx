@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState, Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import Link from "next/link";
-import { ArrowRight, Bed, Bath, Maximize, MapPin, Share2, ChevronLeft, DoorOpen, ParkingCircle, Accessibility } from "lucide-react";
+import { Bed, Bath, Maximize, MapPin, Share2, ChevronLeft, DoorOpen, ParkingCircle, Accessibility } from "lucide-react";
 import { type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import { formatPrice } from "@/lib/utils/cn";
@@ -10,8 +10,6 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import PropertyGallery from "@/components/properties/PropertyGallery";
-import PropertyLightbox from "@/components/properties/PropertyLightbox";
 
 const PropertyReportButton = lazy(() => import("@/components/properties/PropertyReportButton"));
 
@@ -49,20 +47,9 @@ export interface AqaratPropertyDetail {
   canonical_key: string | null;
 }
 
-interface PropertyImage {
-  id: string;
-  property_id: string;
-  url: string;
-  file_path: string | null;
-  sort_order: number;
-  is_primary: boolean;
-  created_at: string;
-}
-
 interface PropertyDetailClientProps {
   locale: string;
   property: AqaratPropertyDetail;
-  images: PropertyImage[];
 }
 
 function statusVariant(status: PropertyStatus): "success" | "danger" | "warning" {
@@ -79,16 +66,22 @@ function featureItems(property: AqaratPropertyDetail, dict: ReturnType<typeof ge
   return items.filter((item) => features[item.key] === true);
 }
 
-export default function PropertyDetailClient({ locale, property, images }: PropertyDetailClientProps) {
+export default function PropertyDetailClient({ locale, property }: PropertyDetailClientProps) {
   const typedLocale = locale as Locale;
   const dict = getMessages(typedLocale);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showLightbox, setShowLightbox] = useState(false);
+  const title = property.title ?? "Property";
+  const location = [property.city, property.district, property.neighborhood].filter(Boolean).join(" · ");
+  const features = featureItems(property, dict);
+  const reportReady =
+    property.price != null &&
+    property.area_m2 != null &&
+    property.bedrooms != null &&
+    property.bathrooms != null;
 
   const handleShare = async () => {
     try {
       if (navigator.share) {
-        await navigator.share({ title: property.title ?? "Property", text: property.description ?? undefined, url: window.location.href });
+        await navigator.share({ title, text: property.description ?? undefined, url: window.location.href });
       } else {
         await navigator.clipboard.writeText(window.location.href);
       }
@@ -97,19 +90,11 @@ export default function PropertyDetailClient({ locale, property, images }: Prope
     }
   };
 
-  const navigateImage = useCallback((direction: "prev" | "next") => {
-    if (images.length <= 1) return;
-    setCurrentImageIndex((prev) => direction === "prev"
-      ? (prev === 0 ? images.length - 1 : prev - 1)
-      : (prev === images.length - 1 ? 0 : prev + 1));
-  }, [images.length]);
-
-  const location = [property.city, property.district, property.neighborhood].filter(Boolean).join(" · ");
-  const features = featureItems(property, dict);
-
   return (
     <main className="min-h-screen bg-gray-50" id="property-content">
-      <a href="#property-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2">{dict.common.skipToContent}</a>
+      <a href="#property-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-white focus:px-4 focus:py-2">
+        {dict.common.skipToContent}
+      </a>
       <Navbar locale={typedLocale} dict={dict} />
 
       <div className="bg-white border-b border-gray-200 mt-16">
@@ -119,7 +104,7 @@ export default function PropertyDetailClient({ locale, property, images }: Prope
             <ChevronLeft className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
             <Link href={`/${locale}/explore`} className="hover:text-gray-900">{dict.nav.explore}</Link>
             <ChevronLeft className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
-            <span className="text-gray-900 font-medium truncate max-w-[220px]">{property.title ?? "Property"}</span>
+            <span className="text-gray-900 font-medium truncate max-w-[220px]">{title}</span>
           </nav>
         </div>
       </div>
@@ -127,19 +112,14 @@ export default function PropertyDetailClient({ locale, property, images }: Prope
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <PropertyGallery
-              images={images}
-              currentIndex={currentImageIndex}
-              onIndexChange={setCurrentImageIndex}
-              onOpenLightbox={() => setShowLightbox(true)}
-              propertyTitle={property.title ?? "Property"}
-              dict={dict}
-            />
+            <div className="aspect-video bg-gray-100 rounded-xl flex items-center justify-center" aria-label="Property media unavailable">
+              <Maximize className="w-16 h-16 text-gray-300" aria-hidden="true" />
+            </div>
 
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{property.title ?? "Property"}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
                   {location && (
                     <div className="flex items-center gap-2 mt-2">
                       <MapPin className="w-4 h-4 text-gray-500" aria-hidden="true" />
@@ -153,7 +133,7 @@ export default function PropertyDetailClient({ locale, property, images }: Prope
               </div>
 
               <p className="text-3xl font-bold text-navy-600 mb-6">
-                {property.price != null ? formatPrice(property.price) : dict.common.notAvailable}
+                {property.price != null ? formatPrice(property.price) : "—"}
               </p>
 
               <div className="grid grid-cols-3 gap-4 mb-6">
@@ -194,9 +174,9 @@ export default function PropertyDetailClient({ locale, property, images }: Prope
 
               <div className="grid sm:grid-cols-2 gap-3 text-sm border-t border-gray-100 pt-4">
                 {property.property_type && <p><span className="text-gray-500">{dict.property.typeLabel}: </span><span className="font-medium text-gray-900">{property.property_type}</span></p>}
-                {property.floor && <p><span className="text-gray-500">{dict.property.floorLabel}: </span><span className="font-medium text-gray-900">{property.floor}</span></p>}
-                {property.finishing && <p><span className="text-gray-500">{dict.property.finishingLabel}: </span><span className="font-medium text-gray-900">{property.finishing}</span></p>}
-                {property.address && <p><span className="text-gray-500">{dict.property.addressLabel}: </span><span className="font-medium text-gray-900">{property.address}</span></p>}
+                {property.floor && <p><span className="text-gray-500">{dict.property.floorsLabel}: </span><span className="font-medium text-gray-900">{property.floor}</span></p>}
+                {property.finishing && <p><span className="text-gray-500">{dict.property.finishing}: </span><span className="font-medium text-gray-900">{property.finishing}</span></p>}
+                {property.address && <p><span className="text-gray-500">{dict.common.address}: </span><span className="font-medium text-gray-900">{property.address}</span></p>}
               </div>
             </div>
           </div>
@@ -207,37 +187,31 @@ export default function PropertyDetailClient({ locale, property, images }: Prope
                 <Share2 className="w-4 h-4 ms-2" />
                 {dict.property.share}
               </Button>
-              <Suspense fallback={null}>
-                <PropertyReportButton
-                  property={{
-                    title: property.title ?? "Property",
-                    description: property.description ?? undefined,
-                    price: property.price ?? undefined,
-                    area: property.area_m2 ?? undefined,
-                    bedrooms: property.bedrooms ?? undefined,
-                    bathrooms: property.bathrooms ?? undefined,
-                    status: property.status,
-                    zone: location || undefined,
-                    type: property.property_type ?? undefined,
-                  }}
-                  locale={typedLocale}
-                  dict={{ common: dict.common } as unknown as { common: Record<string, string> }}
-                />
-              </Suspense>
+              {reportReady && (
+                <Suspense fallback={null}>
+                  <PropertyReportButton
+                    property={{
+                      title,
+                      description: property.description ?? undefined,
+                      price: property.price!,
+                      area: property.area_m2!,
+                      bedrooms: property.bedrooms!,
+                      bathrooms: property.bathrooms!,
+                      status: property.status,
+                      zone: location || undefined,
+                      type: property.property_type ?? undefined,
+                    }}
+                    locale={typedLocale}
+                    dict={{ common: dict.common } as unknown as { common: Record<string, string> }}
+                  />
+                </Suspense>
+              )}
             </div>
           </aside>
         </div>
       </div>
 
       <Footer locale={typedLocale} dict={dict} />
-      <PropertyLightbox
-        images={images}
-        currentIndex={currentImageIndex}
-        isOpen={showLightbox}
-        onClose={() => setShowLightbox(false)}
-        onNavigate={navigateImage}
-        propertyTitle={property.title ?? "Property"}
-      />
     </main>
   );
 }
