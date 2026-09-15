@@ -1,15 +1,16 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 import { getMessages } from "@/i18n/getMessages";
 import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
-import type { Metadata } from "next";
-import PropertyDetailClient from "@/components/properties/PropertyDetailClient";
+import PropertyDetailClient, { type AqaratPropertyDetail } from "@/components/properties/PropertyDetailClient";
 
-export const revalidate = 3600; // ISR: revalidate every 1 hour
+export const revalidate = 3600;
 
-const PROPERTY_COLUMNS = "id, title, description, property_type_id, zone_id, street, price, area, bedrooms, bathrooms, floors, has_balcony, has_parking, has_elevator, status, is_active, office_id, created_at, property_types(name_ar, name_en), zones(name_ar, name_en), offices(name, phone, email)";
+const PROPERTY_COLUMNS =
+  "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, confidence, first_seen_at, last_seen_at, created_at, updated_at, parcel_number, installments_clear, canonical_key";
 
 export async function generateMetadata({
   params,
@@ -21,33 +22,25 @@ export async function generateMetadata({
 
   const dict = getMessages(locale as Locale);
   const supabase = await createClient();
-
   const { data: property } = await supabase
     .from("properties")
-    .select("title, description, zones(name_ar, name_en), property_types(name_ar, name_en)")
+    .select("title, description, city, district, neighborhood")
     .eq("id", id)
     .maybeSingle();
 
-  if (!property) {
-    return { title: dict.property.notFound };
-  }
+  if (!property) return { title: dict.property.notFound };
 
-  // Supabase may return arrays or objects for joined tables depending on config
-  const zones = property.zones as unknown as { name_ar: string; name_en: string | null } | null;
-  const types = property.property_types as unknown as { name_ar: string; name_en: string | null } | null;
-  const zoneName = locale === "ar" ? zones?.name_ar : (zones?.name_en || zones?.name_ar);
-  const desc = property.description || `${property.title} - ${zoneName || ""}`;
+  const location = [property.city, property.district, property.neighborhood].filter(Boolean).join(" · ");
+  const description = property.description || `${property.title}${location ? ` - ${location}` : ""}`;
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
 
   return {
     title: property.title,
-    description: desc,
-    alternates: {
-      canonical: `${baseUrl}/${locale}/explore/${id}`,
-    },
+    description,
+    alternates: { canonical: `${baseUrl}/${locale}/explore/${id}` },
     openGraph: {
       title: property.title,
-      description: desc,
+      description,
       type: "website",
       locale: locale === "ar" ? "ar_EG" : "en_US",
       url: `${baseUrl}/${locale}/explore/${id}`,
@@ -61,33 +54,20 @@ export default async function PropertyDetailPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale, id } = await params;
-
-  if (!isValidLocale(locale as Locale)) {
-    notFound();
-  }
+  if (!isValidLocale(locale as Locale)) notFound();
 
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(id)) {
-    notFound();
-  }
+  if (!uuidRegex.test(id)) notFound();
 
   const dict = getMessages(locale as Locale);
   const supabase = await createClient();
+  const { data: property, error } = await supabase
+    .from("properties")
+    .select(PROPERTY_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
 
-  const [propertyResult, imagesResult] = await Promise.all([
-    supabase
-      .from("properties")
-      .select(PROPERTY_COLUMNS)
-      .eq("id", id)
-      .maybeSingle(),
-    supabase
-      .from("property_images")
-      .select("id, property_id, url, file_path, sort_order, is_primary, created_at")
-      .eq("property_id", id)
-      .order("sort_order"),
-  ]);
-
-  if (!propertyResult.data) {
+  if (error || !property) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -98,78 +78,75 @@ export default async function PropertyDetailPage({
     );
   }
 
-  // Normalize joined tables: Supabase may return arrays or objects for single selects
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const raw = propertyResult.data as any;
-  const normalizedProperty = {
-    ...raw,
-    property_types: Array.isArray(raw.property_types) ? (raw.property_types[0] || null) : raw.property_types,
-    zones: Array.isArray(raw.zones) ? (raw.zones[0] || null) : raw.zones,
-    offices: Array.isArray(raw.offices) ? (raw.offices[0] || null) : raw.offices,
+  const normalizedProperty: AqaratPropertyDetail = {
+    id: property.id,
+    title: property.title,
+    description: property.description,
+    property_type: property.property_type,
+    transaction_type: property.transaction_type as AqaratPropertyDetail["transaction_type"],
+    status: property.status as AqaratPropertyDetail["status"],
+    city: property.city,
+    district: property.district,
+    neighborhood: property.neighborhood,
+    address: property.address,
+    latitude: property.latitude,
+    longitude: property.longitude,
+    area_m2: property.area_m2,
+    bedrooms: property.bedrooms,
+    bathrooms: property.bathrooms,
+    floor: property.floor,
+    finishing: property.finishing,
+    price: property.price,
+    currency: property.currency,
+    features: property.features as Record<string, unknown> | null,
+    confidence: property.confidence,
+    first_seen_at: property.first_seen_at,
+    last_seen_at: property.last_seen_at,
+    created_at: property.created_at,
+    updated_at: property.updated_at,
+    parcel_number: property.parcel_number,
+    installments_clear: property.installments_clear,
+    canonical_key: property.canonical_key,
   };
 
-  // Record view analytics (fire-and-forget, server-side)
-  const { createServiceRoleClient } = await import("@/lib/supabase/service-role");
-  const serviceRole = createServiceRoleClient();
-  serviceRole
-    .from("property_analytics")
-    .insert({
-      property_id: id,
-      office_id: raw.office_id,
-      event_type: "view",
-    })
-    .then(() => {}, () => {});
-
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-navy-200 border-t-navy-600 rounded-full animate-spin" />
-      </div>
-    }>
-      {/* JSON-LD Structured Data for SEO */}
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: sanitizeJsonLd({
             "@context": "https://schema.org",
             "@type": "RealEstateListing",
-            name: raw.title,
-            description: raw.description || "",
+            name: normalizedProperty.title,
+            description: normalizedProperty.description || "",
             url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.vercel.app"}/${locale}/explore/${id}`,
             offers: {
               "@type": "Offer",
-              price: raw.price,
-              priceCurrency: "EGP",
-              availability: raw.status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              price: normalizedProperty.price,
+              priceCurrency: normalizedProperty.currency || "EGP",
+              availability:
+                normalizedProperty.status === "active"
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/OutOfStock",
+            },
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: [normalizedProperty.city, normalizedProperty.district, normalizedProperty.neighborhood]
+                .filter(Boolean)
+                .join(" · ") || undefined,
+              addressCountry: "EG",
             },
             floorSize: {
               "@type": "QuantitativeValue",
-              value: raw.area,
+              value: normalizedProperty.area_m2,
               unitCode: "MTK",
             },
-            numberOfRooms: raw.bedrooms,
-            numberOfBathroomsTotal: raw.bathrooms,
-            ...(normalizedProperty.zones ? {
-              address: {
-                "@type": "PostalAddress",
-                addressLocality: locale === "ar" ? normalizedProperty.zones.name_ar : (normalizedProperty.zones.name_en || normalizedProperty.zones.name_ar),
-                addressCountry: "EG",
-              },
-            } : {}),
-            ...(normalizedProperty.offices ? {
-              seller: {
-                "@type": "RealEstateAgent",
-                name: normalizedProperty.offices.name,
-              },
-            } : {}),
+            numberOfRooms: normalizedProperty.bedrooms,
+            numberOfBathroomsTotal: normalizedProperty.bathrooms,
           }),
         }}
       />
-      <PropertyDetailClient
-        locale={locale}
-        property={normalizedProperty}
-        images={imagesResult.data || []}
-      />
+      <PropertyDetailClient locale={locale} property={normalizedProperty} images={[]} />
     </Suspense>
   );
 }
