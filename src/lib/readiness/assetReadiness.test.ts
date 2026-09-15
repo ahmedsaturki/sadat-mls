@@ -15,6 +15,7 @@ describe("evaluateAssetReadiness", () => {
     comparableEvidence: true,
     freshnessEvidence: true,
     promotionIntegrity: true,
+    ddHandoffReady: false,
     unresolvedCriticalContradictions: false,
     staleCriticalEvidence: false,
     evidence: [],
@@ -23,8 +24,17 @@ describe("evaluateAssetReadiness", () => {
   it("returns negotiation-ready for a complete, non-conflicted asset", () => {
     const result = evaluateAssetReadiness(base);
     expect(result.state).toBe("NEGOTIATION_READY");
-    expect(result.score).toBe(1);
+    expect(result.score).toBe(0.875);
     expect(result.hardBlockers).toHaveLength(0);
+  });
+
+  it("returns DD_READY only when the internal handoff gate is explicit", () => {
+    const result = evaluateAssetReadiness({ ...base, ddHandoffReady: true });
+    expect(result.state).toBe("DD_READY");
+    expect(result.score).toBe(1);
+    expect(result.reasons).toContain(
+      "Internal evidence package is complete enough for professional DD handoff.",
+    );
   });
 
   it("keeps an asset in screening when critical evidence is missing", () => {
