@@ -3,11 +3,17 @@ import { notFound } from "next/navigation";
 import { isValidLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/getMessages";
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 import ROICalculator from "@/components/investors/ROICalculator";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 export const revalidate = 3600;
+
+type ROIProperty = Pick<
+  Database["public"]["Tables"]["properties"]["Row"],
+  "id" | "title" | "price" | "area_m2" | "bedrooms" | "bathrooms"
+>;
 
 export async function generateMetadata({
   params,
@@ -41,14 +47,16 @@ export default async function ROICalculatorPage({
 
   const supabase = await createClient();
 
-  // Use only fields from the verified Aqarat OS properties contract.
-  // The calculator remains usable with manual assumptions for rent and rates.
-  const { data: properties } = await supabase
+  const propertyQuery = supabase
     .from("properties")
     .select("id, title, price, area_m2, bedrooms, bathrooms")
     .eq("status", "active")
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(50)
+    .overrideTypes<ROIProperty[], { merge: false }>();
+
+  const { data: properties, error } = await propertyQuery;
+  if (error) throw error;
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -59,11 +67,11 @@ export default async function ROICalculatorPage({
           dict={dict}
           properties={(properties || []).map((p) => ({
             id: p.id,
-            title: p.title || `Property ${p.id.slice(0, 8)}`,
-            price: Number(p.price) || 0,
-            area: Number(p.area_m2) || 0,
-            bedrooms: Number(p.bedrooms) || 0,
-            bathrooms: Number(p.bathrooms) || 0,
+            title: p.title ?? `Property ${p.id.slice(0, 8)}`,
+            price: p.price ?? 0,
+            area: p.area_m2 ?? 0,
+            bedrooms: p.bedrooms ?? 0,
+            bathrooms: p.bathrooms ?? 0,
           }))}
         />
       </div>
