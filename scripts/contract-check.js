@@ -24,7 +24,18 @@ const legacyRelationPatterns = [
 ];
 
 const legacyStatusPattern = /\.eq\(["']status["']\s*,\s*["']available["']\)/g;
-const legacyFieldPattern = /\.(?:select|eq|neq|gt|gte|lt|lte|in|order|match|contains)\([\s\S]{0,300}["'](?:is_active|zone_id|property_type_id|office_id|area|street)["']/g;
+const legacyPropertyFields = new Set([
+  "is_active",
+  "zone_id",
+  "property_type_id",
+  "office_id",
+  "area",
+  "street",
+]);
+
+// Match individual Supabase/PostgREST calls so a legitimate field such as
+// `area_m2` cannot be flagged merely because `area` appears elsewhere nearby.
+const dbCallPattern = /\.(?:select|eq|neq|gt|gte|lt|lte|in|order|match|contains)\((?:[^()'\"]|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')*\)/gs;
 const legacyTypePattern = /export\s+interface\s+Database\s*\{/g;
 
 function walk(dir) {
@@ -36,6 +47,25 @@ function walk(dir) {
     else if (EXTENSIONS.has(path.extname(entry.name))) result.push(absolute);
   }
   return result;
+}
+
+function exactLegacyFieldInCall(call) {
+  const stringLiterals = call.match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g) || [];
+
+  for (const literal of stringLiterals) {
+    const value = literal.slice(1, -1);
+
+    // For select("a, b, c"), compare comma-delimited field names exactly.
+    for (const field of value.split(",").map((part) => part.trim())) {
+      if (legacyPropertyFields.has(field)) return field;
+    }
+
+    // For filters such as eq("office_id", value), the first argument is an
+    // exact field token and should be checked directly.
+    if (legacyPropertyFields.has(value)) return value;
+  }
+
+  return null;
 }
 
 function scanFile(file) {
@@ -55,8 +85,11 @@ function scanFile(file) {
     findings.push({ file: relative, match: match[0], kind: "legacy property status" });
   }
 
-  for (const match of text.matchAll(legacyFieldPattern)) {
-    findings.push({ file: relative, match: match[0], kind: "legacy property field" });
+  for (const match of text.matchAll(dbCallPattern)) {
+    const legacyField = exactLegacyFieldInCall(match[0]);
+    if (legacyField) {
+      findings.push({ file: relative, match: match[0], kind: "legacy property field" });
+    }
   }
 
   if (relative === "src/lib/supabase/types.ts") {
