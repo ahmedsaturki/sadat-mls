@@ -57,25 +57,24 @@ function isValidIp(ip: string): boolean {
 }
 
 function splitRateLimitKey(key: string): { action: string; ip: string } {
-  const lastColon = key.lastIndexOf(":");
-  if (lastColon <= 0) return { action: key, ip: key };
+  // Keys use `action:ip`. Search every possible colon-delimited IP suffix so
+  // IPv6 addresses such as `::1` are kept intact without sacrificing support
+  // for actions that themselves contain colons.
+  for (let start = 1; start < key.length; start += 1) {
+    if (key[start] !== ":") continue;
 
-  // Prefer the rightmost valid IP suffix. This preserves action names that
-  // themselves contain colons while also handling IPv6 addresses such as ::1.
-  for (let separator = lastColon; separator > 0; separator = key.lastIndexOf(":", separator - 1)) {
-    const action = key.slice(0, separator);
-    const ip = key.slice(separator + 1);
-    if (isValidIp(ip)) return { action, ip };
+    const ipWithLeadingColon = key.slice(start);
+    if (isValidIp(ipWithLeadingColon)) {
+      return { action: key.slice(0, start - 1), ip: ipWithLeadingColon };
+    }
 
-    // IPv6 suffixes can begin with a colon (for example `:1` in `login::1`).
-    const ipv6Ip = key.slice(separator + 1 - 1);
-    if (isValidIp(ipv6Ip) && ipv6Ip.includes(":")) {
-      const ipv6Action = key.slice(0, separator - 1);
-      return { action: ipv6Action, ip: ipv6Ip };
+    const ipAfterDelimiter = key.slice(start + 1);
+    if (isValidIp(ipAfterDelimiter)) {
+      return { action: key.slice(0, start), ip: ipAfterDelimiter };
     }
   }
 
-  return { action: key.slice(0, lastColon), ip: key.slice(lastColon + 1) };
+  return { action: key, ip: key };
 }
 
 function extractIpFromKey(key: string): string {
