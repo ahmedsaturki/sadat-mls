@@ -1,5 +1,6 @@
 import "server-only";
 
+import { isIP } from "node:net";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { logger } from "@/lib/logger";
@@ -50,10 +51,7 @@ function calculateWindowStart(windowMs: number): Date {
 }
 
 function isValidIp(ip: string): boolean {
-  const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
-  const ipv6 = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
-  const ipv6Mapped = /^::(ffff:)?(\d{1,3}\.){3}\d{1,3}$/;
-  return ipv4.test(ip) || ipv6.test(ip) || ipv6Mapped.test(ip);
+  return isIP(ip) !== 0;
 }
 
 function splitRateLimitKey(key: string): { action: string; ip: string } {
