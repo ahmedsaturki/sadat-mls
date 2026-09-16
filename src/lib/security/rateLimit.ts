@@ -49,21 +49,45 @@ function calculateWindowStart(windowMs: number): Date {
   return new Date(Math.floor(Date.now() / windowMs) * windowMs);
 }
 
-function extractIpFromKey(key: string): string {
-  const lastColon = key.lastIndexOf(":");
-  return lastColon > 0 ? key.slice(lastColon + 1) : key;
-}
-
-function extractActionFromKey(key: string): string {
-  const lastColon = key.lastIndexOf(":");
-  return lastColon > 0 ? key.slice(0, lastColon) : key;
-}
-
-function sanitizeIpForInet(ip: string): string {
+function isValidIp(ip: string): boolean {
   const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
   const ipv6 = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
   const ipv6Mapped = /^::(ffff:)?(\d{1,3}\.){3}\d{1,3}$/;
-  return ipv4.test(ip) || ipv6.test(ip) || ipv6Mapped.test(ip) ? ip : "0.0.0.0";
+  return ipv4.test(ip) || ipv6.test(ip) || ipv6Mapped.test(ip);
+}
+
+function splitRateLimitKey(key: string): { action: string; ip: string } {
+  const lastColon = key.lastIndexOf(":");
+  if (lastColon <= 0) return { action: key, ip: key };
+
+  // Prefer the rightmost valid IP suffix. This preserves action names that
+  // themselves contain colons while also handling IPv6 addresses such as ::1.
+  for (let separator = lastColon; separator > 0; separator = key.lastIndexOf(":", separator - 1)) {
+    const action = key.slice(0, separator);
+    const ip = key.slice(separator + 1);
+    if (isValidIp(ip)) return { action, ip };
+
+    // IPv6 suffixes can begin with a colon (for example `:1` in `login::1`).
+    const ipv6Ip = key.slice(separator + 1 - 1);
+    if (isValidIp(ipv6Ip) && ipv6Ip.includes(":")) {
+      const ipv6Action = key.slice(0, separator - 1);
+      return { action: ipv6Action, ip: ipv6Ip };
+    }
+  }
+
+  return { action: key.slice(0, lastColon), ip: key.slice(lastColon + 1) };
+}
+
+function extractIpFromKey(key: string): string {
+  return splitRateLimitKey(key).ip;
+}
+
+function extractActionFromKey(key: string): string {
+  return splitRateLimitKey(key).action;
+}
+
+function sanitizeIpForInet(ip: string): string {
+  return isValidIp(ip) ? ip : "0.0.0.0";
 }
 
 function buildResult(count: number, maxRequests: number, resetTime: number, retryAfter: number) {
