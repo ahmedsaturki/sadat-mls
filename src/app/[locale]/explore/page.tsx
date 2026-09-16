@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { isValidLocale } from "@/i18n/config";
-import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 import AqaratExploreClient, { type AqaratProperty } from "@/components/explore/AqaratExploreClient";
 
 export const revalidate = 300;
@@ -19,22 +20,44 @@ export default async function ExplorePage({
   const { locale } = await params;
   if (!isValidLocale(locale)) notFound();
 
-  const supabase = await createClient();
-  const { data: properties, count, error } = await supabase
-    .from("properties")
-    .select(PROPERTY_COLUMNS, { count: "exact" })
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
-    .range(0, PAGE_SIZE - 1);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (error) console.error("Failed to load Aqarat OS properties:", error.message);
+  let properties: AqaratProperty[] = [];
+  let count = 0;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error("Failed to load Aqarat OS properties: service role configuration is missing");
+  } else {
+    const supabase = createSupabaseClient<Database>(supabaseUrl, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    });
+
+    const result = await supabase
+      .from("properties")
+      .select(PROPERTY_COLUMNS, { count: "exact" })
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .range(0, PAGE_SIZE - 1);
+
+    if (result.error) {
+      console.error("Failed to load Aqarat OS properties:", result.error.message);
+    } else {
+      properties = (result.data ?? []) as AqaratProperty[];
+      count = result.count ?? 0;
+    }
+  }
 
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <AqaratExploreClient
         params={{ locale }}
-        initialProperties={(properties ?? []) as AqaratProperty[]}
-        initialCount={count ?? 0}
+        initialProperties={properties}
+        initialCount={count}
       />
     </Suspense>
   );
