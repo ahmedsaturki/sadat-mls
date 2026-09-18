@@ -105,12 +105,8 @@ test.describe("Property Details Page", () => {
       await propertyLink.click();
       await page.waitForLoadState("domcontentloaded");
       const images = page.locator("img");
-      const placeholders = page.locator(
-        "[class*='placeholder'], [class*='skeleton']"
-      );
-      expect((await images.count()) + (await placeholders.count())).toBeGreaterThan(
-        0
-      );
+      const mediaFallback = page.getByRole("img", { name: "Property media unavailable" });
+      expect((await images.count()) + (await mediaFallback.count())).toBeGreaterThan(0);
     }
   });
 
