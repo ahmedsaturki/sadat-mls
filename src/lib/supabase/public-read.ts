@@ -2,14 +2,10 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 
-const SUPABASE_URL = "https://aaxauqznfhcvgevfczye.supabase.co";
-const VERIFIED_PUBLISHABLE_KEY =
-  "sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/public-config";
 
 export function createPublicReadClient() {
-  const publishableKey = VERIFIED_PUBLISHABLE_KEY;
-
-  return createClient<Database>(SUPABASE_URL, publishableKey, {
+  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
