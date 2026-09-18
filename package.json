@@ -18,7 +18,7 @@
     "test:e2e:install": "playwright install",
     "security-audit": "node scripts/security-audit.js",
     "contract:check": "node scripts/contract-check.js",
-    "db:gen-types": "supabase gen types typescript --local > src/lib/supabase/types.auto.ts || supabase gen types typescript > src/lib/supabase/types.auto.ts"
+    "db:gen-types": "npx --no-install supabase gen types typescript --local > src/lib/supabase/types.auto.ts || npx --no-install supabase gen types typescript > src/lib/supabase/types.auto.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.0.1",
@@ -54,7 +54,7 @@
     "@types/dompurify": "^3.0.5",
     "@types/leaflet": "^1.9.21",
     "@types/node": "26.1.1",
-    "@types/react": "19.2.17",
+    "@types/react": "^19.2.17",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "@vitejs/plugin-react": "^6.0.3",
