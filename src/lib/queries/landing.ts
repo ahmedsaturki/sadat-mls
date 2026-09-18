@@ -1,4 +1,4 @@
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { createPublicReadClient } from "@/lib/supabase/public-read";
 import type { Database } from "@/lib/supabase/types";
 
 export type LandingProperty = Pick<
@@ -26,9 +26,6 @@ interface LandingData {
   zonesCount: number | null;
 }
 
-const FEATURED_COLUMNS =
-  "id, title, description, price, area_m2, bedrooms, bathrooms, property_type, status, city, district, neighborhood";
-
 type FeaturedRow = Omit<LandingProperty, "primaryImage">;
 
 function sanitizeSearchTerm(value: string): string {
@@ -37,33 +34,18 @@ function sanitizeSearchTerm(value: string): string {
 
 export async function getLandingData(searchQuery?: string): Promise<LandingData> {
   try {
-    const supabase = createServiceRoleClient();
+    const supabase = createPublicReadClient();
+    const q = searchQuery?.trim() ? sanitizeSearchTerm(searchQuery) : null;
+    const { data, error } = await supabase.rpc("get_public_active_properties", {
+      p_query: q,
+      p_limit: 6,
+      p_offset: 0,
+      p_sort: "newest",
+    });
 
-    let propertiesQuery = supabase
-      .from("properties")
-      .select(FEATURED_COLUMNS)
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(6);
+    if (error) throw error;
 
-    if (searchQuery && searchQuery.trim().length > 0) {
-      const q = sanitizeSearchTerm(searchQuery);
-      propertiesQuery = propertiesQuery.or(
-        `title.ilike.%${q}%,description.ilike.%${q}%,district.ilike.%${q}%,neighborhood.ilike.%${q}%`,
-      );
-    }
-
-    const typedPropertiesQuery = propertiesQuery.overrideTypes<FeaturedRow[], { merge: false }>();
-
-    const [{ data: properties, error: propertiesError }, propertiesCountRes] = await Promise.all([
-      typedPropertiesQuery,
-      supabase.from("properties").select("id", { count: "exact", head: true }).eq("status", "active"),
-    ]);
-
-    if (propertiesError) throw propertiesError;
-    if (propertiesCountRes.error) throw propertiesCountRes.error;
-
-    const featured: LandingProperty[] = (properties ?? []).map((property) => ({
+    const featured: LandingProperty[] = (data ?? []).map((property) => ({
       ...property,
       primaryImage: null,
     }));
@@ -71,7 +53,7 @@ export async function getLandingData(searchQuery?: string): Promise<LandingData>
     return {
       properties: featured,
       officesCount: null,
-      propertiesCount: propertiesCountRes.count ?? 0,
+      propertiesCount: data?.[0]?.total_count ?? 0,
       zonesCount: null,
     };
   } catch {
