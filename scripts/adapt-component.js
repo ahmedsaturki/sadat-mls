@@ -39,7 +39,6 @@ if (!OUTPUT_NAME) {
 
 const OUTPUT_DIR = path.join(__dirname, "..", "src", "components", "ui");
 const OUTPUT_FILE = path.join(OUTPUT_DIR, `${OUTPUT_NAME}.tsx`);
-const COMPONENTS_FILE = path.join(__dirname, "..", "components.json");
 
 if (DRY_RUN) {
   console.log(`DRY-RUN: Would fetch component ${COMPONENT_ID}, transform it, and write ${path.relative(process.cwd(), OUTPUT_FILE)}.`);
@@ -147,13 +146,9 @@ try {
   fs.renameSync(tempFile, OUTPUT_FILE);
   console.log(`Adapted component written to ${OUTPUT_FILE}`);
 
-  if (fs.existsSync(COMPONENTS_FILE)) {
-    const components = JSON.parse(fs.readFileSync(COMPONENTS_FILE, "utf8"));
-    components.aliases = components.aliases || {};
-    components.aliases[`@${path.relative(path.join(__dirname, ".."), OUTPUT_FILE).replaceAll(path.sep, "/").replace(/\.tsx$/, "")}`] =
-      `@${path.relative(path.join(__dirname, ".."), OUTPUT_FILE).replaceAll(path.sep, "/").replace(/\.tsx$/, "")}`;
-    fs.writeFileSync(COMPONENTS_FILE, JSON.stringify(components, null, 2) + "\n", "utf8");
-  }
+  // components.json is a shadcn configuration file; generated component paths
+  // are already addressable through the existing `@/components/ui` alias.
+
 
   console.log("Adaptation complete.");
 } catch (error) {
