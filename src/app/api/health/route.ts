@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
-import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const runtime = "nodejs";
@@ -18,24 +17,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
     return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
   }
 
-  // Rate limiting to prevent DoS. A backend outage is surfaced as 503,
-  // while a real exhausted quota remains 429.
-  const rawIp = request.headers.get("x-forwarded-for") || "unknown";
-  const ip = rawIp.split(",")[0].trim();
-  const rate = await checkApiRateLimit(`health:${ip}`);
-  if (rate.unavailable) {
-    return NextResponse.json(
-      { error: "Rate limiting temporarily unavailable" },
-      { status: 503, headers: { "Retry-After": String(rate.retryAfter) } },
-    );
-  }
-  if (!rate.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests", status: "error", timestamp: new Date().toISOString(), checks: { supabase: "error" } },
-      { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } },
-    );
-  }
-
+  // Health checks must measure application dependencies directly.
+  // They intentionally bypass application request rate limiting so an operational
+  // database outage is not confused with a rate-limit subsystem outage.
   // Perform health checks
   const checks: HealthCheckResult["checks"] = { supabase: "error" };
   let healthy = false;
