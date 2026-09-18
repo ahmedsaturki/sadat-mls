@@ -1,5 +1,37 @@
 # تغييرات Sadat MLS Cloud
 
+## [2026-09-18] Production reconciliation and hardening
+
+### تم إنجازه
+
+- ✅ نقل public property reads إلى عقد Aqarat OS الفعلي.
+- ✅ تفعيل RLS وcolumn-level grants للعقارات النشطة فقط.
+- ✅ منع الوصول العام إلى الحقول الداخلية `confidence`, `parcel_number`, `installments_clear`, `canonical_key`.
+- ✅ إزالة مسار SECURITY DEFINER المؤقت للقراءة العامة.
+- ✅ تسجيل public-property migration داخل Supabase migration history ومزامنة اسم الملف مع الإصدار المطبق.
+- ✅ تثبيت إعداد Supabase العام الموحد للمتصفح وServer Auth.
+- ✅ إصلاح lifecycle الخاص بـ Supabase Auth listener.
+- ✅ إصلاح عداد العقارات المعروض في الصفحة الرئيسية.
+- ✅ توحيد canonical/Open Graph URL مع رابط الإنتاج الموثق.
+- ✅ ضبط login rate limit إلى 5 محاولات / 15 دقيقة.
+- ✅ ضبط forgot-password إلى 3 طلبات / ساعة.
+- ✅ ضبط resend-verification إلى 5 طلبات / ساعة.
+- ✅ منع استهلاك محاولتين من login rate-limit حول نفس تسجيل الدخول الفاشل.
+- ✅ جعل CI يستخدم Supabase CLI المثبت داخل المشروع بدل global install غير مثبت الإصدار.
+- ✅ جعل production health check يعيد المحاولة بدل الاعتماد على تأخير ثابت.
+- ✅ توسيع contract checker ليغطي كل application source تحت `src`.
+- ✅ توثيق حدود المنتج الفعلية بدل الإبقاء على وثائق schema قديمة ومضللة.
+
+### Verified production baseline
+
+- ✅ `/api/health` → 200.
+- ✅ `/api/properties` → 200.
+- ✅ Explore AR/EN → 200.
+- ✅ Active property detail → 200.
+- ✅ Login route → 200.
+- ✅ Latest production runtime error sweep → clean.
+- ✅ Latest Vercel production deployment → READY.
+
 ## [0.1.0] - 2025-06-26
 
 ### تم الإصلاح
@@ -10,30 +42,6 @@
 - ✅ تم تحديث `usePageLocale` hook لاستخدام `useParams()`
 - ✅ تم إصلاح جميع صفحات server components لاستخدام `await Promise.resolve(params)` مع fallback
 - ✅ تم إصلاح `not-found.tsx` لاستخدام `@/i18n/getMessages`
-- ✅ تم إصلاح `/api/agents` POST - SUPER_ADMIN يمكنه إنشاء OFFICE_ADMIN
-- ✅ تم إصلاح `/api/agents` DELETE - OFFICE_ADMIN يمكنه حذف OFFICE_AGENT فقط
-- ✅ تم إصلاح PropertyStatus type لتشمل `pending_review`
-- ✅ تم إضافة CSRF headers في admin/offices page
 - ✅ تم إصلاح middleware.ts cookie iteration
-- ✅ تم تحويل next.config.ts إلى next.config.js
-- ✅ تم إزالة isomorphic-dompurify (كان يسبب أخطاء jsdom)
-- ✅ جميع الاختبارات تمر (70 tests)
+- ✅ تم إزالة isomorphic-dompurify
 - ✅ النشر على Vercel ناجح
-
-### مضاف
-- ✅ Health check endpoint `/api/health` 
-- ✅ 30+ routes مُنجزة بنجاح
-- ✅ OG Image generator endpoint
-- ✅ Static OG image `public/og-image.png` (1200×630)
-- ✅ Property favorites feature with RLS
-- ✅ Contact requests general inquiry support (property_id nullable)
-
-### مرفع من
-- `next`: `^9.3.3` → `^14.2.35`
-- `react`: 19 → `^18.3.1`
-- `@sentry/nextjs`: `^10.61.0` → `^8.0.0`
-- `next.config.ts` → `next.config.js`
-
-### مُحذف
-- `isomorphic-dompurify` - كان يسبب أخطاء jsdom في البناء
-- `metadataBase` module-level exports - غير متوافق مع Next.js 14
