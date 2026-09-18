@@ -112,8 +112,13 @@ export default function PropertyDetailClient({ locale, property }: PropertyDetai
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <div className="aspect-video bg-gray-100 rounded-xl flex items-center justify-center" role="img" aria-label="Property media unavailable">
-              <Maximize className="w-16 h-16 text-gray-300" aria-hidden="true" />
+            <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden">
+              <img
+                src="/property-placeholder.svg"
+                alt="Property media unavailable"
+                className="h-full w-full object-cover"
+                loading="eager"
+              />
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow-sm">
