@@ -88,7 +88,7 @@ export default function LoginClient({ params }: { params: { locale: string } }) 
     }
 
     if (!password) {
-      setError(dict.auth.passwordRequired || dict.auth.loginError);
+      setError(dict.auth.loginError);
       setLoading(false);
       return;
     }
