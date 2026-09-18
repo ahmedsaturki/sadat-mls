@@ -89,6 +89,17 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
 
   if (supabaseUrl && publishableKey) {
+    let supabaseHostname = "invalid";
+    try {
+      supabaseHostname = new URL(supabaseUrl).hostname;
+    } catch {
+      supabaseHostname = "invalid";
+    }
+    logger.error("Supabase API health probe configuration", {
+      hostname: supabaseHostname,
+      hasPublishableKey: Boolean(publishableKey),
+      hasSecretKey: Boolean(process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY),
+    });
     try {
       const response = await fetch(`${supabaseUrl}/auth/v1/health`, {
         headers: { apikey: publishableKey },
@@ -106,7 +117,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
       logger.error("Supabase API health probe failed", describeError(error));
     }
   } else {
-    logger.error("Supabase API health probe skipped: public configuration missing");
+    logger.error("Supabase API health probe skipped: public configuration missing", {
+      hasUrl: Boolean(supabaseUrl),
+      hasPublishableKey: Boolean(publishableKey),
+    });
   }
 
   try {
