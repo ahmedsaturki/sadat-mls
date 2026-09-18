@@ -14,6 +14,14 @@ type PropertyMeta = Pick<
   "title" | "description" | "city" | "district" | "neighborhood"
 >;
 
+function getPublicSiteUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://sadat-mls.vercel.app"
+  ).replace(/\/+$/, "");
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -34,20 +42,25 @@ export async function generateMetadata({
 
   if (!property) return { title: dict.property.notFound };
 
-  const location = [property.city, property.district, property.neighborhood].filter(Boolean).join(" · ");
-  const description = property.description || `${property.title ?? "Property"}${location ? ` - ${location}` : ""}`;
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
+  const location = [property.city, property.district, property.neighborhood]
+    .filter(Boolean)
+    .join(" · ");
+  const description =
+    property.description ||
+    `${property.title ?? "Property"}${location ? ` - ${location}` : ""}`;
+  const baseUrl = getPublicSiteUrl();
+  const canonicalUrl = `${baseUrl}/${locale}/explore/${id}`;
 
   return {
     title: property.title ?? dict.property.notFound,
     description,
-    alternates: { canonical: `${baseUrl}/${locale}/explore/${id}` },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: property.title ?? dict.property.notFound,
       description,
       type: "website",
       locale: locale === "ar" ? "ar_EG" : "en_US",
-      url: `${baseUrl}/${locale}/explore/${id}`,
+      url: canonicalUrl,
     },
   };
 }
@@ -60,14 +73,17 @@ export default async function PropertyDetailPage({
   const { locale, id } = await params;
   if (!isValidLocale(locale as Locale)) notFound();
 
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) notFound();
 
   const dict = getMessages(locale as Locale);
   const supabase = createPublicReadClient();
   const { data: property, error } = await supabase
     .from("properties")
-    .select("id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, first_seen_at, last_seen_at, created_at, updated_at")
+    .select(
+      "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, first_seen_at, last_seen_at, created_at, updated_at",
+    )
     .eq("id", id)
     .eq("status", "active")
     .maybeSingle()
@@ -84,6 +100,9 @@ export default async function PropertyDetailPage({
     );
   }
 
+  const siteUrl = getPublicSiteUrl();
+  const propertyUrl = `${siteUrl}/${locale}/explore/${id}`;
+
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <script
@@ -94,7 +113,7 @@ export default async function PropertyDetailPage({
             "@type": "RealEstateListing",
             name: property.title ?? "Property",
             description: property.description || "",
-            url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://sadat-mls.vercel.app"}/${locale}/explore/${id}`,
+            url: propertyUrl,
             offers: {
               "@type": "Offer",
               ...(property.price != null ? { price: property.price } : {}),
