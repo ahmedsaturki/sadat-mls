@@ -1,186 +1,162 @@
 #!/usr/bin/env node
 /**
- * Adapt 21st.dev components into custom Tailwind v4 format
- * 
- * Usage: node scripts/adapt-component.js <component-id> <output-name> [--retry <count>] [--dry-run] [--force]
- * 
- * Example:
- *   node scripts/adapt-component.js 1323 CustomButton
- *   node scripts/adapt-component.js 64 ParticleButton --api-key $API_KEY_21ST
- * 
- * Features:
- *   --retry <count> : Retry failed API calls with exponential backoff (default: 3)
- *   --dry-run       : Skip actual file writes
- *   --force         : Skip idempotency check
- * 
- * This script:
- * 1. Fetches the component from 21st.dev using its ID
- * 2. Extracts the component code block
- * 3. Transforms shadcn.ui classes to your custom Tailwind v4 naming
- * 4. Writes the adapted component to src/components/ui/
- * 5. Updates components.json with the new component reference
+ * Adapt 21st.dev components into custom Tailwind v4 format.
+ *
+ * Usage:
+ *   node scripts/adapt-component.js <component-id> <output-name> [--retry <count>] [--api-key <key>] [--dry-run] [--force]
+ *
+ * Dry-run is strictly side-effect free: no network calls and no file writes.
  */
-require('dotenv').config();
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+require("dotenv").config();
 
-// Configuration
-const API_KEY = process.env.API_KEY_21ST;
-const COMPONENT_ID = process.argv[2];
-const OUTPUT_NAME = process.argv[3]?.replace(/^--/, '') || 'AdaptedComponent';
-const OUTPUT_DIR = path.join(__dirname, '..', 'src', 'components', 'ui');
-const TEMP_FILE = path.join(OUTPUT_DIR, `${OUTPUT_NAME}.tmp.tsx`);
-const OUTPUT_FILE = path.join(OUTPUT_DIR, `${OUTPUT_NAME}.tsx`);
+const { execFileSync } = require("node:child_process");
+const crypto = require("node:crypto");
+const fs = require("node:fs");
+const path = require("node:path");
 
-// Parse flags
-const retryArg = process.argv.indexOf('--retry');
-const RETRY_COUNT = retryArg !== -1 ? parseInt(process.argv[retryArg + 1]) || 3 : 3;
-const DRY_RUN = process.argv.includes('--dry-run');
-const FORCE = process.argv.includes('--force');
+const args = process.argv.slice(2);
 
-// Validate inputs
+function readOption(name) {
+  const index = args.indexOf(name);
+  return index === -1 ? null : args[index + 1] ?? null;
+}
+
+const COMPONENT_ID = args[0];
+const OUTPUT_NAME = (args[1] || "AdaptedComponent").replace(/^--/, "");
+const RETRY_COUNT = Math.max(1, Number.parseInt(readOption("--retry") || "3", 10) || 3);
+const API_KEY = readOption("--api-key") || process.env.API_KEY_21ST;
+const DRY_RUN = args.includes("--dry-run");
+const FORCE = args.includes("--force");
+
 if (!COMPONENT_ID) {
-  console.error('❌ Component ID is required');
+  console.error("Component ID is required");
   process.exit(1);
 }
 if (!OUTPUT_NAME) {
-  console.error('❌ Output component name is required');
+  console.error("Output component name is required");
   process.exit(1);
 }
 
-// Ensure API key is available for non-dry runs
-if (!API_KEY && !DRY_RUN) {
-  console.error('❌ API_KEY_21ST environment variable is not set');
-  console.error('Please create .env file with API_KEY_21ST=your-api-key');
+const OUTPUT_DIR = path.join(__dirname, "..", "src", "components", "ui");
+const OUTPUT_FILE = path.join(OUTPUT_DIR, `${OUTPUT_NAME}.tsx`);
+const COMPONENTS_FILE = path.join(__dirname, "..", "components.json");
+
+if (DRY_RUN) {
+  console.log(`DRY-RUN: Would fetch component ${COMPONENT_ID}, transform it, and write ${path.relative(process.cwd(), OUTPUT_FILE)}.`);
+  console.log(`DRY-RUN: Retry limit = ${RETRY_COUNT}; force = ${FORCE ? "yes" : "no"}.`);
+  process.exit(0);
+}
+
+if (!API_KEY) {
+  console.error("API_KEY_21ST environment variable or --api-key is required.");
   process.exit(1);
 }
 
-// Create output directory if it doesn't exist
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-// Helper function: sleep for backoff
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+const sleepSync = (milliseconds) => {
+  const buffer = new SharedArrayBuffer(4);
+  Atomics.wait(new Int32Array(buffer), 0, 0, milliseconds);
+};
 
-// Helper function: compute simple hash for idempotency
-function computeCodeHash(code) {
-  return crypto.createHash('md5').update(code).digest('hex');
-}
+const transformations = [
+  [/bg-primary/g, "bg-blue-600"],
+  [/text-primary-foreground/g, "text-white"],
+  [/bg-secondary/g, "bg-gray-200"],
+  [/bg-destructive/g, "bg-red-600"],
+  [/bg-outline/g, "border-2 border-gray-300"],
+  [/bg-ghost/g, "bg-transparent"],
+  [/bg-link/g, "text-blue-600"],
+  [/rounded-md/g, "rounded-lg"],
+  [/transition-colors/g, "transition-colors duration-200 ease-in-out"],
+  [/focus-visible:ring-2/g, "focus-visible:ring-2 focus-visible:ring-blue-500"],
+  [/disabled:opacity-50/g, "disabled:opacity-50 cursor-not-allowed"],
+];
 
-// Check idempotency - skip if component unchanged
-if (fs.existsSync(OUTPUT_FILE) && !DRY_RUN && !FORCE) {
-  // For idempotency check, we'll compare the expected output
-  // This is a placeholder - in production, compute the actual expected hash
-  console.log(`ℹ️  Checking idempotency for ${OUTPUT_NAME}...`);
-  // For now, we proceed with adaptation
-}
+function fetchComponent() {
+  let lastError = null;
 
-// Fetch component from 21st.dev with retry logic
-console.log(`📥 Fetching component ${COMPONENT_ID} from 21st.dev...`);
-let rawOutput;
-let retryAttempts = 0;
-let success = false;
-
-while (retryAttempts < RETRY_COUNT && !success) {
-  try {
-    rawOutput = execSync(`21st get ${COMPONENT_ID} --api-key ${API_KEY}`, {
-      encoding: 'utf8',
-      stdio: 'pipe',
-      timeout: 30000
-    });
-    success = true;
-  } catch (err) {
-    retryAttempts++;
-    console.warn(`⚠️  API call failed (attempt ${retryAttempts}/${RETRY_COUNT}): ${err.message}`);
-    if (retryAttempts < RETRY_COUNT) {
-      const backoff = Math.pow(2, retryAttempts) * 1000;
-      console.log(`⏳ Waiting ${backoff}ms before retry...`);
-      // Note: execSync is sync, so we use a workaround for delay
-      const start = Date.now();
-      while (Date.now() - start < backoff) {
-        // Busy wait for synchronous delay
+  for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
+    try {
+      return execFileSync("21st", ["get", COMPONENT_ID, "--api-key", API_KEY], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+        timeout: 30_000,
+        windowsHide: true,
+      });
+    } catch (error) {
+      lastError = error;
+      console.warn(`API call failed (attempt ${attempt}/${RETRY_COUNT}): ${error instanceof Error ? error.message : String(error)}`);
+      if (attempt < RETRY_COUNT) {
+        const backoff = Math.min(30_000, 2 ** attempt * 1_000);
+        sleepSync(backoff);
       }
     }
   }
+
+  throw lastError instanceof Error ? lastError : new Error("Failed to fetch component");
 }
 
-if (!success) {
-  console.error('❌ Failed to fetch component after multiple attempts');
-  if (rawOutput) console.error('Partial output:\n', rawOutput);
+function extractCode(rawOutput) {
+  const match = rawOutput.match(/```tsx\s*\n([\s\S]*?)\n```/m);
+  if (!match) throw new Error("Could not find a TypeScript JSX code block in fetched component.");
+  return match[1];
+}
+
+function transform(code) {
+  let output = code;
+  for (const [pattern, replacement] of transformations) {
+    output = output.replace(pattern, replacement);
+  }
+  return output;
+}
+
+function contentHash(value) {
+  return crypto.createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+let rawOutput;
+try {
+  console.log(`Fetching component ${COMPONENT_ID} from 21st.dev...`);
+  rawOutput = fetchComponent();
+  const componentCode = extractCode(rawOutput);
+  const transformed = transform(componentCode);
+  const metadata = [
+    `// Adapted from 21st.dev component ${COMPONENT_ID}`,
+    `// Source content SHA-256: ${contentHash(componentCode)}`,
+    "// Transform: shadcn.ui → Tailwind v4 custom",
+    "",
+  ].join("\n");
+  const output = metadata + transformed + "\n";
+
+  if (fs.existsSync(OUTPUT_FILE) && !FORCE) {
+    const existing = fs.readFileSync(OUTPUT_FILE, "utf8");
+    if (existing === output) {
+      console.log(`No change for ${OUTPUT_NAME}; existing generated file is already identical.`);
+      process.exit(0);
+    }
+    throw new Error(
+      `${OUTPUT_FILE} already exists with different content. Use --force only when an intentional replacement is required.`,
+    );
+  }
+
+  const tempFile = `${OUTPUT_FILE}.tmp`;
+  fs.writeFileSync(tempFile, output, "utf8");
+  fs.renameSync(tempFile, OUTPUT_FILE);
+  console.log(`Adapted component written to ${OUTPUT_FILE}`);
+
+  if (fs.existsSync(COMPONENTS_FILE)) {
+    const components = JSON.parse(fs.readFileSync(COMPONENTS_FILE, "utf8"));
+    components.aliases = components.aliases || {};
+    components.aliases[`@${path.relative(path.join(__dirname, ".."), OUTPUT_FILE).replaceAll(path.sep, "/").replace(/\.tsx$/, "")}`] =
+      `@${path.relative(path.join(__dirname, ".."), OUTPUT_FILE).replaceAll(path.sep, "/").replace(/\.tsx$/, "")}`;
+    fs.writeFileSync(COMPONENTS_FILE, JSON.stringify(components, null, 2) + "\n", "utf8");
+  }
+
+  console.log("Adaptation complete.");
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
-}
-
-// Parse the markdown to extract the component code
-const codeBlockMatch = rawOutput.match(/^```tsx\s*\n(.+?)\s*\n```/ms);
-if (!codeBlockMatch) {
-  console.error('❌ Could not find code block in fetched component');
-  console.error('Raw output:\n', rawOutput);
-  process.exit(1);
-}
-
-let componentCode = codeBlockMatch[1];
-
-// Transform shadcn.ui classes to your custom Tailwind v4 style
-const transformations = [
-  { regex: /bg-primary/g, replacement: 'bg-blue-600' },
-  { regex: /text-primary-foreground/g, replacement: 'text-white' },
-  { regex: /bg-secondary/g, replacement: 'bg-gray-200' },
-  { regex: /bg-destructive/g, replacement: 'bg-red-600' },
-  { regex: /bg-outline/g, replacement: 'border-2 border-gray-300' },
-  { regex: /bg-ghost/g, replacement: 'bg-transparent' },
-  { regex: /bg-link/g, replacement: 'text-blue-600' },
-  { regex: /h-10/g, replacement: 'h-10' },
-  { regex: /h-9/g, replacement: 'h-9' },
-  { regex: /px-4/g, replacement: 'px-4' },
-  { regex: /px-3/g, replacement: 'px-3' },
-  { regex: /rounded-md/g, replacement: 'rounded-lg' },
-  { regex: /transition-colors/g, replacement: 'transition-colors duration-200 ease-in-out' },
-  { regex: /focus-visible:ring-2/g, replacement: 'focus-visible:ring-2 focus-visible:ring-blue-500' },
-  { regex: /disabled:opacity-50/g, replacement: 'disabled:opacity-50 cursor-not-allowed' }
-];
-
-// Apply transformations
-let transformedCode = componentCode;
-transformations.forEach(({ regex, replacement }) => {
-  transformedCode = transformedCode.replace(new RegExp(regex, 'g'), replacement);
-});
-
-// Add metadata comment
-const metadata = `// Adapted from 21st.dev component ${COMPONENT_ID}
-// Generated: ${new Date().toISOString()}
-// Transform: shadcn.ui → Tailwind v4 custom
-`;
-
-transformedCode = metadata + transformedCode;
-
-// Write to temporary file
-fs.writeFileSync(TEMP_FILE, transformedCode);
-console.log(`✅ Temporary file created at ${TEMP_FILE}`);
-
-// Move to final destination
-if (!DRY_RUN) {
-  fs.copyFileSync(TEMP_FILE, OUTPUT_FILE);
-  fs.unlinkSync(TEMP_FILE);
-  console.log(`📝 Adapted component written to ${OUTPUT_FILE}`);
-} else {
-  console.log(`📝 (DRY-RUN) Component would be written to ${OUTPUT_FILE}`);
-}
-
-console.log('🎉 Adaptation complete!');
-console.log(`   - Component: ${OUTPUT_NAME}`);
-console.log(`   - File: src/components/ui/${OUTPUT_NAME.toLowerCase()}.tsx`);
-
-// Update components.json to register the new component
-const componentsPath = path.join(OUTPUT_DIR, '..', '..', 'components.json');
-if (fs.existsSync(componentsPath)) {
-  const componentsContent = JSON.parse(fs.readFileSync(componentsPath, 'utf8'));
-  
-  componentsContent.aliases[`@/${OUTPUT_NAME.toLowerCase()}`] = `@/${OUTPUT_NAME.toLowerCase()}`;
-  
-  fs.writeFileSync(componentsPath, JSON.stringify(componentsContent, null, 2));
-  console.log('📋 Updated components.json registry');
 }
