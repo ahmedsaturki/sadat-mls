@@ -37,6 +37,12 @@ export async function POST(request: NextRequest) {
     maxRequests: 5,
     windowMs: 60 * 60 * 1000,
   });
+  if (rate.unavailable) {
+    return NextResponse.json(
+      { error: "Rate limiting temporarily unavailable" },
+      { status: 503, headers: { "Retry-After": String(rate.retryAfter) } },
+    );
+  }
   if (!rate.allowed) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: rate.headers });
   }
