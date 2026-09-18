@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkAuthRateLimit } from "@/lib/security/rateLimit";
 import { logger } from "@/lib/logger";
 
+const LOGIN_RATE_LIMIT = {
+  windowMs: 15 * 60 * 1000,
+  maxRequests: 5,
+};
+
 export async function POST(request: NextRequest) {
   const rawIp = request.headers.get("x-forwarded-for") || "unknown";
   const ip = rawIp.split(",")[0].trim();
 
-  const rate = await checkAuthRateLimit(`login:${ip}`);
+  const rate = await checkAuthRateLimit(`login:${ip}`, LOGIN_RATE_LIMIT);
 
   if (rate.unavailable) {
     logger.error("Login rate limiting unavailable", { ip });
