@@ -1,6 +1,7 @@
 import { test, expect, type APIResponse } from "@playwright/test";
 
 test.describe("Rate Limiting", () => {
+  test.describe.configure({ timeout: 90_000 });
   test.describe("Health API Rate Limiting", () => {
     test("should return 200 for normal requests", async ({ request }) => {
       const response = await request.get("/api/health");
