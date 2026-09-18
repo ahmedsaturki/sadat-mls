@@ -27,7 +27,7 @@
     "@supabase/supabase-js": "^2.108.2",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
-    "isomorphic-dompurify": "^3.18.0",
+    "isomorphic-dompurify": "4.2.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.263.1",
     "next": "^16.2.10",
@@ -68,5 +68,10 @@
     "tailwindcss": "^4.3.2",
     "typescript": "^5.5.3",
     "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "isomorphic-dompurify": {
+      "jsdom": "25.0.1"
+    }
   }
 }
