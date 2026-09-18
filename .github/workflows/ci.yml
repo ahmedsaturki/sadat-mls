@@ -107,34 +107,7 @@ jobs:
         run: |
           set -euo pipefail
           npm install -g supabase
-          key_json="$(supabase projects api-keys --project-ref "$SUPABASE_PROJECT_ID" --output json)"
-          key="$(
-            printf '%s' "$key_json" |
-              node -e '
-                let input = "";
-                process.stdin.on("data", chunk => { input += chunk; });
-                process.stdin.on("end", () => {
-                  const keys = JSON.parse(input);
-                  const list = Array.isArray(keys) ? keys : [];
-                  const modern = list.find(
-                    entry => entry.type === "secret" && typeof entry.api_key === "string" && entry.api_key.startsWith("sb_secret_"),
-                  );
-                  const legacy = list.find(
-                    entry =>
-                      (entry.id === "service_role" || (entry.type === "legacy" && entry.name === "service_role")) &&
-                      typeof entry.api_key === "string" &&
-                      entry.api_key.startsWith("eyJ"),
-                  );
-                  const value = modern?.api_key ?? legacy?.api_key ?? "";
-                  if (!value) process.exit(2);
-                  process.stdout.write(value);
-                });
-              '
-          )"
-          if [[ ! "$key" =~ ^(sb_secret_|eyJ) ]]; then
-            echo "::error::Supabase API-key resolution returned an unexpected key format."
-            exit 1
-          fi
+          key="$(node scripts/resolve-supabase-key.mjs)"
           echo "::add-mask::$key"
           printf '%s\n' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
           echo "Resolved current Supabase privileged API key for CI."
