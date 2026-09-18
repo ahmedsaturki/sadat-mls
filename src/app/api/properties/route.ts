@@ -4,6 +4,7 @@ import { createPublicReadClient } from "@/lib/supabase/public-read";
 
 export const runtime = "nodejs";
 
+const PROPERTY_COLUMNS = "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, first_seen_at, last_seen_at, created_at, updated_at";
 const DEFAULT_LIMIT = 48;
 
 type SortMode = "newest" | "price_low" | "price_high" | "area";
@@ -73,31 +74,49 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = createPublicReadClient();
-    const result = await supabase.rpc("get_public_active_properties", {
-      p_query: queryText || null,
-      p_property_type: propertyType || null,
-      p_district: district || null,
-      p_min_price: minPrice,
-      p_max_price: maxPrice,
-      p_min_area: minArea,
-      p_max_area: maxArea,
-      p_sort: sortBy,
-      p_limit: DEFAULT_LIMIT,
-      p_offset: 0,
-    });
+    let query = supabase
+      .from("properties")
+      .select(PROPERTY_COLUMNS, { count: "exact" })
+      .eq("status", "active");
 
-    if (result.error) {
+    if (queryText) {
+      const escaped = escapeIlike(queryText.replace(/[(),]/g, " "));
+      query = query.or(
+        `title.ilike.%${escaped}%,description.ilike.%${escaped}%,district.ilike.%${escaped}%,neighborhood.ilike.%${escaped}%`,
+      );
+    }
+    if (propertyType) query = query.eq("property_type", propertyType);
+    if (district) query = query.eq("district", district);
+    if (minPrice !== null) query = query.gte("price", minPrice);
+    if (maxPrice !== null) query = query.lte("price", maxPrice);
+    if (minArea !== null) query = query.gte("area_m2", minArea);
+    if (maxArea !== null) query = query.lte("area_m2", maxArea);
+
+    switch (sortBy) {
+      case "price_low":
+        query = query.order("price", { ascending: true, nullsFirst: false });
+        break;
+      case "price_high":
+        query = query.order("price", { ascending: false, nullsFirst: false });
+        break;
+      case "area":
+        query = query.order("area_m2", { ascending: false, nullsFirst: false });
+        break;
+      default:
+        query = query.order("created_at", { ascending: false });
+        break;
+    }
+
+    const { data, count, error } = await query.range(0, DEFAULT_LIMIT - 1);
+    if (error) {
       return NextResponse.json({ error: "Failed to load properties" }, { status: 500 });
     }
 
     return NextResponse.json(
-      { properties: result.data ?? [], count: result.data?.[0]?.total_count ?? 0 },
+      { properties: data ?? [], count: count ?? 0 },
       {
         status: 200,
-        headers: {
-          ...rate.headers,
-          "Cache-Control": "private, no-store",
-        },
+        headers: { ...rate.headers, "Cache-Control": "private, no-store" },
       },
     );
 
