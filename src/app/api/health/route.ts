@@ -12,7 +12,27 @@ interface HealthCheckResult {
   status: "ok" | "error";
   timestamp: string;
   checks: {
-    supabase: "ok" | "error";
+    supabase_api: "ok" | "error";
+    properties: "ok" | "error";
+  };
+}
+
+function describeError(error: unknown) {
+  if (!(error instanceof Error)) return { value: String(error) };
+  const cause = error.cause;
+  return {
+    name: error.name,
+    message: error.message,
+    cause:
+      cause && typeof cause === "object"
+        ? Object.fromEntries(
+            Object.entries(cause as Record<string, unknown>).filter(([key]) =>
+              ["code", "errno", "syscall", "address", "port", "message"].includes(key),
+            ),
+          )
+        : cause
+          ? String(cause)
+          : undefined,
   };
 }
 
@@ -61,23 +81,57 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
     );
   }
 
-  const checks: HealthCheckResult["checks"] = { supabase: "error" };
+  const checks: HealthCheckResult["checks"] = { supabase_api: "error", properties: "error" };
   let healthy = false;
+
+  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const publishableKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
+
+  if (supabaseUrl && publishableKey) {
+    try {
+      const response = await fetch(`${supabaseUrl}/auth/v1/health`, {
+        headers: { apikey: publishableKey },
+        cache: "no-store",
+        signal: AbortSignal.timeout(3000),
+      });
+      checks.supabase_api = response.ok ? "ok" : "error";
+      if (!response.ok) {
+        logger.error("Supabase API health probe returned non-2xx", {
+          status: response.status,
+          statusText: response.statusText,
+        });
+      }
+    } catch (error: unknown) {
+      logger.error("Supabase API health probe failed", describeError(error));
+    }
+  } else {
+    logger.error("Supabase API health probe skipped: public configuration missing");
+  }
 
   try {
     const supabase = createServiceRoleClient();
-      const { error } = await supabase
-        .from("properties")
-        .select("id", { count: "exact", head: true })
-        .limit(1)
-        .abortSignal(AbortSignal.timeout(3000)); // 3-second timeout
-      
-      checks.supabase = error ? "error" : "ok";
-      healthy = !error;
+    const { error } = await supabase
+      .from("properties")
+      .select("id", { count: "exact", head: true })
+      .limit(1)
+      .abortSignal(AbortSignal.timeout(3000));
+
+    checks.properties = error ? "error" : "ok";
+    if (error) {
+      logger.error("Supabase properties probe failed", {
+        name: error.name,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
+    }
   } catch (error: unknown) {
-    checks.supabase = "error";
-    logger.error("Health check failed", error instanceof Error ? { message: error.message, stack: error.stack } : { error: String(error) });
+    logger.error("Health check failed", describeError(error));
   }
+
+  healthy = checks.supabase_api === "ok" && checks.properties === "ok";
 
   const result: HealthCheckResult = {
     status: healthy ? "ok" : "error",
