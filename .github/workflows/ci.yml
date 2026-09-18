@@ -33,6 +33,8 @@ jobs:
           cache: 'npm'
       - run: npm ci --no-audit --no-fund
       - run: npm run lint
+      - name: Adapter CLI smoke
+        run: npm run test:adapter
 
   gen-types:
     runs-on: ubuntu-latest
