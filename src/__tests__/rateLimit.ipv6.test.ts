@@ -15,7 +15,11 @@ vi.mock("@/lib/logger", () => ({
 vi.mock("@/lib/supabase/service-role", () => ({
   createServiceRoleClient: () => ({
     rpc: mockRpc,
-    from: vi.fn(),
+    from: vi.fn(() => ({
+      delete: vi.fn(() => ({
+        lt: vi.fn().mockResolvedValue({ error: null }),
+      })),
+    })),
   }),
 }));
 
