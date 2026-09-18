@@ -73,14 +73,22 @@ export default function LoginClient({ params }: { params: { locale: string } }) 
     setLoading(true);
     setError("");
 
-    if (!email.trim()) {
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
       setError(dict.auth.emailRequired || dict.auth.loginError);
       setLoading(false);
       return;
     }
 
-    if (!EMAIL_REGEX.test(email)) {
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
       setError(dict.auth.emailInvalid || dict.auth.loginError);
+      setLoading(false);
+      return;
+    }
+
+    if (!password) {
+      setError(dict.auth.passwordRequired || dict.auth.loginError);
       setLoading(false);
       return;
     }
@@ -92,7 +100,7 @@ export default function LoginClient({ params }: { params: { locale: string } }) 
 
     const supabase = createClient();
     const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: normalizedEmail,
       password,
     });
 
@@ -153,7 +161,7 @@ export default function LoginClient({ params }: { params: { locale: string } }) 
             </div>
           </div>
           {error && <div className="mb-4 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm" role="alert">{error}</div>}
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} noValidate className="space-y-5">
             <Input label={dict.auth.emailLabel} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
             <Input label={dict.auth.passwordLabel} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
             <div className="flex justify-end">
