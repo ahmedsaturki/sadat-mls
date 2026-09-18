@@ -10,7 +10,7 @@ import LandingHero from "@/components/landing/LandingHero";
 import ContactForm from "@/components/landing/ContactForm";
 import { getLandingData } from "@/lib/queries/landing";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
