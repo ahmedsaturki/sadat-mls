@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
-import { createClient } from "@/lib/supabase/client";
 import type { AqaratPropertyRow } from "@/lib/supabase/aqarat-types";
 import { logger } from "@/lib/logger";
 import PropertyCard from "@/components/properties/PropertyCard";
@@ -19,14 +18,10 @@ interface Props {
   initialCount: number;
 }
 
-const COLUMNS =
-  "id,title,description,property_type,transaction_type,status,city,district,neighborhood,address,latitude,longitude,area_m2,bedrooms,bathrooms,floor,finishing,price,currency,features,confidence,first_seen_at,last_seen_at,created_at,updated_at,parcel_number,installments_clear,canonical_key" as const;
-
 export default function AqaratExploreClient({ params, initialProperties, initialCount }: Props) {
   const locale = params.locale as "ar" | "en";
   const dict = getMessages(locale);
   const searchParams = useSearchParams();
-  const clientRef = useRef(createClient());
   const [properties, setProperties] = useState<AqaratProperty[]>(initialProperties);
   const [count, setCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
@@ -46,34 +41,33 @@ export default function AqaratExploreClient({ params, initialProperties, initial
     setLoading(true);
     setError(null);
     try {
-      const supabase = clientRef.current;
-      let query = supabase
-        .from("properties")
-        .select(COLUMNS, { count: "exact" })
-        .eq("status", "active");
+      const params = new URLSearchParams();
+      if (queryText.trim()) params.set("q", queryText.trim());
+      if (propertyType) params.set("type", propertyType);
+      if (district) params.set("district", district);
+      if (minPrice) params.set("minPrice", minPrice);
+      if (maxPrice) params.set("maxPrice", maxPrice);
+      if (minArea) params.set("minArea", minArea);
+      if (maxArea) params.set("maxArea", maxArea);
+      if (sortBy !== "newest") params.set("sort", sortBy);
 
-      if (queryText.trim()) {
-        const q = queryText.trim().replace(/[%(),]/g, " ");
-        query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,district.ilike.%${q}%,neighborhood.ilike.%${q}%`);
+      const response = await fetch(`/api/properties?${params.toString()}`, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
+      const payload = await response.json() as {
+        properties?: AqaratProperty[];
+        count?: number;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.error || `Property request failed with status ${response.status}`);
       }
-      if (propertyType) query = query.eq("property_type", propertyType);
-      if (district) query = query.eq("district", district);
-      if (minPrice) query = query.gte("price", Number(minPrice));
-      if (maxPrice) query = query.lte("price", Number(maxPrice));
-      if (minArea) query = query.gte("area_m2", Number(minArea));
-      if (maxArea) query = query.lte("area_m2", Number(maxArea));
 
-      switch (sortBy) {
-        case "price_low": query = query.order("price", { ascending: true, nullsFirst: false }); break;
-        case "price_high": query = query.order("price", { ascending: false, nullsFirst: false }); break;
-        case "area": query = query.order("area_m2", { ascending: false, nullsFirst: false }); break;
-        default: query = query.order("created_at", { ascending: false });
-      }
-
-      const { data, count: nextCount, error: queryError } = await query.range(0, 47);
-      if (queryError) throw queryError;
-      setProperties(data ?? []);
-      setCount(nextCount ?? 0);
+      setProperties(payload.properties ?? []);
+      setCount(payload.count ?? 0);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "Unknown error";
       logger.error("Failed to load Aqarat OS properties", { error: message });
