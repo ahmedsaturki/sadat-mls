@@ -141,7 +141,13 @@ async function databaseRateLimitCheck(key: string, windowMs: number, maxRequests
     windowStart,
   );
 
-  if (Math.random() < 0.01) void cleanupOldRateLimitState();
+  if (Math.random() < 0.01) {
+    void cleanupOldRateLimitState().catch((error) => {
+      logger.warn("Rate limit background cleanup failed", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    });
+  }
   return { count, resetTime, retryAfter: Math.max(1, Math.ceil((resetTime - now) / 1000)) };
 }
 
