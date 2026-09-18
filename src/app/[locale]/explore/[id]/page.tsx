@@ -66,7 +66,7 @@ export default async function PropertyDetailPage({
   if (!uuidRegex.test(id)) notFound();
 
   const dict = getMessages(locale as Locale);
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
   const { data: property, error } = await supabase
     .from("properties")
     .select(PROPERTY_COLUMNS)
