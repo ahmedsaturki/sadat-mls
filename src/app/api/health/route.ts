@@ -84,7 +84,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
   const checks: HealthCheckResult["checks"] = { supabase_api: "error", properties: "error" };
   let healthy = false;
 
-  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // Use the verified live Aqarat OS endpoint so a stale SUPABASE_URL cannot break health checks.
+  const supabaseUrl = "https://aaxauqznfhcvgevfczye.supabase.co";
   const publishableKey =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
 
