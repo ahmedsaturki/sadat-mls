@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { createPublicReadClient } from "@/lib/supabase/public-read";
 
 export const runtime = "nodejs";
 
@@ -82,76 +82,39 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
   }
 
   const checks: HealthCheckResult["checks"] = { supabase_api: "error", properties: "error" };
-  let healthy = false;
-
-  // Use the verified live Aqarat OS endpoint so a stale SUPABASE_URL cannot break health checks.
-  const supabaseUrl = "https://aaxauqznfhcvgevfczye.supabase.co";
-  const publishableKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
-
-  if (supabaseUrl && publishableKey) {
-    let supabaseHostname = "invalid";
-    try {
-      supabaseHostname = new URL(supabaseUrl).hostname;
-    } catch {
-      supabaseHostname = "invalid";
-    }
-    logger.error("Supabase API health probe configuration", {
-      hostname: supabaseHostname,
-      hasPublishableKey: Boolean(publishableKey),
-      hasSecretKey: Boolean(process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY),
-    });
-    try {
-      const response = await fetch(`${supabaseUrl}/auth/v1/health`, {
-        headers: { apikey: publishableKey },
-        cache: "no-store",
-        signal: AbortSignal.timeout(3000),
-      });
-      checks.supabase_api = response.ok ? "ok" : "error";
-      if (!response.ok) {
-        logger.error("Supabase API health probe returned non-2xx", {
-          status: response.status,
-          statusText: response.statusText,
-        });
-      }
-    } catch (error: unknown) {
-      logger.error("Supabase API health probe failed", describeError(error));
-    }
-  } else {
-    logger.error("Supabase API health probe skipped: public configuration missing", {
-      hasUrl: Boolean(supabaseUrl),
-      hasPublishableKey: Boolean(publishableKey),
-    });
-  }
 
   try {
-    const supabase = createServiceRoleClient();
-    const { error } = await supabase
-      .from("properties")
-      .select("id", { count: "exact", head: true })
-      .limit(1)
-      .abortSignal(AbortSignal.timeout(3000));
+    const supabase = createPublicReadClient();
+    const { data, error } = await supabase.rpc("get_public_active_properties", {
+      p_limit: 1,
+      p_offset: 0,
+      p_sort: "newest",
+    });
 
     checks.properties = error ? "error" : "ok";
+    checks.supabase_api = error ? "error" : "ok";
+
     if (error) {
-      logger.error("Supabase properties probe failed", {
+      logger.error("Supabase public property probe failed", {
         name: error.name,
         message: error.message,
         details: error.details,
         hint: error.hint,
         code: error.code,
       });
+    } else if (data) {
+      checks.properties = "ok";
     }
   } catch (error: unknown) {
     logger.error("Health check failed", describeError(error));
   }
 
-  healthy = checks.supabase_api === "ok" && checks.properties === "ok";
+  const healthy = checks.supabase_api === "ok" && checks.properties === "ok";
 
   const result: HealthCheckResult = {
     status: healthy ? "ok" : "error",
     timestamp: new Date().toISOString(),
-    checks,
+    checks: { supabase_api: checks.supabase_api, properties: checks.properties },
   };
 
   return NextResponse.json(result, {
