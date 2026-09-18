@@ -37,14 +37,10 @@ export interface AqaratPropertyDetail {
   price: number | null;
   currency: string | null;
   features: Record<string, unknown> | null;
-  confidence: number | null;
   first_seen_at: string;
   last_seen_at: string;
   created_at: string;
   updated_at: string;
-  parcel_number: number | null;
-  installments_clear: boolean | null;
-  canonical_key: string | null;
 }
 
 interface PropertyDetailClientProps {
