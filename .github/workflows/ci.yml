@@ -113,15 +113,16 @@ jobs:
           SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
         run: |
           set -euo pipefail
-          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys"             --data-urlencode "reveal=true"             --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
+          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys" \
+            --data-urlencode "reveal=true" \
+            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
           key="$(node -e 'const x=JSON.parse(process.argv[1]); const keys=Array.isArray(x)?x:(Array.isArray(x.keys)?x.keys:Array.isArray(x.api_keys)?x.api_keys:[]); const key=keys.find(k=>k.type==="secret"&&typeof k.api_key==="string"&&k.api_key.startsWith("sb_secret_"))?.api_key; if(!key) process.exit(2); process.stdout.write(key);' "$response")"
           if [[ ! "$key" =~ ^sb_secret_ ]]; then
             echo "::error::Supabase Management API did not return a supported secret key."
             exit 1
           fi
           echo "::add-mask::$key"
-          printf '%s
-' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
+          printf '%s\n' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
           echo "Resolved current Supabase privileged API key for CI."
       - run: npm run build
         env:
@@ -166,15 +167,16 @@ jobs:
           SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
         run: |
           set -euo pipefail
-          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys"             --data-urlencode "reveal=true"             --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
+          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys" \
+            --data-urlencode "reveal=true" \
+            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
           key="$(node -e 'const x=JSON.parse(process.argv[1]); const keys=Array.isArray(x)?x:(Array.isArray(x.keys)?x.keys:Array.isArray(x.api_keys)?x.api_keys:[]); const key=keys.find(k=>k.type==="secret"&&typeof k.api_key==="string"&&k.api_key.startsWith("sb_secret_"))?.api_key; if(!key) process.exit(2); process.stdout.write(key);' "$response")"
           if [[ ! "$key" =~ ^sb_secret_ ]]; then
             echo "::error::Supabase Management API did not return a supported secret key."
             exit 1
           fi
           echo "::add-mask::$key"
-          printf '%s
-' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
+          printf '%s\n' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
           echo "Resolved current Supabase privileged API key for CI."
       - run: npm run build
         env:
