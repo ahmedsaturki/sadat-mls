@@ -184,6 +184,7 @@ export async function rateLimitMiddleware(request: NextRequest, config: RateLimi
       return NextResponse.json(
         {
           error: "Too many requests",
+          status: "error",
           message: config.message || `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
           i18nKey: "rateLimited",
           i18nParams: { seconds: retryAfter },
