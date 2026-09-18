@@ -8,7 +8,6 @@ const STATIC_ASSETS = [
     `/${locale}`,
     `/${locale}/login`,
     `/${locale}/forgot-password`,
-    `/${locale}/manifest.json`,
   ]),
   "/manifest.json",
   "/robots.txt",
