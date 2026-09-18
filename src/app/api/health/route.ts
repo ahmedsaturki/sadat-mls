@@ -85,25 +85,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
 
   try {
     const supabase = createPublicReadClient();
-    const { data, error } = await supabase.rpc("get_public_active_properties", {
-      p_limit: 1,
-      p_offset: 0,
-      p_sort: "newest",
-    });
+    const { error } = await supabase
+      .from("properties")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "active")
+      .limit(1)
+      .abortSignal(AbortSignal.timeout(3000));
 
     checks.properties = error ? "error" : "ok";
-    checks.supabase_api = error ? "error" : "ok";
-
+    checks.supabase_api = checks.properties;
     if (error) {
-      logger.error("Supabase public property probe failed", {
+      logger.error("Supabase public properties probe failed", {
         name: error.name,
         message: error.message,
-        details: error.details,
-        hint: error.hint,
         code: error.code,
       });
-    } else if (data) {
-      checks.properties = "ok";
     }
   } catch (error: unknown) {
     logger.error("Health check failed", describeError(error));
