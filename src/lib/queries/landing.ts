@@ -37,7 +37,7 @@ function sanitizeSearchTerm(value: string): string {
 export async function getLandingData(searchQuery?: string): Promise<LandingData> {
   try {
     const supabase = createPublicReadClient();
-    let propertiesQuery = supabase
+    const propertiesQuery = supabase
       .from("properties")
       .select(FEATURED_COLUMNS, { count: "exact" })
       .eq("status", "active")
