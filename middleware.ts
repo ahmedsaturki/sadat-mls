@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { generateCsrfToken, isCsrfTokenValid } from "@/lib/security/csrf-constants";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/public-config";
 
 /** All locales supported by Sadat MLS */
 const locales = ["ar", "en"];
@@ -147,8 +148,8 @@ export async function middleware(request: NextRequest) {
 
   // Create Supabase server client for auth validation (page routes only)
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY,
     {
       cookies: {
         getAll() {
