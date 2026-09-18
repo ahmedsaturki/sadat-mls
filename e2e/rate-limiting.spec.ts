@@ -1,6 +1,6 @@
-import { test, expect, type APIResponse } from "@playwright/test";
+import { test, expect, type APIRequestContext, type APIResponse } from "@playwright/test";
 
-async function healthBurst(request: Parameters<Parameters<typeof test>[1]>[0]["request"], ip: string): Promise<APIResponse[]> {
+async function healthBurst(request: APIRequestContext, ip: string): Promise<APIResponse[]> {
   return Promise.all(
     Array.from({ length: 105 }, () =>
       request.get("/api/health", {
