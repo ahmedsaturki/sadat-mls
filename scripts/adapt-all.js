@@ -19,7 +19,7 @@
  * - shows full commands that would be run for each component
  * - skips network requests and file system modifications
  */
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -72,15 +72,15 @@ for (const entry of entries) {
 
   try {
     const scriptPath = path.join(__dirname, 'adapt-component.js');
-    const commandArgs = [scriptPath, String(id), String(name), '--retry', String(RETRY_COUNT)];
-    if (apiKey) commandArgs.push('--api-key', apiKey);
-    const result = execSync(process.execPath + ' ' + commandArgs.map((value) => JSON.stringify(value)).join(' '), {
+    execFileSync(process.execPath, [scriptPath, String(id), String(name), '--retry', String(RETRY_COUNT)], {
       cwd: ROOT,
       stdio: 'inherit',
       timeout: 120000,
-      shell: false,
+      env: {
+        ...process.env,
+        ...(apiKey ? { API_KEY_21ST: apiKey } : {}),
+      },
     });
-    void result;
     success++;
   } catch (err) {
     failed++;
