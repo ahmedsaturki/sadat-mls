@@ -6,6 +6,7 @@ import AqaratExploreClient, { type AqaratProperty } from "@/components/explore/A
 
 export const dynamic = "force-dynamic";
 
+const PROPERTY_COLUMNS = "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, first_seen_at, last_seen_at, created_at, updated_at";
 const PAGE_SIZE = 12;
 
 export default async function ExplorePage({
@@ -21,17 +22,18 @@ export default async function ExplorePage({
 
   try {
     const supabase = createPublicReadClient();
-    const { data, error } = await supabase.rpc("get_public_active_properties", {
-      p_limit: PAGE_SIZE,
-      p_offset: 0,
-      p_sort: "newest",
-    });
+    const { data, count, error } = await supabase
+      .from("properties")
+      .select(PROPERTY_COLUMNS, { count: "exact" })
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .range(0, PAGE_SIZE - 1);
 
     if (error) {
       console.error("Failed to load Aqarat OS properties:", error.message);
     } else {
       properties = (data ?? []) as AqaratProperty[];
-      count = data?.[0]?.total_count ?? 0;
+      count = count ?? 0;
     }
   } catch (error) {
     console.error("Failed to load Aqarat OS properties:", error);
