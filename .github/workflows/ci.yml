@@ -136,8 +136,7 @@ jobs:
             exit 1
           fi
           echo "::add-mask::$key"
-          printf 'SUPABASE_SERVICE_ROLE_KEY=%s
-' "$key" >> "$GITHUB_ENV"
+          printf '%s\n' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
           echo "Resolved current Supabase privileged API key for CI."
       - run: npm run build
         env:
