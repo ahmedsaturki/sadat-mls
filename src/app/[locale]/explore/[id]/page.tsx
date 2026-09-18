@@ -24,13 +24,13 @@ export async function generateMetadata({
 
   const dict = getMessages(locale as Locale);
   const supabase = createPublicReadClient();
-  const { data } = await supabase.rpc("get_public_active_properties", {
-    p_property_id: id,
-    p_limit: 1,
-    p_offset: 0,
-    p_sort: "newest",
-  });
-  const property = data?.[0] as PropertyMeta | undefined;
+  const { data: property } = await supabase
+    .from("properties")
+    .select("title, description, city, district, neighborhood")
+    .eq("id", id)
+    .eq("status", "active")
+    .maybeSingle()
+    .overrideTypes<PropertyMeta, { merge: false }>();
 
   if (!property) return { title: dict.property.notFound };
 
@@ -65,21 +65,13 @@ export default async function PropertyDetailPage({
 
   const dict = getMessages(locale as Locale);
   const supabase = createPublicReadClient();
-  const { data, error } = await supabase.rpc("get_public_active_properties", {
-    p_property_id: id,
-    p_limit: 1,
-    p_offset: 0,
-    p_sort: "newest",
-  });
-  const property = data?.[0]
-    ? ({
-        ...data[0],
-        confidence: null,
-        parcel_number: null,
-        installments_clear: null,
-        canonical_key: null,
-      } as AqaratPropertyDetail)
-    : null;
+  const { data, error } = await supabase
+    .from("properties")
+    .select("id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, first_seen_at, last_seen_at, created_at, updated_at")
+    .eq("id", id)
+    .eq("status", "active")
+    .maybeSingle()
+    .overrideTypes<AqaratPropertyDetail, { merge: false }>();
 
   if (error || !property) {
     return (
