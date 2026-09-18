@@ -2,9 +2,9 @@
 
 ## Current state
 
-**IN PROGRESS — Aqarat PROPERTY READ + AUTH IDENTITY MIGRATION ACTIVE; FINAL VERIFICATION CONTINUES**
+**PRODUCTION VERIFIED — Aqarat public property contract reconciled and deployed**
 
-The authoritative direction remains forward migration to the connected Aqarat OS architecture. Production schema has not been mutated from this branch.
+The authoritative direction remains forward migration to the connected Aqarat OS architecture. The live schema now contains the explicitly verified public-property RLS/column-grant contract recorded in the committed migration.
 
 ## Completed in the current slice
 
@@ -79,3 +79,29 @@ Target end state for PR #14:
 **SPEC → RECONCILE → FIX → TYPECHECK → CONTRACT → UNIT TEST → BUILD → E2E → VERCEL RUNTIME → FINAL AUDIT → READY → MERGE → PRODUCTION VERIFY**
 
 The branch must not be considered fully delivered until the exact final head satisfies this chain.
+
+
+## Final production verification — 2026-09-18
+
+- PR #14 was merged to `main`; the pre-merge verification run passed lint, generated-type drift, typecheck, schema-contract, unit/integration tests, E2E, and build.
+- Production deployment `dpl_PeGkyMitiD2DmvVrnahR16CUbuvJ` completed in READY state on `sadat-mls.vercel.app`.
+- `GET /api/health` returned HTTP 200 with `supabase_api=ok` and `properties=ok`.
+- `GET /api/properties` returned HTTP 200 and the two verified active properties.
+- Property filtering by type and minimum price returned the expected matching subsets.
+- Arabic and English Explore routes returned HTTP 200.
+- Both verified property detail URLs returned HTTP 200 and rendered the media placeholder.
+- The login route returned HTTP 200.
+- Direct RLS verification confirmed `anon` can read only the explicitly granted public property columns for active rows; internal fields such as `parcel_number`, `installments_clear`, `canonical_key`, and `confidence` remain inaccessible.
+- Supabase security advisor no longer reports a SECURITY DEFINER warning for the public property surface. Remaining security findings are informational RLS-without-policy notices on private rate-limit tables.
+- No runtime errors were observed on the latest production deployment during the final verification window.
+
+## Deliberate product-scope exclusions
+
+The following are intentionally not certified as part of the public Aqarat contract and therefore remain fail-closed/retired until their authoritative replacements are verified:
+
+1. Supabase Auth ↔ business `people` role/organization mapping.
+2. Favorites persistence.
+3. Property media/storage persistence.
+4. Legacy admin/office/agent workflows backed by retired schema entities.
+
+These are not represented by fabricated compatibility tables or guessed authorization rules.
