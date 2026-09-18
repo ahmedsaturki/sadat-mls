@@ -19,13 +19,8 @@ interface Props {
   initialCount: number;
 }
 
-const COLUMNS = [
-  "id", "title", "description", "property_type", "transaction_type", "status",
-  "city", "district", "neighborhood", "address", "latitude", "longitude",
-  "area_m2", "bedrooms", "bathrooms", "floor", "finishing", "price", "currency",
-  "features", "confidence", "first_seen_at", "last_seen_at", "created_at", "updated_at",
-  "parcel_number", "installments_clear", "canonical_key",
-].join(", ");
+const COLUMNS =
+  "id,title,description,property_type,transaction_type,status,city,district,neighborhood,address,latitude,longitude,area_m2,bedrooms,bathrooms,floor,finishing,price,currency,features,confidence,first_seen_at,last_seen_at,created_at,updated_at,parcel_number,installments_clear,canonical_key" as const;
 
 export default function AqaratExploreClient({ params, initialProperties, initialCount }: Props) {
   const locale = params.locale as "ar" | "en";
