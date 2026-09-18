@@ -61,3 +61,18 @@ PR #14 remains open and draft. The latest cleanup is being verified by CI run #3
 - No authorization from `user_metadata` or other user-editable claims.
 - No changes to Lara readiness logic for infrastructure reasons.
 - No production certification until schema, runtime, auth, rate limiting, and E2E are all verified against one coherent contract.
+
+## 2026-09-18 — Final platform-link reconciliation
+
+The verified live Supabase project is Aqarat (aaxauqznfhcvgevfczye).
+
+Completed in this reconciliation branch:
+- checked-in supabase.json now points to the verified Aqarat project and host;
+- generated supabase/.temp/* metadata that referenced the retired project was removed from version control;
+- .gitignore now excludes supabase/.temp/;
+- generated Supabase types remain synchronized with the live public schema;
+- the deterministic schema-contract guard passes against the Aqarat application contract;
+- unit tests, lint, typecheck, and the production build continue to pass;
+- the required public Playwright suite is scoped to the supported Aqarat contract; the retired admin surface remains outside the promoted runtime contract until an explicit Auth-to-people identity model exists.
+
+The branch must not be considered promoted until the exact current head completes the full CI/E2E gate successfully.
