@@ -35,17 +35,15 @@ function sanitizeSearchTerm(value: string): string {
 export async function getLandingData(searchQuery?: string): Promise<LandingData> {
   try {
     const supabase = createPublicReadClient();
-    const q = searchQuery?.trim() ? sanitizeSearchTerm(searchQuery) : null;
-    const { data, error } = await supabase.rpc("get_public_active_properties", {
-      p_query: q,
-      p_limit: 6,
-      p_offset: 0,
-      p_sort: "newest",
-    });
+    const q = searchQuery && searchQuery.trim().length > 0 ? sanitizeSearchTerm(searchQuery) : null;
+    const finalPropertiesQuery = q
+      ? propertiesQuery.or(
+          `title.ilike.%${q}%,description.ilike.%${q}%,district.ilike.%${q}%,neighborhood.ilike.%${q}%`,
+        )
+      : propertiesQuery;
 
-    if (error) throw error;
-
-    const featured: LandingProperty[] = (data ?? []).map((property) => ({
+    const { data: properties, error: propertiesError } = await finalPropertiesQuery;
+    const featured: LandingProperty[] = (properties ?? []).map((property) => ({
       ...property,
       primaryImage: null,
     }));
@@ -53,7 +51,7 @@ export async function getLandingData(searchQuery?: string): Promise<LandingData>
     return {
       properties: featured,
       officesCount: null,
-      propertiesCount: data?.[0]?.total_count ?? 0,
+      propertiesCount: 0,
       zonesCount: null,
     };
   } catch {
