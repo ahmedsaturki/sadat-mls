@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - run: npm run lint
 
   gen-types:
@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - name: Install Supabase CLI
         run: npm install -g supabase
       - name: Generate TypeScript types from schema
@@ -68,7 +68,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - run: npx tsc --noEmit
 
   test:
@@ -80,7 +80,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - run: npm run test:run
 
   schema-contract:
@@ -92,7 +92,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - name: Verify Aqarat OS application contract
         run: npm run contract:check
 
@@ -106,7 +106,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - name: Resolve current Supabase privileged API key
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -160,7 +160,7 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - name: Resolve current Supabase privileged API key
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
