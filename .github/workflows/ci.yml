@@ -100,12 +100,50 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm install --no-audit --no-fund
+      - name: Resolve current Supabase privileged API key
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
+        run: |
+          set -euo pipefail
+          npm install -g supabase
+          key_json="$(supabase projects api-keys --project-ref "$SUPABASE_PROJECT_ID" --output json)"
+          key="$(
+            printf '%s' "$key_json" |
+              node -e '
+                let input = "";
+                process.stdin.on("data", chunk => { input += chunk; });
+                process.stdin.on("end", () => {
+                  const keys = JSON.parse(input);
+                  const list = Array.isArray(keys) ? keys : [];
+                  const modern = list.find(
+                    entry => entry.type === "secret" && typeof entry.api_key === "string" && entry.api_key.startsWith("sb_secret_"),
+                  );
+                  const legacy = list.find(
+                    entry =>
+                      (entry.id === "service_role" || (entry.type === "legacy" && entry.name === "service_role")) &&
+                      typeof entry.api_key === "string" &&
+                      entry.api_key.startsWith("eyJ"),
+                  );
+                  const value = modern?.api_key ?? legacy?.api_key ?? "";
+                  if (!value) process.exit(2);
+                  process.stdout.write(value);
+                });
+              '
+          )"
+          if [[ ! "$key" =~ ^(sb_secret_|eyJ) ]]; then
+            echo "::error::Supabase API-key resolution returned an unexpected key format."
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          printf 'SUPABASE_SERVICE_ROLE_KEY=%s
+' "$key" >> "$GITHUB_ENV"
+          echo "Resolved current Supabase privileged API key for CI."
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
           # Supabase's verified publishable key is safe for browser/E2E use and avoids a stale legacy anon secret.
           NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
       - run: npx playwright install --with-deps chromium
@@ -117,7 +155,6 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
           # Supabase's verified publishable key is safe for browser/E2E use and avoids a stale legacy anon secret.
           NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
       - uses: actions/upload-artifact@v4
@@ -138,11 +175,48 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm install --no-audit --no-fund
+      - name: Resolve current Supabase privileged API key
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
+        run: |
+          set -euo pipefail
+          npm install -g supabase
+          key_json="$(supabase projects api-keys --project-ref "$SUPABASE_PROJECT_ID" --output json)"
+          key="$(
+            printf '%s' "$key_json" |
+              node -e '
+                let input = "";
+                process.stdin.on("data", chunk => { input += chunk; });
+                process.stdin.on("end", () => {
+                  const keys = JSON.parse(input);
+                  const list = Array.isArray(keys) ? keys : [];
+                  const modern = list.find(
+                    entry => entry.type === "secret" && typeof entry.api_key === "string" && entry.api_key.startsWith("sb_secret_"),
+                  );
+                  const legacy = list.find(
+                    entry =>
+                      (entry.id === "service_role" || (entry.type === "legacy" && entry.name === "service_role")) &&
+                      typeof entry.api_key === "string" &&
+                      entry.api_key.startsWith("eyJ"),
+                  );
+                  const value = modern?.api_key ?? legacy?.api_key ?? "";
+                  if (!value) process.exit(2);
+                  process.stdout.write(value);
+                });
+              '
+          )"
+          if [[ ! "$key" =~ ^(sb_secret_|eyJ) ]]; then
+            echo "::error::Supabase API-key resolution returned an unexpected key format."
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          printf 'SUPABASE_SERVICE_ROLE_KEY=%s
+' "$key" >> "$GITHUB_ENV"
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
