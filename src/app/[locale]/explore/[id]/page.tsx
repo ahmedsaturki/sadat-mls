@@ -2,15 +2,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { isValidLocale, type Locale } from "@/i18n/config";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { createPublicReadClient } from "@/lib/supabase/public-read";
 import { getMessages } from "@/i18n/getMessages";
 import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
 import PropertyDetailClient, { type AqaratPropertyDetail } from "@/components/properties/PropertyDetailClient";
 
 export const dynamic = "force-dynamic";
-
-const PROPERTY_COLUMNS =
-  "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, confidence, first_seen_at, last_seen_at, created_at, updated_at, parcel_number, installments_clear, canonical_key";
 
 type PropertyMeta = Pick<
   AqaratPropertyDetail,
@@ -26,13 +23,14 @@ export async function generateMetadata({
   if (!isValidLocale(locale as Locale)) return {};
 
   const dict = getMessages(locale as Locale);
-  const supabase = createServiceRoleClient();
-  const { data: property } = await supabase
-    .from("properties")
-    .select("title, description, city, district, neighborhood")
-    .eq("id", id)
-    .maybeSingle()
-    .overrideTypes<PropertyMeta, { merge: false }>();
+  const supabase = createPublicReadClient();
+  const { data } = await supabase.rpc("get_public_active_properties", {
+    p_property_id: id,
+    p_limit: 1,
+    p_offset: 0,
+    p_sort: "newest",
+  });
+  const property = data?.[0] as PropertyMeta | undefined;
 
   if (!property) return { title: dict.property.notFound };
 
@@ -66,13 +64,22 @@ export default async function PropertyDetailPage({
   if (!uuidRegex.test(id)) notFound();
 
   const dict = getMessages(locale as Locale);
-  const supabase = createServiceRoleClient();
-  const { data: property, error } = await supabase
-    .from("properties")
-    .select(PROPERTY_COLUMNS)
-    .eq("id", id)
-    .maybeSingle()
-    .overrideTypes<AqaratPropertyDetail, { merge: false }>();
+  const supabase = createPublicReadClient();
+  const { data, error } = await supabase.rpc("get_public_active_properties", {
+    p_property_id: id,
+    p_limit: 1,
+    p_offset: 0,
+    p_sort: "newest",
+  });
+  const property = data?.[0]
+    ? ({
+        ...data[0],
+        confidence: null,
+        parcel_number: null,
+        installments_clear: null,
+        canonical_key: null,
+      } as AqaratPropertyDetail)
+    : null;
 
   if (error || !property) {
     return (
