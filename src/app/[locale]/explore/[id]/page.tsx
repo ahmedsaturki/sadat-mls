@@ -2,12 +2,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { isValidLocale, type Locale } from "@/i18n/config";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getMessages } from "@/i18n/getMessages";
 import { sanitizeJsonLd } from "@/lib/security/sanitizeHtml";
 import PropertyDetailClient, { type AqaratPropertyDetail } from "@/components/properties/PropertyDetailClient";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 const PROPERTY_COLUMNS =
   "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, confidence, first_seen_at, last_seen_at, created_at, updated_at, parcel_number, installments_clear, canonical_key";
@@ -26,7 +26,7 @@ export async function generateMetadata({
   if (!isValidLocale(locale as Locale)) return {};
 
   const dict = getMessages(locale as Locale);
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
   const { data: property } = await supabase
     .from("properties")
     .select("title, description, city, district, neighborhood")
