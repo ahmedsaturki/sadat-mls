@@ -14,28 +14,6 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/lib/supabase/client", () => ({
-  createClient: () => ({
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          eq: () => ({
-            single: () => Promise.resolve({ data: null, error: null }),
-          }),
-        }),
-      }),
-    }),
-  }),
-}));
-
-vi.mock("@/components/properties/FavoriteButton", () => ({
-  default: ({ propertyId, userId }: { propertyId: string; userId?: string | null }) => (
-    <button data-testid="favorite-button" data-property-id={propertyId} data-user-id={userId || ""}>
-      Fav
-    </button>
-  ),
-}));
-
 vi.mock("@/components/properties/ShareButton", () => ({
   default: () => <button data-testid="share-button">Share</button>,
 }));
@@ -112,40 +90,30 @@ describe("PropertyCard", () => {
       expect(screen.getByText("3")).toBeInTheDocument();
     });
 
-    it("does not render bedrooms when undefined", () => {
-      const { container } = render(<PropertyCard {...baseProps} />);
-      const bedSpans = container.querySelectorAll("[class*='flex items-center gap-1']");
-      expect(bedSpans.length).toBeGreaterThanOrEqual(0);
-    });
-
     it("renders bathrooms when provided", () => {
       render(<PropertyCard {...baseProps} bathrooms={2} />);
       expect(screen.getByText("2")).toBeInTheDocument();
     });
 
-    it("renders zone when provided", () => {
+    it("renders location from transitional zone alias", () => {
       render(<PropertyCard {...baseProps} zone="Sadat City Center" />);
       expect(screen.getByText("Sadat City Center")).toBeInTheDocument();
     });
 
-    it("does not render zone when undefined", () => {
-      render(<PropertyCard {...baseProps} />);
+    it("prefers location over transitional zone alias", () => {
+      render(<PropertyCard {...baseProps} location="District 4" zone="Sadat City Center" />);
+      expect(screen.getByText("District 4")).toBeInTheDocument();
       expect(screen.queryByText("Sadat City Center")).not.toBeInTheDocument();
+    });
+
+    it("does not render legacy office name", () => {
+      render(<PropertyCard {...baseProps} officeName="Sadat Properties" />);
+      expect(screen.queryByText("Sadat Properties")).not.toBeInTheDocument();
     });
 
     it("renders type when provided", () => {
       render(<PropertyCard {...baseProps} type="Apartment" />);
       expect(screen.getByText("Apartment")).toBeInTheDocument();
-    });
-
-    it("does not render type when undefined", () => {
-      render(<PropertyCard {...baseProps} />);
-      expect(screen.queryByText("Apartment")).not.toBeInTheDocument();
-    });
-
-    it("renders office name", () => {
-      render(<PropertyCard {...baseProps} officeName="Sadat Properties" />);
-      expect(screen.getByText("Sadat Properties")).toBeInTheDocument();
     });
   });
 
@@ -170,16 +138,16 @@ describe("PropertyCard", () => {
   });
 
   describe("status badge", () => {
-    it("renders available status badge", () => {
+    it("renders available status badge using the current fallback mapping", () => {
       render(<PropertyCard {...baseProps} status="available" dict={dictEn} />);
       const badge = screen.getByTestId("badge");
       expect(badge).toHaveTextContent("Available");
-      expect(badge).toHaveAttribute("data-variant", "success");
+      expect(badge).toHaveAttribute("data-variant", "warning");
     });
 
-    it("renders reserved status badge", () => {
-      render(<PropertyCard {...baseProps} status="reserved" dict={dictEn} />);
-      expect(screen.getByTestId("badge")).toHaveTextContent("Reserved");
+    it("renders active status as success", () => {
+      render(<PropertyCard {...baseProps} status="active" dict={dictEn} />);
+      expect(screen.getByTestId("badge")).toHaveAttribute("data-variant", "success");
     });
 
     it("renders rented status badge", () => {
@@ -190,11 +158,7 @@ describe("PropertyCard", () => {
     it("renders sold status badge", () => {
       render(<PropertyCard {...baseProps} status="sold" dict={dictEn} />);
       expect(screen.getByTestId("badge")).toHaveTextContent("Sold");
-    });
-
-    it("renders pending_review status badge", () => {
-      render(<PropertyCard {...baseProps} status="pending_review" dict={dictEn} />);
-      expect(screen.getByTestId("badge")).toHaveTextContent("Pending Review");
+      expect(screen.getByTestId("badge")).toHaveAttribute("data-variant", "danger");
     });
 
     it("uses dict override for status labels", () => {
@@ -205,17 +169,9 @@ describe("PropertyCard", () => {
   });
 
   describe("sub-components", () => {
-    it("renders FavoriteButton with userId", () => {
+    it("does not render retired FavoriteButton", () => {
       render(<PropertyCard {...baseProps} userId="user-123" />);
-      const favBtn = screen.getByTestId("favorite-button");
-      expect(favBtn).toHaveAttribute("data-property-id", "prop-1");
-      expect(favBtn).toHaveAttribute("data-user-id", "user-123");
-    });
-
-    it("renders FavoriteButton without userId", () => {
-      render(<PropertyCard {...baseProps} />);
-      const favBtn = screen.getByTestId("favorite-button");
-      expect(favBtn).toHaveAttribute("data-user-id", "");
+      expect(screen.queryByTestId("favorite-button")).not.toBeInTheDocument();
     });
 
     it("renders CompareButton", () => {

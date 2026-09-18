@@ -11,17 +11,28 @@ export interface AuthUser {
     id: string;
     email: string | null;
     full_name: string | null;
-    role: UserRole;
+    role: UserRole | null;
     office_id: string | null;
   } | null;
   supabase: ReturnType<typeof createServerClient>;
 }
 
-/**
- * Get auth user for server-side rendering.
- * Note: In serverless environments, caching at module level is unsafe.
- * Each request gets fresh auth data to prevent user data leakage.
- */
+function mapAuthProfile(authUser: {
+  id: string;
+  email?: string | null;
+  user_metadata?: Record<string, unknown>;
+}) : AuthUser["profile"] {
+  const metadata = authUser.user_metadata ?? {};
+  return {
+    id: authUser.id,
+    email: authUser.email ?? null,
+    full_name: typeof metadata.full_name === "string" ? metadata.full_name : null,
+    // Authorization roles are intentionally not trusted from user-editable metadata.
+    role: null,
+    office_id: null,
+  };
+}
+
 export async function getServerAuth(): Promise<AuthUser> {
   const cookieStore = await cookies();
   const supabase = createServerClient(
@@ -34,35 +45,26 @@ export async function getServerAuth(): Promise<AuthUser> {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
           } catch {
-            // Expected in Server Components (cookies immutable after response).
-            // Log in non-SC contexts for debugging token refresh failures.
             if (process.env.NODE_ENV === "development") {
               logger.debug("[server-auth] cookie write skipped (expected in SC)");
             }
           }
         },
       },
-    }
+    },
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
+  if (error) logger.debug("[server-auth] getUser failed", { error: error.message });
 
-  let profile: AuthUser["profile"] = null;
-  if (user) {
-    const { data } = await supabase
-      .from("users")
-      .select("id, email, full_name, role, office_id")
-      .eq("id", user.id)
-      .maybeSingle();
-    
-    profile = data;
-  }
-
-  return { user, profile, supabase };
+  const user = data.user;
+  return {
+    user: user ? { id: user.id } : null,
+    profile: user ? mapAuthProfile(user) : null,
+    supabase,
+  };
 }
 
 export async function getServerUser() {
@@ -76,35 +78,23 @@ export async function getServerProfile() {
 }
 
 export async function clearAuthCache() {
-  // No-op in serverless - each request is independent
+  // No-op in serverless; each request is independent.
 }
 
-/**
- * Get authenticated user and profile.
- * Returns null user/profile if not authenticated.
- */
 export async function getAuthenticatedUser() {
   const { user, profile } = await getServerAuth();
   return { user, profile };
 }
 
-/**
- * Require authentication. Throws if not authenticated.
- */
 export async function requireAuth(redirectPath: string) {
   const { user, profile } = await getServerAuth();
-  if (!user) {
-    throw new Error(`REDIRECT:${redirectPath}`);
-  }
+  if (!user) throw new Error(`REDIRECT:${redirectPath}`);
   return { user, profile };
 }
 
-/**
- * Require specific role. Throws if not authenticated or wrong role.
- */
 export async function requireRole(requiredRole: UserRole, redirectPath: string) {
   const { user, profile } = await requireAuth(redirectPath);
-  if (!profile || profile.role !== requiredRole) {
+  if (!profile?.role || profile.role !== requiredRole) {
     throw new Error(`REDIRECT:${redirectPath}`);
   }
   return { user, profile };

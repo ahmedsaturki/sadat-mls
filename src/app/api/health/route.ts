@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
-import { checkApiRateLimit } from "@/lib/security/rateLimit";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const runtime = "nodejs";
+
+const HEALTH_RATE_LIMIT_MAX = 100;
+const HEALTH_RATE_LIMIT_WINDOW_MS = 60_000;
+const healthRateLimitStore = new Map<string, { windowStart: number; count: number }>();
 
 interface HealthCheckResult {
   status: "ok" | "error";
@@ -18,39 +21,59 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
     return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
   }
 
-  // Rate limiting to prevent DoS
-  const rawIp = request.headers.get("x-forwarded-for") || "unknown";
-  const ip = rawIp.split(",")[0].trim();
-  const rate = await checkApiRateLimit(`health:${ip}`);
-  if (!rate.allowed) {
+  const rawIp =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+  const now = Date.now();
+  const existing = healthRateLimitStore.get(rawIp);
+  const windowStart =
+    existing && now - existing.windowStart < HEALTH_RATE_LIMIT_WINDOW_MS
+      ? existing.windowStart
+      : now;
+  const count =
+    existing && windowStart === existing.windowStart ? existing.count + 1 : 1;
+  healthRateLimitStore.set(rawIp, { windowStart, count });
+
+  if (healthRateLimitStore.size > 1000) {
+    for (const [key, value] of healthRateLimitStore) {
+      if (now - value.windowStart >= HEALTH_RATE_LIMIT_WINDOW_MS) {
+        healthRateLimitStore.delete(key);
+      }
+    }
+  }
+
+  const resetTime = windowStart + HEALTH_RATE_LIMIT_WINDOW_MS;
+  const remaining = Math.max(0, HEALTH_RATE_LIMIT_MAX - count);
+  const retryAfter = Math.max(1, Math.ceil((resetTime - now) / 1000));
+  const rateLimitHeaders = {
+    "X-RateLimit-Limit": String(HEALTH_RATE_LIMIT_MAX),
+    "X-RateLimit-Remaining": String(remaining),
+    "X-RateLimit-Reset": String(Math.ceil(resetTime / 1000)),
+    "Retry-After": String(retryAfter),
+  };
+
+  if (count > HEALTH_RATE_LIMIT_MAX) {
     return NextResponse.json(
-      { error: "Too many requests", status: "error", timestamp: new Date().toISOString(), checks: { supabase: "error" } },
-      { status: 429, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } }
+      { error: "Too many requests", status: "error" },
+      { status: 429, headers: rateLimitHeaders },
     );
   }
 
-  // Perform health checks
   const checks: HealthCheckResult["checks"] = { supabase: "error" };
   let healthy = false;
 
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    if (supabaseUrl && supabaseKey) {
-      const supabase = createSupabaseClient(supabaseUrl, supabaseKey);
+    const supabase = createServiceRoleClient();
       const { error } = await supabase
-        .from("offices")
+        .from("properties")
         .select("id", { count: "exact", head: true })
         .limit(1)
         .abortSignal(AbortSignal.timeout(3000)); // 3-second timeout
       
       checks.supabase = error ? "error" : "ok";
       healthy = !error;
-    } else {
-      checks.supabase = "error";
-      logger.warn("Health check: Supabase credentials not configured");
-    }
   } catch (error: unknown) {
     checks.supabase = "error";
     logger.error("Health check failed", error instanceof Error ? { message: error.message, stack: error.stack } : { error: String(error) });

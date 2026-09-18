@@ -17,6 +17,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:install": "playwright install",
     "security-audit": "node scripts/security-audit.js",
+    "contract:check": "node scripts/contract-check.js",
     "db:gen-types": "supabase gen types typescript --local > src/lib/supabase/types.auto.ts || supabase gen types typescript > src/lib/supabase/types.auto.ts"
   },
   "dependencies": {
@@ -26,11 +27,10 @@
     "@supabase/supabase-js": "^2.108.2",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
-    "isomorphic-dompurify": "^3.18.0",
+    "isomorphic-dompurify": "4.2.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.263.1",
     "next": "^16.2.10",
-    "next-intl": "^4.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.47.0",
@@ -46,10 +46,10 @@
     "@next/bundle-analyzer": "^16.2.9",
     "@playwright/test": "^1.61.1",
     "@sentry/nextjs": "^10.63.0",
-    "@tailwindcss/postcss": "^4.3.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^14.3.0",
     "@testing-library/user-event": "^14.5.0",
+    "@tailwindcss/postcss": "^4.3.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/dompurify": "^3.0.5",
     "@types/leaflet": "^1.9.21",
@@ -68,5 +68,10 @@
     "tailwindcss": "^4.3.2",
     "typescript": "^5.5.3",
     "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "isomorphic-dompurify": {
+      "jsdom": "25.0.1"
+    }
   }
 }

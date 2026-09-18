@@ -86,23 +86,19 @@ test.describe("Favorites - Authenticated User", () => {
 });
 
 test.describe("Favorites - Property Detail Page", () => {
-  test("should render favorite button on property detail page", async ({ page }) => {
+  test("should not expose unsupported favorite control on property detail page", async ({ page }) => {
     await page.goto("/ar/explore");
     const propertyLink = page.locator("a[href*='/explore/']").first();
     if (await propertyLink.count() > 0) {
       await propertyLink.click();
       await page.waitForLoadState("domcontentloaded");
       await page.waitForTimeout(2000);
-      // Use page.evaluate directly to avoid locator detachment during React re-renders
-      const hasFavorite = await page.evaluate(() => {
-        const btn = document.querySelector<HTMLButtonElement>(
-          "button[aria-label*='favorite'], button[aria-label*='المفضلة']",
-        );
-        if (!btn) return false;
-        const pressed = btn.getAttribute("aria-pressed");
-        return pressed === "true" || pressed === "false";
-      });
-      expect(hasFavorite).toBeTruthy();
+      // Favorites have no verified Aqarat OS backing entity or Auth↔people identity mapping.
+      // The reconciled property detail surface therefore must not expose a misleading favorite control.
+      const favoriteControls = page.locator(
+        "button[aria-label*='favorite'], button[aria-label*='المفضلة']",
+      );
+      expect(await favoriteControls.count()).toBe(0);
     }
   });
 });
