@@ -65,7 +65,7 @@ export default async function PropertyDetailPage({
 
   const dict = getMessages(locale as Locale);
   const supabase = createPublicReadClient();
-  const { data, error } = await supabase
+  const { data: property, error } = await supabase
     .from("properties")
     .select("id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, first_seen_at, last_seen_at, created_at, updated_at")
     .eq("id", id)
