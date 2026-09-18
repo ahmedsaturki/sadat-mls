@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
 import { checkApiRateLimit } from "@/lib/security/rateLimit";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const runtime = "nodejs";
 
@@ -41,11 +41,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
   let healthy = false;
 
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    if (supabaseUrl && supabaseKey) {
-      const supabase = createSupabaseClient(supabaseUrl, supabaseKey);
+    const supabase = createServiceRoleClient();
       const { error } = await supabase
         .from("properties")
         .select("id", { count: "exact", head: true })
@@ -54,10 +50,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
       
       checks.supabase = error ? "error" : "ok";
       healthy = !error;
-    } else {
-      checks.supabase = "error";
-      logger.warn("Health check: Supabase credentials not configured");
-    }
   } catch (error: unknown) {
     checks.supabase = "error";
     logger.error("Health check failed", error instanceof Error ? { message: error.message, stack: error.stack } : { error: String(error) });
