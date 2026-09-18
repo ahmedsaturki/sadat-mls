@@ -28,6 +28,8 @@ interface LandingData {
 
 type FeaturedRow = Omit<LandingProperty, "primaryImage">;
 
+const FEATURED_COLUMNS = "id, title, description, price, area_m2, bedrooms, bathrooms, property_type, status, city, district, neighborhood";
+
 function sanitizeSearchTerm(value: string): string {
   return value.trim().replace(/[%,()]/g, " ").replace(/\s+/g, " ");
 }
