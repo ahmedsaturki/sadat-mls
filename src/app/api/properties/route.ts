@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { createPublicReadClient } from "@/lib/supabase/public-read";
 
 export const runtime = "nodejs";
 
 const PROPERTY_COLUMNS = "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, first_seen_at, last_seen_at, created_at, updated_at";
 const DEFAULT_LIMIT = 48;
+const RATE_LIMIT_MAX = 60;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const rateLimitStore = new Map<string, { windowStart: number; count: number }>();
 
 type SortMode = "newest" | "price_low" | "price_high" | "area";
 
@@ -32,23 +34,42 @@ function parseSort(value: string): SortMode {
 }
 
 export async function GET(request: NextRequest) {
-  const ip = (request.headers.get("x-forwarded-for") || "unknown").split(",")[0].trim();
-  const rate = await checkApiRateLimit(`properties-get:${ip}`, undefined, {
-    maxRequests: 60,
-    windowMs: 60 * 1000,
-  });
+  const ip =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+  const now = Date.now();
+  const existing = rateLimitStore.get(ip);
+  const windowStart =
+    existing && now - existing.windowStart < RATE_LIMIT_WINDOW_MS
+      ? existing.windowStart
+      : now;
+  const count =
+    existing && windowStart === existing.windowStart ? existing.count + 1 : 1;
+  rateLimitStore.set(ip, { windowStart, count });
 
-  if (rate.unavailable) {
-    return NextResponse.json(
-      { error: "Rate limiting temporarily unavailable" },
-      { status: 503, headers: { "Retry-After": String(rate.retryAfter) } },
-    );
+  if (rateLimitStore.size > 1000) {
+    for (const [key, value] of rateLimitStore) {
+      if (now - value.windowStart >= RATE_LIMIT_WINDOW_MS) {
+        rateLimitStore.delete(key);
+      }
+    }
   }
 
-  if (!rate.allowed) {
+  const resetTime = windowStart + RATE_LIMIT_WINDOW_MS;
+  const remaining = Math.max(0, RATE_LIMIT_MAX - count);
+  const rateHeaders = {
+    "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+    "X-RateLimit-Remaining": String(remaining),
+    "X-RateLimit-Reset": String(Math.ceil(resetTime / 1000)),
+    "Retry-After": String(Math.max(1, Math.ceil((resetTime - now) / 1000))),
+  };
+
+  if (count > RATE_LIMIT_MAX) {
     return NextResponse.json(
       { error: "Too many requests" },
-      { status: 429, headers: rate.headers },
+      { status: 429, headers: rateHeaders },
     );
   }
 
@@ -116,7 +137,7 @@ export async function GET(request: NextRequest) {
       { properties: data ?? [], count: count ?? 0 },
       {
         status: 200,
-        headers: { ...rate.headers, "Cache-Control": "private, no-store" },
+        headers: { ...rateHeaders, "Cache-Control": "private, no-store" },
       },
     );
 
