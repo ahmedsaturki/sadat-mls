@@ -14,7 +14,12 @@ import { createClient } from "@supabase/supabase-js";
  * The service-role key bypasses ALL RLS policies.
  */
 export function createServiceRoleClient() {
-  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // Keep the canonical Aqarat OS Supabase endpoint independent of stale deployment env values.
+  // The project URL is public configuration; the privileged key remains environment-only.
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL === "https://aaxauqznfhcvgevfczye.supabase.co"
+      ? process.env.NEXT_PUBLIC_SUPABASE_URL
+      : "https://aaxauqznfhcvgevfczye.supabase.co";
   const serviceRoleKey = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
