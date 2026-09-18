@@ -14,9 +14,16 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const ROOT = process.cwd();
-const SCAN_ROOTS = ["src/app", "src/components", "src/lib"];
+const SCAN_ROOTS = ["src"];
 const EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
-const IGNORED_DIRS = new Set(["node_modules", ".next", "coverage", "test-results"]);
+const IGNORED_DIRS = new Set([
+  "node_modules",
+  ".next",
+  "coverage",
+  "test-results",
+  "__tests__",
+  "tests",
+]);
 
 const legacyRelationPatterns = [
   /\.from\(["'](?:offices|users|zones|property_types|property_images|property_owners|contact_requests|property_favorites|rate_limit_state)["']\)/g,
@@ -33,8 +40,8 @@ const legacyPropertyFields = new Set([
   "street",
 ]);
 
-// Match individual Supabase/PostgREST calls so a legitimate field such as
-// `area_m2` cannot be flagged merely because `area` appears elsewhere nearby.
+// Match individual Supabase/PostgREST calls so a legitimate field such as area_m2
+// cannot be flagged merely because "area" appears elsewhere nearby.
 const dbCallPattern = /\.(?:select|eq|neq|gt|gte|lt|lte|in|order|match|contains)\((?:[^()'\"]|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')*\)/gs;
 const legacyTypePattern = /export\s+interface\s+Database\s*\{/g;
 
@@ -55,13 +62,10 @@ function exactLegacyFieldInCall(call) {
   for (const literal of stringLiterals) {
     const value = literal.slice(1, -1);
 
-    // For select("a, b, c"), compare comma-delimited field names exactly.
     for (const field of value.split(",").map((part) => part.trim())) {
       if (legacyPropertyFields.has(field)) return field;
     }
 
-    // For filters such as eq("office_id", value), the first argument is an
-    // exact field token and should be checked directly.
     if (legacyPropertyFields.has(value)) return value;
   }
 
@@ -70,7 +74,9 @@ function exactLegacyFieldInCall(call) {
 
 function scanFile(file) {
   const relative = path.relative(ROOT, file).replaceAll(path.sep, "/");
-  if (relative.endsWith(".test.ts") || relative.endsWith(".test.tsx")) return [];
+  if (relative.endsWith(".test.ts") || relative.endsWith(".test.tsx") || relative.includes("/__tests__/")) {
+    return [];
+  }
 
   const text = fs.readFileSync(file, "utf8");
   const findings = [];
