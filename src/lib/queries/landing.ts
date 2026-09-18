@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { Database } from "@/lib/supabase/types";
 
 export type LandingProperty = Pick<
@@ -37,7 +37,7 @@ function sanitizeSearchTerm(value: string): string {
 
 export async function getLandingData(searchQuery?: string): Promise<LandingData> {
   try {
-    const supabase = await createClient();
+    const supabase = createServiceRoleClient();
 
     let propertiesQuery = supabase
       .from("properties")
