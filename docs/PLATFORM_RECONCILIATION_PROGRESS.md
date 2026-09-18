@@ -2,7 +2,7 @@
 
 ## Current state
 
-**IN PROGRESS — Aqarat PROPERTY READ + AUTH IDENTITY MIGRATION ACTIVE; LEGACY CONTRACT CLEANUP CONTINUES**
+**IN PROGRESS — Aqarat PROPERTY READ + AUTH IDENTITY MIGRATION ACTIVE; FINAL VERIFICATION CONTINUES**
 
 The authoritative direction remains forward migration to the connected Aqarat OS architecture. Production schema has not been mutated from this branch.
 
@@ -34,24 +34,34 @@ The authoritative direction remains forward migration to the connected Aqarat OS
 - Generic legacy admin CRUD was disabled pending an authoritative Aqarat admin contract.
 - Legacy email/push/notification persistence helpers now fail closed while preserving their exported compatibility functions.
 
-## Newly verified live database facts — 2026-09-15
+## Newly verified live database facts — 2026-09-18
 
-Direct inspection of the connected Supabase project `aqarat` verified that the live public schema currently contains both `rate_limit_state` and `security_rate_limits`, both with RLS enabled. The live project also exposes `increment_rate_limit(text, inet, timestamptz)` and `increment_security_rate_limit(text, inet, timestamptz)`. Therefore rate limiting is **not** currently a missing-database blocker; the remaining task is to verify which primitive is authoritative and reconcile application usage accordingly.
+Direct inspection of the connected Supabase project `aaxauqznfhcvgevfczye` verified PostgreSQL 17.6 and the live Aqarat public schema.
+
+The live database contains both `rate_limit_state` and `security_rate_limits`, with RLS enabled on `security_rate_limits`. The application’s current server-side rate-limit path calls `public.increment_security_rate_limit(text, inet, timestamptz)` through the privileged Supabase client. The function exists, is executable by `service_role`, and was transactionally exercised successfully without leaving test data behind.
 
 The live `properties` relation was re-verified with the Aqarat fields used by the migrated property reads, including `property_type`, `transaction_type`, `status`, `city`, `district`, `neighborhood`, `address`, `area_m2`, `price`, `first_seen_at`, `last_seen_at`, `parcel_number`, `installments_clear`, and `canonical_key`.
 
+## Runtime hardening — 2026-09-18
+
+A production runtime error was traced to the `isomorphic-dompurify` / `jsdom` ESM compatibility path observed on property-detail rendering. The branch now pins `isomorphic-dompurify` to 4.2.0 and overrides its `jsdom` dependency to 25.0.1. The resulting Vercel deployment completed successfully, and no runtime error logs were observed for that deployment during the verification window.
+
+The CI workflow was also migrated to Node 24-compatible GitHub Actions releases so the final verification path does not retain the known Node 20 action-runtime deprecation.
+
 ## Verification boundary
 
-PR #14 remains open and draft. The latest cleanup is being verified by CI run #369 and subsequent runs triggered by newer branch commits. No green-branch claim is made until the current verification completes.
+PR #14 remains open and draft until the final branch state passes the complete verification chain. No production promotion is being claimed merely from a successful build or preview deployment.
+
+The latest verified CI baseline before the final workflow-refresh commit had lint, generated-type drift, typecheck, schema-contract, unit tests, and production build all successful; the public E2E gate remained the remaining required runtime verification.
 
 ## Current architectural blockers
 
 1. Business authorization mapping between Supabase Auth identity and `public.people` is not yet persisted or proven. Current role-gated flows therefore fail closed.
 2. Favorites still lack an authoritative Aqarat replacement.
 3. Property imagery/media still lack a verified Aqarat media/storage persistence contract; presentation is decoupled but persistence remains pending.
-4. Manual/checked-in type usage and generated live types must be reconciled so the checked-in artifact represents the authoritative database contract without legacy relations.
-5. Remaining core/runtime callers must be eliminated or migrated as the current CI schema-contract scan identifies them.
-6. Rate limiting requires semantic reconciliation between the two verified live primitives, not schema recreation.
+4. Checked-in generated types and live schema must remain synchronized.
+5. Remaining legacy runtime callers must stay removed, migrated, or explicitly retired; the contract scan is fail-closed.
+6. E2E must complete against the exact final head before promotion.
 
 ## Safety rules
 
@@ -62,17 +72,10 @@ PR #14 remains open and draft. The latest cleanup is being verified by CI run #3
 - No changes to Lara readiness logic for infrastructure reasons.
 - No production certification until schema, runtime, auth, rate limiting, and E2E are all verified against one coherent contract.
 
-## 2026-09-18 — Final platform-link reconciliation
+## Final handoff target
 
-The verified live Supabase project is Aqarat (aaxauqznfhcvgevfczye).
+Target end state for PR #14:
 
-Completed in this reconciliation branch:
-- checked-in supabase.json now points to the verified Aqarat project and host;
-- generated supabase/.temp/* metadata that referenced the retired project was removed from version control;
-- .gitignore now excludes supabase/.temp/;
-- generated Supabase types remain synchronized with the live public schema;
-- the deterministic schema-contract guard passes against the Aqarat application contract;
-- unit tests, lint, typecheck, and the production build continue to pass;
-- the required public Playwright suite is scoped to the supported Aqarat contract; the retired admin surface remains outside the promoted runtime contract until an explicit Auth-to-people identity model exists.
+**SPEC → RECONCILE → FIX → TYPECHECK → CONTRACT → UNIT TEST → BUILD → E2E → VERCEL RUNTIME → FINAL AUDIT → READY → MERGE → PRODUCTION VERIFY**
 
-The branch must not be considered promoted until the exact current head completes the full CI/E2E gate successfully.
+The branch must not be considered fully delivered until the exact final head satisfies this chain.
