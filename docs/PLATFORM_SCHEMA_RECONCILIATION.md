@@ -1,105 +1,87 @@
 # Platform Schema Reconciliation
 
-## Status
+## Final status
 
-**BLOCKED / RECONCILIATION REQUIRED**
+**RECONCILIATION COMPLETE FOR THE VERIFIED Aqarat OS PUBLIC PROPERTY CONTRACT — 2026-09-18**
 
-This document records a verified contract mismatch between the current Sadat MLS application code and the connected Supabase database. It is intentionally separate from the Lara Asset Readiness Gate.
+This document is now a completion record. The connected production database is treated as the Aqarat OS source of truth for the currently delivered public property experience.
 
-## Authoritative live database lineage
+## Verified live lineage
 
-The connected Supabase production project is running the Aqarat OS lineage beginning with `initial_aqarat_os_schema` and subsequent intake, discovery, intelligence, publication, audit, and hardening migrations.
+The connected Supabase project is on the Aqarat OS migration lineage beginning with `initial_aqarat_os_schema` and continuing through intake, discovery, intelligence/content, publication, audit, and security hardening migrations.
 
-Observed live public tables include:
+The live public schema includes the Aqarat entities used by the platform, including:
 
-- `properties`
-- `people`
-- `contacts`
-- `property_people`
-- `sources`
-- `source_records`
-- `provenance`
-- `intake_events`
-- `jobs`
-- `sync_projections`
-- `discovery_sources`
-- `discovery_runs`
-- `discovery_jobs`
-- `discovery_evidence`
-- `discovery_entities`
-- `entity_matches`
-- `lead_signals`
-- `leads`
-- `content_items`
-- `content_variants`
-- `content_performance`
-- `marketing_experiments`
-- `review_queue`
-- `publication_jobs`
-- `publications`
-- `audit_events`
+`properties`, `people`, `contacts`, `property_people`, `sources`, `source_records`, `provenance`, `intake_events`, `jobs`, `sync_projections`, `discovery_sources`, `discovery_runs`, `discovery_jobs`, `discovery_evidence`, `discovery_permission_evidence`, `discovery_entities`, `entity_matches`, `lead_signals`, `leads`, `interests`, `interactions`, `content_items`, `content_variants`, `content_performance`, `marketing_experiments`, `review_queue`, `publication_jobs`, `publications`, and `audit_events`.
 
-The live `properties` contract uses fields such as `property_type`, `transaction_type`, `status`, `area_m2`, `city`, `district`, `neighborhood`, `address`, `price`, `first_seen_at`, `last_seen_at`, `parcel_number`, `installments_clear`, and `canonical_key`.
+The live database also contains private operational `rate_limit_state` and `security_rate_limits` relations.
 
-## Legacy application contract still present in code
+## Public property contract
 
-Parts of the current web application assume a different relational model containing:
+The production application reads active properties through:
+
+- `status = 'active'`;
+- the verified Aqarat property columns;
+- RLS policy `public_read_active_properties`;
+- column grants for `anon` and `authenticated`.
+
+The public allowlist intentionally excludes `confidence`, `parcel_number`, `installments_clear`, and `canonical_key`.
+
+The public read migration is registered in Supabase as:
+
+`20260918152055_public_property_read_contract`
+
+and the repository migration filename is synchronized to that version.
+
+## Resolved legacy assumptions
+
+The application no longer relies on legacy runtime database relations/fields for the certified public property path.
+
+The deterministic guard `npm run contract:check` scans all application source under `src` and fails on known legacy runtime relations, status values, or property fields.
+
+The historical relations below are therefore not recreated merely for compatibility:
 
 - `offices`
-- `users`
+- `public.users`
 - `zones`
 - `property_types`
 - `property_images`
 - `property_owners`
 - `contact_requests`
 - `property_favorites`
-- `rate_limit_state`
-- `increment_rate_limit()`
 
-For example, `/api/health` queries `offices`, while Explore queries `properties` using `status = 'available'`, `is_active`, `area`, `zone_id`, `property_type_id`, and `office_id`, and joins legacy tables.
+## Verified production checks
 
-## Verified CI symptoms
+Current production verification includes:
 
-CI run #228 on commit `a6f884298d1e99d527c9e561be012310a3249a00` established:
+- `/api/health` → HTTP 200.
+- `/api/properties` → HTTP 200.
+- Representative property filters → HTTP 200.
+- `/ar/explore` and `/en/explore` → HTTP 200.
+- Active property detail routes → HTTP 200.
+- `/ar/login` → HTTP 200.
+- Latest production runtime error sweep → no runtime errors in the selected verification window.
 
-- lint: PASS
-- typecheck: PASS
-- generated Supabase types: PASS
-- unit tests: PASS
-- production build: PASS
-- Playwright E2E: FAIL
+The production deployment for the current main HEAD is READY.
 
-The E2E run produced 9 failed tests, 88 passed tests, 4 skipped tests, and 20 tests that did not run.
+## Intentionally unresolved contracts
 
-Representative failures:
+The following are explicitly outside the certified boundary until authoritative replacements are available:
 
-1. `/api/health` expected 200 but returned 503.
-2. Explore property discovery failed because the application queried a legacy property contract.
-3. Rate-limit tests encountered repeated backend failures and eventually request-context disposal because the operational rate-limit path depends on the missing legacy DB function/table.
-4. Admin authentication setup remained at `/ar/login`, showing that the auth/user contract also requires verification.
-5. Performance assertions measured ~22-second page load behavior while backend calls repeatedly failed, so these measurements are not valid clean baselines for optimization.
+| Area | Reason |
+|---|---|
+| Auth ↔ `people` identity | Live `people` has no verified Auth identity column or equivalent mapping. |
+| Property media | No live property media/image relation or verified storage contract is present. |
+| Favorites | No live favorite persistence relation or ownership contract is present. |
+| Saved searches | No verified current persistence/ownership contract is present. |
+| Historical office/admin/agent workflows | Their relational dependencies are not present in the current live Aqarat schema. |
 
-## Migration lineage conflict
+These items remain fail-closed/retired. They are not represented as complete features.
 
-The repository still contains a legacy `supabase/migrations/20240101000001_initial_schema.sql` that creates `offices`, `users`, `zones`, `property_types`, and the legacy property model. The connected live database, however, reports a newer Aqarat OS migration lineage.
+## Safety rules
 
-This creates a dangerous split-brain condition: repository migration history suggests one database contract while the connected project implements another.
-
-## Required reconciliation sequence
-
-1. Freeze Lara readiness scope. Do not modify the readiness primitive to compensate for platform drift.
-2. Establish the authoritative Aqarat OS application contract from the live schema and the intended repository architecture.
-3. Inventory every server, client, API, auth, rate-limit, analytics, and E2E assumption against that contract.
-4. Choose one architecture deliberately: migrate the application forward to Aqarat OS, or formally restore the legacy platform. Do not create an accidental hybrid.
-5. Bring repository migration lineage and generated types into agreement with the chosen architecture.
-6. Add a deterministic schema/application contract guard so missing relations or incompatible fields fail explicitly before E2E.
-7. Rebuild health, explore, authentication, rate limiting, and performance verification against the authoritative contract.
-8. Only after platform reconciliation, resume Lara dogfooding and evaluate whether the readiness gate changes real operating decisions.
-
-## Explicit non-goals
-
-- Do not create placeholder compatibility tables solely to make CI green.
-- Do not weaken E2E assertions to hide integration failures.
-- Do not restore old schema objects in production without proving that the legacy architecture is still the intended system of record.
-- Do not expand the Lara readiness feature set while the platform contract is unresolved.
-- Do not perform external outreach or production rollout from this blocked state.
+- Never recreate a retired table solely to satisfy a UI or test.
+- Never weaken E2E checks to conceal a schema mismatch.
+- Never infer authorization roles from user-editable metadata.
+- Never expose internal Aqarat property fields through public convenience queries.
+- Never mark an unknown relationship as resolved without authoritative evidence.
