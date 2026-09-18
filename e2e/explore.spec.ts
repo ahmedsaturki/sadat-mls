@@ -103,9 +103,13 @@ test.describe("Property Details Page", () => {
     });
     if ((await propertyLink.count()) > 0) {
       await propertyLink.click();
-      await page.waitForLoadState("domcontentloaded");
-      const images = page.locator("img");
+      // Next.js client navigation can resolve after the current document's
+      // DOMContentLoaded event. Wait for the actual property page shell
+      // before asserting media content.
+      await expect(page.locator("#property-content")).toBeVisible({ timeout: 10000 });
+      const images = page.locator("#property-content img");
       const mediaFallback = page.getByRole("img", { name: "Property media unavailable" });
+      await expect(images.first().or(mediaFallback.first())).toBeVisible({ timeout: 10000 });
       expect((await images.count()) + (await mediaFallback.count())).toBeGreaterThan(0);
     }
   });
