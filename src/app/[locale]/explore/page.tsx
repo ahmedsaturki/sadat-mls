@@ -22,7 +22,7 @@ export default async function ExplorePage({
 
   try {
     const supabase = createPublicReadClient();
-    const { data, count, error } = await supabase
+    const { data, count: propertyCount, error } = await supabase
       .from("properties")
       .select(PROPERTY_COLUMNS, { count: "exact" })
       .eq("status", "active")
@@ -33,7 +33,7 @@ export default async function ExplorePage({
       console.error("Failed to load Aqarat OS properties:", error.message);
     } else {
       properties = (data ?? []) as AqaratProperty[];
-      count = count ?? 0;
+      count = propertyCount ?? 0;
     }
   } catch (error) {
     console.error("Failed to load Aqarat OS properties:", error);
