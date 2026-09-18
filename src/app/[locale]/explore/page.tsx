@@ -1,14 +1,10 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isValidLocale } from "@/i18n/config";
-import type { Database } from "@/lib/supabase/types";
+import { createPublicReadClient } from "@/lib/supabase/public-read";
 import AqaratExploreClient, { type AqaratProperty } from "@/components/explore/AqaratExploreClient";
 
 export const dynamic = "force-dynamic";
-
-const PROPERTY_COLUMNS =
-  "id, title, description, property_type, transaction_type, status, city, district, neighborhood, address, latitude, longitude, area_m2, bedrooms, bathrooms, floor, finishing, price, currency, features, confidence, first_seen_at, last_seen_at, created_at, updated_at, parcel_number, installments_clear, canonical_key";
 
 const PAGE_SIZE = 12;
 
@@ -24,19 +20,18 @@ export default async function ExplorePage({
   let count = 0;
 
   try {
-    const supabase = createServiceRoleClient();
-    const result = await supabase
-      .from("properties")
-      .select(PROPERTY_COLUMNS, { count: "exact" })
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .range(0, PAGE_SIZE - 1);
+    const supabase = createPublicReadClient();
+    const { data, error } = await supabase.rpc("get_public_active_properties", {
+      p_limit: PAGE_SIZE,
+      p_offset: 0,
+      p_sort: "newest",
+    });
 
-    if (result.error) {
-      console.error("Failed to load Aqarat OS properties:", result.error.message);
+    if (error) {
+      console.error("Failed to load Aqarat OS properties:", error.message);
     } else {
-      properties = (result.data ?? []) as AqaratProperty[];
-      count = result.count ?? 0;
+      properties = (data ?? []) as AqaratProperty[];
+      count = data?.[0]?.total_count ?? 0;
     }
   } catch (error) {
     console.error("Failed to load Aqarat OS properties:", error);
