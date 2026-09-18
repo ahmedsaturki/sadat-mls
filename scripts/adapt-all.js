@@ -19,7 +19,7 @@
  * - shows full commands that would be run for each component
  * - skips network requests and file system modifications
  */
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -30,7 +30,7 @@ const manifestArgIdx = args.indexOf('--manifest');
 const manifestArg = manifestArgIdx !== -1 ? args[manifestArgIdx + 1] : 'scripts/component-manifest.json';
 const dryRun = args.includes('--dry-run');
 const retryArg = args.indexOf('--retry');
-const RETRY_COUNT = retryArg !== -1 ? parseInt(process.argv[retryArg + 1]) || 3 : 3;
+const RETRY_COUNT = retryArg !== -1 ? parseInt(args[retryArg + 1], 10) || 3 : 3;
 
 const manifestPath = path.resolve(ROOT, manifestArg);
 if (!fs.existsSync(manifestPath)) {
@@ -46,7 +46,7 @@ if (!entries.length) {
 }
 
 const apiKey = process.env.API_KEY_21ST;
-if (!apiKey && !DRY_RUN) {
+if (!apiKey && !dryRun) {
   console.error('❌ API_KEY_21ST is not set. Add it to .env (copy from .env.example).');
   process.exit(1);
 }
@@ -65,25 +65,27 @@ for (const entry of entries) {
   console.log('\n➡️  Adapting', name, '(id', id, 'version', version, ')');
   
   if (dryRun) {
-    // In dry-run mode, show what would be executed
-    const apiKeyPart = apiKey ? ` --api-key ${apiKey}` : '';
-    const cmd = `node scripts/adapt-component.js ${id} ${name} ${apiKeyPart} --retry ${RETRY_COUNT}`;
-    info(`DRY-RUN: Would execute: ${cmd}`);
+    info(`DRY-RUN: Would adapt ${name} (id ${id}, version ${version}) with retry limit ${RETRY_COUNT}`);
     success++;
-  } else {
-    // Execute the actual adaptation
-    try {
-      execSync(`node scripts/adapt-component.js ${id} ${name} ${apiKey ? `--api-key ${apiKey}` : ''} --retry ${RETRY_COUNT}`, {
-        cwd: ROOT,
-        stdio: 'inherit',
-        timeout: 120000,
-      });
-      success++;
-    } catch (err) {
-      failed++;
-      failures.push({ name, id, version, error: err.message });
-      warn(`⚠️  Failed to adapt`, name, '(id', id, 'version', version, '):', err.message);
-    }
+    continue;
+  }
+
+  try {
+    const scriptPath = path.join(__dirname, 'adapt-component.js');
+    execFileSync(process.execPath, [scriptPath, String(id), String(name), '--retry', String(RETRY_COUNT)], {
+      cwd: ROOT,
+      stdio: 'inherit',
+      timeout: 120000,
+      env: {
+        ...process.env,
+        ...(apiKey ? { API_KEY_21ST: apiKey } : {}),
+      },
+    });
+    success++;
+  } catch (err) {
+    failed++;
+    failures.push({ name, id, version, error: err instanceof Error ? err.message : String(err) });
+    warn(`⚠️  Failed to adapt`, name, '(id', id, 'version', version, '):', err instanceof Error ? err.message : String(err));
   }
 }
 

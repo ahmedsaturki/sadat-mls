@@ -17,7 +17,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:install": "playwright install",
     "contract:check": "node scripts/contract-check.js",
-    "db:gen-types": "npx --no-install supabase gen types typescript --local > src/lib/supabase/types.auto.ts || npx --no-install supabase gen types typescript > src/lib/supabase/types.auto.ts"
+    "db:gen-types": "npx --no-install supabase gen types typescript --local > src/lib/supabase/types.auto.ts || npx --no-install supabase gen types typescript > src/lib/supabase/types.auto.ts",
+    "test:adapter": "node scripts/adapter-smoke.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.0.1",
