@@ -100,12 +100,28 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm install --no-audit --no-fund
+      - name: Resolve current Supabase privileged API key
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys" \
+            --data-urlencode "reveal=true" \
+            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
+          key="$(node -e 'const x=JSON.parse(process.argv[1]); const keys=Array.isArray(x)?x:(Array.isArray(x.keys)?x.keys:Array.isArray(x.api_keys)?x.api_keys:[]); const key=keys.find(k=>k.type==="secret"&&typeof k.api_key==="string"&&k.api_key.startsWith("sb_secret_"))?.api_key; if(!key) process.exit(2); process.stdout.write(key);' "$response")"
+          if [[ ! "$key" =~ ^sb_secret_ ]]; then
+            echo "::error::Supabase Management API did not return a supported secret key."
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          printf '%s\n' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
+          echo "Resolved current Supabase privileged API key for CI."
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
           # Supabase's verified publishable key is safe for browser/E2E use and avoids a stale legacy anon secret.
           NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
       - run: npx playwright install --with-deps chromium
@@ -117,7 +133,6 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
           # Supabase's verified publishable key is safe for browser/E2E use and avoids a stale legacy anon secret.
           NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
       - uses: actions/upload-artifact@v4
@@ -138,11 +153,27 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm install --no-audit --no-fund
+      - name: Resolve current Supabase privileged API key
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys" \
+            --data-urlencode "reveal=true" \
+            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
+          key="$(node -e 'const x=JSON.parse(process.argv[1]); const keys=Array.isArray(x)?x:(Array.isArray(x.keys)?x.keys:Array.isArray(x.api_keys)?x.api_keys:[]); const key=keys.find(k=>k.type==="secret"&&typeof k.api_key==="string"&&k.api_key.startsWith("sb_secret_"))?.api_key; if(!key) process.exit(2); process.stdout.write(key);' "$response")"
+          if [[ ! "$key" =~ ^sb_secret_ ]]; then
+            echo "::error::Supabase Management API did not return a supported secret key."
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          printf '%s\n' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
+          echo "Resolved current Supabase privileged API key for CI."
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
