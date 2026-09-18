@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { supabase, createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { authSchemas } from "@/lib/validation";
@@ -30,7 +31,7 @@ function mapAuthUser(authUser: {
   phone?: string | null;
   created_at?: string;
   user_metadata?: Record<string, unknown>;
-}) : User {
+}): User {
   const metadata = authUser.user_metadata ?? {};
   return {
     id: authUser.id,
@@ -54,7 +55,7 @@ export function useAuthUser() {
     ...auth,
     profile: auth.user,
     supabase: supabaseClient,
-    refresh: auth.clearError,
+    refresh: auth.refresh,
   };
 }
 
@@ -70,13 +71,17 @@ export function useAuth() {
     error: null,
   });
 
-  const isProcessingRef = useRef(false);
-
   useEffect(() => {
     let isMounted = true;
 
-    const setAuthenticatedUser = (authUser: Parameters<typeof mapAuthUser>[0]) => {
+    const applyUser = (authUser: Parameters<typeof mapAuthUser>[0] | null) => {
       if (!isMounted) return;
+
+      if (!authUser) {
+        setState({ user: null, isLoading: false, isAuthenticated: false, error: null });
+        return;
+      }
+
       setState({
         user: mapAuthUser(authUser),
         isLoading: false,
@@ -85,49 +90,68 @@ export function useAuth() {
       });
     };
 
-    const fetchSession = async () => {
-      if (isProcessingRef.current) return;
-      isProcessingRef.current = true;
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT" || !session?.user) {
+        applyUser(null);
+        return;
+      }
 
+      applyUser(session.user);
+    });
+
+    const fetchSession = async () => {
       try {
         setState((prev) => ({ ...prev, isLoading: true, error: null }));
         const { data, error } = await supabase.auth.getUser();
         if (error) throw error;
-
-        if (!data.user) {
-          if (isMounted) {
-            setState({ user: null, isLoading: false, isAuthenticated: false, error: null });
-          }
-          return;
-        }
-
-        setAuthenticatedUser(data.user);
-
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-          if (event === "SIGNED_OUT" || !session?.user) {
-            if (isMounted) {
-              setState({ user: null, isLoading: false, isAuthenticated: false, error: null });
-            }
-            return;
-          }
-          setAuthenticatedUser(session.user);
-        });
-
-        return () => authListener.subscription.unsubscribe();
+        applyUser(data.user);
       } catch (error) {
         if (!isMounted) return;
         const errorMessage = error instanceof Error ? error.message : "Authentication error";
         logger.error("Auth error:", { error: errorMessage });
-        setState({ user: null, isLoading: false, isAuthenticated: false, error: errorMessage });
-      } finally {
-        isProcessingRef.current = false;
+        setState({
+          user: null,
+          isLoading: false,
+          isAuthenticated: false,
+          error: errorMessage,
+        });
       }
     };
 
-    fetchSession();
+    void fetchSession();
+
     return () => {
       isMounted = false;
+      authListener.subscription.unsubscribe();
     };
+  }, []);
+
+  const refresh = useCallback(async () => {
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) throw error;
+
+      const user = data.user ? mapAuthUser(data.user) : null;
+      setState({
+        user,
+        isLoading: false,
+        isAuthenticated: Boolean(user),
+        error: null,
+      });
+
+      return { success: true, user };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Authentication refresh failed";
+      logger.error("Auth refresh exception:", { error: errorMessage });
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage,
+      }));
+      return { success: false, error: errorMessage };
+    }
   }, []);
 
   const login = useCallback(async (email: string, password: string, rememberMe = false) => {
@@ -294,5 +318,6 @@ export function useAuth() {
     resetPassword,
     updateProfile,
     clearError,
+    refresh,
   };
 }

@@ -17,6 +17,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
+  NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -39,18 +44,15 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci --no-audit --no-fund
-      - name: Install Supabase CLI
-        run: npm install -g supabase
-      - name: Generate TypeScript types from schema
-        run: npx supabase gen types typescript --project-id "$SUPABASE_PROJECT_ID" --schema public > src/lib/supabase/types.auto.ts
+      - name: Generate TypeScript types from authoritative schema
+        run: npx --no-install supabase gen types typescript --project-id "$SUPABASE_PROJECT_ID" --schema public > src/lib/supabase/types.auto.ts
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
       - name: Fail on generated type drift
         run: |
           if ! diff -q src/lib/supabase/types.ts src/lib/supabase/types.auto.ts > /dev/null 2>&1; then
             echo "::error::Checked-in Supabase types are out of sync with the live Aqarat schema."
-            echo "Regenerate src/lib/supabase/types.ts from project aaxauqznfhcvgevfczye and commit the exact result."
+            echo "Regenerate src/lib/supabase/types.ts from project $SUPABASE_PROJECT_ID and commit the exact result."
             exit 1
           fi
       - uses: actions/upload-artifact@v6
@@ -110,12 +112,9 @@ jobs:
       - name: Resolve current Supabase privileged API key
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
         run: |
           set -euo pipefail
-          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys" \
-            --data-urlencode "reveal=true" \
-            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
+          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys"             --data-urlencode "reveal=true"             --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
           key="$(node -e 'const x=JSON.parse(process.argv[1]); const keys=Array.isArray(x)?x:(Array.isArray(x.keys)?x.keys:Array.isArray(x.api_keys)?x.api_keys:[]); const key=keys.find(k=>k.type==="secret"&&typeof k.api_key==="string"&&k.api_key.startsWith("sb_secret_"))?.api_key; if(!key) process.exit(2); process.stdout.write(key);' "$response")"
           if [[ ! "$key" =~ ^sb_secret_ ]]; then
             echo "::error::Supabase Management API did not return a supported secret key."
@@ -126,21 +125,14 @@ jobs:
           echo "Resolved current Supabase privileged API key for CI."
       - run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
-          # Supabase's verified publishable key is safe for browser/E2E use and avoids a stale legacy anon secret.
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
       - run: npx playwright install --with-deps chromium
       - name: Run Playwright tests
-        # Admin E2E requires a verified Auth↔people identity contract; the live Aqarat project currently has no auth users, so CI exercises the supported public contract only.
         run: npx playwright test --project=chromium --reporter=list
         env:
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
-          NEXT_PUBLIC_SUPABASE_URL: https://aaxauqznfhcvgevfczye.supabase.co
-          # Supabase's verified publishable key is safe for browser/E2E use and avoids a stale legacy anon secret.
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_vjUNgHd3RS2KbXFRYL6k_w_qkAwTT8J
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
       - uses: actions/upload-artifact@v6
@@ -164,12 +156,9 @@ jobs:
       - name: Resolve current Supabase privileged API key
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_PROJECT_ID: aaxauqznfhcvgevfczye
         run: |
           set -euo pipefail
-          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys" \
-            --data-urlencode "reveal=true" \
-            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
+          response="$(curl --fail --silent --show-error --get "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_ID}/api-keys"             --data-urlencode "reveal=true"             --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}")"
           key="$(node -e 'const x=JSON.parse(process.argv[1]); const keys=Array.isArray(x)?x:(Array.isArray(x.keys)?x.keys:Array.isArray(x.api_keys)?x.api_keys:[]); const key=keys.find(k=>k.type==="secret"&&typeof k.api_key==="string"&&k.api_key.startsWith("sb_secret_"))?.api_key; if(!key) process.exit(2); process.stdout.write(key);' "$response")"
           if [[ ! "$key" =~ ^sb_secret_ ]]; then
             echo "::error::Supabase Management API did not return a supported secret key."
@@ -177,11 +166,8 @@ jobs:
           fi
           echo "::add-mask::$key"
           printf '%s\n' "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
-          echo "Resolved current Supabase privileged API key for CI."
       - run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
@@ -190,8 +176,16 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     steps:
-      - name: Wait for deployment
-        run: sleep 30
-      - name: Check health endpoint
+      - name: Verify production health
         run: |
-          curl -f ${{ secrets.NEXT_PUBLIC_SITE_URL }}/api/health || exit 1
+          set -euo pipefail
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error --max-time 15 "https://sadat-mls.vercel.app/api/health" | grep -q '"status":"ok"'; then
+              echo "Production health check passed."
+              exit 0
+            fi
+            echo "Health check attempt ${attempt}/20 did not pass; retrying."
+            sleep 10
+          done
+          echo "::error::Production health endpoint did not become healthy."
+          exit 1

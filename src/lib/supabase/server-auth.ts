@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { UserRole } from "@/lib/utils/constants";
 import { logger } from "@/lib/logger";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/public-config";
 
 export interface AuthUser {
   user: { id: string } | null;
@@ -21,7 +22,7 @@ function mapAuthProfile(authUser: {
   id: string;
   email?: string | null;
   user_metadata?: Record<string, unknown>;
-}) : AuthUser["profile"] {
+}): AuthUser["profile"] {
   const metadata = authUser.user_metadata ?? {};
   return {
     id: authUser.id,
@@ -36,8 +37,8 @@ function mapAuthProfile(authUser: {
 export async function getServerAuth(): Promise<AuthUser> {
   const cookieStore = await cookies();
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY,
     {
       cookies: {
         getAll() {

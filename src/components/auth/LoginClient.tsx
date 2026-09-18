@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Building2, ArrowRight } from "lucide-react";
@@ -12,9 +12,14 @@ import { usePageLocale } from "@/hooks/usePageLocale";
 import { logger } from "@/lib/logger";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_LOGIN_ATTEMPTS = 5;
 
-interface RateLimitResponse { allowed: boolean; remaining: number; retryAfter: number; locked?: boolean; error?: string; }
+interface RateLimitResponse {
+  allowed: boolean;
+  remaining: number;
+  retryAfter: number;
+  locked?: boolean;
+  error?: string;
+}
 
 export default function LoginClient({ params }: { params: { locale: string } }) {
   const [email, setEmail] = useState("");
@@ -29,48 +34,108 @@ export default function LoginClient({ params }: { params: { locale: string } }) 
 
   const checkRateLimit = useCallback(async () => {
     try {
-      const response = await fetch("/api/auth/rate-limit", { method: "POST", headers: { "Content-Type": "application/json" } });
+      const response = await fetch("/api/auth/rate-limit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
       const data: RateLimitResponse = await response.json();
+
       if (!response.ok || typeof data.allowed !== "boolean") {
         setError(data.error || dict.common.unexpectedError);
         return false;
       }
-      if (!data.allowed) { setAttemptsRemaining(0); setError(data.error || dict.common.rateLimitExceeded.replace("{{minutes}}", String(Math.ceil(data.retryAfter / 60)))); return false; }
-      setAttemptsRemaining(data.remaining); return true;
+
+      if (!data.allowed) {
+        setAttemptsRemaining(0);
+        setError(
+          data.error ||
+            dict.common.rateLimitExceeded.replace(
+              "{{minutes}}",
+              String(Math.ceil(data.retryAfter / 60)),
+            ),
+        );
+        return false;
+      }
+
+      setAttemptsRemaining(data.remaining);
+      return true;
     } catch (err) {
-      logger.error("Rate limit check failed", { error: err instanceof Error ? err.message : String(err) });
+      logger.error("Rate limit check failed", {
+        error: err instanceof Error ? err.message : String(err),
+      });
       setError(dict.common.unexpectedError);
       return false;
     }
   }, [dict.common.rateLimitExceeded, dict.common.unexpectedError]);
 
-  useEffect(() => { checkRateLimit(); }, [checkRateLimit]);
-
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true); setError("");
-    if (!email.trim()) { setError(dict.auth.emailRequired || dict.auth.loginError); setLoading(false); return; }
-    if (!EMAIL_REGEX.test(email)) { setError(dict.auth.emailInvalid || dict.auth.loginError); setLoading(false); return; }
-    if (!(await checkRateLimit())) { setLoading(false); return; }
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    const supabase = createClient();
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError) {
-      if (authError.message.includes("Email not confirmed") || authError.message.includes("email not verified")) {
-        setError(dict.auth.emailNotVerified); setLoading(false); return;
-      }
-      if (!(await checkRateLimit())) { setError(dict.common.rateLimitLocked); setAttemptsRemaining(0); }
-      else { setError(dict.auth.loginError); setAttemptsRemaining(Math.max(0, (attemptsRemaining || MAX_LOGIN_ATTEMPTS) - 1)); }
-      setLoading(false); return;
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
+      setError(dict.auth.emailRequired || dict.auth.loginError);
+      setLoading(false);
+      return;
     }
 
-    if (!data.user) { setError(dict.auth.loginError); setLoading(false); return; }
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      setError(dict.auth.emailInvalid || dict.auth.loginError);
+      setLoading(false);
+      return;
+    }
+
+    if (!password) {
+      setError(dict.auth.loginError);
+      setLoading(false);
+      return;
+    }
+
+    if (!(await checkRateLimit())) {
+      setLoading(false);
+      return;
+    }
+
+    const supabase = createClient();
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    });
+
+    if (authError) {
+      if (
+        authError.message.includes("Email not confirmed") ||
+        authError.message.includes("email not verified")
+      ) {
+        setError(dict.auth.emailNotVerified);
+      } else {
+        setError(dict.auth.loginError);
+      }
+      setLoading(false);
+      return;
+    }
+
+    if (!data.user) {
+      setError(dict.auth.loginError);
+      setLoading(false);
+      return;
+    }
+
     if (!data.user.email_confirmed_at) {
-      await supabase.auth.signOut(); setError(dict.auth.emailNotVerified); setLoading(false); return;
+      await supabase.auth.signOut();
+      setError(dict.auth.emailNotVerified);
+      setLoading(false);
+      return;
     }
 
     const nextParam = searchParams.get("next");
-    router.push(nextParam && nextParam.startsWith("/") ? nextParam : `/${locale}/explore`);
-    setLoading(false);
+    router.push(
+      nextParam && nextParam.startsWith("/")
+        ? nextParam
+        : `/${locale}/explore`,
+    );
   };
 
   return (
@@ -96,7 +161,7 @@ export default function LoginClient({ params }: { params: { locale: string } }) 
             </div>
           </div>
           {error && <div className="mb-4 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm" role="alert">{error}</div>}
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} noValidate className="space-y-5">
             <Input label={dict.auth.emailLabel} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
             <Input label={dict.auth.passwordLabel} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
             <div className="flex justify-end">
