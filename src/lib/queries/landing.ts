@@ -35,6 +35,13 @@ function sanitizeSearchTerm(value: string): string {
 export async function getLandingData(searchQuery?: string): Promise<LandingData> {
   try {
     const supabase = createPublicReadClient();
+    let propertiesQuery = supabase
+      .from("properties")
+      .select(FEATURED_COLUMNS)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(6);
+
     const q = searchQuery && searchQuery.trim().length > 0 ? sanitizeSearchTerm(searchQuery) : null;
     const finalPropertiesQuery = q
       ? propertiesQuery.or(
