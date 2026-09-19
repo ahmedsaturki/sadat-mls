@@ -12,13 +12,19 @@ import { ROLES, type UserRole } from "@/lib/utils/constants";
 interface MobileBottomNavProps {
   locale: Locale;
   dict: Messages;
-  role: UserRole;
+  role?: UserRole | null;
 }
 
 export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavProps) {
   const pathname = usePathname();
 
   const links = useMemo(() => {
+    if (!role) {
+      return [
+        { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
+        { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
+      ];
+    }
     if (role === ROLES.SUPER_ADMIN) {
       return [
         { href: `/${locale}/admin`, label: dict.nav.dashboard, icon: LayoutDashboard },
