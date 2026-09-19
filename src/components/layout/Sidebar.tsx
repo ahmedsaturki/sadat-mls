@@ -31,7 +31,7 @@ import { ROLES, type UserRole } from "@/lib/utils/constants";
 interface SidebarProps {
   locale: Locale;
   dict: Messages;
-  role: UserRole;
+  role?: UserRole | null;
   onNavigate?: () => void;
   profile?: { fullName?: string | null; email: string | null; avatarUrl?: string | null } | null;
 }
@@ -40,6 +40,12 @@ export default function Sidebar({ locale, dict, role, onNavigate, profile }: Sid
   const pathname = usePathname();
 
   const links = useMemo(() => {
+    if (!role) {
+      return [
+      { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
+        { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
+      ];
+    }
     if (role === ROLES.SUPER_ADMIN) {
       return [
         { href: `/${locale}/admin`, label: dict.nav.dashboard, icon: LayoutDashboard },
