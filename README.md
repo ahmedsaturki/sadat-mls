@@ -61,7 +61,9 @@ The applied public-property migration is recorded in Supabase as:
 
 `20260918152055_public_property_read_contract`
 
-and the repository migration filename matches that applied version.
+and the repository contains that applied migration file.
+
+The broader repository migration chain is currently being reconciled with the full live Aqarat OS history. The live project contains August 2026 Aqarat migrations that are not yet all present under `supabase/migrations/`; see Issue #30. Until that reconciliation is complete, do not treat the current migration directory as a clean from-scratch production schema reproduction path.
 
 ## Security posture
 
@@ -154,6 +156,10 @@ The hosted CI pipeline also generates Supabase types from project `aaxauqznfhcvg
 - `docs/PLATFORM_SCHEMA_CONTRACT_MATRIX.md` — contract-by-contract decisions.
 - `AGENTS.md` — authoritative agent engineering rules.
 - `CLAUDE.md` — compact agent context.
+
+## Schema lineage status
+
+Issue #30 tracks restoration of a reproducible local migration chain matching the live Aqarat OS schema. This is separate from the already-verified production runtime contract.
 
 ## Lara scope
 
