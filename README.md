@@ -9,14 +9,14 @@ Verified on **2026-09-19** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Latest verified runtime release baseline: `b8c24888f3507135ef9fd0fda200a1076a9efa98` (merged PR #26)
-- Production deployment for that runtime baseline: `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` (READY)
-- Post-merge self-hosted verification run #39: SUCCESS
+- Latest verified runtime release baseline: `51e01617f94a3352b963b774fa18b538a4a6cb78` (merged PR #27 + PR #28)
+- Production deployment for that runtime baseline: `dpl_2f6Q5agnHCNAyZvXPh84qtsD7HWa` (READY)
+- Post-merge self-hosted verification run #41: SUCCESS
 - Production smoke verification on 2026-09-19: `/api/health`, `/api/properties`, a representative filter, `/ar/explore`, `/en/explore`, and `/ar/login` all returned HTTP 200.
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
-PR #26 also retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests; it did not invent replacement Aqarat contracts.
+PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests; it did not invent replacement Aqarat contracts.
 
 This README records the latest **verified runtime baseline**. Documentation-only commits may advance `main` afterward without changing the runtime contract; new runtime changes require a fresh verification cycle.
 
@@ -85,15 +85,15 @@ The live schema currently has no `offices`, `public.users`, `zones`, `property_i
 
 ## Verification baseline
 
-The current verified runtime baseline was checked with:
+The current certified runtime remains the same public Aqarat OS contract; PR #28 only removes dead/unadvertised implementations and their tests. The current verified runtime baseline was checked with:
 
 - `/api/health` → HTTP 200 with Supabase/property checks OK.
 - `/api/properties` → HTTP 200.
 - Representative property filters → HTTP 200.
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Vercel production deployment `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` → READY for merge commit `b8c24888f3507135ef9fd0fda200a1076a9efa98`.
-- Post-merge self-hosted verification run #39 → SUCCESS, including lint, typecheck, schema contract, unit/integration tests, build, and diff check.
+- Vercel production deployment `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` → READY for merge commit `b8c24888f3507135ef9fd0fda200a1076a9efa98` (PR #26), followed by the docs-only PR #27 baseline `51e01617f94a3352b963b774fa18b538a4a6cb78`.
+- PR #28 cleanup verified by self-hosted run #44 → SUCCESS, including lint, typecheck, schema contract, unit/integration tests, build, and diff check.
 - Production runtime error sweep (selected 24-hour window) → no runtime errors.
 - Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, and X-Content-Type-Options.
 
