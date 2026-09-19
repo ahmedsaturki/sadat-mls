@@ -1,94 +1,131 @@
 # Agent Context for Sadat MLS Cloud
 
-## Project Overview
-Bilingual (Arabic/English) real estate MLS platform for Sadat City, Egypt. Built with Next.js 16.2.10 App Router, Supabase, Tailwind CSS 4, and TypeScript.
+## Authoritative baseline
 
-**Production URL:** https://sadat-mls.vercel.app  
-**Alias:** https://sadat-mls.vercel.app
+Verified baseline: **2026-09-19**.
 
-## Tech Stack
-- **Framework:** Next.js 16.2.10 (App Router)
-- **Language:** TypeScript 5 (Strict Mode)
-- **Styling:** Tailwind CSS 4
-- **Database:** Supabase (PostgreSQL)
-- **Auth:** Supabase Auth (JWT + Cookies)
-- **Storage:** Supabase Storage
-- **Testing:** Vitest + Playwright
-- **CI/CD:** GitHub Actions
-- **Monitoring:** Sentry
-- **Deployment:** Vercel
+Sadat MLS is currently a bilingual public real-estate property experience backed by the verified Aqarat OS schema. The live Supabase schema, executable contracts, and production verification are authoritative. Historical Sadat MLS relational assumptions are not a runtime source of truth.
 
-## Build & Test Commands
+- Production: https://sadat-mls.vercel.app
+- Baseline main before this PR: `0e603135cb7c2f87c3c2d00b1be0a56bf0f5946f`
+- Baseline production deployment: `dpl_2nRKvAmLKcRSUpRwk7UkgcbDDJEs` (READY)
+- Supabase project: `aaxauqznfhcvgevfczye`
+- Framework: Next.js 16.2.10 App Router
+- Runtime: Node 24 / npm 12
+- Tests/tooling: TypeScript, ESLint, Vitest, Playwright
+
+## Product contract
+
+Certified public behavior includes localized property browse/search/filter/sort, property detail, comparison/share presentation, authentication entry points, public health/property APIs, and the supported public inquiry flow.
+
+Intentionally unresolved until an authoritative Aqarat contract exists:
+- Auth user ↔ `people` identity and organization/office role mapping;
+- historical office/admin/agent workflows;
+- durable property media/storage ownership;
+- favorite persistence;
+- saved-search persistence.
+
+Do not resurrect retired tables or invent compatibility joins to make these features appear complete.
+
+## Commands
+
 ```bash
-# Build
-npm run build
-
-# Unit tests
-npm run test:run
-
-# Unit tests with coverage
-npm run test:coverage
-
-# Lint
+npm ci --no-audit --no-fund
 npm run lint
-
-# TypeScript check
-npx tsc --noEmit
-
-# E2E tests
+npm run test:adapter
+npm run typecheck
+npm run contract:check
+npm run test:run
+npm run build
 npm run test:e2e
+git diff --check
 ```
 
-## Project Structure
-- `src/app/[locale]/` - i18n routes (ar, en)
-- `src/app/[locale]/admin/` - Super Admin Dashboard
-- `src/app/[locale]/dashboard/` - Office Dashboard
-- `src/app/[locale]/explore/` - Public Property Listings
-- `src/app/api/` - API Routes
-- `src/components/` - React Components
-- `src/hooks/` - Custom React Hooks
-- `src/i18n/` - Internationalization
-- `src/lib/` - Utilities & Services
-- `src/__tests__/` - Unit Tests
+The currently verified package scripts are defined in `package.json`. Prefer `npm run typecheck` over duplicating its underlying command.
 
-## Key Conventions
-- All pages use `"use client"` with dynamic `[locale]` routing
-- i18n via `next-intl` with `dict.*` keys
-- Auth checks in middleware for protected routes
-- Role-Based Access Control: `super_admin`, `office_admin`, `office_agent`
-- CSRF protection on mutating API requests
-- Rate limiting on API and contact forms
-- CSP with nonce-based scripts
+## CI/CD
 
-## Environment Variables
-- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key
-- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (server-side only)
-- `NEXT_PUBLIC_SITE_URL` - Site URL for SEO
-- `NEXT_PUBLIC_APP_URL` - App URL for metadata
-- `NEXT_PUBLIC_SENTRY_DSN` - Sentry DSN (optional)
+### Self-hosted verification
 
-## Database Tables
-- `offices` - Real estate offices
-- `users` - User profiles (extends auth.users)
-- `zones` - Sadat City districts
-- `property_types` - Property categories
-- `properties` - Property listings
-- `property_owners` - Owner contact data
-- `property_images` - Property photos
-- `contact_requests` - Visitor inquiries
-- `rate_limit_log` - Rate limiting audit log
+Workflow: `.github/workflows/self-hosted-verification.yml`.
 
-## Testing
-- **Unit Tests:** Vitest with @testing-library/react (753 tests, 50 files)
-- **E2E Tests:** Playwright (111 tests, 12 files)
-- Verify with: `npm run test:run && npm run test:e2e`
+It runs on pull requests targeting `main`, pushes to `main`, and manual dispatch.
 
-## Security
-- CSP with nonce-based scripts
-- CSRF double-submit cookie pattern
-- Rate limiting (memory + database fallback)
-- XSS prevention with input sanitization
-- HSTS with 1-year max-age
-- RLS on all database tables
-- RBAC with 3 user roles
+The dedicated Linux x64 runner is provisioned with Node 24. The workflow verifies the locally provisioned toolchain instead of invoking `actions/setup-node`, because the setup action was the observed failure/hang point on this runner.
+
+Pipeline:
+
+```
+checkout → sanitize → verify Node 24/npm
+→ npm ci → lint → adapter smoke → typecheck
+→ contract check → tests → build → diff check
+```
+
+Runner service location:
+`~/actions-runners/sadat-mls`
+
+Manage it with `svc.sh`; do not run `./run.sh` concurrently with the service.
+
+### Hosted CI
+
+Workflow: `.github/workflows/ci.yml`.
+
+Hosted CI includes secret-dependent Supabase type generation/type drift checks, typecheck, unit tests, schema contract checks, Playwright E2E, production build, and a production health gate.
+
+A hosted job that fails before any job step is created is not evidence that the corresponding repository command failed. Preserve the existing gates and investigate infrastructure/admission separately.
+
+## Database contract
+
+The authoritative public property contract is documented in:
+- `README.md`
+- `API.md`
+- `SECURITY.md`
+- `docs/PLATFORM_SCHEMA_RECONCILIATION.md`
+- `docs/PLATFORM_SCHEMA_CONTRACT_MATRIX.md`
+- `scripts/contract-check.js`
+
+Public property reads are constrained to active rows and approved public columns. Internal fields such as `confidence`, `parcel_number`, `installments_clear`, and `canonical_key` are not public.
+
+The application uses Aqarat geography/measurement fields such as `area_m2`; do not reintroduce legacy fields such as `area`, `zone_id`, `property_type_id`, or `office_id` without a newly verified contract.
+
+## Security invariants
+
+- Never expose a service-role/secret key to browser code.
+- Never authorize using user-editable `user_metadata`.
+- Never store roles, office IDs, JWTs, or authorization inputs in browser storage.
+- Preserve CSRF protection on required state-changing public flows.
+- Preserve bounded rate limits and fail-closed behavior for protected operations.
+- Keep CSP ownership in the established security layer; do not add competing policy sources.
+- Use the repository logger convention rather than direct `console.error` where applicable.
+- Do not bypass RLS simply to make an integration pass.
+
+## Contract guard
+
+`npm run contract:check` is a deterministic fail-closed guard over runtime application code.
+
+It detects known legacy relations/functions, retired property fields/status assumptions, and legacy database type contracts. Tests are excluded from runtime scanning.
+
+Never weaken the guard by adding compatibility exceptions for retired production contracts. Migrate the caller instead.
+
+## Documentation discipline
+
+Every volatile fact must carry a verification date or be described as a baseline.
+
+Do not publish static claims such as "current deployment", "latest commit", or exact test totals without evidence for the stated verification window. After a release, refresh the relevant release record rather than relying on old numbers.
+
+Historical architecture may be documented for migration context, but clearly label it as historical and never present it as the live schema.
+
+## Review gate
+
+Before release:
+1. verify the live contract;
+2. run deterministic local checks;
+3. pass self-hosted verification;
+4. inspect hosted CI failures by actual step evidence;
+5. verify Vercel deployment readiness;
+6. smoke-test production;
+7. inspect runtime errors;
+8. update current documentation;
+9. freeze the verified baseline.
+
+The goal is an auditable, fail-closed public property platform rather than a partially reconstructed copy of the retired Sadat MLS data model.
