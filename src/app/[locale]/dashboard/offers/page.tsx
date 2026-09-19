@@ -1,20 +1,5 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { isValidLocale, type Locale } from "@/i18n/config";
-import { getMessages } from "@/i18n/getMessages";
-import { getServerAuth } from "@/lib/supabase/server-auth";
-import OffersClientWrapper from "@/components/dashboard/OffersClientWrapper";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale: rawLocale } = await params;
-  const locale = (isValidLocale(rawLocale) ? rawLocale : "ar") as Locale;
-  const dict = getMessages(locale);
-  return { title: dict.dashboard.offers };
-}
+import { isValidLocale } from "@/i18n/config";
 
 export default async function OffersPage({
   params,
@@ -22,7 +7,8 @@ export default async function OffersPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { user } = await getServerAuth();
-  if (!user) redirect(`/${locale}/login`);
-  return <OffersClientWrapper params={{ locale }} />;
+  if (!isValidLocale(locale)) redirect("/ar");
+  // Historical offers persistence is not backed by a verified Aqarat OS
+  // contract. Do not execute the retired client/API surface.
+  redirect(`/${locale}/explore`);
 }
