@@ -8,13 +8,12 @@ The certified runtime contract remains the merged PR #28 baseline:
 
 - Runtime release baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28).
 - Production deployment for that runtime baseline: `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` (**READY**).
-- Current `main`: `a5b25ce0df7c13667fea9c5a0488190015a6aaf9` (documentation-only after PR #28).
-- Current production deployment for `main`: `dpl_EnGwytZt28U85aekbabx9Esykosn` (**READY**).
-- Post-`main) self-hosted verification run #50: **SUCCESS** across toolchain, install, lint, adapter smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
+- The current `main` branch may contain documentation-only commits after PR #28 without changing the certified runtime contract.
+- Independent self-hosted verification run #50: **SUCCESS** across toolchain, install, lint, adapter smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
 - Hosted CI run #706, rerun attempt 2: **FAILURE before job steps were created**; `lint` has no steps/runner evidence and all dependent jobs were skipped. This remains an infrastructure/admission issue under Issue #25, not evidence of a repository command failure.
 - Production runtime error sweep for the selected 24-hour verification window: no runtime errors.
 
-This record is the release source for exact verified baseline identifiers. Subsequent documentation-only commits may advance `main) without changing the certified runtime contract; any runtime-affecting change requires a fresh verification cycle.
+This record is the release source for exact verified baseline identifiers. Subsequent documentation-only commits may advance `main` without changing the certified runtime contract; any runtime-affecting change requires a fresh verification cycle.
 
 The original implementation plan described the historical Sadat MLS relational model. That model is not the source of truth for the connected production database.
 
@@ -73,9 +72,9 @@ No replacement compatibility schema was invented.
 
 ## Production verification
 
-Verified against the current production deployment after the documentation release:
+Verified against the production deployment of the certified runtime baseline:
 
-- `dpl_EnGwytZt28U85aekbabx9Esykosn` → **READY**, production, commit `a5b25ce0df7c13667fea9c5a0488190015a6aaf9`.
+- `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` → **READY**, production, runtime commit `22f366cbc00200a1c19f249bfb4f2136a599de30`.
 - Self-hosted verification run #50 → **SUCCESS**.
 - `GET /api/health` → HTTP 200 with Supabase/property checks OK.
 - `GET /api/properties` → HTTP 200.
@@ -112,7 +111,7 @@ A live Supabase migration-history audit on 2026-09-20 found a mismatch that is n
 
 Therefore the repository is **production-verified but not yet fully reproducible from a clean local Supabase migration chain**.
 
-The required remediation is to pull the authoritative remote schema into a reviewed baseline migration, verify that baseline with a local `db reset), and then quarantine/remove obsolete legacy migration/seed material from the executable migration path. No production migration-history repair or destructive remote reset is part of this task.
+The required remediation is to pull the authoritative remote schema into a reviewed baseline migration, verify that baseline with a local `db reset`, and then quarantine/remove obsolete legacy migration/seed material from the executable migration path. No destructive remote schema reset is part of this task; any migration-history repair requires an explicit, separately reviewed reconciliation step.
 
 ## Open engineering items
 
@@ -122,9 +121,9 @@ Before implementing favorites, saved searches, Auth ↔ `people` identity/organi
 
 ### Issue #25 — hosted CI admission
 
-The hosted workflow remains independent. Run #706 attempt 2 still fails before steps are created. The repository gates have not been weakened and the dedicated self-hosted verification remains green.
+The hosted workflow remains independent. Runs #706 attempt 2 and #713 continue to fail before steps are created. The repository gates have not been weakened and the dedicated self-hosted verification remains green.
 
-### Issue #26 — schema-lineage reproducibility
+### Issue #30 — schema-lineage reproducibility
 
 The repository needs a clean, reviewable local migration baseline matching the live Aqarat production schema. This is a repository/tooling reconciliation task, not a feature-schema invention task.
 
