@@ -7,9 +7,9 @@
 Verified on **2026-09-20**:
 
 - Certified runtime baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28).
-- Current `main`: `a5b25ce0df7c13667fea9c5a0488190015a6aaf9` (documentation-only after PR #28).
-- Current production deployment: `dpl_EnGwytZt28U85aekbabx9Esykosn` (**READY**).
-- Self-hosted main verification run #50: **SUCCESS**.
+- Documentation-only commits may advance `main` after PR #28 without changing the certified runtime contract.
+- Certified runtime production deployment: `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` (**READY**).
+- Self-hosted runtime verification run #50: **SUCCESS**.
 - Hosted CI run #706 rerun attempt 2: **FAILURE before any job steps were created**; tracked separately under Issue #25.
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
@@ -78,7 +78,7 @@ The live migration history contains the Aqarat OS lineage beginning with `202608
 
 The repository migration directory does **not** yet contain that complete August lineage. It also still contains the historical 2024 Sadat MLS migration series. Several legacy helper/seed files reference retired tables and must not be executed against the current Aqarat production model.
 
-This is now explicitly tracked as **Issue #26**. The remediation path is:
+This is now explicitly tracked as **Issue #30**. The remediation path is:
 
 1. Pull the authoritative production schema into a reviewed local baseline migration.
 2. Verify `supabase db reset` from the resulting migration chain on the local machine.
@@ -86,13 +86,13 @@ This is now explicitly tracked as **Issue #26**. The remediation path is:
 4. Re-run type generation, contract checks, self-hosted verification, and production verification.
 5. Freeze the reconciled schema lineage as the new repository baseline.
 
-No destructive remote reset is required.
+No destructive remote reset is required; do not use `supabase db reset --linked` during this reconciliation.
 
 ## CI/CD and deployment hygiene
 
 - Hosted CI keeps its independent secret-dependent type-generation, E2E, build, and production-health gates.
 - Dedicated self-hosted verification validates the provisioned Node 24/npm toolchain directly.
-- Self-hosted main run #50 passed end-to-end.
+- Self-hosted runtime verification run #50 passed end-to-end.
 - Supabase CLI usage for generated types is project-local.
 - Schema contract guard scans application runtime source under `src`.
 - Production health verification retries the real production endpoint.
