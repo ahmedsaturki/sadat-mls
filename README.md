@@ -9,11 +9,11 @@ Verified on **2026-09-19** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Current main HEAD: `b44325cf07f9451528874e0e24164a3123d4ba1f`
-- Latest production deployment: `dpl_9byc6xSALaex6uBHEjnfw7T2Jaeq`
+- Current main HEAD: `e886b74f3e30fa1f60ce19c7845c03f9110a98e0`
+- Latest production deployment: `dpl_FtPnKCfWbtRZjJmBo8LfNwt1cJPH`
 - Latest production deployment status: READY
-- Production deployment commit: `6a48e0e3669e7641b1aca9748d952a8e5901a8c8`
-- Main advanced afterward with merged PR #16, which contains adapter/CLI hardening only and does not change the deployed application runtime.
+- Production deployment commit: `e886b74f3e30fa1f60ce19c7845c03f9110a98e0`
+- Main advanced with merged PR #18, which adds the self-hosted verification companion gate and read-only CI workflow permissions.
 - Live smoke verification on 2026-09-19: `/api/health` returned HTTP 200 with `supabase_api: ok` and `properties: ok`; `/en/explore` returned HTTP 200 with active property results.
 - Verified live active properties: 2
 
@@ -88,13 +88,13 @@ The current production baseline was verified with:
 - `/api/properties` → HTTP 200.
 - Property type and price filters → HTTP 200 with correctly filtered results.
 - `/ar/explore` and `/en/explore` → HTTP 200.
-- Active property detail routes → HTTP 200.
 - `/ar/login` → HTTP 200.
 - Latest production runtime error sweep → no runtime errors in the selected verification window.
-- Vercel production build for the current main HEAD → READY.
-- Pre-merge CI for the platform reconciliation change set → lint, typecheck, generated types, unit/integration tests, schema contract, E2E, and build all passed.
+- Current production Vercel deployment for main HEAD → READY.
+- Self-hosted verification on PR #18 → install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check all passed before final runner cleanup.
+- Post-merge production smoke → `/api/health`, `/api/properties`, filtered property queries, `/en/explore`, and `/ar/login` returned HTTP 200.
 
-The final post-merge main commits were additionally rebuilt by Vercel and smoke-tested in production. GitHub's connected workflow wrapper does not expose a complete standalone run history for every main-only post-merge commit, so this README does not claim one.
+The GitHub-hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Its recent main run was blocked before job steps by GitHub-hosted runner admission/capacity; that infrastructure condition is separate from the repository verification results above.
 
 ## Engineering rules
 
@@ -105,6 +105,7 @@ The final post-merge main commits were additionally rebuilt by Vercel and smoke-
 - Do not infer organization or authorization roles from user-editable metadata.
 - Keep migration files synchronized with the migration versions actually applied to Supabase.
 - Keep unknown mappings explicitly unknown until verified.
+- Run the self-hosted verification companion on PRs and every push to `main`.
 
 ## Development
 
