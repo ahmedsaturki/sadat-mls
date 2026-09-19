@@ -1,0 +1,1 @@
+create index if not exists marketing_experiments_control_variant_id_idx on public.marketing_experiments(control_variant_id); create index if not exists marketing_experiments_treatment_variant_id_idx on public.marketing_experiments(treatment_variant_id);
