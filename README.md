@@ -9,12 +9,14 @@ Verified on **2026-09-19** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Latest verified runtime release baseline: `8d6a4cc6b6034794db36545cf69d5214119f2448` (merged PR #22)
-- Production deployment for that runtime baseline: `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` (READY)
-- Post-merge self-hosted verification run #14: SUCCESS
+- Latest verified runtime release baseline: `b8c24888f3507135ef9fd0fda200a1076a9efa98` (merged PR #26)
+- Production deployment for that runtime baseline: `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` (READY)
+- Post-merge self-hosted verification run #39: SUCCESS
 - Production smoke verification on 2026-09-19: `/api/health`, `/api/properties`, a representative filter, `/ar/explore`, `/en/explore`, and `/ar/login` all returned HTTP 200.
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
+
+PR #26 also retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests; it did not invent replacement Aqarat contracts.
 
 This README records the latest **verified runtime baseline**. Documentation-only commits may advance `main` afterward without changing the runtime contract; new runtime changes require a fresh verification cycle.
 
@@ -90,12 +92,12 @@ The current verified runtime baseline was checked with:
 - Representative property filters → HTTP 200.
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Vercel production deployment `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` → READY for merge commit `8d6a4cc6b6034794db36545cf69d5214119f2448`.
-- Post-merge self-hosted verification run #14 → SUCCESS.
+- Vercel production deployment `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` → READY for merge commit `b8c24888f3507135ef9fd0fda200a1076a9efa98`.
+- Post-merge self-hosted verification run #39 → SUCCESS, including lint, typecheck, schema contract, unit/integration tests, build, and diff check.
 - Production runtime error sweep (selected 24-hour window) → no runtime errors.
 - Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, and X-Content-Type-Options.
 
-The hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Recent hosted failures occurred before any job steps were created; no job-step failure evidence was available. The hosted gates were not weakened.
+The hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Recent hosted failures remain isolated to hosted job admission before any job steps are created; the dedicated self-hosted verification passed the same release end-to-end. The hosted gates were not weakened.
 
 ## Engineering rules
 

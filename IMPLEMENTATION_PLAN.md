@@ -4,13 +4,13 @@
 
 **PRODUCTION VERIFIED — 2026-09-19**
 
-This record's latest verified runtime release baseline is the merged PR #22 commit:
+This record's latest verified runtime release baseline is the merged PR #26 commit:
 
-- Main release commit: `8d6a4cc6b6034794db36545cf69d5214119f2448`
-- Production deployment: `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` (READY)
+- Main release commit: `b8c24888f3507135ef9fd0fda200a1076a9efa98`
+- Production deployment: `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` (READY)
 - Production: https://sadat-mls.vercel.app
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Post-merge self-hosted verification: run #14 — **SUCCESS** across toolchain, install, lint, adapter smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
+- Post-merge self-hosted verification: run #39 — **SUCCESS** across toolchain, install, lint, adapter smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
 - Production smoke after the release: health/property APIs, representative filter, Arabic/English Explore, and Arabic login all returned HTTP 200.
 - Vercel runtime error sweep for the verified 24-hour window: no runtime errors.
 
@@ -18,7 +18,7 @@ This document records a verified release baseline, not a promise that the reposi
 
 The original implementation plan in this repository described the historical Sadat MLS schema and features. That plan is no longer the source of truth.
 
-The delivered product boundary is the verified Aqarat OS public property experience.
+PR #26 additionally retired unverified legacy runtime surfaces and removed dead notification, office-comparison, dashboard clients, and their obsolete tests. The delivered product boundary remains the verified Aqarat OS public property experience.
 
 ## Completed
 
@@ -62,8 +62,8 @@ The delivered product boundary is the verified Aqarat OS public property experie
 
 ### Production verification
 
-- Vercel production deployment `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` is READY for merge commit `8d6a4cc6b6034794db36545cf69d5214119f2448`.
-- Post-merge self-hosted verification run #14 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
+- Vercel production deployment `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` is READY for merge commit `b8c24888f3507135ef9fd0fda200a1076a9efa98`.
+- Post-merge self-hosted verification run #39 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
 - `/api/health` is HTTP 200 with Supabase/property checks OK.
 - `/api/properties` and a representative district filter are HTTP 200.
 - Arabic/English Explore routes are HTTP 200.
