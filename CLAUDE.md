@@ -2,13 +2,15 @@
 
 ## Authoritative baseline
 
-Verified baseline: **2026-09-19**.
+Verified runtime baseline: **2026-09-20**.
 
 Sadat MLS is currently a bilingual public real-estate property experience backed by the verified Aqarat OS schema. The live Supabase schema, executable contracts, and production verification are authoritative. Historical Sadat MLS relational assumptions are not a runtime source of truth.
 
 - Production: https://sadat-mls.vercel.app
-- Baseline main before this PR: `0e603135cb7c2f87c3c2d00b1be0a56bf0f5946f`
-- Baseline production deployment: `dpl_2nRKvAmLKcRSUpRwk7UkgcbDDJEs` (READY)
+- Certified runtime baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28)
+- Current main: `a5b25ce0df7c13667fea9c5a0488190015a6aaf9` (documentation-only after PR #28)
+- Current production deployment: `dpl_EnGwytZt28U85aekbabx9Esykosn` (READY)
+- Self-hosted main verification: run #50 (SUCCESS)
 - Supabase project: `aaxauqznfhcvgevfczye`
 - Framework: Next.js 16.2.10 App Router
 - Runtime: Node 24 / npm 12
@@ -128,4 +130,10 @@ Before release:
 8. update current documentation;
 9. freeze the verified baseline.
 
-The goal is an auditable, fail-closed public property platform rather than a partially reconstructed copy of the retired Sadat MLS data model.
+## Schema-lineage reproducibility
+
+The live Supabase project currently records the Aqarat OS migration lineage beginning at `20260814163031`, while the repository migration directory still contains the historical 2024 Sadat MLS series plus the September 2026 migrations. Issue #30 tracks reconciliation of this history into a clean, reviewable local baseline.
+
+Do not use `supabase/run_remaining_migrations.sql`, `supabase/seed.sql`, or `supabase/seed_028.sql` as production schema migrations; they contain historical contracts for retired tables.
+
+The goal is an auditable, fail-closed public property platform with a reproducible schema lineage, not a partially reconstructed copy of the retired Sadat MLS data model.
