@@ -1,5 +1,16 @@
 # تغييرات Sadat MLS Cloud
 
+## [2026-09-19] Post-merge production verification and repository hygiene
+
+### تم إنجازه
+
+- ✅ تثبيت الحالة النهائية الموثقة على `main` عند `664fc39b1743059d84d72b86d921c8085d06e84e`.
+- ✅ التحقق من نشر Vercel الإنتاجي لنفس الـcommit: `dpl_GF6csFucVqiSbLWDhBoo9y3gwgJP` بحالة READY.
+- ✅ اجتياز Self-hosted Verification run #5 بالكامل: install، lint، adapter smoke، typecheck، schema contract، tests، build، diff check.
+- ✅ التحقق من health/property runtime في الإنتاج وعدم وجود runtime errors في نافذة المراقبة المحددة.
+- ✅ توثيق أن hosted CI `lint` فشل قبل بدء أي step وحتى بعد rerun، بدون job logs متاحة؛ دون إضعاف متطلبات CI لإخفاء الحالة.
+- ✅ تنظيف ملف debug محلي متتبع `dev-output.log` ومنع عودته إلى المستودع.
+
 ## [2026-09-18] Production reconciliation and hardening
 
 ### تم إنجازه
