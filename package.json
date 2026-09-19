@@ -19,7 +19,8 @@
     "contract:check": "node scripts/contract-check.js",
     "db:gen-types": "node scripts/gen-supabase-types.mjs",
     "test:adapter": "node scripts/adapter-smoke.js",
-    "db:check-types": "node scripts/gen-supabase-types.mjs --check"
+    "db:check-types": "node scripts/gen-supabase-types.mjs --check",
+    "db:verify-migrations": "node scripts/verify-supabase-migrations.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.0.1",
