@@ -1,9 +1,11 @@
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = process.cwd();
 const dir = resolve(root, "supabase/migrations");
+
 const expected = [
   { version: "20260814163031", name: "initial_aqarat_os_schema", md5: "4a4c7c967b5cfcc0608055d7aa00e046" },
   { version: "20260814163330", name: "add_intake_and_queue_contracts", md5: "ee5723a63a96b4d8e78bf09533f9c6bf" },
@@ -48,26 +50,47 @@ const expected = [
   { version: "20260918171827", name: "finalize_discovery_entity_materializer_provenance_select", md5: "a8b2d6e8253bf704bc0864c8b7514a54" },
 ];
 
-const files = readdirSync(dir)
-  .filter((file) => /^\d{14}_.+\.sql$/.test(file))
+if (!existsSync(dir)) {
+  console.error(`Missing migration directory: ${dir}`);
+  process.exit(1);
+}
+
+const trackedSql = execFileSync(
+  "git",
+  ["ls-files", "-z", "--", "supabase/migrations/*.sql"],
+  { cwd: root },
+)
+  .toString("utf8")
+  .split("\0")
+  .filter(Boolean)
   .sort();
 
-const expectedFiles = expected.map(({ version, name }) => `${version}_${name}.sql`).sort();
-const missing = expectedFiles.filter((file) => !files.includes(file));
-const unexpected = files.filter((file) => !expectedFiles.includes(file));
+const expectedFiles = expected
+  .map(({ version, name }) => `supabase/migrations/${version}_${name}.sql`)
+  .sort();
+
+const missing = expectedFiles.filter((file) => !trackedSql.includes(file));
+const unexpected = trackedSql.filter((file) => !expectedFiles.includes(file));
 const mismatched = [];
 
 for (const entry of expected) {
-  const file = resolve(dir, `${entry.version}_${entry.name}.sql`);
+  const relativePath = `supabase/migrations/${entry.version}_${entry.name}.sql`;
+  const file = resolve(root, relativePath);
+
+  if (!existsSync(file)) {
+    missing.push(relativePath);
+    continue;
+  }
+
   const actual = createHash("md5").update(readFileSync(file)).digest("hex");
   if (actual !== entry.md5) {
-    mismatched.push({ file: file.replace(root + "/", ""), expected: entry.md5, actual });
+    mismatched.push({ file: relativePath, expected: entry.md5, actual });
   }
 }
 
 if (missing.length || unexpected.length || mismatched.length) {
   console.error("SUPABASE_MIGRATION_LEDGER_DRIFT");
-  if (missing.length) console.error(`Missing: ${missing.join(", ")}`);
+  if (missing.length) console.error(`Missing: ${[...new Set(missing)].sort().join(", ")}`);
   if (unexpected.length) console.error(`Unexpected: ${unexpected.join(", ")}`);
   if (mismatched.length) console.error(JSON.stringify(mismatched, null, 2));
   process.exit(1);
