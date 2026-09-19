@@ -15,13 +15,14 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
   locale: Locale;
   dict: Messages;
-  role: UserRole;
+  role?: UserRole | null;
 }
 
 export default function DashboardLayout({ children, locale, dict, role }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { containerRef, handleKeyDown } = useFocusTrap(sidebarOpen);
   const { profile } = useAuthUser();
+  const verifiedRole = profile?.role ?? null;
 
   const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
@@ -46,7 +47,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
       >
         {dict.common.skipToContent}
       </a>
-      <Navbar locale={locale} dict={dict} userRole={role} />
+      <Navbar locale={locale} dict={dict} userRole={verifiedRole} />
       <div className="flex relative">
         {/* Mobile FAB */}
         <button
@@ -64,7 +65,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
           onKeyDown={handleKeyDown}
           aria-hidden={!sidebarOpen}
         >
-          <Sidebar locale={locale} dict={dict} role={role} onNavigate={closeSidebar} profile={profile} />
+          <Sidebar locale={locale} dict={dict} role={verifiedRole} onNavigate={closeSidebar} profile={profile} />
         </div>
 
         {/* Mobile sidebar backdrop */}
@@ -85,7 +86,7 @@ export default function DashboardLayout({ children, locale, dict, role }: Dashbo
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <MobileBottomNav locale={locale} dict={dict} role={role} />
+      <MobileBottomNav locale={locale} dict={dict} role={verifiedRole} />
     </div>
   );
 }
