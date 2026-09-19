@@ -9,15 +9,14 @@ Verified on **2026-09-19** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Verified main baseline before documentation PR #22: `0e603135cb7c2f87c3c2d00b1be0a56bf0f5946f`
-- Verified production deployment for that baseline: `dpl_2nRKvAmLKcRSUpRwk7UkgcbDDJEs`
-- Verified production deployment status: READY
-- Production deployment commit: `0e603135cb7c2f87c3c2d00b1be0a56bf0f5946f`
-- Main reached this baseline through merged PR #21, which finalized the production state and repository hygiene.
-- Live smoke verification on 2026-09-19: `/api/health` returned HTTP 200 with `supabase_api: ok` and `properties: ok`; `/en/explore` returned HTTP 200 with active property results.
+- Latest verified runtime release baseline: `8d6a4cc6b6034794db36545cf69d5214119f2448` (merged PR #22)
+- Production deployment for that runtime baseline: `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` (READY)
+- Post-merge self-hosted verification run #14: SUCCESS
+- Production smoke verification on 2026-09-19: `/api/health`, `/api/properties`, a representative filter, `/ar/explore`, `/en/explore`, and `/ar/login` all returned HTTP 200.
 - Verified live active properties: 2
+- Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
-> **Baseline note:** PR #22 is documentation/verification work based on this verified production baseline. After PR #22 is merged, this section must be refreshed with the new main commit and deployment ID once the resulting Vercel production deployment is verified.
+This README records the latest **verified runtime baseline**. Documentation-only commits may advance `main` afterward without changing the runtime contract; new runtime changes require a fresh verification cycle.
 
 ## What is delivered
 
@@ -84,20 +83,19 @@ The live schema currently has no `offices`, `public.users`, `zones`, `property_i
 
 ## Verification baseline
 
-The current production baseline was verified with:
+The current verified runtime baseline was checked with:
 
 - `/api/health` → HTTP 200 with Supabase/property checks OK.
 - `/api/properties` → HTTP 200.
-- Property type and price filters → HTTP 200 with correctly filtered results.
+- Representative property filters → HTTP 200.
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Latest production runtime error sweep (2026-09-19) → no runtime errors in the selected 24-hour window.
-- Verified production Vercel deployment at the baseline above → READY.
-- Post-merge self-hosted verification run #5 on the baseline main → install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check all passed.
-- Post-merge production smoke → `/api/health`, `/api/properties`, filtered property queries, `/en/explore`, and `/ar/login` returned HTTP 200.
-- Current Vercel runtime error sweep (2026-09-19) → no runtime errors and no error/warning log entries in the selected 24-hour window.
+- Vercel production deployment `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` → READY for merge commit `8d6a4cc6b6034794db36545cf69d5214119f2448`.
+- Post-merge self-hosted verification run #14 → SUCCESS.
+- Production runtime error sweep (selected 24-hour window) → no runtime errors.
+- Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, and X-Content-Type-Options.
 
-The GitHub-hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. The hosted workflow has had runs that failed before any job steps were created; no job log was available for those failures. This is separate from successful repository-owned self-hosted verification and the verified Vercel production deployment, and CI gates must not be weakened to conceal infrastructure failures.
+The hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Recent hosted failures occurred before any job steps were created; no job-step failure evidence was available. The hosted gates were not weakened.
 
 ## Engineering rules
 
@@ -148,7 +146,7 @@ The hosted CI pipeline also generates Supabase types from project `aaxauqznfhcvg
 
 - `API.md` — actual deployed API surface.
 - `SECURITY.md` — current security contract and known boundaries.
-- `IMPLEMENTATION_PLAN.md` — current delivery/completion record.
+- `IMPLEMENTATION_PLAN.md` — delivery/completion record.
 - `docs/PLATFORM_RECONCILIATION_PROGRESS.md` — detailed reconciliation evidence.
 - `docs/PLATFORM_SCHEMA_RECONCILIATION.md` — authoritative reconciliation record.
 - `docs/PLATFORM_SCHEMA_CONTRACT_MATRIX.md` — contract-by-contract decisions.

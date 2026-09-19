@@ -2,10 +2,19 @@
 
 ## Status
 
-**PRODUCTION VERIFIED — 2026-09-19 (post-merge)**
+**PRODUCTION VERIFIED — 2026-09-19**
 
-Current `main`: `664fc39b1743059d84d72b86d921c8085d06e84e`  
-Current production deployment: `dpl_GF6csFucVqiSbLWDhBoo9y3gwgJP` (READY)
+This record's latest verified runtime release baseline is the merged PR #22 commit:
+
+- Main release commit: `8d6a4cc6b6034794db36545cf69d5214119f2448`
+- Production deployment: `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` (READY)
+- Production: https://sadat-mls.vercel.app
+- Supabase project: `aaxauqznfhcvgevfczye`
+- Post-merge self-hosted verification: run #14 — **SUCCESS** across toolchain, install, lint, adapter smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
+- Production smoke after the release: health/property APIs, representative filter, Arabic/English Explore, and Arabic login all returned HTTP 200.
+- Vercel runtime error sweep for the verified 24-hour window: no runtime errors.
+
+This document records a verified release baseline, not a promise that the repository HEAD can never advance. Subsequent documentation-only commits may move `main` without changing the certified runtime contract; re-verify any runtime change before calling it a new release.
 
 The original implementation plan in this repository described the historical Sadat MLS schema and features. That plan is no longer the source of truth.
 
@@ -49,17 +58,18 @@ The delivered product boundary is the verified Aqarat OS public property experie
 - Supabase type generation uses the repository's installed CLI instead of an unpinned global install.
 - Production health checks retry the verified production endpoint instead of assuming a fixed 30-second deployment delay.
 - The schema contract guard scans all application source under `src` while excluding test-only trees.
+- The dedicated self-hosted runner now validates its provisioned Node 24/npm toolchain directly and no longer depends on the previously unstable `actions/setup-node` admission path.
 
 ### Production verification
 
-- Vercel production deployment is READY for the current `main` HEAD.
-- Post-merge self-hosted verification run #5 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
+- Vercel production deployment `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` is READY for merge commit `8d6a4cc6b6034794db36545cf69d5214119f2448`.
+- Post-merge self-hosted verification run #14 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
 - `/api/health` is HTTP 200 with Supabase/property checks OK.
-- `/api/properties` and representative filters are HTTP 200.
+- `/api/properties` and a representative district filter are HTTP 200.
 - Arabic/English Explore routes are HTTP 200.
-- Active property detail routes are HTTP 200.
-- Login route is HTTP 200.
-- Latest production runtime error sweep is clean (2026-09-19, selected 24-hour window).
+- Arabic login route is HTTP 200.
+- Latest production runtime error sweep is clean for the selected 24-hour window.
+- Production security headers remain present, including CSP, HSTS, X-Frame-Options DENY, X-Content-Type-Options, and Referrer-Policy.
 
 ## Current product boundary
 
@@ -82,4 +92,4 @@ The following areas remain deliberately outside the certified product contract b
 
 A feature is marked complete only when its live data contract, implementation, security boundary, test coverage, and production behavior are all verified.
 
-For the unresolved areas above, the correct action is not to fabricate a compatibility table or infer missing relationships. A future implementation should begin with an authoritative contract, then follow the same SPEC → IMPLEMENT → TEST → VERIFY → RELEASE discipline used for the current property layer.
+For the unresolved areas above, the correct action is not to fabricate a compatibility table or infer missing relationships. A future implementation should begin with an authoritative contract, then follow the same SPEC → IMPLEMENT → TEST → VERIFY → RELEASE → FREEZE discipline used for the current property layer.
