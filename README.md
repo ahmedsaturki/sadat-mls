@@ -4,14 +4,17 @@
 
 **PRODUCTION VERIFIED — current Aqarat OS public property contract**
 
-Verified on **2026-09-18** against the connected Supabase project and the live Vercel deployment.
+Verified on **2026-09-19** against the connected Supabase project and the live Vercel deployment.
 
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Current main HEAD: `6a48e0e3669e7641b1aca9748d952a8e5901a8c8`
+- Current main HEAD: `b44325cf07f9451528874e0e24164a3123d4ba1f`
 - Latest production deployment: `dpl_9byc6xSALaex6uBHEjnfw7T2Jaeq`
 - Latest production deployment status: READY
+- Production deployment commit: `6a48e0e3669e7641b1aca9748d952a8e5901a8c8`
+- Main advanced afterward with merged PR #16, which contains adapter/CLI hardening only and does not change the deployed application runtime.
+- Live smoke verification on 2026-09-19: `/api/health` returned HTTP 200 with `supabase_api: ok` and `properties: ok`; `/en/explore` returned HTTP 200 with active property results.
 - Verified live active properties: 2
 
 ## What is delivered
