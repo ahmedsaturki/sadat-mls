@@ -18,7 +18,7 @@ interface DashboardLayoutProps {
   role?: UserRole | null;
 }
 
-export default function DashboardLayout({ children, locale, dict, role }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, locale, dict }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { containerRef, handleKeyDown } = useFocusTrap(sidebarOpen);
   const { profile } = useAuthUser();
