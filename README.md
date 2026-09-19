@@ -9,13 +9,15 @@ Verified on **2026-09-19** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Current main HEAD: `664fc39b1743059d84d72b86d921c8085d06e84e`
-- Latest production deployment: `dpl_GF6csFucVqiSbLWDhBoo9y3gwgJP`
-- Latest production deployment status: READY
-- Production deployment commit: `664fc39b1743059d84d72b86d921c8085d06e84e`
-- Main advanced through merged PR #20, which reconciled production documentation with the then-current verified main/deployment state; the resulting merge commit is now the production HEAD.
+- Verified main baseline before documentation PR #22: `0e603135cb7c2f87c3c2d00b1be0a56bf0f5946f`
+- Verified production deployment for that baseline: `dpl_2nRKvAmLKcRSUpRwk7UkgcbDDJEs`
+- Verified production deployment status: READY
+- Production deployment commit: `0e603135cb7c2f87c3c2d00b1be0a56bf0f5946f`
+- Main reached this baseline through merged PR #21, which finalized the production state and repository hygiene.
 - Live smoke verification on 2026-09-19: `/api/health` returned HTTP 200 with `supabase_api: ok` and `properties: ok`; `/en/explore` returned HTTP 200 with active property results.
 - Verified live active properties: 2
+
+> **Baseline note:** PR #22 is documentation/verification work based on this verified production baseline. After PR #22 is merged, this section must be refreshed with the new main commit and deployment ID once the resulting Vercel production deployment is verified.
 
 ## What is delivered
 
@@ -90,12 +92,12 @@ The current production baseline was verified with:
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
 - Latest production runtime error sweep (2026-09-19) → no runtime errors in the selected 24-hour window.
-- Current production Vercel deployment for main HEAD (`dpl_GF6csFucVqiSbLWDhBoo9y3gwgJP`) → READY.
-- Post-merge self-hosted verification run #5 on main → install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check all passed.
+- Verified production Vercel deployment at the baseline above → READY.
+- Post-merge self-hosted verification run #5 on the baseline main → install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check all passed.
 - Post-merge production smoke → `/api/health`, `/api/properties`, filtered property queries, `/en/explore`, and `/ar/login` returned HTTP 200.
 - Current Vercel runtime error sweep (2026-09-19) → no runtime errors and no error/warning log entries in the selected 24-hour window.
 
-The GitHub-hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. The current main run's hosted lint job failed before any job steps were created, including on one rerun; no job log was available from GitHub. This is separate from the successful self-hosted verification and successful Vercel production deployment, and should not be fixed by weakening CI gates.
+The GitHub-hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. The hosted workflow has had runs that failed before any job steps were created; no job log was available for those failures. This is separate from successful repository-owned self-hosted verification and the verified Vercel production deployment, and CI gates must not be weakened to conceal infrastructure failures.
 
 ## Engineering rules
 
@@ -113,7 +115,7 @@ The GitHub-hosted CI workflow remains independent because it contains secret-dep
 Install dependencies:
 
 ```bash
-npm ci
+npm ci --no-audit --no-fund
 ```
 
 Run the development server:
@@ -122,14 +124,16 @@ Run the development server:
 npm run dev
 ```
 
-Run the main verification commands:
+Run the repository-owned verification commands:
 
 ```bash
 npm run lint
-npx tsc --noEmit
-npm run test:run
+npm run test:adapter
+npm run typecheck
 npm run contract:check
+npm run test:run
 npm run build
+git diff --check
 ```
 
 Playwright E2E:
@@ -138,7 +142,7 @@ Playwright E2E:
 npx playwright test --project=chromium --reporter=list
 ```
 
-The CI pipeline generates Supabase types from project `aaxauqznfhcvgevfczye` and fails on checked-in type drift.
+The hosted CI pipeline also generates Supabase types from project `aaxauqznfhcvgevfczye` and fails on checked-in type drift.
 
 ## Related documentation
 
@@ -148,6 +152,8 @@ The CI pipeline generates Supabase types from project `aaxauqznfhcvgevfczye` and
 - `docs/PLATFORM_RECONCILIATION_PROGRESS.md` — detailed reconciliation evidence.
 - `docs/PLATFORM_SCHEMA_RECONCILIATION.md` — authoritative reconciliation record.
 - `docs/PLATFORM_SCHEMA_CONTRACT_MATRIX.md` — contract-by-contract decisions.
+- `AGENTS.md` — authoritative agent engineering rules.
+- `CLAUDE.md` — compact agent context.
 
 ## Lara scope
 
