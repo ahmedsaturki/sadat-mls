@@ -9,11 +9,11 @@ Verified on **2026-09-19** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Current main HEAD: `e886b74f3e30fa1f60ce19c7845c03f9110a98e0`
-- Latest production deployment: `dpl_FtPnKCfWbtRZjJmBo8LfNwt1cJPH`
+- Current main HEAD: `d479181268185fd2558bff98b223b8be4467dd60`
+- Latest production deployment: `dpl_G39fyD8yi9My4otqFmiZg4AX2NHr`
 - Latest production deployment status: READY
-- Production deployment commit: `e886b74f3e30fa1f60ce19c7845c03f9110a98e0`
-- Main advanced with merged PR #18, which adds the self-hosted verification companion gate and read-only CI workflow permissions.
+- Production deployment commit: `d479181268185fd2558bff98b223b8be4467dd60`
+- Main advanced through merged PR #19, which verified the post-merge main state and reconciled production documentation after the self-hosted verification companion gate.
 - Live smoke verification on 2026-09-19: `/api/health` returned HTTP 200 with `supabase_api: ok` and `properties: ok`; `/en/explore` returned HTTP 200 with active property results.
 - Verified live active properties: 2
 
@@ -89,10 +89,11 @@ The current production baseline was verified with:
 - Property type and price filters → HTTP 200 with correctly filtered results.
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Latest production runtime error sweep → no runtime errors in the selected verification window.
-- Current production Vercel deployment for main HEAD → READY.
+- Latest production runtime error sweep (2026-09-19) → no runtime errors in the selected 24-hour window.
+- Current production Vercel deployment for main HEAD (`dpl_G39fyD8yi9My4otqFmiZg4AX2NHr`) → READY.
 - Self-hosted verification on PR #18 → install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check all passed before final runner cleanup.
 - Post-merge production smoke → `/api/health`, `/api/properties`, filtered property queries, `/en/explore`, and `/ar/login` returned HTTP 200.
+- Current Vercel runtime error sweep (2026-09-19) → no runtime errors and no error/warning log entries in the selected 24-hour window.
 
 The GitHub-hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Its recent main run was blocked before job steps by GitHub-hosted runner admission/capacity; that infrastructure condition is separate from the repository verification results above.
 
