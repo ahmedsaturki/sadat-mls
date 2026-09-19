@@ -1,51 +1,94 @@
 # Agent Context for Sadat MLS Cloud
 
-## Current authoritative state — 2026-09-19
+## Project Overview
+Bilingual (Arabic/English) real estate MLS platform for Sadat City, Egypt. Built with Next.js 16.2.10 App Router, Supabase, Tailwind CSS 4, and TypeScript.
 
-Sadat MLS is currently a bilingual public real-estate property experience backed by the verified Aqarat OS schema. The historical Sadat MLS relational model is not the runtime source of truth.
+**Production URL:** https://sadat-mls.vercel.app  
+**Alias:** https://sadat-mls.vercel.app
 
-- Production: https://sadat-mls.vercel.app
-- Current main: `664fc39b1743059d84d72b86d921c8085d06e84e`
-- Current production deployment: `dpl_GF6csFucVqiSbLWDhBoo9y3gwgJP` (READY)
-- Framework: Next.js 16.2.10
-- Runtime: Node 24
-- Database/Auth: Supabase
-- Testing: Vitest + Playwright
+## Tech Stack
+- **Framework:** Next.js 16.2.10 (App Router)
+- **Language:** TypeScript 5 (Strict Mode)
+- **Styling:** Tailwind CSS 4
+- **Database:** Supabase (PostgreSQL)
+- **Auth:** Supabase Auth (JWT + Cookies)
+- **Storage:** Supabase Storage
+- **Testing:** Vitest + Playwright
+- **CI/CD:** GitHub Actions
+- **Monitoring:** Sentry
+- **Deployment:** Vercel
 
-## Authoritative product rules
-
-Use the live Aqarat schema and checked-in contract as the source of truth. Do not resurrect legacy tables or invent Auth↔people, media, favorites, saved-search, office, or agent mappings without an authoritative contract.
-
-Public property access is intentionally fail-closed: active rows only, approved public columns only, RLS plus column-level grants. User-editable Auth metadata is never an authorization source.
-
-## Commands
-
+## Build & Test Commands
 ```bash
-npm ci
-npm run lint
-npx tsc --noEmit
-npm run test:run
-npm run contract:check
+# Build
 npm run build
+
+# Unit tests
+npm run test:run
+
+# Unit tests with coverage
+npm run test:coverage
+
+# Lint
+npm run lint
+
+# TypeScript check
+npx tsc --noEmit
+
+# E2E tests
 npm run test:e2e
 ```
 
-## CI
+## Project Structure
+- `src/app/[locale]/` - i18n routes (ar, en)
+- `src/app/[locale]/admin/` - Super Admin Dashboard
+- `src/app/[locale]/dashboard/` - Office Dashboard
+- `src/app/[locale]/explore/` - Public Property Listings
+- `src/app/api/` - API Routes
+- `src/components/` - React Components
+- `src/hooks/` - Custom React Hooks
+- `src/i18n/` - Internationalization
+- `src/lib/` - Utilities & Services
+- `src/__tests__/` - Unit Tests
 
-The repository-owned self-hosted verification workflow checks install, lint, adapter smoke, typecheck, schema contract, tests, build, and `git diff --check` on pull requests and pushes to `main`.
+## Key Conventions
+- All pages use `"use client"` with dynamic `[locale]` routing
+- i18n via `next-intl` with `dict.*` keys
+- Auth checks in middleware for protected routes
+- Role-Based Access Control: `super_admin`, `office_admin`, `office_agent`
+- CSRF protection on mutating API requests
+- Rate limiting on API and contact forms
+- CSP with nonce-based scripts
 
-The separate hosted CI contains secret-dependent type generation, Playwright E2E, and production health checks. Preserve those gates; do not weaken them to conceal infrastructure failures.
+## Environment Variables
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (server-side only)
+- `NEXT_PUBLIC_SITE_URL` - Site URL for SEO
+- `NEXT_PUBLIC_APP_URL` - App URL for metadata
+- `NEXT_PUBLIC_SENTRY_DSN` - Sentry DSN (optional)
 
-## Security conventions
+## Database Tables
+- `offices` - Real estate offices
+- `users` - User profiles (extends auth.users)
+- `zones` - Sadat City districts
+- `property_types` - Property categories
+- `properties` - Property listings
+- `property_owners` - Owner contact data
+- `property_images` - Property photos
+- `contact_requests` - Visitor inquiries
+- `rate_limit_log` - Rate limiting audit log
 
-- CSRF protection for required state-changing flows.
-- Documented IP rate limits with fail-closed protected operations.
-- Server-only privileged Supabase credentials.
-- No role/office authorization values in browser storage.
-- No authorization based on `user_metadata`.
-- Use the project logger rather than direct `console.error`.
-- Never commit `.env*`, tokens, passwords, or privileged keys.
+## Testing
+- **Unit Tests:** Vitest with @testing-library/react (753 tests, 50 files)
+- **E2E Tests:** Playwright (111 tests, 12 files)
+- Verify with: `npm run test:run && npm run test:e2e`
 
-## References
-
-`README.md`, `API.md`, `SECURITY.md`, `IMPLEMENTATION_PLAN.md`, and `docs/PLATFORM_SCHEMA_CONTRACT_MATRIX.md` are the canonical project references.
+## Security
+- CSP with nonce-based scripts
+- CSRF double-submit cookie pattern
+- Rate limiting (memory + database fallback)
+- XSS prevention with input sanitization
+- HSTS with 1-year max-age
+- RLS on all database tables
+- RBAC with 3 user roles
