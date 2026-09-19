@@ -4,7 +4,7 @@
 
 **PRODUCTION VERIFIED — 2026-09-19**
 
-This record's latest verified runtime release baseline is the merged PR #26 commit:
+This record's latest verified runtime release baseline is the merged PR #28 commit:
 
 - Main release commit: `b8c24888f3507135ef9fd0fda200a1076a9efa98`
 - Production deployment: `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` (READY)
@@ -18,7 +18,7 @@ This document records a verified release baseline, not a promise that the reposi
 
 The original implementation plan in this repository described the historical Sadat MLS schema and features. That plan is no longer the source of truth.
 
-PR #26 additionally retired unverified legacy runtime surfaces and removed dead notification, office-comparison, dashboard clients, and their obsolete tests. The delivered product boundary remains the verified Aqarat OS public property experience.
+PR #26 retired unverified legacy runtime surfaces and removed dead notification, office-comparison, and dashboard clients/tests. PR #28 removed remaining dead/unadvertised mock feature implementations and tests. The delivered product boundary remains the verified Aqarat OS public property experience.
 
 ## Completed
 
@@ -62,8 +62,8 @@ PR #26 additionally retired unverified legacy runtime surfaces and removed dead 
 
 ### Production verification
 
-- Vercel production deployment `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` is READY for merge commit `b8c24888f3507135ef9fd0fda200a1076a9efa98`.
-- Post-merge self-hosted verification run #39 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
+- Vercel production deployment `dpl_2f6Q5agnHCNAyZvXPh84qtsD7HWa` is READY for docs-record commit `51e01617f94a3352b963b774fa18b538a4a6cb78`; the runtime baseline was already READY on `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` after PR #26.
+- PR #28 self-hosted verification run #44 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
 - `/api/health` is HTTP 200 with Supabase/property checks OK.
 - `/api/properties` and a representative district filter are HTTP 200.
 - Arabic/English Explore routes are HTTP 200.
