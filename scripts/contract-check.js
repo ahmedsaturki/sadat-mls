@@ -57,6 +57,7 @@ const retiredRouteFiles = new Map([
   ["src/app/[locale]/dashboard/referrals/page.tsx", "redirect("],
   ["src/app/[locale]/dashboard/favorites/page.tsx", "redirect("],
   ["src/app/[locale]/dashboard/saved-searches/page.tsx", "redirect("],
+  ["src/app/[locale]/investors/compare-offices/page.tsx", "redirect("],
 ]);
 
 
