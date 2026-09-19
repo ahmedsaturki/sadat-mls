@@ -1,3 +1,5 @@
+> **Historical note (2026-09-19):** This document contains older performance experiments and is not the current application contract. Verify any recommendation against the live Aqarat OS implementation and current package/workflow state before applying it.
+
 # تحسينات الأداء - Sadat MLS Cloud
 ## Performance Optimizations
 
