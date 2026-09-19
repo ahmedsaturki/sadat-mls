@@ -4,21 +4,21 @@
 
 **PRODUCTION VERIFIED — current Aqarat OS public property contract**
 
-Verified on **2026-09-19** against the connected Supabase project and the live Vercel deployment.
+Verified on **2026-09-20** against the connected Supabase project and the live Vercel deployment.
 
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
 - Latest verified runtime release baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (merged PR #28)
 - Production deployment for that runtime baseline: `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` (READY)
-- Post-merge self-hosted verification run #48: SUCCESS
+- Independent self-hosted verification run #50: SUCCESS for the same runtime contract
 - Production smoke verification on 2026-09-19: `/api/health`, `/api/properties`, a representative filter, `/ar/explore`, `/en/explore`, and `/ar/login` all returned HTTP 200.
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
 PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests; it did not invent replacement Aqarat contracts.
 
-This README records the latest **verified runtime baseline**. Documentation-only commits may advance `main` afterward without changing the runtime contract; new runtime changes require a fresh verification cycle.
+This README records the certified **runtime baseline**. Documentation-only commits may advance `main` and trigger new Vercel deployments without changing that runtime contract; runtime-affecting changes require a fresh verification cycle.
 
 ## What is delivered
 
@@ -111,6 +111,7 @@ The hosted CI workflow remains independent because it contains secret-dependent 
 - Keep migration files synchronized with the migration versions actually applied to Supabase.
 - Keep unknown mappings explicitly unknown until verified.
 - Run the self-hosted verification companion on PRs and every push to `main`.
+- Treat Issue #30 as the active schema-lineage reconciliation gate; do not use the current migration directory as a clean production reproduction path until it is resolved.
 
 ## Development
 
