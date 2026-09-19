@@ -30,10 +30,16 @@ jobs:
         shell: bash
         run: git clean -ffdx
 
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-          cache: npm
+      - name: Verify runner toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "node=$(node --version)"
+          echo "npm=$(npm --version)"
+          node_major="$(node -p 'process.versions.node.split(".")[0]')"
+          test "$node_major" = "24"
+          command -v node
+          command -v npm
 
       - name: Install
         run: npm ci --no-audit --no-fund
