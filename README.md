@@ -9,11 +9,11 @@ Verified on **2026-09-19** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Current main HEAD: `d479181268185fd2558bff98b223b8be4467dd60`
-- Latest production deployment: `dpl_G39fyD8yi9My4otqFmiZg4AX2NHr`
+- Current main HEAD: `664fc39b1743059d84d72b86d921c8085d06e84e`
+- Latest production deployment: `dpl_GF6csFucVqiSbLWDhBoo9y3gwgJP`
 - Latest production deployment status: READY
-- Production deployment commit: `d479181268185fd2558bff98b223b8be4467dd60`
-- Main advanced through merged PR #19, which verified the post-merge main state and reconciled production documentation after the self-hosted verification companion gate.
+- Production deployment commit: `664fc39b1743059d84d72b86d921c8085d06e84e`
+- Main advanced through merged PR #20, which reconciled production documentation with the then-current verified main/deployment state; the resulting merge commit is now the production HEAD.
 - Live smoke verification on 2026-09-19: `/api/health` returned HTTP 200 with `supabase_api: ok` and `properties: ok`; `/en/explore` returned HTTP 200 with active property results.
 - Verified live active properties: 2
 
@@ -90,12 +90,12 @@ The current production baseline was verified with:
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
 - Latest production runtime error sweep (2026-09-19) → no runtime errors in the selected 24-hour window.
-- Current production Vercel deployment for main HEAD (`dpl_G39fyD8yi9My4otqFmiZg4AX2NHr`) → READY.
-- Self-hosted verification on PR #18 → install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check all passed before final runner cleanup.
+- Current production Vercel deployment for main HEAD (`dpl_GF6csFucVqiSbLWDhBoo9y3gwgJP`) → READY.
+- Post-merge self-hosted verification run #5 on main → install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check all passed.
 - Post-merge production smoke → `/api/health`, `/api/properties`, filtered property queries, `/en/explore`, and `/ar/login` returned HTTP 200.
 - Current Vercel runtime error sweep (2026-09-19) → no runtime errors and no error/warning log entries in the selected 24-hour window.
 
-The GitHub-hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Its recent main run was blocked before job steps by GitHub-hosted runner admission/capacity; that infrastructure condition is separate from the repository verification results above.
+The GitHub-hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. The current main run's hosted lint job failed before any job steps were created, including on one rerun; no job log was available from GitHub. This is separate from the successful self-hosted verification and successful Vercel production deployment, and should not be fixed by weakening CI gates.
 
 ## Engineering rules
 
