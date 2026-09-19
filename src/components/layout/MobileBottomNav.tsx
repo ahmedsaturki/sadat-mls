@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Plus, LayoutDashboard, Settings } from "lucide-react";
+import { Home, Search, Plus, LayoutDashboard, Settings, GitCompare } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
@@ -12,13 +12,19 @@ import { ROLES, type UserRole } from "@/lib/utils/constants";
 interface MobileBottomNavProps {
   locale: Locale;
   dict: Messages;
-  role: UserRole;
+  role?: UserRole | null;
 }
 
 export default function MobileBottomNav({ locale, dict, role }: MobileBottomNavProps) {
   const pathname = usePathname();
 
   const links = useMemo(() => {
+    if (!role) {
+      return [
+        { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search },
+        { href: `/${locale}/dashboard/compare`, label: dict.dashboard.compareProperties, icon: GitCompare },
+      ];
+    }
     if (role === ROLES.SUPER_ADMIN) {
       return [
         { href: `/${locale}/admin`, label: dict.nav.dashboard, icon: LayoutDashboard },

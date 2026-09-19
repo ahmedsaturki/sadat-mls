@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Globe, Home, LogOut, Menu, X, Search, Settings, LayoutDashboard, Mail, Heart, Info, MessageCircle } from "lucide-react";
-import NotificationsBell from "@/components/layout/NotificationsBell";
+import { Building2, Globe, Home, LogOut, Menu, X, Search, Info, MessageCircle } from "lucide-react";
 import CitySelector from "@/components/layout/CitySelector";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useState, useCallback, useMemo } from "react";
@@ -14,15 +13,13 @@ import { useAuthUser } from "@/hooks/useAuthUser";
 import type { Locale } from "@/i18n/config";
 import { LOCALE_LABELS, locales } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
-import { ROLES, type UserRole } from "@/lib/utils/constants";
 
 interface NavbarProps {
   locale: Locale;
   dict: Messages;
-  userRole?: UserRole | null;
 }
 
-export default function Navbar({ locale, dict, userRole }: NavbarProps) {
+export default function Navbar({ locale, dict }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -37,45 +34,14 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
 
   useEscapeKey(closeMenu, mobileMenuOpen);
 
-  const navLinks = useMemo(() => {
-    const role = userRole ?? profile?.role;
-    const links = [
-      { href: `/${locale}`, label: dict.common.home, icon: Home, prefetch: true },
-      { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search, prefetch: true },
-      { href: `/${locale}/about`, label: dict.nav.about, icon: Info, prefetch: true },
-      { href: `/${locale}/contact`, label: dict.nav.contact, icon: MessageCircle, prefetch: true },
-    ];
+  const navLinks = useMemo(() => [
+    { href: `/${locale}`, label: dict.common.home, icon: Home, prefetch: true },
+    { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search, prefetch: true },
+    { href: `/${locale}/about`, label: dict.nav.about, icon: Info, prefetch: true },
+    { href: `/${locale}/contact`, label: dict.nav.contact, icon: MessageCircle, prefetch: true },
+  ], [locale, dict.common.home, dict.nav.explore, dict.nav.about, dict.nav.contact]);
 
-    if (role === ROLES.SUPER_ADMIN) {
-      links.push({ href: `/${locale}/admin`, label: dict.nav.dashboard, icon: Building2, prefetch: false });
-    } else if (role === ROLES.OFFICE_ADMIN) {
-      links.push({ href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard, prefetch: false });
-      links.push({ href: `/${locale}/dashboard/contact-requests`, label: dict.nav.contactRequests, icon: Mail, prefetch: false });
-      links.push({ href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart, prefetch: false });
-      links.push({ href: `/${locale}/dashboard/settings`, label: dict.nav.settings, icon: Settings, prefetch: false });
-    } else if (role === ROLES.OFFICE_AGENT) {
-      links.push({ href: `/${locale}/dashboard`, label: dict.nav.dashboard, icon: LayoutDashboard, prefetch: false });
-      links.push({ href: `/${locale}/dashboard/favorites`, label: dict.common.favorites, icon: Heart, prefetch: false });
-    }
-
-    return links;
-  }, [locale, dict, userRole, profile?.role]);
-
-  const notificationsDict = useMemo(() => ({
-    notifications: {
-      title: dict.nav?.notifications,
-      markAllRead: dict.nav?.markAllRead,
-      noNotifications: dict.nav?.noNotifications,
-      contactRequest: dict.nav?.contactRequest,
-      propertyInquiry: dict.nav?.propertyInquiry,
-      agentJoined: dict.nav?.agentJoined,
-      system: dict.nav?.system,
-      unread: dict.common?.unread,
-      timeAgo: dict.common?.timeAgo,
-    },
-  }), [dict]);
-
-  const isLoggedIn = !!(userRole ?? profile);
+  const isLoggedIn = !!profile;
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50" role="navigation" aria-label={dict.common.mainNavigation}>
@@ -158,14 +124,6 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
 
             {/* Theme Toggle */}
             <ThemeToggle dict={{ common: dict.common } as unknown as { common: Record<string, string> }} />
-
-            {/* Notifications Bell (only for logged-in users) */}
-            {isLoggedIn && (
-              <NotificationsBell
-                locale={locale}
-                dict={notificationsDict}
-              />
-            )}
 
 {/* Avatar + Login/Logout */}
           {isLoggedIn ? (
