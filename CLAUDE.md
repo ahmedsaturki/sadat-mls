@@ -8,9 +8,9 @@ Sadat MLS is currently a bilingual public real-estate property experience backed
 
 - Production: https://sadat-mls.vercel.app
 - Certified runtime baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28)
-- Current main: `a5b25ce0df7c13667fea9c5a0488190015a6aaf9` (documentation-only after PR #28)
-- Current production deployment: `dpl_EnGwytZt28U85aekbabx9Esykosn` (READY)
-- Self-hosted main verification: run #50 (SUCCESS)
+- Certified runtime baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28)
+- Runtime verification: self-hosted run #50 (SUCCESS)
+- Documentation-only commits may advance `main` without changing the certified runtime contract
 - Supabase project: `aaxauqznfhcvgevfczye`
 - Framework: Next.js 16.2.10 App Router
 - Runtime: Node 24 / npm 12
@@ -113,7 +113,7 @@ Never weaken the guard by adding compatibility exceptions for retired production
 
 Every volatile fact must carry a verification date or be described as a baseline.
 
-Do not publish static claims such as "current deployment", "latest commit", or exact test totals without evidence for the stated verification window. After a release, refresh the relevant release record rather than relying on old numbers.
+Do not publish static claims such as "current deployment", "latest commit", or exact test totals without evidence for the stated verification window. For runtime-affecting releases, refresh the runtime release record. Documentation-only commits should not force volatile deployment identifiers into the authoritative baseline.
 
 Historical architecture may be documented for migration context, but clearly label it as historical and never present it as the live schema.
 
