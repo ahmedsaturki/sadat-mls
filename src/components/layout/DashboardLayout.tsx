@@ -22,7 +22,8 @@ export default function DashboardLayout({ children, locale, dict }: DashboardLay
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { containerRef, handleKeyDown } = useFocusTrap(sidebarOpen);
   const { profile } = useAuthUser();
-  const verifiedRole: UserRole | null = profile?.role && Object.values(ROLES).includes(profile.role as UserRole)\n    ? (profile.role as UserRole)\n    : null;
+  const verifiedRole: UserRole | null = profile?.role && Object.values(ROLES).includes(profile.role as UserRole)
+    ? (profile.role as UserRole)\n    : null;
 
   const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
