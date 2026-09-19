@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Plus, LayoutDashboard, Settings } from "lucide-react";
+import { Home, Search, Plus, LayoutDashboard, Settings, GitCompare } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
