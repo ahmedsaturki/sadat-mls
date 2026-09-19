@@ -2,10 +2,10 @@
 
 ## Status
 
-**PRODUCTION VERIFIED — 2026-09-19**
+**PRODUCTION VERIFIED — 2026-09-19 (post-merge)**
 
-Current `main`: `d479181268185fd2558bff98b223b8be4467dd60`  
-Current production deployment: `dpl_G39fyD8yi9My4otqFmiZg4AX2NHr` (READY)
+Current `main`: `664fc39b1743059d84d72b86d921c8085d06e84e`  
+Current production deployment: `dpl_GF6csFucVqiSbLWDhBoo9y3gwgJP` (READY)
 
 The original implementation plan in this repository described the historical Sadat MLS schema and features. That plan is no longer the source of truth.
 
@@ -53,6 +53,7 @@ The delivered product boundary is the verified Aqarat OS public property experie
 ### Production verification
 
 - Vercel production deployment is READY for the current `main` HEAD.
+- Post-merge self-hosted verification run #5 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
 - `/api/health` is HTTP 200 with Supabase/property checks OK.
 - `/api/properties` and representative filters are HTTP 200.
 - Arabic/English Explore routes are HTTP 200.
