@@ -2,7 +2,10 @@
 
 ## Status
 
-**PRODUCTION VERIFIED — 2026-09-18**
+**PRODUCTION VERIFIED — 2026-09-19**
+
+Current `main`: `d479181268185fd2558bff98b223b8be4467dd60`  
+Current production deployment: `dpl_G39fyD8yi9My4otqFmiZg4AX2NHr` (READY)
 
 The original implementation plan in this repository described the historical Sadat MLS schema and features. That plan is no longer the source of truth.
 
@@ -49,13 +52,13 @@ The delivered product boundary is the verified Aqarat OS public property experie
 
 ### Production verification
 
-- Vercel production deployment is READY.
+- Vercel production deployment is READY for the current `main` HEAD.
 - `/api/health` is HTTP 200 with Supabase/property checks OK.
 - `/api/properties` and representative filters are HTTP 200.
 - Arabic/English Explore routes are HTTP 200.
 - Active property detail routes are HTTP 200.
 - Login route is HTTP 200.
-- Latest production runtime error sweep is clean.
+- Latest production runtime error sweep is clean (2026-09-19, selected 24-hour window).
 
 ## Current product boundary
 
