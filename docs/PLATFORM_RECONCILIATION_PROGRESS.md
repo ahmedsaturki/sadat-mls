@@ -2,11 +2,17 @@
 
 ## Current state
 
-**PRODUCTION-VERIFIED Aqarat OS public property contract — final hardening in progress for the next release commit**
+**PRODUCTION-VERIFIED Aqarat OS public property contract — reconciliation and hardening complete for the verified release baseline (2026-09-19).**
 
 The connected Supabase project is treated as the authoritative Aqarat OS source of truth for the currently delivered public property experience. The original platform mismatch that blocked PR #14 has been reconciled for the certified public surface.
 
-## Verified live database facts — 2026-09-18
+Latest verified release baseline:
+- Main merge commit: `8d6a4cc6b6034794db36545cf69d5214119f2448` (PR #22)
+- Production deployment: `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` (READY)
+- Post-merge self-hosted verification: run #14 — SUCCESS
+- Production runtime error sweep: clean for the selected 24-hour window
+
+## Verified live database facts — 2026-09-19
 
 - Supabase project: `aaxauqznfhcvgevfczye`.
 - The database follows the Aqarat OS migration lineage.
@@ -33,7 +39,7 @@ The connected Supabase project is treated as the authoritative Aqarat OS source 
 ### Database security
 
 - RLS policy `public_read_active_properties` permits public reads only for active properties.
-- Anonymous/authenticated table privileges on `properties` are restricted to the approved public columns.
+- Anonymous/authenticated property reads are restricted to approved public columns through column-level grants.
 - Internal fields `confidence`, `parcel_number`, `installments_clear`, and `canonical_key` are not publicly selectable.
 - Direct privileges on internal Aqarat relations such as `contacts`, `property_people`, `provenance`, `source_records`, `sources`, `discovery_entities`, `entity_matches`, `lead_signals`, and `publications` were revoked for `anon` and `authenticated` as defense-in-depth.
 - The temporary SECURITY DEFINER public-read RPC was removed.
@@ -58,7 +64,10 @@ The connected Supabase project is treated as the authoritative Aqarat OS source 
 
 ### CI/CD and deployment hygiene
 
-- Node 24-compatible CI actions.
+- Hosted CI keeps its independent secret-dependent type-generation, E2E, build, and production-health gates.
+- The dedicated self-hosted verification workflow validates the provisioned Node 24/npm toolchain directly.
+- The self-hosted workflow no longer invokes the previously unstable `actions/setup-node` admission path.
+- Self-hosted main verification run #14 passed end-to-end after PR #22 merge.
 - Supabase CLI is invoked from the installed project dependency rather than an unpinned global install.
 - Checked-in Supabase types are compared against live generated types.
 - Schema contract guard scans all application source under `src`.
@@ -78,19 +87,17 @@ The internal-table privilege hardening is registered as:
 
 Repository migration filenames match both applied versions.
 
-## Final verification baseline before this hardening PR
+## Production verification record
 
-- PR #14 was merged after its pre-merge CI chain passed.
-- Production deployment was READY.
-- `GET /api/health` returned 200 with both Supabase and property checks OK.
-- `GET /api/properties` returned 200.
-- Representative type/price filters returned the expected subsets.
-- Arabic and English Explore routes returned 200.
-- Both active property detail routes returned 200 and displayed the intentional media placeholder.
-- Login route returned 200.
-- Latest production runtime error sweep was clean.
-
-The current hardening branch is now subject to a fresh CI run because CI configuration and application code changed after that baseline.
+Verified against production on 2026-09-19 after PR #22 merge:
+- `GET /api/health` → 200 with both Supabase and property checks OK.
+- `GET /api/properties` → 200 with 2 active properties in the verified dataset.
+- Representative district filter → 200 with the expected empty/non-matching result for that query.
+- Arabic and English Explore routes → 200.
+- Arabic login route → 200.
+- Vercel production deployment `dpl_5hx5vSJDDEu6a7LheYvBbLbGDvJS` → READY.
+- Vercel runtime error sweep → no runtime errors in the selected 24-hour window.
+- Security headers remained present in production.
 
 ## Deliberate unresolved product contracts
 
