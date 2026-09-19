@@ -62,8 +62,8 @@ PR #26 retired unverified legacy runtime surfaces and removed dead notification,
 
 ### Production verification
 
-- Vercel production deployment `dpl_2f6Q5agnHCNAyZvXPh84qtsD7HWa` is READY for docs-record commit `51e01617f94a3352b963b774fa18b538a4a6cb78`; the runtime baseline was already READY on `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` after PR #26.
-- PR #28 self-hosted verification run #44 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
+- Vercel production deployment `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` is READY for merge commit `22f366cbc00200a1c19f249bfb4f2136a599de30`.
+- Post-merge self-hosted verification run #48 completed successfully across install, lint, adapter CLI smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
 - `/api/health` is HTTP 200 with Supabase/property checks OK.
 - `/api/properties` and a representative district filter are HTTP 200.
 - Arabic/English Explore routes are HTTP 200.
