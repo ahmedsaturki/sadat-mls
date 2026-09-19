@@ -22,7 +22,7 @@ interface NavbarProps {
   userRole?: UserRole | null;
 }
 
-export default function Navbar({ locale, dict, userRole }: NavbarProps) {
+export default function Navbar({ locale, dict }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -38,7 +38,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
   useEscapeKey(closeMenu, mobileMenuOpen);
 
   const navLinks = useMemo(() => {
-    const role = userRole ?? profile?.role;
+    const role = profile?.role ?? null;
     const links = [
       { href: `/${locale}`, label: dict.common.home, icon: Home, prefetch: true },
       { href: `/${locale}/explore`, label: dict.nav.explore, icon: Search, prefetch: true },
@@ -59,7 +59,7 @@ export default function Navbar({ locale, dict, userRole }: NavbarProps) {
     }
 
     return links;
-  }, [locale, dict, userRole, profile?.role]);
+  }, [locale, dict, profile?.role]);
 
   const notificationsDict = useMemo(() => ({
     notifications: {
