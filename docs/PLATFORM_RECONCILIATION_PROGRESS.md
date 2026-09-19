@@ -7,10 +7,9 @@
 The connected Supabase project is treated as the authoritative Aqarat OS source of truth for the currently delivered public property experience. The original platform mismatch that blocked PR #14 has been reconciled for the certified public surface. PR #26 retired remaining legacy runtime paths, and PR #28 removed the remaining dead/unadvertised mock feature implementations.
 
 Latest verified release baseline:
-- Main merge commit: `51e01617f94a3352b963b774fa18b538a4a6cb78` (PR #27 documentation baseline)
-- Production deployment: `dpl_2f6Q5agnHCNAyZvXPh84qtsD7HWa` (READY)
-- PR #28 cleanup self-hosted verification: run #44 — SUCCESS
-- Runtime contract baseline before documentation update: PR #26 / `b8c24888f3507135ef9fd0fda200a1076a9efa98`
+- Main merge commit: `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28)
+- Production deployment: `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` (READY)
+- Post-merge self-hosted verification: run #48 — SUCCESS
 - Production runtime error sweep: clean for the selected 24-hour window
 
 ## Verified live database facts — 2026-09-19
@@ -96,9 +95,8 @@ Verified against production on 2026-09-19 after PR #22 merge:
 - Representative district filter → 200 with the expected empty/non-matching result for that query.
 - Arabic and English Explore routes → 200.
 - Arabic login route → 200.
-- Vercel production deployment `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` → READY after PR #26.
-- Documentation production deployment `dpl_2f6Q5agnHCNAyZvXPh84qtsD7HWa` → READY after PR #27.
-- PR #28 self-hosted verification run #44 → SUCCESS.
+- Vercel production deployment `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` → READY after PR #28.
+- Self-hosted verification run #48 → SUCCESS.
 - Vercel runtime error sweep → no runtime errors in the selected 24-hour window.
 - Security headers remained present in production.
 

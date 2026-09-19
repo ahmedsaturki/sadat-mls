@@ -9,9 +9,9 @@ Verified on **2026-09-19** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Latest verified runtime release baseline: `51e01617f94a3352b963b774fa18b538a4a6cb78` (merged PR #27 + PR #28)
-- Production deployment for that runtime baseline: `dpl_2f6Q5agnHCNAyZvXPh84qtsD7HWa` (READY)
-- Post-merge self-hosted verification run #41: SUCCESS
+- Latest verified runtime release baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (merged PR #28)
+- Production deployment for that runtime baseline: `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` (READY)
+- Post-merge self-hosted verification run #48: SUCCESS
 - Production smoke verification on 2026-09-19: `/api/health`, `/api/properties`, a representative filter, `/ar/explore`, `/en/explore`, and `/ar/login` all returned HTTP 200.
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
@@ -92,8 +92,8 @@ The current certified runtime remains the same public Aqarat OS contract; PR #28
 - Representative property filters → HTTP 200.
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Vercel production deployment `dpl_7agqPn318u1uqZVvnFwNjyEYoVXY` → READY for merge commit `b8c24888f3507135ef9fd0fda200a1076a9efa98` (PR #26), followed by the docs-only PR #27 baseline `51e01617f94a3352b963b774fa18b538a4a6cb78`.
-- PR #28 cleanup verified by self-hosted run #44 → SUCCESS, including lint, typecheck, schema contract, unit/integration tests, build, and diff check.
+- Vercel production deployment `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` → READY for merge commit `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28).
+- Post-merge self-hosted verification run #48 → SUCCESS, including lint, typecheck, schema contract, unit/integration tests, build, and diff check.
 - Production runtime error sweep (selected 24-hour window) → no runtime errors.
 - Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, and X-Content-Type-Options.
 
