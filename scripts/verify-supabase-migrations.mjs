@@ -49,7 +49,7 @@ const expected = [
 ];
 
 const files = readdirSync(dir)
-  .filter((file) => /^\\d{14}_.+\\.sql$/.test(file))
+  .filter((file) => /^\d{14}_.+\.sql$/.test(file))
   .sort();
 
 const expectedFiles = expected.map(({ version, name }) => `${version}_${name}.sql`).sort();
