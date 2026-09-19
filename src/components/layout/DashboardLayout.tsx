@@ -49,7 +49,7 @@ export default function DashboardLayout({ children, locale, dict }: DashboardLay
       >
         {dict.common.skipToContent}
       </a>
-      <Navbar locale={locale} dict={dict} userRole={verifiedRole} />
+      <Navbar locale={locale} dict={dict} />
       <div className="flex relative">
         {/* Mobile FAB */}
         <button
