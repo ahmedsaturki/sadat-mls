@@ -8,7 +8,7 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { useFocusTrap, useEscapeKey } from "@/lib/utils/a11y";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/getMessages";
-import type { UserRole } from "@/lib/utils/constants";
+import { ROLES, type UserRole } from "@/lib/utils/constants";
 import { useAuthUser } from "@/hooks/useAuthUser";
 
 interface DashboardLayoutProps {
@@ -22,7 +22,7 @@ export default function DashboardLayout({ children, locale, dict }: DashboardLay
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { containerRef, handleKeyDown } = useFocusTrap(sidebarOpen);
   const { profile } = useAuthUser();
-  const verifiedRole = profile?.role ?? null;
+  const verifiedRole: UserRole | null = profile?.role && Object.values(ROLES).includes(profile.role as UserRole)\n    ? (profile.role as UserRole)\n    : null;
 
   const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
