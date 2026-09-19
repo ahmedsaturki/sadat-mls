@@ -59,7 +59,7 @@ For the normal local build, required environment values are the canonical Supaba
 
 ## GitHub Actions
 
-` .github/workflows/self-hosted-verification.yml` (without the leading space in the path) is the repository-owned non-secret verification companion. It runs on pull requests and pushes to `main` and verifies install, lint, adapter smoke, typecheck, schema contract, tests, build, and diff cleanliness.
+`.github/workflows/self-hosted-verification.yml` is the repository-owned non-secret verification companion. It runs on pull requests and pushes to `main` and verifies install, lint, adapter smoke, typecheck, schema contract, tests, build, and diff cleanliness.
 
 `.github/workflows/ci.yml` remains the independent hosted pipeline because it contains secret-dependent Supabase type generation, Playwright E2E, and production health checks. A hosted `lint` failure before any steps are created is an infrastructure/admission signal, not evidence that the repository lint command failed; do not hide it with weaker gates.
 
