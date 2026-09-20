@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { mockRpc, mockDelete, counts } = vi.hoisted(() => ({
+const { mockRpc, mockPublicRateLimit, mockDelete, counts } = vi.hoisted(() => ({
   mockRpc: vi.fn(),
+  mockPublicRateLimit: vi.fn(),
   mockDelete: vi.fn(),
   counts: new Map<string, number>(),
 }));
@@ -12,6 +13,12 @@ vi.mock("@/lib/logger", () => ({
     debug: vi.fn(),
     error: vi.fn(),
   },
+}));
+
+vi.mock("@/lib/security/publicRateLimit", () => ({
+  checkPublicRateLimit: mockPublicRateLimit,
+  isPublicRateLimitAction: (action: string) =>
+    new Set(["login", "forgot", "resend", "csrf-token", "csp-report", "contact-post"]).has(action),
 }));
 
 // Mock the authoritative database increment function, not an in-memory rate-limit store.
@@ -37,6 +44,21 @@ describe("rateLimit", () => {
     counts.clear();
     clearRateLimitStore();
 
+    mockPublicRateLimit.mockImplementation(async (action: string, ip: string) => ({
+      allowed: true,
+      remaining: action === "login" ? 4 : 99,
+      resetTime: Date.now() + 60000,
+      retryAfter: 60,
+      unavailable: false,
+      headers: {
+        "X-RateLimit-Remaining": action === "login" ? "4" : "99",
+        "X-RateLimit-Reset": String(Date.now() + 60000),
+        "X-RateLimit-Limit": action === "login" ? "5" : "100",
+        "Retry-After": "60",
+      },
+      ip,
+    }));
+
     mockRpc.mockImplementation(
       async (_functionName: string, params: { p_action: string; p_ip: string; p_window_start: string }) => {
         const key = `${params.p_action}|${params.p_ip}|${params.p_window_start}`;
@@ -54,6 +76,30 @@ describe("rateLimit", () => {
   it("exports checkRateLimit function", () => {
     expect(typeof checkRateLimit).toBe("function");
   });
+  it("uses the public RPC for known public auth actions", async () => {
+    const result = await checkAuthRateLimit("login:192.168.1.200", {
+      windowMs: 15 * 60 * 1000,
+      maxRequests: 5,
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.remaining).toBe(4);
+    expect(mockPublicRateLimit).toHaveBeenCalledWith("login", "192.168.1.200");
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it("uses the public RPC for known public API actions", async () => {
+    const result = await checkApiRateLimit("contact-post:192.168.1.201", undefined, {
+      windowMs: 60 * 60 * 1000,
+      maxRequests: 5,
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.remaining).toBe(99);
+    expect(mockPublicRateLimit).toHaveBeenCalledWith("contact-post", "192.168.1.201");
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
 
   it("allows the first request", async () => {
     const result = await checkRateLimit("test-ip");
