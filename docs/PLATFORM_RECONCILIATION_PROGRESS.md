@@ -7,7 +7,7 @@
 Verified on **2026-09-20**:
 
 - Certified runtime baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
-- Documentation-only commit `280737c5276f5a3b8a7cf1cb34ac77fa285542cb` currently advances `main` without changing the certified runtime contract.
+- Documentation-only follow-ups after PR #33 may advance `main` without changing the certified runtime contract; the current `main` commit is `de6fc890d4778c9984e56a32abcc0d07b52a40da`.
 - Certified runtime production deployment: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (**READY**).
 - Self-hosted runtime verification run #70: **SUCCESS**.
 - Hosted CI run #706 rerun attempt 2: **FAILURE before any job steps were created**; tracked separately under Issue #25.
@@ -78,7 +78,7 @@ The live migration history contains the Aqarat OS lineage beginning with `202608
 
 The repository migration directory now contains the complete authoritative 41-version Aqarat lineage through `20260918171827`. The historical 2024 Sadat MLS migration series and legacy helper/seed material are no longer in the executable migration path.
 
-This reconciliation gap is **resolved**. Issue #30 is closed. The remaining workstation-only acceptance checks are local Postgres recreation and exact local type generation.
+This reconciliation gap is **resolved**. Issue #30 is closed. The remaining workstation-only acceptance checks are local Postgres recreation and exact local type generation. These are environmental proof gates only; production is not used as their fallback.
 
 1. Reproduce the 41 migration chain locally with `supabase db reset` when workstation Docker resources permit.
 2. Generate/check local Supabase types from that local stack.
