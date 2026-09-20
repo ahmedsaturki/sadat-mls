@@ -1,5 +1,18 @@
 # تغييرات Sadat MLS Cloud
 
+## [2026-09-20] Authoritative Aqarat lineage release
+
+### تم إنجازه
+
+- ✅ دمج PR #33 واستقرار `main` على `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d`.
+- ✅ استعادة ومزامنة **41/41** migration إنتاجية حتى `20260918171827`.
+- ✅ إغلاق Issue #30 بعد اكتمال استعادة lineage الرسمي.
+- ✅ اجتياز Self-hosted Verification run #70 بالكامل: migration verifier، lint، adapter smoke، typecheck، schema contract، **42 files / 677 tests**، build، diff check.
+- ✅ نشر production على Vercel: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` → READY.
+- ✅ التحقق من `/api/health` و`/api/properties` وExplore وProperty Detail بعد الدمج، وكلها HTTP 200.
+- ✅ تحديث وثائق README وPlatform Reconciliation لتعكس الحالة الفعلية بدل baseline قديم.
+- ✅ إبقاء GitHub-hosted CI admission failure منفصلًا وتتبعه في Issue #25 دون إضعاف أي gate.
+
 ## [2026-09-19] Post-merge production verification and repository hygiene
 
 ### تم إنجازه
