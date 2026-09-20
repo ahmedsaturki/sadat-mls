@@ -9,14 +9,14 @@ Verified on **2026-09-20** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Latest verified runtime release baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (merged PR #33)
-- Production deployment for that runtime baseline: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (READY)
-- Independent self-hosted verification run #70: SUCCESS on the merged main commit, including migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check
+- Latest verified runtime release: `1bc3a3de977917d6a973c4f05f7d9930e1a9e726` (merged PR #41)
+- Production deployment: `dpl_9op1XKW8jKRXZnqJNGAs9esSWbm6` (READY)
+- Self-hosted verification run #101: SUCCESS on the merged main commit, including migration verification, lint, adapter smoke, typecheck, schema contract, unit/integration tests, build, and diff check; hosted CI/CD run #820 also completed successfully with E2E and production health-check
 - Production smoke verification on 2026-09-20: `/api/health`, `/api/properties`, `/en/explore`, `/en/explore/{id}`, and the public localized routes tested during the release sweep returned HTTP 200.
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
-PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests. PR #33 restored the authoritative 41-migration Aqarat OS lineage and made the local migration verifier deterministic; it did not invent replacement Aqarat contracts.
+PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests. PR #41 restored the remaining production-recorded Aqarat migration revisions, bringing the executable repository lineage to 51/51, and removed the stale privileged-key dependency from the public rate-limit/contact paths; PR #42 adds the final public SECURITY DEFINER hardening migration, bringing the lineage to 52/52. No replacement Aqarat contracts were invented.
 
 This README records the certified **runtime baseline**. Documentation-only commits may advance `main` and trigger new Vercel deployments without changing that runtime contract; runtime-affecting changes require a fresh verification cycle.
 
@@ -63,13 +63,14 @@ The applied public-property migration is recorded in Supabase as:
 
 and the repository contains that applied migration file.
 
-The repository migration chain now reconciles with the full live Aqarat OS migration history: **41/41** versions are present and match the production migration ledger through `20260918171827`. Issue #30 is closed.
+The repository migration chain now reconciles with the full live Aqarat OS migration history: **52/52** versions are present and match the production migration ledger through `20260920201858`. Issue #30 is closed.
 
 ## Security posture
 
 - Public property access is fail-closed by RLS and column privileges.
 - Public property and health endpoints use bounded per-IP in-memory limits and do not depend on privileged database credentials.
-- Protected operational rate limiting uses the database security primitive and fails closed when that primitive is unavailable.
+- Public auth/CSRF/CSP/contact rate limiting uses constrained Supabase RPCs through the publishable-key path and fails closed when the public database primitive is unavailable.
+- Protected operational rate limiting continues to use the privileged database security primitive and fails closed when that primitive is unavailable.
 - State-changing public requests use CSRF validation where required.
 - The service-role key is server-only and is never used by browser code.
 - No internal property fields are exposed through the public read contract.
@@ -94,9 +95,10 @@ The current certified runtime remains the public Aqarat OS contract after PR #33
 - Representative property filters → HTTP 200.
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Vercel production deployment `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` → READY for merge commit `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
-- Post-merge self-hosted verification run #70 → SUCCESS, including authoritative migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
-- Production runtime logs after the new deployment show successful public health, property API, and property-detail requests; the only rate-limit failures in the current one-hour sweep are timestamped 04:52 UTC on the previous deployment.
+- Vercel production deployment `dpl_9op1XKW8jKRXZnqJNGAs9esSWbm6` → READY for merge commit `1bc3a3de977917d6a973c4f05f7d9930e1a9e726` (PR #41).
+- Post-merge self-hosted verification run #101 → SUCCESS; hosted CI/CD run #820 → SUCCESS, including E2E and production health-check.
+- Direct production smoke on the current deployment returned HTTP 200 for `/api/health`, `/api/properties`, and `/en/explore`; the health response reported `supabase_api=ok` and `properties=ok`.
+- Current production runtime error sweep for the selected window: no runtime errors.
 - Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, and X-Content-Type-Options.
 
 The hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Recent hosted failures remain isolated to hosted job admission before any job steps are created; the dedicated self-hosted verification passed the same release end-to-end. The hosted gates were not weakened.
@@ -111,8 +113,9 @@ The hosted CI workflow remains independent because it contains secret-dependent 
 - Keep migration files synchronized with the migration versions actually applied to Supabase.
 - Keep unknown mappings explicitly unknown until verified.
 - Run the self-hosted verification companion on PRs and every push to `main`.
-- Treat the 41-version Aqarat OS migration lineage as the current schema source of truth.
-- Treat Issue #25 as an external GitHub-hosted runner admission/infrastructure investigation; do not weaken repository gates to hide it.
+- Treat the 52-version Aqarat OS migration lineage as the current schema source of truth.
+- Treat the public rate-limit/contact RPCs as constrained infrastructure primitives, not general-purpose public data access.
+- Treat Issue #25 as a closed historical CI-admission incident; preserve the evidence without weakening or bypassing repository gates.
 - Treat Issue #24 as an intentional authoritative-contract backlog for features that cannot safely be recreated from the current live schema.
 
 ## Development
@@ -162,7 +165,7 @@ The hosted CI pipeline also generates Supabase types from project `aaxauqznfhcvg
 
 ## Schema lineage status
 
-**RESOLVED.** The repository contains the authoritative 41-version Aqarat OS migration lineage through `20260918171827`, and the linked production migration history reconciles 41/41 with the repository verifier. Local reset/type-generation remain workstation environment gates rather than production schema-lineage gaps.
+**RESOLVED.** The repository contains the authoritative 52-version Aqarat OS migration lineage through `20260920201858`, and the linked production migration history reconciles 52/52 with the repository verifier. Local reset/type-generation remain workstation environment gates rather than production schema-lineage gaps.
 
 ## Lara scope
 

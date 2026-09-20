@@ -6,11 +6,11 @@
 
 Verified on **2026-09-20**:
 
-- Certified runtime baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
-- Documentation-only follow-ups after PR #33 may advance `main` without changing the certified runtime contract; the current `main` commit is `de6fc890d4778c9984e56a32abcc0d07b52a40da`.
-- Certified runtime production deployment: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (**READY**).
-- Self-hosted runtime verification run #70: **SUCCESS**.
-- Hosted CI run #706 rerun attempt 2: **FAILURE before any job steps were created**; tracked separately under Issue #25.
+- Production release: `1bc3a3de977917d6a973c4f05f7d9930e1a9e726` (PR #41).
+- The current `main` runtime is the PR #41 release and has completed a fresh post-merge verification cycle.
+- Production deployment: `dpl_9op1XKW8jKRXZnqJNGAs9esSWbm6` (**READY**).
+- Self-hosted verification run #101: **SUCCESS**.
+- Hosted CI/CD run #820: **SUCCESS**, including E2E and the production health-check; Issue #25 is closed.
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
 ## Verified live database facts — 2026-09-20
@@ -62,8 +62,9 @@ Verified on **2026-09-20**:
 - Login: 5 attempts/15 minutes/IP.
 - Forgot password: 3 requests/hour/IP.
 - Resend verification: 5 requests/hour/IP.
-- Contact: 5 requests/hour/IP.
-- Protected database rate limiting fails closed when its privileged dependency is unavailable.
+- Contact: 5 requests/hour/IP via the constrained public database RPC.
+- Public auth/CSRF/CSP/contact rate limiting uses the publishable-key path and fails closed when the RPC is unavailable.
+- Protected database rate limiting continues to fail closed when its privileged dependency is unavailable.
 
 ### Runtime retirement
 
@@ -76,11 +77,11 @@ Verified on **2026-09-20**:
 
 The live migration history contains the Aqarat OS lineage beginning with `20260814163031`, including the subsequent intake, discovery, intelligence/content, release-governance, rate-limit, and public-property/security migrations.
 
-The repository migration directory now contains the complete authoritative 41-version Aqarat lineage through `20260918171827`. The historical 2024 Sadat MLS migration series and legacy helper/seed material are no longer in the executable migration path.
+The repository migration directory now contains the complete authoritative **52-version** Aqarat lineage through `20260920201858`. The historical 2024 Sadat MLS migration series and legacy helper/seed material are no longer in the executable migration path.
 
-This reconciliation gap is **resolved**. Issue #30 is closed. The remaining workstation-only acceptance checks are local Postgres recreation and exact local type generation. These are environmental proof gates only; production is not used as their fallback.
+This reconciliation gap is **resolved**. Issue #30 is closed, and the repository and live ledger now reconcile 52/52. The remaining workstation-only acceptance checks are local Postgres recreation and exact local type generation. These are environmental proof gates only; production is not used as their fallback.
 
-1. Reproduce the 41 migration chain locally with `supabase db reset` when workstation Docker resources permit.
+1. Reproduce the 51 migration chain locally with `supabase db reset` when workstation Docker resources permit.
 2. Generate/check local Supabase types from that local stack.
 3. Keep the migration verifier and self-hosted verification as the repository regression gate.
 

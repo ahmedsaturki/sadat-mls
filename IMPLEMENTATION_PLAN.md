@@ -4,14 +4,13 @@
 
 **PRODUCTION VERIFIED — 2026-09-20**
 
-The certified runtime contract is the merged PR #33 Aqarat OS baseline:
+The certified runtime contract is the merged PR #41 Aqarat OS baseline:
 
-- Runtime release baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
-- Production deployment for that runtime baseline: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (**READY**).
-- `main` now contains documentation-only follow-ups after PR #33; these do not change the certified runtime contract.
-- Independent self-hosted verification run #70: **SUCCESS** across migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
-- Hosted CI job-admission failures remain isolated under Issue #25; the repository has not weakened hosted gates.
-- Production runtime verification for the current production deployment is healthy; older rate-limit failures were isolated to a previous deployment.
+- Runtime release: `1bc3a3de977917d6a973c4f05f7d9930e1a9e726` (PR #41).
+- Production deployment: `dpl_9op1XKW8jKRXZnqJNGAs9esSWbm6` (**READY**).
+- Self-hosted verification run #101: **SUCCESS** across migration verification, lint, adapter smoke, typecheck, schema contract, tests, build, and diff check.
+- Hosted CI/CD run #820: **SUCCESS**, including E2E and production health-check.
+- The public runtime no longer depends on the lost Supabase privileged secret for auth/CSRF/CSP/contact rate-limit operations.
 
 This record is the release source for exact verified baseline identifiers. Subsequent documentation-only commits may advance `main` without changing the certified runtime contract; any runtime-affecting change requires a fresh verification cycle.
 
@@ -68,22 +67,22 @@ No replacement compatibility schema was invented.
 - Supabase type generation uses the repository-installed CLI.
 - Production health checks retry the real production endpoint instead of assuming a fixed deployment delay.
 - The schema contract guard scans runtime application source and blocks known legacy runtime contracts.
-- Dedicated self-hosted verification validates the provisioned Node 24/npm toolchain directly and avoids the previously unstable `actions/setup-node` admission path.
+- Dedicated self-hosted verification validates the provisioned Node 24/npm toolchain directly.
+- Hosted CI/CD is now executing successfully again; Issue #25 is closed after the successful post-merge pipeline.
 
 ## Production verification
 
-Verified against the production deployment of the certified runtime baseline:
+Verified on the merged PR #41 runtime:
 
-- `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` → **READY**, production, runtime commit `22f366cbc00200a1c19f249bfb4f2136a599de30`.
-- Self-hosted verification run #50 → **SUCCESS**.
-- `GET /api/health` → HTTP 200 with Supabase/property checks OK.
-- `GET /api/properties` → HTTP 200.
-- Arabic/English Explore routes → HTTP 200.
-- Arabic login route → HTTP 200.
-- Retired dashboard/office-comparison surfaces remain fail-closed rather than executing legacy data paths.
-- Vercel runtime errors for the selected 24-hour window → none.
-- Vercel unresolved toolbar threads → none.
-- Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, X-Content-Type-Options, and Referrer-Policy.
+- `dpl_9op1XKW8jKRXZnqJNGAs9esSWbm6` → **READY**, production, commit `1bc3a3de977917d6a973c4f05f7d9930e1a9e726`.
+- Self-hosted verification run #101 → **SUCCESS** across migration verification, lint, adapter smoke, typecheck, schema contract, tests, build, and diff check.
+- Hosted CI/CD run #820 → **SUCCESS**, including E2E and production health-check.
+- `GET /api/health` → HTTP 200 with `supabase_api=ok` and `properties=ok`.
+- `GET /api/properties` → HTTP 200 with the current 2 active production properties.
+- `/ar/explore` and `/en/explore` → HTTP 200.
+- Direct production smoke confirmed the current security headers remain present, including CSP, HSTS, X-Frame-Options DENY, X-Content-Type-Options, and Referrer-Policy.
+- Current runtime error sweep for the selected window → none.
+- Public auth/CSRF/CSP/contact rate-limit operations no longer require the lost privileged Supabase key.
 
 ## Current product boundary
 
@@ -103,7 +102,7 @@ Verified against the production deployment of the certified runtime baseline:
 
 ## Schema-lineage reproducibility
 
-Issue #30 is **resolved**. The repository contains the complete authoritative 41-version Aqarat OS migration lineage through `20260918171827`; obsolete 2024 migrations and legacy seed/helper SQL are outside the executable migration path, and the linked production migration history reconciles 41/41.
+Issue #30 is **resolved**. The repository contains the complete authoritative 52-version Aqarat OS migration lineage through `20260920201858`; obsolete 2024 migrations and legacy seed/helper SQL are outside the executable migration path, and the linked production migration history reconciles 51/51.
 
 The only remaining acceptance gates are workstation-local: prove that the 41 migrations replay cleanly with `supabase db reset` and regenerate Supabase TypeScript types from that local database with an exact match to `src/lib/supabase/types.ts`.
 
@@ -117,11 +116,11 @@ Before implementing favorites, saved searches, Auth ↔ `people` identity/organi
 
 ### Issue #25 — hosted CI admission
 
-The hosted workflow remains independent. Runs #706 attempt 2 and #713 continue to fail before steps are created. The repository gates have not been weakened and the dedicated self-hosted verification remains green.
+**Closed.** The hosted workflow is now executing normally. Main run #820 completed successfully, including E2E and the production health-check; repository gates were not weakened.
 
 ### Issue #30 — schema-lineage reproducibility
 
-**Closed.** The repository now contains the authoritative 41-version Aqarat OS migration lineage through `20260918171827`, and linked production/local migration history reconciles 41/41. The remaining workstation-only proof is a local Postgres replay and exact local type-generation check when Docker storage/port health permits.
+**Closed.** The repository now contains the authoritative 52-version Aqarat OS migration lineage through `20260920201858`, and linked production/local migration history reconciles 52/52. The remaining workstation-only proof is a local Postgres replay and exact local type-generation check when Docker storage/port health permits.
 
 ## Completion rule
 

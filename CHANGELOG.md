@@ -1,17 +1,31 @@
 # تغييرات Sadat MLS Cloud
 
+## [2026-09-20] Production runtime recovery and authoritative lineage completion
+
+### تم إنجازه
+
+- ✅ دمج PR #41 عند `1bc3a3de977917d6a973c4f05f7d9930e1a9e726`.
+- ✅ نشر production deployment `dpl_9op1XKW8jKRXZnqJNGAs9esSWbm6` → READY.
+- ✅ استعادة الـ6 migrations الإنتاجية التي كانت مفقودة من المستودع، ثم إضافة 4 migrations تشغيلية مرتبطة بالـpublic runtime ضمن PR #41؛ أصبح lineage **51/51**. وبعدها أضاف PR #42 migration hardening النهائي لـSECURITY DEFINER search_path، فأصبح lineage **52/52** حتى `20260920201858`.
+- ✅ نقل public auth/CSRF/CSP/contact rate limiting بعيدًا عن الاعتماد على privileged Supabase key.
+- ✅ إضافة constrained public contact RPC مع fail-closed behavior.
+- ✅ تحديث generated Supabase types وإضافة regression/E2E coverage.
+- ✅ Self-hosted Verification #101 → SUCCESS.
+- ✅ Hosted CI/CD #820 → SUCCESS مع E2E وproduction health-check.
+- ✅ Production smoke → `/api/health`, `/api/properties`, `/en/explore` = HTTP 200.
+
 ## [2026-09-20] Authoritative Aqarat lineage release
 
 ### تم إنجازه
 
-- ✅ دمج PR #33 واستقرار `main` على `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d`.
-- ✅ استعادة ومزامنة **41/41** migration إنتاجية حتى `20260918171827`.
-- ✅ إغلاق Issue #30 بعد اكتمال استعادة lineage الرسمي.
+- ✅ دمج PR #33 واستعادة أول lineage موثق للـAqarat OS قبل استكمال revisions الإنتاجية اللاحقة.
+- ✅ استعادة ومزامنة **41/41** migration إنتاجية حتى `20260918171827` كمرحلة سابقة من lineage.
+- ✅ إغلاق Issue #30 بعد استكمال استعادة lineage الرسمي.
 - ✅ اجتياز Self-hosted Verification run #70 بالكامل: migration verifier، lint، adapter smoke، typecheck، schema contract، **42 files / 677 tests**، build، diff check.
 - ✅ نشر production على Vercel: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` → READY.
 - ✅ التحقق من `/api/health` و`/api/properties` وExplore وProperty Detail بعد الدمج، وكلها HTTP 200.
 - ✅ تحديث وثائق README وPlatform Reconciliation لتعكس الحالة الفعلية بدل baseline قديم.
-- ✅ إبقاء GitHub-hosted CI admission failure منفصلًا وتتبعه في Issue #25 دون إضعاف أي gate.
+- ✅ إبقاء قواعد CI مستقلة وعدم تخفيف أي gate؛ تم إغلاق Issue #25 بعد عودة hosted CI للعمل.
 
 ## [2026-09-19] Post-merge production verification and repository hygiene
 

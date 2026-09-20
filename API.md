@@ -98,37 +98,37 @@ Rules:
 - An optional `propertyId` must refer to an active property.
 - Privileged database access is server-only.
 
-This route depends on the server-side Supabase privileged key and therefore fails closed when that key is unavailable.
+This route uses the publishable-key Supabase client against a constrained database RPC. It does not require the Vercel server to hold the lost Supabase privileged key.
 
 ## Authentication support APIs
 
 ### POST /api/auth/rate-limit
 
-Consumes one login-rate-limit slot for the requesting IP.
+Consumes one login-rate-limit slot for the requesting IP through the constrained `increment_public_rate_limit` Supabase RPC.
 
 - Limit: 5 attempts / 15 minutes.
 - No request body is required.
 - `429` indicates the login attempt window is exhausted.
-- `503` indicates the protected rate-limit dependency is unavailable.
+- `503` indicates the rate-limit RPC dependency is unavailable.
 
 ### POST /api/auth/forgot-rate-limit
 
-Consumes one forgot-password rate-limit slot for the requesting IP.
+Consumes one forgot-password rate-limit slot for the requesting IP through the same constrained public rate-limit primitive.
 
 - Limit: 3 requests / hour.
 - No request body is required.
 - `429` indicates the window is exhausted.
-- `503` indicates the protected rate-limit dependency is unavailable.
+- `503` indicates the public rate-limit RPC dependency is unavailable.
 
 ### POST /api/auth/resend-verification
 
-Resends a signup verification email.
+Resends a signup verification email; its public rate-limit gate uses the constrained public rate-limit primitive.
 
 - CSRF token required.
 - Limit: 5 requests / hour.
 - Body: `{ "email": "user@example.com" }`.
 - `429` indicates the resend window is exhausted.
-- `503` indicates the protected rate-limit dependency is unavailable.
+- `503` indicates the public rate-limit RPC dependency is unavailable.
 
 ### GET /api/auth/csrf-token
 

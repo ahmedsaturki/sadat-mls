@@ -2,7 +2,7 @@
 
 ## Final status
 
-**RECONCILIATION COMPLETE FOR THE VERIFIED Aqarat OS PUBLIC PROPERTY CONTRACT — 2026-09-18**
+**RECONCILIATION COMPLETE FOR THE VERIFIED Aqarat OS PUBLIC PROPERTY CONTRACT — 2026-09-20**
 
 This document is now a completion record. The connected production database is treated as the Aqarat OS source of truth for the currently delivered public property experience.
 
@@ -62,7 +62,7 @@ Current production verification includes:
 - `/ar/login` → HTTP 200.
 - Post-merge runtime verification on the new production deployment returned successful health/property/detail requests; older rate-limit errors were tied to the previous deployment.
 
-The production deployment for the merged main runtime is READY. The documentation-only follow-up is now also deployed from `main`.
+The production deployment for merged PR #41 is READY at `dpl_9op1XKW8jKRXZnqJNGAs9esSWbm6`. Hosted and self-hosted verification both passed after the merge.
 
 ## Intentionally unresolved contracts
 
@@ -89,7 +89,7 @@ These items remain fail-closed/retired. They are not represented as complete fea
 
 ## Migration lineage release note
 
-- Authoritative production migration ledger: **41/41** reconciled through `20260918171827`.
-- Repository baseline merge: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` via PR #33.
-- Self-hosted Verification run #70: **SUCCESS** across migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
-- Issue #30: **closed** after authoritative lineage reconstruction.
+- Authoritative production migration ledger: **52/52** reconciled through `20260920201858`.
+- Runtime baseline: `1bc3a3de977917d6a973c4f05f7d9930e1a9e726` via PR #41.
+- Self-hosted Verification run #101: **SUCCESS**; hosted CI/CD run #820: **SUCCESS**.
+- Issue #30: **closed** after authoritative lineage reconciliation.

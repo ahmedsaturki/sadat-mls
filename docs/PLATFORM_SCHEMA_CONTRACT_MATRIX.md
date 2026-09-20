@@ -12,6 +12,7 @@ This matrix is the current decision record for the connected Aqarat OS schema. I
 - No live relations matching `offices`, `public.users`, `zones`, `property_types`, `property_images`, or `property_favorites` are present.
 - `rate_limit_state` and `security_rate_limits` both exist and are private RLS-enabled operational tables.
 - `increment_rate_limit(text, inet, timestamptz)` and `increment_security_rate_limit(text, inet, timestamptz)` both exist.
+- Public runtime primitives `increment_public_rate_limit(text, text)` and `submit_public_contact(uuid, text, text, text, text, text, text)` exist and are restricted to `anon` execution.
 
 ## Contract matrix
 
@@ -43,7 +44,7 @@ Internal fields excluded from the public grant:
 
 `confidence`, `parcel_number`, `installments_clear`, `canonical_key`.
 
-This contract is implemented in Supabase and consumed through `createPublicReadClient()`.
+Public contact persistence is implemented through the constrained `submit_public_contact(...)` SECURITY DEFINER RPC, with execution restricted to `anon`. Public auth/CSRF/CSP/contact rate limiting uses the constrained `increment_public_rate_limit(...)` RPC. Neither RPC grants direct table access.
 
 ## Migration history
 

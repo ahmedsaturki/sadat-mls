@@ -40,5 +40,5 @@ These are not replacement implementations. They remain outside the executable co
 2. Rebuild supported business flows from `people`, `contacts`, `property_people`, `interactions`, `interests`, `leads`, and `lead_signals` where the semantics are actually represented by those entities.
 3. Establish and verify the explicit Auth-to-business-person identity contract before restoring role/office-aware workflows.
 4. Keep the checked-in Aqarat database type contract synchronized and fail closed on drift.
-5. Continue operational monitoring of the current server-side rate-limit primitive and resolve any deployment credential/configuration drift without weakening fail-closed behavior.
-6. Keep self-hosted verification as an independent repository gate while GitHub-hosted runner admission remains tracked separately in Issue #25.
+5. Continue operational monitoring of the public and protected rate-limit primitives and resolve configuration drift without weakening fail-closed behavior.
+6. Keep self-hosted verification as an independent repository gate while hosted CI/CD remains an active production gate; the former admission issue is closed.
