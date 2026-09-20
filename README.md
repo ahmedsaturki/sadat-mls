@@ -9,14 +9,14 @@ Verified on **2026-09-20** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Latest verified runtime release baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (merged PR #28)
-- Production deployment for that runtime baseline: `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` (READY)
-- Independent self-hosted verification run #50: SUCCESS for the same runtime contract
-- Production smoke verification on 2026-09-19: `/api/health`, `/api/properties`, a representative filter, `/ar/explore`, `/en/explore`, and `/ar/login` all returned HTTP 200.
+- Latest verified runtime release baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (merged PR #33)
+- Production deployment for that runtime baseline: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (READY)
+- Independent self-hosted verification run #70: SUCCESS on the merged main commit, including migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check
+- Production smoke verification on 2026-09-20: `/api/health`, `/api/properties`, `/en/explore`, `/en/explore/{id}`, and the public localized routes tested during the release sweep returned HTTP 200.
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
-PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests; it did not invent replacement Aqarat contracts.
+PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests. PR #33 restored the authoritative 41-migration Aqarat OS lineage and made the local migration verifier deterministic; it did not invent replacement Aqarat contracts.
 
 This README records the certified **runtime baseline**. Documentation-only commits may advance `main` and trigger new Vercel deployments without changing that runtime contract; runtime-affecting changes require a fresh verification cycle.
 
@@ -63,7 +63,7 @@ The applied public-property migration is recorded in Supabase as:
 
 and the repository contains that applied migration file.
 
-The broader repository migration chain is currently being reconciled with the full live Aqarat OS history. The live project contains August 2026 Aqarat migrations that are not yet all present under `supabase/migrations/`; see Issue #30. Until that reconciliation is complete, do not treat the current migration directory as a clean from-scratch production schema reproduction path.
+The repository migration chain now reconciles with the full live Aqarat OS migration history: **41/41** versions are present and match the production migration ledger through `20260918171827`. Issue #30 is closed.
 
 ## Security posture
 
@@ -87,16 +87,16 @@ The live schema currently has no `offices`, `public.users`, `zones`, `property_i
 
 ## Verification baseline
 
-The current certified runtime remains the same public Aqarat OS contract; PR #28 only removes dead/unadvertised implementations and their tests. The current verified runtime baseline was checked with:
+The current certified runtime remains the public Aqarat OS contract after PR #33. The verified baseline was checked with:
 
 - `/api/health` → HTTP 200 with Supabase/property checks OK.
 - `/api/properties` → HTTP 200.
 - Representative property filters → HTTP 200.
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Vercel production deployment `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` → READY for merge commit `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28).
-- Post-merge self-hosted verification run #48 → SUCCESS, including lint, typecheck, schema contract, unit/integration tests, build, and diff check.
-- Production runtime error sweep (selected 24-hour window) → no runtime errors.
+- Vercel production deployment `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` → READY for merge commit `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
+- Post-merge self-hosted verification run #70 → SUCCESS, including authoritative migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
+- Production runtime logs after the new deployment show successful public health, property API, and property-detail requests; the only rate-limit failures in the current one-hour sweep are timestamped 04:52 UTC on the previous deployment.
 - Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, and X-Content-Type-Options.
 
 The hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Recent hosted failures remain isolated to hosted job admission before any job steps are created; the dedicated self-hosted verification passed the same release end-to-end. The hosted gates were not weakened.
@@ -111,7 +111,9 @@ The hosted CI workflow remains independent because it contains secret-dependent 
 - Keep migration files synchronized with the migration versions actually applied to Supabase.
 - Keep unknown mappings explicitly unknown until verified.
 - Run the self-hosted verification companion on PRs and every push to `main`.
-- Treat Issue #30 as the active schema-lineage reconciliation gate; do not use the current migration directory as a clean production reproduction path until it is resolved.
+- Treat the 41-version Aqarat OS migration lineage as the current schema source of truth.
+- Treat Issue #25 as an external GitHub-hosted runner admission/infrastructure investigation; do not weaken repository gates to hide it.
+- Treat Issue #24 as an intentional authoritative-contract backlog for features that cannot safely be recreated from the current live schema.
 
 ## Development
 
@@ -160,7 +162,7 @@ The hosted CI pipeline also generates Supabase types from project `aaxauqznfhcvg
 
 ## Schema lineage status
 
-Issue #30 tracks restoration of a reproducible local migration chain matching the live Aqarat OS schema. This is separate from the already-verified production runtime contract.
+**RESOLVED.** The repository contains the authoritative 41-version Aqarat OS migration lineage through `20260918171827`, and the linked production migration history reconciles 41/41 with the repository verifier. Local reset/type-generation remain workstation environment gates rather than production schema-lineage gaps.
 
 ## Lara scope
 
