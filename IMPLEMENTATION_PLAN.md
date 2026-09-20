@@ -74,7 +74,7 @@ No replacement compatibility schema was invented.
 
 Verified against the production deployment of the certified runtime baseline:
 
-- `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` → **READY**, production, runtime commit `22f366cbc00200a1c19f249bfb4f2136a599de30`.
+- `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` → **READY**, production, runtime commit `8fae65aca77751b45ffef7141d7d55cc7c87e8db` (PR #38).
 - Self-hosted verification run #90 → **SUCCESS**.
 - `GET /api/health` → HTTP 200 with Supabase/property checks OK.
 - `GET /api/properties` → HTTP 200.
