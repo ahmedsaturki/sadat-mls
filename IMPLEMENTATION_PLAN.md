@@ -102,7 +102,7 @@ Verified on the merged PR #41 runtime:
 
 ## Schema-lineage reproducibility
 
-Issue #30 is **resolved**. The repository contains the complete authoritative 51-version Aqarat OS migration lineage through `20260920174801`; obsolete 2024 migrations and legacy seed/helper SQL are outside the executable migration path, and the linked production migration history reconciles 51/51.
+Issue #30 is **resolved**. The repository contains the complete authoritative 52-version Aqarat OS migration lineage through `20260920201858`; obsolete 2024 migrations and legacy seed/helper SQL are outside the executable migration path, and the linked production migration history reconciles 51/51.
 
 The only remaining acceptance gates are workstation-local: prove that the 41 migrations replay cleanly with `supabase db reset` and regenerate Supabase TypeScript types from that local database with an exact match to `src/lib/supabase/types.ts`.
 
@@ -120,7 +120,7 @@ Before implementing favorites, saved searches, Auth ↔ `people` identity/organi
 
 ### Issue #30 — schema-lineage reproducibility
 
-**Closed.** The repository now contains the authoritative 51-version Aqarat OS migration lineage through `20260920174801`, and linked production/local migration history reconciles 51/51. The remaining workstation-only proof is a local Postgres replay and exact local type-generation check when Docker storage/port health permits.
+**Closed.** The repository now contains the authoritative 52-version Aqarat OS migration lineage through `20260920201858`, and linked production/local migration history reconciles 52/52. The remaining workstation-only proof is a local Postgres replay and exact local type-generation check when Docker storage/port health permits.
 
 ## Completion rule
 
