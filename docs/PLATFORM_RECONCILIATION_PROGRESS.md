@@ -77,9 +77,9 @@ Verified on **2026-09-20**:
 
 The live migration history contains the Aqarat OS lineage beginning with `20260814163031`, including the subsequent intake, discovery, intelligence/content, release-governance, rate-limit, and public-property/security migrations.
 
-The repository migration directory now contains the complete authoritative **51-version** Aqarat lineage through `20260920174801`. The historical 2024 Sadat MLS migration series and legacy helper/seed material are no longer in the executable migration path.
+The repository migration directory now contains the complete authoritative **52-version** Aqarat lineage through `20260920201858`. The historical 2024 Sadat MLS migration series and legacy helper/seed material are no longer in the executable migration path.
 
-This reconciliation gap is **resolved**. Issue #30 is closed, and the repository and live ledger now reconcile 51/51. The remaining workstation-only acceptance checks are local Postgres recreation and exact local type generation. These are environmental proof gates only; production is not used as their fallback.
+This reconciliation gap is **resolved**. Issue #30 is closed, and the repository and live ledger now reconcile 52/52. The remaining workstation-only acceptance checks are local Postgres recreation and exact local type generation. These are environmental proof gates only; production is not used as their fallback.
 
 1. Reproduce the 51 migration chain locally with `supabase db reset` when workstation Docker resources permit.
 2. Generate/check local Supabase types from that local stack.
