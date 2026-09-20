@@ -57,6 +57,7 @@ const expected = [
   { version: "20260920173724", name: "add_public_rate_limit_rpc", gitSha: "a56ac5448c43a755ae38ff02021271556404b7ed" },
   { version: "20260920174212", name: "add_public_contact_rpc", gitSha: "4777a5b4b758b65beb03ecfc334c1bcc796e51d0" },
   { version: "20260920174421", name: "fix_public_rate_limit_empty_ip", gitSha: "a56ac5448c43a755ae38ff02021271556404b7ed" },
+  { version: "20260920174801", name: "restrict_public_rpc_execute_to_anon", gitSha: "3e5f93dd59a3e7efaf34b49e952d9eccf200c1ba" },
 ];
 
 if (!existsSync(dir)) {
