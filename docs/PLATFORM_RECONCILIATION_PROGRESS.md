@@ -10,7 +10,7 @@ Verified on **2026-09-20**:
 - PR #38 is now merged and `main` is at `8fae65aca77751b45ffef7141d7d55cc7c87e8db`.
 - Certified runtime production deployment: `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` (**READY**).
 - Self-hosted runtime verification run #90: **SUCCESS**.
-- Hosted CI/CD run #786: **post-merge release verification in progress/completing**; historical admission failures are closed under Issue #25.
+- Hosted CI/CD run #786: **SUCCESS** after the PR #38 merge; historical admission failures are closed under Issue #25.
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
 ## Verified live database facts — 2026-09-20
