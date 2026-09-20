@@ -89,7 +89,7 @@ These items remain fail-closed/retired. They are not represented as complete fea
 
 ## Migration lineage release note
 
-- Authoritative production migration ledger: **51/51** reconciled through `20260920174801`.
+- Authoritative production migration ledger: **52/52** reconciled through `20260920201858`.
 - Runtime baseline: `1bc3a3de977917d6a973c4f05f7d9930e1a9e726` via PR #41.
 - Self-hosted Verification run #101: **SUCCESS**; hosted CI/CD run #820: **SUCCESS**.
 - Issue #30: **closed** after authoritative lineage reconciliation.
