@@ -23,22 +23,22 @@ The reconciliation branch removes runtime surfaces that depend on relations or f
 - legacy commissions API routes
 - legacy dashboard property-management route/client
 
-These are not replacement implementations. They are intentionally removed from the executable contract so the application cannot silently depend on nonexistent production tables.
+These are not replacement implementations. They remain outside the executable contract so the application cannot silently depend on nonexistent production tables.
 
-## Explicit non-goals
+## Current production boundary
 
 - no compatibility tables/views created only to satisfy old callers
 - no weakening of the schema-contract guard
 - no E2E/test suppression to hide contract failures
 - no `user_metadata` authorization
-- no production rollout from this draft reconciliation branch
+- production currently runs from `main` on the verified Aqarat OS property contract
 - no changes to PR #12
 
-## Next migration waves
+## Next product-contract waves
 
-1. Remove or rebuild remaining admin/API surfaces that depend on legacy `users`, `offices`, `contact_requests`, `property_favorites`, and old property fields.
+1. Define authoritative replacement contracts for Auth↔`people`, media/storage, favorites, saved searches, and office/admin/agent workflows before restoring any corresponding feature.
 2. Rebuild supported business flows from `people`, `contacts`, `property_people`, `interactions`, `interests`, `leads`, and `lead_signals` where the semantics are actually represented by those entities.
 3. Establish and verify the explicit Auth-to-business-person identity contract before restoring role/office-aware workflows.
-4. Replace the legacy database type contract with the generated live schema artifact and keep generated-vs-checked-in drift fail-closed.
-5. Redesign rate limiting against a real current Aqarat-era server-side primitive; do not silently fall back to memory-only enforcement.
-6. Require `lint`, `gen-types`, `typecheck`, and `schema-contract` to pass before re-enabling downstream test/E2E/build/health stages.
+4. Keep the checked-in Aqarat database type contract synchronized and fail closed on drift.
+5. Continue operational monitoring of the current server-side rate-limit primitive and resolve any deployment credential/configuration drift without weakening fail-closed behavior.
+6. Keep self-hosted verification as an independent repository gate while GitHub-hosted runner admission remains tracked separately in Issue #25.
