@@ -115,7 +115,7 @@ The hosted CI workflow remains independent because it contains secret-dependent 
 - Run the self-hosted verification companion on PRs and every push to `main`.
 - Treat the 51-version Aqarat OS migration lineage as the current schema source of truth.
 - Treat the public rate-limit/contact RPCs as constrained infrastructure primitives, not general-purpose public data access.
-- Treat Issue #25 as an external GitHub-hosted runner admission/infrastructure investigation; do not weaken repository gates to hide it.
+- Treat Issue #25 as a closed historical CI-admission incident; preserve the evidence without weakening or bypassing repository gates.
 - Treat Issue #24 as an intentional authoritative-contract backlog for features that cannot safely be recreated from the current live schema.
 
 ## Development
