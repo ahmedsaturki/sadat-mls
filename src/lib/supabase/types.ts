@@ -1635,6 +1635,10 @@ export type Database = {
         Args: { p_source_id: string }
         Returns: boolean
       }
+      increment_public_rate_limit: {
+        Args: { p_action: string; p_client_ip: string }
+        Returns: Json
+      }
       increment_rate_limit: {
         Args: { p_action: string; p_ip: unknown; p_window_start: string }
         Returns: number
@@ -1654,6 +1658,18 @@ export type Database = {
       requeue_expired_jobs: { Args: never; Returns: number }
       score_property_match: {
         Args: { p_left: string; p_right: string }
+        Returns: Json
+      }
+      submit_public_contact: {
+        Args: {
+          p_client_ip: string
+          p_contact_type: string
+          p_message: string
+          p_property_id: string
+          p_visitor_email: string
+          p_visitor_name: string
+          p_visitor_phone: string
+        }
         Returns: Json
       }
     }
