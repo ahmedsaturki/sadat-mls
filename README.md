@@ -96,7 +96,7 @@ The current certified runtime remains the public Aqarat OS contract after PR #38
 - `/ar/login` → HTTP 200.
 - Vercel production deployment `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` → READY for merge commit `8fae65aca77751b45ffef7141d7d55cc7c87e8db` (PR #38).
 - Post-merge self-hosted verification run #90 → SUCCESS, including authoritative migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
-- Production runtime logs after the new deployment show successful public health, property API, and property-detail requests; the only rate-limit failures in the current one-hour sweep are timestamped 04:52 UTC on the previous deployment.
+- Production runtime verification on the PR #38 deployment shows successful public property traffic and no runtime errors in the selected verification window; the current CI production gate also verifies the health and auth rate-limit endpoints.
 - Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, and X-Content-Type-Options.
 
 The hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, build, and production-gate jobs. Post-merge hosted CI/CD run #786 is the current verification run for PR #38; the hosted gates were not weakened.
