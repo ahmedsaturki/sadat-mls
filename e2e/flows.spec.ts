@@ -84,4 +84,26 @@ test.describe("Static Pages", () => {
     const response = await request.get("/api/health");
     expect(response.status()).toBe(200);
   });
+
+  test("should reject invalid public contact property without a privileged database key", async ({ request }) => {
+    const csrfResponse = await request.get("/api/auth/csrf-token");
+    expect(csrfResponse.status()).toBe(200);
+    const csrf = await csrfResponse.json();
+    expect(typeof csrf.token).toBe("string");
+
+    const response = await request.post("/api/contact", {
+      headers: { "x-csrf-token": csrf.token },
+      data: {
+        propertyId: "00000000-0000-0000-0000-000000000000",
+        contactType: "email",
+        visitorName: "E2E Validation",
+        visitorEmail: "e2e@example.com",
+        visitorPhone: "",
+        message: "Validation request",
+      },
+    });
+
+    expect(response.status()).toBe(404);
+    await expect(response.json()).resolves.toMatchObject({ error: "Property not found" });
+  });
 });

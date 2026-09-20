@@ -48,6 +48,16 @@ const expected = [
   { version: "20260918171748", name: "finalize_discovery_entity_materializer_provenance", md5: "0712438f726c6cce57abbec60a62b745" },
   { version: "20260918171809", name: "finalize_discovery_entity_materializer_provenance_source", md5: "213221086bbf22d502289ddcf3838e31" },
   { version: "20260918171827", name: "finalize_discovery_entity_materializer_provenance_select", md5: "a8b2d6e8253bf704bc0864c8b7514a54" },
+  { version: "20260918172000", name: "fix_discovery_entity_materializer_city_ambiguity", gitSha: "6bcd63dcdb3cfb8039358a52ec9155aca3b56fbb" },
+  { version: "20260918172500", name: "finalize_discovery_entity_materializer_city_fix", gitSha: "0a3df5092109ac974c29ef9c1c5c4451e40be2f4" },
+  { version: "20260918173000", name: "finalize_discovery_entity_materializer_type_and_city_fix", gitSha: "1ffa0a79132f7165aad2b9c78aca84e4a537d42e" },
+  { version: "20260918174000", name: "finalize_discovery_entity_materializer_provenance", gitSha: "6512a11d6fa166d4e0d9965b6d929bb58fa1bed8" },
+  { version: "20260918175000", name: "finalize_discovery_entity_materializer_provenance_source", gitSha: "b50e6abd9d4e3768606bf671edfcce0a01ed3171" },
+  { version: "20260918175500", name: "finalize_discovery_entity_materializer_provenance_select", gitSha: "fec2f9999c1f0652e8061a2e007d208d007b3200" },
+  { version: "20260920173724", name: "add_public_rate_limit_rpc", gitSha: "a56ac5448c43a755ae38ff02021271556404b7ed" },
+  { version: "20260920174212", name: "add_public_contact_rpc", gitSha: "4777a5b4b758b65beb03ecfc334c1bcc796e51d0" },
+  { version: "20260920174421", name: "fix_public_rate_limit_empty_ip", gitSha: "a56ac5448c43a755ae38ff02021271556404b7ed" },
+  { version: "20260920174801", name: "restrict_public_rpc_execute_to_anon", gitSha: "3e5f93dd59a3e7efaf34b49e952d9eccf200c1ba" },
 ];
 
 if (!existsSync(dir)) {
@@ -82,9 +92,12 @@ for (const entry of expected) {
     continue;
   }
 
-  const actual = createHash("md5").update(readFileSync(file)).digest("hex");
-  if (actual !== entry.md5) {
-    mismatched.push({ file: relativePath, expected: entry.md5, actual });
+  const actual = entry.gitSha
+    ? execFileSync("git", ["hash-object", relativePath], { cwd: root }).toString("utf8").trim()
+    : createHash("md5").update(readFileSync(file)).digest("hex");
+  const expectedHash = entry.gitSha ?? entry.md5;
+  if (actual !== expectedHash) {
+    mismatched.push({ file: relativePath, expected: expectedHash, actual });
   }
 }
 
