@@ -266,7 +266,7 @@ export async function checkApiRateLimit(
     return { ...buildResult(count, maxRequests, resetTime, retryAfter), unavailable: false };
   } catch (error) {
     logger.error("API rate limit unavailable; failing closed", {
-      error: error instanceof Error ? error.message : String(error),
+      error: describeRateLimitError(error),
     });
     return { ...buildResult(maxRequests + 1, maxRequests, Date.now() + 30000, 30), unavailable: true };
   }
