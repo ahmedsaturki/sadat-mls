@@ -6,10 +6,10 @@
 
 Verified on **2026-09-20**:
 
-- Certified runtime baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28).
-- Documentation-only commits may advance `main` after PR #28 without changing the certified runtime contract.
-- Certified runtime production deployment: `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` (**READY**).
-- Self-hosted runtime verification run #50: **SUCCESS**.
+- Certified runtime baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
+- Documentation-only commit `280737c5276f5a3b8a7cf1cb34ac77fa285542cb` currently advances `main` without changing the certified runtime contract.
+- Certified runtime production deployment: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (**READY**).
+- Self-hosted runtime verification run #70: **SUCCESS**.
 - Hosted CI run #706 rerun attempt 2: **FAILURE before any job steps were created**; tracked separately under Issue #25.
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
@@ -76,15 +76,13 @@ Verified on **2026-09-20**:
 
 The live migration history contains the Aqarat OS lineage beginning with `20260814163031`, including the subsequent intake, discovery, intelligence/content, release-governance, rate-limit, and public-property/security migrations.
 
-The repository migration directory does **not** yet contain that complete August lineage. It also still contains the historical 2024 Sadat MLS migration series. Several legacy helper/seed files reference retired tables and must not be executed against the current Aqarat production model.
+The repository migration directory now contains the complete authoritative 41-version Aqarat lineage through `20260918171827`. The historical 2024 Sadat MLS migration series and legacy helper/seed material are no longer in the executable migration path.
 
-This is now explicitly tracked as **Issue #30**. The remediation path is:
+This reconciliation gap is **resolved**. Issue #30 is closed. The remaining workstation-only acceptance checks are local Postgres recreation and exact local type generation.
 
-1. Pull the authoritative production schema into a reviewed local baseline migration.
-2. Verify `supabase db reset` from the resulting migration chain on the local machine.
-3. Quarantine obsolete legacy migration/seed material so `supabase/migrations` contains only the executable authoritative chain.
-4. Re-run type generation, contract checks, self-hosted verification, and production verification.
-5. Freeze the reconciled schema lineage as the new repository baseline.
+1. Reproduce the 41 migration chain locally with `supabase db reset` when workstation Docker resources permit.
+2. Generate/check local Supabase types from that local stack.
+3. Keep the migration verifier and self-hosted verification as the repository regression gate.
 
 No destructive remote reset is required; do not use `supabase db reset --linked` during this reconciliation.
 
@@ -92,7 +90,7 @@ No destructive remote reset is required; do not use `supabase db reset --linked`
 
 - Hosted CI keeps its independent secret-dependent type-generation, E2E, build, and production-health gates.
 - Dedicated self-hosted verification validates the provisioned Node 24/npm toolchain directly.
-- Self-hosted runtime verification run #50 passed end-to-end.
+- Self-hosted runtime verification run #70 passed end-to-end.
 - Supabase CLI usage for generated types is project-local.
 - Schema contract guard scans application runtime source under `src`.
 - Production health verification retries the real production endpoint.
@@ -107,7 +105,7 @@ No destructive remote reset is required; do not use `supabase db reset --linked`
 4. Saved-search persistence/ownership.
 5. Historical office/admin/agent workflows based on the retired relational model.
 
-No compatibility tables or guessed relationships are created merely to make these features appear complete.
+No compatibility tables or guessed relationships are created merely to make these features appear complete. These remain an intentional contract backlog tracked by Issue #24.
 
 ## Governing rule
 
