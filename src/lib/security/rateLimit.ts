@@ -220,7 +220,7 @@ export async function rateLimitMiddleware(request: NextRequest, config: RateLimi
     return null;
   } catch (error) {
     logger.error("Rate limiting unavailable; failing closed", {
-      error: error instanceof Error ? error.message : String(error),
+      error: describeRateLimitError(error),
     });
     return NextResponse.json(
       { error: "Rate limiting temporarily unavailable" },
