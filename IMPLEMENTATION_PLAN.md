@@ -4,14 +4,14 @@
 
 **PRODUCTION VERIFIED — 2026-09-20**
 
-The certified runtime contract remains the merged PR #28 baseline:
+The certified runtime contract is the merged PR #33 Aqarat OS baseline:
 
-- Runtime release baseline: `22f366cbc00200a1c19f249bfb4f2136a599de30` (PR #28).
-- Production deployment for that runtime baseline: `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` (**READY**).
-- The current `main` branch may contain documentation-only commits after PR #28 without changing the certified runtime contract.
-- Independent self-hosted verification run #50: **SUCCESS** across toolchain, install, lint, adapter smoke, typecheck, schema contract, unit/integration tests, build, and diff check.
-- Hosted CI run #706, rerun attempt 2: **FAILURE before job steps were created**; `lint` has no steps/runner evidence and all dependent jobs were skipped. This remains an infrastructure/admission issue under Issue #25, not evidence of a repository command failure.
-- Production runtime error sweep for the selected 24-hour verification window: no runtime errors.
+- Runtime release baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
+- Production deployment for that runtime baseline: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (**READY**).
+- `main` now contains documentation-only follow-ups after PR #33; these do not change the certified runtime contract.
+- Independent self-hosted verification run #70: **SUCCESS** across migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
+- Hosted CI job-admission failures remain isolated under Issue #25; the repository has not weakened hosted gates.
+- Production runtime verification for the current production deployment is healthy; older rate-limit failures were isolated to a previous deployment.
 
 This record is the release source for exact verified baseline identifiers. Subsequent documentation-only commits may advance `main` without changing the certified runtime contract; any runtime-affecting change requires a fresh verification cycle.
 
@@ -103,15 +103,11 @@ Verified against the production deployment of the certified runtime baseline:
 
 ## Schema-lineage reproducibility
 
-A live Supabase migration-history audit on 2026-09-20 found a mismatch that is now tracked explicitly:
+Issue #30 is **resolved**. The repository contains the complete authoritative 41-version Aqarat OS migration lineage through `20260918171827`; obsolete 2024 migrations and legacy seed/helper SQL are outside the executable migration path, and the linked production migration history reconciles 41/41.
 
-- The connected production project records the Aqarat OS migration lineage beginning at `20260814163031` and continuing through the Aqarat migrations and the September public-read/security migrations.
-- The repository currently contains the older 2024 Sadat MLS migration series plus the September 2026 public-property/security files, but does not yet contain the full August 2026 Aqarat migration lineage.
-- Legacy helper SQL such as `supabase/run_remaining_migrations.sql`, `supabase/seed.sql`, and `supabase/seed_028.sql` references retired tables such as `offices`, `zones`, and `users` and must not be treated as a production migration source.
+The only remaining acceptance gates are workstation-local: prove that the 41 migrations replay cleanly with `supabase db reset` and regenerate Supabase TypeScript types from that local database with an exact match to `src/lib/supabase/types.ts`.
 
-Therefore the repository is **production-verified but not yet fully reproducible from a clean local Supabase migration chain**.
-
-The required remediation is to pull the authoritative remote schema into a reviewed baseline migration, verify that baseline with a local `db reset`, and then quarantine/remove obsolete legacy migration/seed material from the executable migration path. No destructive remote schema reset is part of this task; any migration-history repair requires an explicit, separately reviewed reconciliation step.
+No destructive remote reset, migration repair, or production schema push is required or permitted for this reconciliation.
 
 ## Open engineering items
 
@@ -125,7 +121,7 @@ The hosted workflow remains independent. Runs #706 attempt 2 and #713 continue t
 
 ### Issue #30 — schema-lineage reproducibility
 
-The repository needs a clean, reviewable local migration baseline matching the live Aqarat production schema. This is a repository/tooling reconciliation task, not a feature-schema invention task.
+**Closed.** The repository now contains the authoritative 41-version Aqarat OS migration lineage through `20260918171827`, and linked production/local migration history reconciles 41/41. The remaining workstation-only proof is a local Postgres replay and exact local type-generation check when Docker storage/port health permits.
 
 ## Completion rule
 
