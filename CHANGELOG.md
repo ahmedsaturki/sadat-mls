@@ -1,5 +1,17 @@
 # تغييرات Sadat MLS Cloud
 
+## [2026-09-20] PR #38 runtime hardening and release verification
+
+### تم إنجازه
+
+- ✅ دمج PR #38 إلى `main` عند `8fae65aca77751b45ffef7141d7d55cc7c87e8db`.
+- ✅ نشر Vercel production لنفس الإصدار: `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` → READY.
+- ✅ اجتياز Self-hosted Verification #90 بالكامل.
+- ✅ إضافة hardening لحفظ locale الصريح في protected redirects.
+- ✅ تحسين structured rate-limit error reporting وtrusted client-IP precedence.
+- ✅ إضافة production auth rate-limit readiness gate إلى CI.
+- ✅ تحديث توثيق release baseline والحالة التشغيلية بعد الدمج.
+
 ## [2026-09-20] Authoritative Aqarat lineage release
 
 ### تم إنجازه
