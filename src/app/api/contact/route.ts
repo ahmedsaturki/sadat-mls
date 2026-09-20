@@ -47,11 +47,11 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createPublicApiClient();
     const { data: result, error } = await supabase.rpc("submit_public_contact", {
-      p_property_id: raw.propertyId ?? null,
+      p_property_id: raw.propertyId as string,
       p_contact_type: raw.contactType,
       p_visitor_name: raw.visitorName,
-      p_visitor_phone: raw.visitorPhone ?? null,
-      p_visitor_email: raw.visitorEmail ?? null,
+      p_visitor_phone: raw.visitorPhone as string,
+      p_visitor_email: raw.visitorEmail as string,
       p_message: raw.message,
       p_client_ip: ip,
     });
