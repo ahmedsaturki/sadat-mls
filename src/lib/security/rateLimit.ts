@@ -4,6 +4,10 @@ import { isIP } from "node:net";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { logger } from "@/lib/logger";
+import {
+  checkPublicRateLimit,
+  isPublicRateLimitAction,
+} from "@/lib/security/publicRateLimit";
 
 export class RateLimitError extends Error {
   constructor(
@@ -259,6 +263,13 @@ export async function checkApiRateLimit(
   _riskLevel?: string,
   options?: { windowMs?: number; maxRequests?: number },
 ) {
+  const action = extractActionFromKey(key);
+  const ip = extractIpFromKey(key);
+
+  if (isPublicRateLimitAction(action)) {
+    return checkPublicRateLimit(action, ip);
+  }
+
   const windowMs = options?.windowMs || 60000;
   const maxRequests = options?.maxRequests || 100;
   try {
