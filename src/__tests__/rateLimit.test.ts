@@ -209,6 +209,35 @@ describe("rateLimit", () => {
     expect(result.headers["X-RateLimit-Remaining"]).toBe("0");
   });
 
+  it("preserves structured database error details in fail-closed logs", async () => {
+    const databaseError = {
+      name: "PostgrestError",
+      message: "Invalid API key",
+      code: "PGRST301",
+      details: "JWT is invalid",
+      hint: "Refresh the service credential",
+    };
+    mockRpc.mockResolvedValueOnce({ data: null, error: databaseError });
+
+    const result = await checkApiRateLimit("structured-db-failure");
+
+    expect(result.unavailable).toBe(true);
+    expect(result.allowed).toBe(false);
+    const errorCall = vi.mocked((await import("@/lib/logger")).logger.error).mock.calls;
+    expect(errorCall).toContainEqual([
+      "API rate limit unavailable; failing closed",
+      {
+        error: expect.objectContaining({
+          message: "Invalid API key",
+          code: "PGRST301",
+          details: "JWT is invalid",
+          hint: "Refresh the service credential",
+        }),
+      },
+    ]);
+    expect(JSON.stringify(errorCall)).not.toContain("[object Object]");
+  });
+
   it("handles maxRequests of 1", async () => {
     const first = await checkApiRateLimit("single-request", undefined, {
       maxRequests: 1,
