@@ -12,6 +12,7 @@ This matrix is the current decision record for the connected Aqarat OS schema. I
 - No live relations matching `offices`, `public.users`, `zones`, `property_types`, `property_images`, or `property_favorites` are present.
 - `rate_limit_state` and `security_rate_limits` both exist and are private RLS-enabled operational tables.
 - `increment_rate_limit(text, inet, timestamptz)` and `increment_security_rate_limit(text, inet, timestamptz)` both exist.
+- Public runtime primitives `increment_public_rate_limit(text, text)` and `submit_public_contact(uuid, text, text, text, text, text, text)` exist and are restricted to `anon` execution.
 
 ## Contract matrix
 
