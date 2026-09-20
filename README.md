@@ -16,7 +16,7 @@ Verified on **2026-09-20** against the connected Supabase project and the live V
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
-PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests. PR #41 restored the remaining production-recorded Aqarat migration revisions, bringing the executable repository lineage to 51/51, and removed the stale privileged-key dependency from the public rate-limit/contact paths; it did not invent replacement Aqarat contracts.
+PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests. PR #41 restored the remaining production-recorded Aqarat migration revisions, bringing the executable repository lineage to 52/52, and removed the stale privileged-key dependency from the public rate-limit/contact paths; it did not invent replacement Aqarat contracts.
 
 This README records the certified **runtime baseline**. Documentation-only commits may advance `main` and trigger new Vercel deployments without changing that runtime contract; runtime-affecting changes require a fresh verification cycle.
 
@@ -63,7 +63,7 @@ The applied public-property migration is recorded in Supabase as:
 
 and the repository contains that applied migration file.
 
-The repository migration chain now reconciles with the full live Aqarat OS migration history: **51/51** versions are present and match the production migration ledger through `20260920174801`. Issue #30 is closed.
+The repository migration chain now reconciles with the full live Aqarat OS migration history: **52/52** versions are present and match the production migration ledger through `20260920201858`. Issue #30 is closed.
 
 ## Security posture
 
@@ -113,7 +113,7 @@ The hosted CI workflow remains independent because it contains secret-dependent 
 - Keep migration files synchronized with the migration versions actually applied to Supabase.
 - Keep unknown mappings explicitly unknown until verified.
 - Run the self-hosted verification companion on PRs and every push to `main`.
-- Treat the 51-version Aqarat OS migration lineage as the current schema source of truth.
+- Treat the 52-version Aqarat OS migration lineage as the current schema source of truth.
 - Treat the public rate-limit/contact RPCs as constrained infrastructure primitives, not general-purpose public data access.
 - Treat Issue #25 as a closed historical CI-admission incident; preserve the evidence without weakening or bypassing repository gates.
 - Treat Issue #24 as an intentional authoritative-contract backlog for features that cannot safely be recreated from the current live schema.
@@ -165,7 +165,7 @@ The hosted CI pipeline also generates Supabase types from project `aaxauqznfhcvg
 
 ## Schema lineage status
 
-**RESOLVED.** The repository contains the authoritative 51-version Aqarat OS migration lineage through `20260920174801`, and the linked production migration history reconciles 51/51 with the repository verifier. Local reset/type-generation remain workstation environment gates rather than production schema-lineage gaps.
+**RESOLVED.** The repository contains the authoritative 52-version Aqarat OS migration lineage through `20260920201858`, and the linked production migration history reconciles 52/52 with the repository verifier. Local reset/type-generation remain workstation environment gates rather than production schema-lineage gaps.
 
 ## Lara scope
 
