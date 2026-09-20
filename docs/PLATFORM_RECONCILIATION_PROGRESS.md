@@ -62,8 +62,9 @@ Verified on **2026-09-20**:
 - Login: 5 attempts/15 minutes/IP.
 - Forgot password: 3 requests/hour/IP.
 - Resend verification: 5 requests/hour/IP.
-- Contact: 5 requests/hour/IP.
-- Protected database rate limiting fails closed when its privileged dependency is unavailable.
+- Contact: 5 requests/hour/IP via the constrained public database RPC.
+- Public auth/CSRF/CSP/contact rate limiting uses the publishable-key path and fails closed when the RPC is unavailable.
+- Protected database rate limiting continues to fail closed when its privileged dependency is unavailable.
 
 ### Runtime retirement
 
@@ -80,7 +81,7 @@ The repository migration directory now contains the complete authoritative **51-
 
 This reconciliation gap is **resolved**. Issue #30 is closed, and the repository and live ledger now reconcile 51/51. The remaining workstation-only acceptance checks are local Postgres recreation and exact local type generation. These are environmental proof gates only; production is not used as their fallback.
 
-1. Reproduce the 41 migration chain locally with `supabase db reset` when workstation Docker resources permit.
+1. Reproduce the 51 migration chain locally with `supabase db reset` when workstation Docker resources permit.
 2. Generate/check local Supabase types from that local stack.
 3. Keep the migration verifier and self-hosted verification as the repository regression gate.
 
