@@ -16,7 +16,7 @@ Verified on **2026-09-20** against the connected Supabase project and the live V
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
-PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests. PR #41 restored the remaining production-recorded Aqarat migration revisions, bringing the executable repository lineage to 52/52, and removed the stale privileged-key dependency from the public rate-limit/contact paths; it did not invent replacement Aqarat contracts.
+PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests. PR #41 restored the remaining production-recorded Aqarat migration revisions, bringing the executable repository lineage to 51/51, and removed the stale privileged-key dependency from the public rate-limit/contact paths; PR #42 adds the final public SECURITY DEFINER hardening migration, bringing the lineage to 52/52. No replacement Aqarat contracts were invented.
 
 This README records the certified **runtime baseline**. Documentation-only commits may advance `main` and trigger new Vercel deployments without changing that runtime contract; runtime-affecting changes require a fresh verification cycle.
 
