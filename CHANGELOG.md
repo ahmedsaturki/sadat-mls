@@ -6,7 +6,7 @@
 
 - ✅ دمج PR #41 عند `1bc3a3de977917d6a973c4f05f7d9930e1a9e726`.
 - ✅ نشر production deployment `dpl_9op1XKW8jKRXZnqJNGAs9esSWbm6` → READY.
-- ✅ استعادة الـ6 migrations الإنتاجية التي كانت مفقودة من المستودع، ثم إضافة 4 migrations تشغيلية مرتبطة بالـpublic runtime، منها hardening نهائي لـSECURITY DEFINER search_path؛ أصبح lineage **52/52** حتى `20260920201858`.
+- ✅ استعادة الـ6 migrations الإنتاجية التي كانت مفقودة من المستودع، ثم إضافة 4 migrations تشغيلية مرتبطة بالـpublic runtime ضمن PR #41؛ أصبح lineage **51/51**. وبعدها أضاف PR #42 migration hardening النهائي لـSECURITY DEFINER search_path، فأصبح lineage **52/52** حتى `20260920201858`.
 - ✅ نقل public auth/CSRF/CSP/contact rate limiting بعيدًا عن الاعتماد على privileged Supabase key.
 - ✅ إضافة constrained public contact RPC مع fail-closed behavior.
 - ✅ تحديث generated Supabase types وإضافة regression/E2E coverage.
