@@ -9,16 +9,16 @@ Verified on **2026-09-20** against the connected Supabase project and the live V
 - Production: https://sadat-mls.vercel.app
 - GitHub: `ahmedsaturki/sadat-mls`
 - Supabase project: `aaxauqznfhcvgevfczye`
-- Latest verified runtime release baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (merged PR #33)
-- Production deployment for that runtime baseline: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (READY)
-- Independent self-hosted verification run #70: SUCCESS on the merged main commit, including migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check
+- Latest verified runtime release baseline: `8fae65aca77751b45ffef7141d7d55cc7c87e8db` (merged PR #38)
+- Production deployment for that runtime baseline: `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` (READY)
+- Independent self-hosted verification run #90: SUCCESS on the merged main commit, including migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check
 - Production smoke verification on 2026-09-20: `/api/health`, `/api/properties`, `/en/explore`, `/en/explore/{id}`, and the public localized routes tested during the release sweep returned HTTP 200.
 - Verified live active properties: 2
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
 PR #26 retired unsupported notification, office-comparison, and historical dashboard execution paths and removed their dead clients/tests. PR #28 additionally removed an unadvertised mock AI-description endpoint, a browser-only saved-search hook, a disabled FavoriteButton, and their obsolete tests. PR #33 restored the authoritative 41-migration Aqarat OS lineage and made the local migration verifier deterministic; it did not invent replacement Aqarat contracts.
 
-This README records the certified **runtime baseline**. Documentation-only commits may advance `main` and trigger new Vercel deployments without changing that runtime contract; runtime-affecting changes require a fresh verification cycle.
+This README records the certified **runtime baseline** after PR #38. Documentation-only commits may advance `main` and trigger new Vercel deployments without changing that runtime contract; runtime-affecting changes require a fresh verification cycle.
 
 ## What is delivered
 
@@ -87,19 +87,19 @@ The live schema currently has no `offices`, `public.users`, `zones`, `property_i
 
 ## Verification baseline
 
-The current certified runtime remains the public Aqarat OS contract after PR #33. The verified baseline was checked with:
+The current certified runtime remains the public Aqarat OS contract after PR #38. The verified baseline was checked with:
 
 - `/api/health` → HTTP 200 with Supabase/property checks OK.
 - `/api/properties` → HTTP 200.
 - Representative property filters → HTTP 200.
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Vercel production deployment `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` → READY for merge commit `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
-- Post-merge self-hosted verification run #70 → SUCCESS, including authoritative migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
+- Vercel production deployment `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` → READY for merge commit `8fae65aca77751b45ffef7141d7d55cc7c87e8db` (PR #38).
+- Post-merge self-hosted verification run #90 → SUCCESS, including authoritative migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
 - Production runtime logs after the new deployment show successful public health, property API, and property-detail requests; the only rate-limit failures in the current one-hour sweep are timestamped 04:52 UTC on the previous deployment.
 - Production security headers remained present, including CSP, HSTS, X-Frame-Options DENY, and X-Content-Type-Options.
 
-The hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, and production-gate jobs. Recent hosted failures remain isolated to hosted job admission before any job steps are created; the dedicated self-hosted verification passed the same release end-to-end. The hosted gates were not weakened.
+The hosted CI workflow remains independent because it contains secret-dependent type-generation, E2E, build, and production-gate jobs. Post-merge hosted CI/CD run #786 is the current verification run for PR #38; the hosted gates were not weakened.
 
 ## Engineering rules
 
@@ -112,7 +112,7 @@ The hosted CI workflow remains independent because it contains secret-dependent 
 - Keep unknown mappings explicitly unknown until verified.
 - Run the self-hosted verification companion on PRs and every push to `main`.
 - Treat the 41-version Aqarat OS migration lineage as the current schema source of truth.
-- Treat Issue #25 as an external GitHub-hosted runner admission/infrastructure investigation; do not weaken repository gates to hide it.
+- Issue #25 is closed; the current hosted CI/CD pipeline is passing on the PR #38 merge.
 - Treat Issue #24 as an intentional authoritative-contract backlog for features that cannot safely be recreated from the current live schema.
 
 ## Development
