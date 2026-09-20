@@ -6,11 +6,11 @@
 
 Verified on **2026-09-20**:
 
-- Certified runtime baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
-- Documentation-only follow-ups after PR #33 may advance `main` without changing the certified runtime contract; the current `main` commit is `de6fc890d4778c9984e56a32abcc0d07b52a40da`.
-- Certified runtime production deployment: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (**READY**).
-- Self-hosted runtime verification run #70: **SUCCESS**.
-- Hosted CI run #706 rerun attempt 2: **FAILURE before any job steps were created**; tracked separately under Issue #25.
+- Certified runtime baseline: `8fae65aca77751b45ffef7141d7d55cc7c87e8db` (PR #38).
+- PR #38 is now merged and `main` is at `8fae65aca77751b45ffef7141d7d55cc7c87e8db`.
+- Certified runtime production deployment: `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` (**READY**).
+- Self-hosted runtime verification run #90: **SUCCESS**.
+- Hosted CI/CD run #786: **post-merge release verification in progress/completing**; historical admission failures are closed under Issue #25.
 - Production runtime error sweep for the selected 24-hour window: no runtime errors.
 
 ## Verified live database facts — 2026-09-20
