@@ -71,7 +71,7 @@ Current verified limits:
 
 Public property/health endpoints use bounded in-memory limiters so public reads do not depend on privileged Supabase credentials.
 
-Public auth/CSRF/CSP/contact rate-limit operations use constrained `SECURITY DEFINER` RPCs exposed only to `anon`, with a strict action allowlist, and **fail closed** when the RPC is unavailable. Protected operational endpoints continue to use the privileged database security rate-limit primitive and **fail closed** when that dependency is unavailable.
+Public auth/CSRF/CSP/contact rate-limit operations use constrained `SECURITY DEFINER` RPCs exposed only to `anon`, with a strict action allowlist, and **fail closed** when the RPC is unavailable. Both functions pin `search_path` to the empty path and schema-qualify the application-specific `public.person_role` type; this removes search-path hijacking risk from the definer execution context. Protected operational endpoints continue to use the privileged database security rate-limit primitive and **fail closed** when that dependency is unavailable.
 
 ## Input validation and output handling
 
