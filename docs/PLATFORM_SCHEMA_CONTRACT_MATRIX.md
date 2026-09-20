@@ -44,7 +44,7 @@ Internal fields excluded from the public grant:
 
 `confidence`, `parcel_number`, `installments_clear`, `canonical_key`.
 
-This contract is implemented in Supabase and consumed through `createPublicReadClient()`.
+Public contact persistence is implemented through the constrained `submit_public_contact(...)` SECURITY DEFINER RPC, with execution restricted to `anon`. Public auth/CSRF/CSP/contact rate limiting uses the constrained `increment_public_rate_limit(...)` RPC. Neither RPC grants direct table access.
 
 ## Migration history
 
