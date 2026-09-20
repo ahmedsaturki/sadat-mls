@@ -41,6 +41,12 @@ health_timeout = "10m"
 # server_version;` on the remote database to check.
 major_version = 17
 
+[db.settings]
+shared_buffers = "96MB"
+work_mem = "4MB"
+maintenance_work_mem = "32MB"
+max_connections = 40
+
 [db.pooler]
 enabled = false
 # Port to use for the local connection pooler.
