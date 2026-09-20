@@ -60,9 +60,9 @@ Current production verification includes:
 - `/ar/explore` and `/en/explore` → HTTP 200.
 - Active property detail routes → HTTP 200.
 - `/ar/login` → HTTP 200.
-- Latest production runtime error sweep → no runtime errors in the selected verification window.
+- Post-merge runtime verification on the new production deployment returned successful health/property/detail requests; older rate-limit errors were tied to the previous deployment.
 
-The production deployment for the current main HEAD is READY.
+The production deployment for the merged main runtime is READY. The documentation-only follow-up is now also deployed from `main`.
 
 ## Intentionally unresolved contracts
 
@@ -85,3 +85,11 @@ These items remain fail-closed/retired. They are not represented as complete fea
 - Never infer authorization roles from user-editable metadata.
 - Never expose internal Aqarat property fields through public convenience queries.
 - Never mark an unknown relationship as resolved without authoritative evidence.
+
+
+## Migration lineage release note
+
+- Authoritative production migration ledger: **41/41** reconciled through `20260918171827`.
+- Repository baseline merge: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` via PR #33.
+- Self-hosted Verification run #70: **SUCCESS** across migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
+- Issue #30: **closed** after authoritative lineage reconstruction.
