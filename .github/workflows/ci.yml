@@ -186,11 +186,34 @@ jobs:
           set -euo pipefail
           for attempt in {1..20}; do
             if curl --fail --silent --show-error --max-time 15 "https://sadat-mls.vercel.app/api/health" | grep -q '"status":"ok"'; then
-              echo "Production health check passed."
-              exit 0
+              echo "Production health endpoint passed."
+              break
+            fi
+            if [[ "$attempt" == "20" ]]; then
+              echo "::error::Production health endpoint did not become healthy."
+              exit 1
             fi
             echo "Health check attempt ${attempt}/20 did not pass; retrying."
             sleep 10
           done
-          echo "::error::Production health endpoint did not become healthy."
-          exit 1
+
+          rate_status="$(curl --silent --show-error --max-time 15 \
+            --output /tmp/auth-rate-limit.json \
+            --write-out '%{http_code}' \
+            --request POST \
+            --header 'Content-Type: application/json' \
+            "https://sadat-mls.vercel.app/api/auth/rate-limit")"
+
+          if [[ "$rate_status" != "200" ]]; then
+            echo "::error::Production auth rate-limit readiness failed with HTTP $rate_status."
+            cat /tmp/auth-rate-limit.json
+            exit 1
+          fi
+
+          if ! grep -q '"allowed":true' /tmp/auth-rate-limit.json; then
+            echo "::error::Production auth rate-limit readiness returned an unexpected response."
+            cat /tmp/auth-rate-limit.json
+            exit 1
+          fi
+
+          echo "Production health and auth rate-limit readiness checks passed."
