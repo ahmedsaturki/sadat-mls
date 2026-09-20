@@ -32,7 +32,7 @@ Browser and normal server-side Auth clients use the verified project URL and pub
 
 `src/lib/supabase/public-config.ts`
 
-The privileged key is never shipped to the browser. Server-only privileged operations read it from environment configuration.
+The privileged key is never shipped to the browser. Server-only privileged operations read it from environment configuration. Public auth/CSRF/CSP/contact rate-limit operations do not require this key.
 
 ## Authentication
 
@@ -71,7 +71,7 @@ Current verified limits:
 
 Public property/health endpoints use bounded in-memory limiters so public reads do not depend on privileged Supabase credentials.
 
-Protected operational endpoints use the database security rate-limit primitive and **fail closed** when that dependency is unavailable.
+Public auth/CSRF/CSP/contact rate-limit operations use constrained `SECURITY DEFINER` RPCs exposed only to `anon`, with a strict action allowlist, and **fail closed** when the RPC is unavailable. Protected operational endpoints continue to use the privileged database security rate-limit primitive and **fail closed** when that dependency is unavailable.
 
 ## Input validation and output handling
 
@@ -93,7 +93,7 @@ No compatibility tables or guessed relationships are introduced merely to make t
 
 ## Database advisory state
 
-The connected Supabase security advisor currently reports only informational notices that `rate_limit_state` and `security_rate_limits` have RLS enabled without public policies. These tables are private operational state and are intentionally not exposed to `anon` or ordinary authenticated reads.
+The connected Supabase security advisor currently reports two intentional INFO notices for the private RLS-only rate-limit tables, plus WARN notices for the two public `SECURITY DEFINER` RPCs. The RPCs are deliberately public for the anonymous login/contact use-cases, but execution is limited to `anon` and the functions accept only explicitly allowlisted actions. The operational tables remain private and are not directly exposed.
 
 The performance advisor reports unused indexes. They are not removed solely because they are unused in the current low-volume dataset; deletion requires workload evidence.
 
