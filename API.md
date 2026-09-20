@@ -118,7 +118,7 @@ Consumes one forgot-password rate-limit slot for the requesting IP through the s
 - Limit: 3 requests / hour.
 - No request body is required.
 - `429` indicates the window is exhausted.
-- `503` indicates the protected rate-limit dependency is unavailable.
+- `503` indicates the public rate-limit RPC dependency is unavailable.
 
 ### POST /api/auth/resend-verification
 
@@ -128,7 +128,7 @@ Resends a signup verification email; its public rate-limit gate uses the constra
 - Limit: 5 requests / hour.
 - Body: `{ "email": "user@example.com" }`.
 - `429` indicates the resend window is exhausted.
-- `503` indicates the protected rate-limit dependency is unavailable.
+- `503` indicates the public rate-limit RPC dependency is unavailable.
 
 ### GET /api/auth/csrf-token
 
