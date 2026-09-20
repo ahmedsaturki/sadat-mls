@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { checkApiRateLimit } from "@/lib/security/rateLimit";
 import { validateCsrfToken } from "@/lib/security/csrf";
 import { logger } from "@/lib/logger";
 import { createPublicApiClient } from "@/lib/supabase/public-api";
@@ -23,31 +22,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
   }
 
-  const ip =
-    request.headers.get("cf-connecting-ip") ||
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
-
-  const rate = await checkApiRateLimit(`contact-post:${ip}`, undefined, {
-    maxRequests: 5,
-    windowMs: 60 * 60 * 1000,
-  });
-
-  if (rate.unavailable) {
-    return NextResponse.json(
-      { error: "Rate limiting temporarily unavailable" },
-      { status: 503, headers: rate.headers || { "Retry-After": String(rate.retryAfter) } },
-    );
-  }
-
-  if (!rate.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      { status: 429, headers: rate.headers },
-    );
-  }
-
   let body: unknown;
   try {
     body = await request.json();
@@ -64,6 +38,11 @@ export async function POST(request: NextRequest) {
   }
 
   const raw = parsed.data;
+  const ip =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
 
   try {
     const supabase = createPublicApiClient();
@@ -80,16 +59,16 @@ export async function POST(request: NextRequest) {
     if (error) {
       logger.error("Public contact RPC failed", { error: error.message });
       return NextResponse.json(
-        { error: "Failed to create contact request" },
-        { status: 500 },
+        { error: "Contact service temporarily unavailable" },
+        { status: 503, headers: { "Retry-After": "30" } },
       );
     }
 
     if (!result || typeof result !== "object") {
       logger.error("Public contact RPC returned an invalid response");
       return NextResponse.json(
-        { error: "Failed to create contact request" },
-        { status: 500 },
+        { error: "Contact service temporarily unavailable" },
+        { status: 503, headers: { "Retry-After": "30" } },
       );
     }
 
