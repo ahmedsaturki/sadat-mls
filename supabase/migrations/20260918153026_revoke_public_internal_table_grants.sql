@@ -1,5 +1,4 @@
--- Defense-in-depth: internal Aqarat relations are never directly exposed
--- to anonymous or ordinary authenticated PostgREST clients.
+
 revoke all on table public.contacts from anon, authenticated;
 revoke all on table public.discovery_entities from anon, authenticated;
 revoke all on table public.entity_matches from anon, authenticated;
