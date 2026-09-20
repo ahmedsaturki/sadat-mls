@@ -26,7 +26,15 @@ function needsAuth(pathname: string): boolean {
 }
 
 /** Determine locale from request or fallback to Arabic */
-function getLocale(request: NextRequest): string {
+export function getLocale(request: NextRequest): string {
+  const { pathname } = request.nextUrl;
+  const pathLocale = locales.find(
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
+  );
+  if (pathLocale) {
+    return pathLocale;
+  }
+
   const acceptLanguage = request.headers.get("accept-language");
   if (acceptLanguage) {
     const preferred = acceptLanguage.split(",")[0].split("-")[0];

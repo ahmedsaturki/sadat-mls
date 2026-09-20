@@ -62,3 +62,17 @@ test.describe("XSS Prevention", () => {
     }
   });
 });
+
+test.describe("Authentication redirect security", () => {
+  test("preserves an explicit Arabic locale on protected redirects", async ({ page }) => {
+    await page.setExtraHTTPHeaders({ "accept-language": "en-US,en;q=0.9" });
+    await page.goto("/ar/dashboard/favorites");
+    await expect(page).toHaveURL(/\/ar\/login(?:\?|$)/);
+  });
+
+  test("preserves an explicit English locale on protected redirects", async ({ page }) => {
+    await page.setExtraHTTPHeaders({ "accept-language": "ar-EG,ar;q=0.9" });
+    await page.goto("/en/dashboard/favorites");
+    await expect(page).toHaveURL(/\/en\/login(?:\?|$)/);
+  });
+});

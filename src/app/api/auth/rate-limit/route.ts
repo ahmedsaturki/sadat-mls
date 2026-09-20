@@ -8,8 +8,11 @@ const LOGIN_RATE_LIMIT = {
 };
 
 export async function POST(request: NextRequest) {
-  const rawIp = request.headers.get("x-forwarded-for") || "unknown";
-  const ip = rawIp.split(",")[0].trim();
+  const ip =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
 
   const rate = await checkAuthRateLimit(`login:${ip}`, LOGIN_RATE_LIMIT);
 

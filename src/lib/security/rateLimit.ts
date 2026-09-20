@@ -87,6 +87,25 @@ function sanitizeIpForInet(ip: string): string {
   return isValidIp(ip) ? ip : "0.0.0.0";
 }
 
+function describeRateLimitError(error: unknown): { name?: string; message: string; code?: string; details?: string; hint?: string } {
+  if (error instanceof Error) {
+    return { name: error.name, message: error.message };
+  }
+
+  if (error && typeof error === "object") {
+    const candidate = error as Record<string, unknown>;
+    return {
+      message: typeof candidate.message === "string" ? candidate.message : "Unknown rate-limit database error",
+      ...(typeof candidate.name === "string" ? { name: candidate.name } : {}),
+      ...(typeof candidate.code === "string" ? { code: candidate.code } : {}),
+      ...(typeof candidate.details === "string" ? { details: candidate.details } : {}),
+      ...(typeof candidate.hint === "string" ? { hint: candidate.hint } : {}),
+    };
+  }
+
+  return { message: String(error) };
+}
+
 function buildResult(count: number, maxRequests: number, resetTime: number, retryAfter: number) {
   return {
     allowed: count <= maxRequests,
@@ -201,7 +220,7 @@ export async function rateLimitMiddleware(request: NextRequest, config: RateLimi
     return null;
   } catch (error) {
     logger.error("Rate limiting unavailable; failing closed", {
-      error: error instanceof Error ? error.message : String(error),
+      error: describeRateLimitError(error),
     });
     return NextResponse.json(
       { error: "Rate limiting temporarily unavailable" },
@@ -247,7 +266,7 @@ export async function checkApiRateLimit(
     return { ...buildResult(count, maxRequests, resetTime, retryAfter), unavailable: false };
   } catch (error) {
     logger.error("API rate limit unavailable; failing closed", {
-      error: error instanceof Error ? error.message : String(error),
+      error: describeRateLimitError(error),
     });
     return { ...buildResult(maxRequests + 1, maxRequests, Date.now() + 30000, 30), unavailable: true };
   }
