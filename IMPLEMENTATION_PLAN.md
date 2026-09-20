@@ -4,13 +4,13 @@
 
 **PRODUCTION VERIFIED — 2026-09-20**
 
-The certified runtime contract is the merged PR #33 Aqarat OS baseline:
+The certified runtime contract is the merged PR #38 Aqarat OS baseline:
 
-- Runtime release baseline: `8a1207260cc1bd8345cedfb623d2fe8c3b22e39d` (PR #33).
-- Production deployment for that runtime baseline: `dpl_DXEib3c7bWprTE12u7LutH1Ka7q5` (**READY**).
-- `main` now contains documentation-only follow-ups after PR #33; these do not change the certified runtime contract.
-- Independent self-hosted verification run #70: **SUCCESS** across migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
-- Hosted CI job-admission failures remain isolated under Issue #25; the repository has not weakened hosted gates.
+- Runtime release baseline: `8fae65aca77751b45ffef7141d7d55cc7c87e8db` (PR #38).
+- Production deployment for that runtime baseline: `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` (**READY**).
+- `main` is now the verified PR #38 runtime release; subsequent documentation-only commits do not change the certified runtime contract.
+- Independent self-hosted verification run #90: **SUCCESS** across migration verification, lint, adapter smoke, typecheck, schema contract, 42 files / 677 tests, build, and diff check.
+- Hosted CI/CD post-merge verification run #786 is the current hosted release gate; the repository has not weakened hosted gates.
 - Production runtime verification for the current production deployment is healthy; older rate-limit failures were isolated to a previous deployment.
 
 This record is the release source for exact verified baseline identifiers. Subsequent documentation-only commits may advance `main` without changing the certified runtime contract; any runtime-affecting change requires a fresh verification cycle.
@@ -74,8 +74,8 @@ No replacement compatibility schema was invented.
 
 Verified against the production deployment of the certified runtime baseline:
 
-- `dpl_4BCsj35gTojSyWrPKxhsX1hny4RZ` → **READY**, production, runtime commit `22f366cbc00200a1c19f249bfb4f2136a599de30`.
-- Self-hosted verification run #50 → **SUCCESS**.
+- `dpl_7rPQVen2sF1qCiwcgCiHJdKvzppq` → **READY**, production, runtime commit `22f366cbc00200a1c19f249bfb4f2136a599de30`.
+- Self-hosted verification run #90 → **SUCCESS**.
 - `GET /api/health` → HTTP 200 with Supabase/property checks OK.
 - `GET /api/properties` → HTTP 200.
 - Arabic/English Explore routes → HTTP 200.
@@ -117,7 +117,7 @@ Before implementing favorites, saved searches, Auth ↔ `people` identity/organi
 
 ### Issue #25 — hosted CI admission
 
-The hosted workflow remains independent. Runs #706 attempt 2 and #713 continue to fail before steps are created. The repository gates have not been weakened and the dedicated self-hosted verification remains green.
+**Closed.** The current hosted pipeline completed its post-merge verification for PR #38; historical hosted admission failures no longer describe the current release state.
 
 ### Issue #30 — schema-lineage reproducibility
 
